@@ -10,7 +10,8 @@ export default function CheckoutPage({
   event_name: string
   event_location: string
 }) {
-  const { isAuthenticated, isFan } = useAfroStore()
+  const { isAuthenticated, isFan, user} = useAfroStore()
+  console.log(isAuthenticated, isFan, user)
 
   const isFanAccount = isAuthenticated && isFan
 

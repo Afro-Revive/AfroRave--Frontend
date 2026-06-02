@@ -31,6 +31,7 @@ function useProfileCompletion() {
 export default function VendorDiscoverPage() {
   const completionPercentage = useProfileCompletion()
   const { data: response, isPending: isLoading } = useGetVendorAvailableEvents()
+  console.log(response)
 
   const events = response?.data
 

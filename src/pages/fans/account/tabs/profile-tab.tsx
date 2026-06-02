@@ -31,6 +31,7 @@ export default function ProfileTab() {
 
   useEffect(() => {
     if (profileData) {
+      console.log(profileData)
       const transformedData = transformProfileFromResponse(profileData.data)
       form.reset(transformedData)
     }
