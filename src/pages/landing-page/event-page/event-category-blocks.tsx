@@ -82,6 +82,7 @@ export default function EventCategoryBlocks() {
     () => filterEvents(allEvents, searchParams),
     [allEvents, searchParams]
   )
+  console.log('Filtered events:', trendingEventResponse)
 
   const activeFilters = [
     searchParams.get('q'),
@@ -112,6 +113,7 @@ export default function EventCategoryBlocks() {
             venue: event.venue,
             startDate: event.startDate,
             startTime: event.startTime,
+            customUrl: event.customUrl,
           }))}
           showLocation={false}
           isLoading={isLoadingTrending}
@@ -177,6 +179,7 @@ export default function EventCategoryBlocks() {
             image: event.metadata.desktopMedia.flyer,
             startDate: event.startDate,
             startTime: event.startTime,
+            customUrl: event.customUrl,
           }))}
           showLocation={true}
           isLoading={isLoadingAllEvent}

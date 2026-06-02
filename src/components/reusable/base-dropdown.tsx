@@ -86,7 +86,7 @@ function BaseDropdown({
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
       <DropdownMenuTrigger asChild>{trigger}</DropdownMenuTrigger>
       <DropdownMenuContent
-        className={` py-2 rounded-lg min-w-[150px] bg-medium-gray text-white border-none ${className}`}
+        className={` py-2 rounded-lg w-fit font-sf-pro-display bg-[#595959]/50 text-white border-none ${className}`}
         align={align}
         side={side}
         onCloseAutoFocus={(event) => {
@@ -99,7 +99,7 @@ function BaseDropdown({
         {items.map((item, index) => (
           <DropdownMenuItem
             key={item.label}
-            className={`px-2 py-2 cursor-pointer w-full text-white min-w-[150px] rounded-none ${
+            className={`cursor-pointer w-fit font-sf-pro-display text-white min-w-[150px] rounded-none ${
               index !== items.length - 1 ? 'border-b border-white' : ''
             }`}
             onSelect={(event) => {
@@ -112,7 +112,7 @@ function BaseDropdown({
             {item.to ? (
               <Link
                 to={item.to}
-                className='flex items-center w-full text-base font-input-mono  font-light'
+                className='flex items-center text-base font-input-mono  font-light'
                 onClick={(e) => {
                   e.stopPropagation()
                   setIsOpen(false)
@@ -127,7 +127,7 @@ function BaseDropdown({
                   setIsOpen(false)
                   item.onClick?.()
                 }}
-                className='flex items-center w-full text-base font-input-mono font-light'
+                className='flex items-center w-full text-base font-sf-pro-text font-light'
                 type='button'>
                 {item.icon && <span className='mr-3'>{item.icon}</span>}
                 {item.label}

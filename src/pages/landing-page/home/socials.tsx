@@ -3,8 +3,8 @@ import clsx from "clsx";
 
 export default function Socials() {
   return (
-    <section className="md:min-h-screen w-full flex flex-col gap-3 md:-mt-9 z-[9999]">
-      <p className="container font-input-mono font-bold text-base uppercase">
+    <section className="relative md:min-h-screen w-full flex flex-col gap-3 md:-mt-9 z-[9999]">
+      <p className="ml-16 container text-white font-sf-pro-display md:text-base font-bold text-base uppercase">
         Socials
       </p>
 

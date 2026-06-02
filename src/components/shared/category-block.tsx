@@ -3,6 +3,7 @@ import { cn } from '@/lib/utils'
 import { getRoutePath } from '@/config/get-route-path'
 import { CalendarDays, MapPin } from 'lucide-react'
 import { RenderEventImage } from './render-event-flyer'
+import { formatEventDate, formatEventTime } from '@/lib/helper-func'
 
 export function CategoryBlock({
   name,
@@ -14,6 +15,7 @@ export function CategoryBlock({
   isLoading = false,
 }: ICategoryBlock) {
   const filteredData = homePage ? data?.slice(0, 5) : data
+  console.log(filteredData)
 
   if (isLoading) {
     return <CategoryBlockSkeleton name={name} />
@@ -35,6 +37,7 @@ export function CategoryBlock({
             <EventCard
               key={item.eventId}
               id={item.eventId}
+              customUrl={item.customUrl}
               image={item.image}
               event_location={item.venue}
               event_date={item.startDate}
@@ -63,13 +66,14 @@ function EventCard({
   event_name,
   event_location,
   event_date,
+  customUrl,
   start_time,
   showLocation,
   layout = 'start',
 }: IEventCardProps) {
   return (
     <Link
-      to={getRoutePath('individual_event', { eventId: id })}
+      to={getRoutePath('individual_event', { eventId: customUrl })}
       className={cn(
         'flex flex-col gap-1 min-w-[125px] md:min-w-[195px] md:w-fit max-w-[195px] md:max-w-full lg:min-w-[200px] lg:max-w-[220px]',
         {
@@ -85,7 +89,7 @@ function EventCard({
 
       <div className='flex flex-col gap-1 md:gap-2 py-2 px-1'>
         <p
-          className={cn('text-sm md:text-base font-bold font-sf-pro-display uppercase', {
+          className={cn('text-sm md:text-base font-black font-sf-pro-display uppercase', {
             'text-start md:text-center': layout === 'middle',
             'text-start': layout === 'start',
           })}>
@@ -99,8 +103,8 @@ function EventCard({
                 'justify-center': layout === 'middle',
                 'justify-start': layout === 'start',
               })}>
-              <CalendarDays size={10} color='var(--foreground)' />
-              <EventDetailsParagraph text={`${event_date} at ${start_time}`} />
+              <MapPin size={10} color='var(--foreground)' />
+                <EventDetailsParagraph text={event_location} />
             </div>
           )}
 
@@ -108,8 +112,10 @@ function EventCard({
             className={cn('flex items-start gap-1.5', {
               'justify-center': layout === 'middle',
             })}>
-            {showLocation && <MapPin size={10} color='var(--foreground)' />}
-            <EventDetailsParagraph text={event_location} />
+            {showLocation &&
+             <CalendarDays size={10} color='var(--foreground)' />}
+              <EventDetailsParagraph text={`${formatEventDate(event_date)} at ${formatEventTime(start_time)}`} />
+         
           </div>
         </div>
       </div>
@@ -122,7 +128,7 @@ function CategoryBlockName({ name }: { name: string }) {
 }
 
 function EventDetailsParagraph({ text }: { text: string }) {
-  return <p className='font-sf-pro-display text-xs font-normal text-start -mt-0.5'>{text}</p>
+  return <p className='font-sf-pro-display text-xs font-normal text-secondary-white text-start -mt-0.5'>{text}</p>
 }
 
 export function CategoryBlockSkeleton({ name }: { name?: string }) {
@@ -170,6 +176,7 @@ interface IEventCardProps {
   isTrending?: boolean
   layout?: 'start' | 'middle'
   showLocation?: boolean
+  customUrl: string
 }
 
 interface IEventCardDataProps {
@@ -179,4 +186,5 @@ interface IEventCardDataProps {
   startDate: string
   eventName: string
   startTime: string
+  customUrl: string
 }

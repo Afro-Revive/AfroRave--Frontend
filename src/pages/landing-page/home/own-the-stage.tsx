@@ -27,7 +27,7 @@ export default function OwnTheStage() {
   })
 
   return (
-    <section className='relative flex flex-col gap-10 md:gap-[100px] py-[75px] pb-8 md:pb-[182px] w-full overflow-hidden'>
+    <section className='relative flex flex-col gap-10 md:gap-[100px] pb-8 md:pb-[182px] w-full overflow-hidden'>
       {/* Background layers */}
       <div className='absolute inset-0 bg-[url(/assets/landing-page/section-bg.png)] bg-cover bg-center [filter:grayscale(100%)_opacity(25%)]' />
       <div className='absolute inset-0 bg-gradient-to-b from-[#1e1f1f] via-transparent to-[#1e1f1f] from-[5%] via-50% to-[96%]' />
@@ -56,6 +56,7 @@ export default function OwnTheStage() {
                 image: event.desktopMedia?.flyer,
                 venue: event.venue,
                 startDate: event.startDate,
+                customUrl: event.customUrl,
                 startTime: event.startTime,
               }))}
             showLocation={true}

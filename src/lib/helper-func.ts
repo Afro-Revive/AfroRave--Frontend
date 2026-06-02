@@ -146,3 +146,30 @@ export function truncate(str: string, maxLength: number): string {
   }
   return `${str.slice(0, maxLength - 3)}...`
 }
+
+export function formatEventTime(timeString: string): string {
+  const [hourStr] = timeString.split(':')
+  const hour = parseInt(hourStr, 10)
+  if (isNaN(hour)) return timeString
+  const period = hour < 12 ? 'AM' : 'PM'
+  const hour12 = hour % 12 || 12
+  return `${hour12}${period}`
+}
+
+export function formatEventDate(dateString: string): string {
+  try {
+    const date = parseISO(dateString)
+    const day = format(date, 'd')
+    const suffix =
+      day === '1' || day === '21' || day === '31'
+        ? 'st'
+        : day === '2' || day === '22'
+          ? 'nd'
+          : day === '3' || day === '23'
+            ? 'rd'
+            : 'th'
+    return format(date, `EEEE MMM ${day}`) + suffix
+  } catch {
+    return dateString
+  }
+}

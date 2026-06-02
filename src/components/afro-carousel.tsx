@@ -63,7 +63,7 @@ export function AfroCarousel({
       {/* Prev arrow */}
       <button
         onClick={goToPrev}
-        className="absolute left-4 md:left-12 top-1/2 -translate-y-1/2 z-20 text-white opacity-70 hover:opacity-100 transition-opacity"
+        className="absolute left-4 md:left-12 top-1/2 -translate-y-1/2 z-20 text-white opacity-20 hover:opacity-80 transition-opacity"
       >
         <ChevronLeft className="w-8 h-8" />
       </button>
@@ -71,7 +71,7 @@ export function AfroCarousel({
       {/* Next arrow */}
       <button
         onClick={goToNext}
-        className="absolute right-4 md:right-12 top-1/2 -translate-y-1/2 z-20 text-white opacity-70 hover:opacity-100 transition-opacity"
+        className="absolute right-4 md:right-12 top-1/2 -translate-y-1/2 z-20 text-white opacity-20 hover:opacity-80 transition-opacity"
       >
         <ChevronRight className="w-8 h-8" />
       </button>

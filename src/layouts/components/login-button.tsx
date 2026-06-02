@@ -11,7 +11,7 @@ export default function LoginButton({ className }: { className?: string }) {
       trigger={
         <Button
           className={cn(
-            'h-6 w-[48px] rounded-[4px] bg-white text-[10px] text-black font-sf-pro-rounded hover:bg-white/90',
+            'h-6 w-14 rounded-sm bg-white text-[10px] text-black font-input-mono hover:bg-white/90',
             className,
           )}>
           Log In

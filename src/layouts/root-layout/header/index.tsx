@@ -25,7 +25,7 @@ export default function Header() {
   const showMinimalHeader = isLandingPage || isFansPage
 
   return (
-    <header className='w-full fixed top-0 flex justify-center z-50 h-[120px]'>
+    <header className='w-full fixed top-0 flex justify-center z-50 h-[90px]'>
       <div
         className={`absolute inset-0 transition-all duration-300 ${hasScrolled ? 'h-full bg-black/25 backdrop-blur-sm' : 'h-0'
           }`}

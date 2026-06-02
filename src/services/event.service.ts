@@ -97,6 +97,7 @@ class EventService {
    * Get an event by ID
    */
   async getEvent(eventId: string): Promise<EventDetailResponse> {
+    console.log('Fetching event with ID:', eventId)
     const response = await api.get(`/api/Event/${eventId}`)
     return response.data
   }
