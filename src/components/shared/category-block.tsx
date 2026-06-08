@@ -61,7 +61,6 @@ export function CategoryBlock({
 }
 
 function EventCard({
-  id,
   image,
   event_name,
   event_location,

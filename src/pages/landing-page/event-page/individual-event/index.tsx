@@ -1,15 +1,17 @@
 import { LoadingFallback } from '@/components/loading-fallback'
 import { SEO } from '@/components/seo'
 import { Button } from '@/components/ui/button'
-import { useGetEvent } from '@/hooks/use-event-mutations'
+import { useGetEventByCustomUrl } from '@/hooks/use-event-mutations'
 import { useParams } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
 import EventDetails from './event-details'
 
 export default function IndividualEventPage() {
   const { eventId } = useParams()
+  console.log(eventId)
 
-  const { data: eventResponse, isPending: isLoading } = useGetEvent(eventId || '')
+  const { data: eventResponse, isPending: isLoading } = useGetEventByCustomUrl(eventId || '')
+  console.log(eventResponse, isLoading)
 
   const event = eventResponse?.data
 
@@ -34,7 +36,7 @@ export default function IndividualEventPage() {
         title={`${event.eventName} - Afro Revive`}
         description={`Buy tickets for ${event.eventName} - Afro Revive`}
       />
-      <EventDetails event={event} layout={event.eventDetails.theme.themeName} />
+      <EventDetails event={event} layout={event.eventDetails?.theme?.themeName} />
     </>
   )
 }

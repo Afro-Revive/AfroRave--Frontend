@@ -11,9 +11,11 @@ const isDev =
   import.meta.env.MODE === 'development' ||
   window.location.hostname === 'localhost'
 
-const apiUrl = isDev
-  ? '' // Use relative URLs in development (proxy will handle it)
-  : import.meta.env.VITE_API_PROD || 'https://afro-revive-latest.onrender.com'
+// const apiUrl = isDev
+//   ? '' // Use relative URLs in development (proxy will handle it)
+//   : import.meta.env.VITE_API_PROD || 'https://afro-revive-latest.onrender.com'
+
+const apiUrl = "https://api.afrorevive.com"
 
 const api = axios.create({
   baseURL: apiUrl,

@@ -97,7 +97,6 @@ class EventService {
    * Get an event by ID
    */
   async getEvent(eventId: string): Promise<EventDetailResponse> {
-    console.log('Fetching event with ID:', eventId)
     const response = await api.get(`/api/Event/${eventId}`)
     return response.data
   }
@@ -230,6 +229,15 @@ class EventService {
    */
   async getEventVendors(eventId: string): Promise<EventVendorsResponse> {
     const response = await api.get(`/api/Event/${eventId}/vendors`)
+    return response.data
+  }
+
+  /**
+   * Get event details using customUrl
+   */
+
+  async getEventByCustomUrl(customUrl: string): Promise<EventDetailResponse> {
+    const response = await api.get(`/api/Event/url/${customUrl}`)
     return response.data
   }
 }

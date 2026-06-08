@@ -314,6 +314,14 @@ export function useGetEvent(eventId: string) {
   })
 }
 
+export function useGetEventByCustomUrl(customUrl:string){
+  return useQuery({
+    queryKey: eventKeys.detailUrl(customUrl),
+    queryFn: () => eventService.getEventByCustomUrl(customUrl),
+    enabled: !!customUrl
+  })
+}
+
 export function useGetTicket(ticketId?: string) {
   return useQuery({
     queryKey: ['ticket', ticketId],
