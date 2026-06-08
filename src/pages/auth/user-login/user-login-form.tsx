@@ -154,8 +154,8 @@ function InputContainer({
 const dummyLoginData: { type: LoginType; email: string; password: string }[] = [
   {
     type: 'creator',
-    email: 'organizer@gmail.com',
-    password: 'password',
+    email: 'iseoluwa@organizer.com',
+    password: 'password1234',
   },
   {
     type: 'vendor',

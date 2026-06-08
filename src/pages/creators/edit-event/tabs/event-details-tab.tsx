@@ -19,7 +19,7 @@ import { SelectField } from '../../add-event/component/select-field'
 import { transformEventDetailsToCreateRequest } from '@/lib/event-transforms'
 import { TabChildrenContainer } from '../component/edit-tab-children-container'
 
-export default function EventDetailsTab({ event, setActiveTab }: IEventDetailsTab) {
+export default function EventDetailsTab({ event, setActiveTab, handleBackClick }: IEventDetailsTab) {
   const eventDate = event.eventDate
   const eventId = event.eventId
 
@@ -38,7 +38,7 @@ export default function EventDetailsTab({ event, setActiveTab }: IEventDetailsTa
     defaultValues: transformEventToSchema(event, eventType),
   })
 
-  const { isDirty } = form.formState
+  // const { isDirty } = form.formState
 
   useEffect(() => {
     form.setValue('event_type', eventType)
@@ -67,7 +67,8 @@ export default function EventDetailsTab({ event, setActiveTab }: IEventDetailsTa
   return (
     <TabChildrenContainer
       handleSaveEvent={() => form.handleSubmit(onSubmit)()}
-      isLoading={isPending || isDirty}
+      handleBackClick={handleBackClick}
+      isLoading={isPending}
       currentTab='event-details'
       onChange={setActiveTab}>
       <div className='w-full flex flex-col items-center p-0 md:p-14 gap-2.5'>
@@ -328,6 +329,7 @@ function SectionHeader({ name }: { name: string }) {
 interface IEventDetailsTab {
   event: EventDetailData
   setActiveTab: (tab: string) => void
+  handleBackClick?: () => void
 }
 
 interface IEventDetailsForm {

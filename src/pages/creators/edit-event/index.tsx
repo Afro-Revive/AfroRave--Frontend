@@ -92,7 +92,7 @@ export default function EditEventPage() {
     {
       value: 'event-details',
       name: 'Event Details',
-      element: <EventDetailsTab event={event} setActiveTab={setActiveTabState} />,
+      element: <EventDetailsTab event={event} setActiveTab={setActiveTabState} handleBackClick={() => navigate(getRoutePath('standalone'))} />,
     },
     {
       value: 'tickets',

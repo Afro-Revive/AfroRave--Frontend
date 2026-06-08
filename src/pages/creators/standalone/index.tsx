@@ -89,7 +89,7 @@ function StandAloneHeader({
       <AddFilterBUtton activeFilter={activeFilter} onFilterChange={onFilterChange} />
 
       <div className='flex items-center gap-2 md:gap-4 lg:gap-8'>
-        <VendorSelect className='!w-[130px] sm:!w-[155px] md:!w-[180px]' />
+        <VendorSelect className='!w-fit sm:!w-[155px] md:!w-fit' />
 
         <Button variant='destructive' className='h-9 px-3 rounded-[6px] gap-1.5' asChild>
           <Link to={getRoutePath('add_event')}>

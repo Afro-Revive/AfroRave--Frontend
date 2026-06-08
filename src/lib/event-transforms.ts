@@ -43,7 +43,6 @@ export function convertTimezoneToUTCOffset(timezoneName: string): string {
  */
 export function transformEventDetailsToCreateRequest(
   formData: z.infer<typeof EditEventDetailsSchema>,
-  eventId?: string,
 ): CreateEventRequest {
   // Convert time format from 12-hour to 24-hour
   const convertTo24Hour = (hour: string, minute: string, period: 'AM' | 'PM'): string => {
@@ -58,9 +57,6 @@ export function transformEventDetailsToCreateRequest(
     return date.toISOString().split('T')[0]
   }
 
-  // Generate a unique event ID if not provided
-  const generatedEventId = eventId || crypto.randomUUID()
-
   // Convert timezone to UTC offset format
   const timezoneOffset = convertTimezoneToUTCOffset(formData.time_zone)
 
@@ -71,7 +67,6 @@ export function transformEventDetailsToCreateRequest(
     venue: formData.venue,
     description: formData.description,
     customUrl: formData.custom_url,
-    eventId: generatedEventId,
     eventDate: {
       timezone: timezoneOffset, // Use UTC offset instead of timezone name
       startDate: formatDate(formData.start_date.date),

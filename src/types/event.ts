@@ -36,7 +36,6 @@ export interface CreateEventRequest {
   venue: string
   description: string
   customUrl: string
-  eventId: string
   eventDate: EventDate
   eventDetails: EventDetails
 }

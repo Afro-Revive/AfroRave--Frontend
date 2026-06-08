@@ -82,6 +82,7 @@ export default function EventDetailsTab({ setStep, setActiveTabState }: IEventDe
 
   async function onSubmit(values: EventDetailsSchema) {
     const eventData = transformEventDetailsToCreateRequest(values)
+    console.log(eventData)
 
     await createEventMutation.mutateAsync(eventData, {
       onSuccess: (data) => {

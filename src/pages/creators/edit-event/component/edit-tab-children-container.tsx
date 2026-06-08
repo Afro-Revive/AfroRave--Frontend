@@ -24,7 +24,7 @@ export function TabChildrenContainer({
           variant='ghost'
           className='w-fit h-fit hover:bg-black/10 !p-1 flex items-center gap-3'
           onClick={handleBackClick}
-          disabled={currentTab === 'event-details'}>
+          disabled={!handleBackClick}>
           <ChevronLeft color='#000000' className='min-w-1.5 min-h-3' />
           <span className='text-sm font-medium leading-[100%] font-sf-pro-display text-[#0D0D0D]'>
             {buttonText}
