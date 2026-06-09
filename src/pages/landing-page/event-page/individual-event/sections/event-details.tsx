@@ -1,5 +1,4 @@
 import { cn } from '@/lib/utils'
-import CartTrigger from '../_components/cart-trigger'
 import type { EventDetailData } from '@/types'
 import { RenderEventImage } from '@/components/shared/render-event-flyer'
 
@@ -32,12 +31,6 @@ export default function EventDetailsSection({ event, layout }: ComponentProps) {
         </div>
       </div>
 
-      {layout === 'with-flyer' && (
-        <CartTrigger
-          event={event}
-          className='max-md:hidden py-6 px-4 rounded-t-[8px] bg-mid-dark-gray/50 absolute bottom-0 right-0 w-[562px]'
-        />
-      )}
     </div>
   )
 }

@@ -33,19 +33,10 @@ export default function EventDetails({ event, layout = 'default' }: IEventDetail
       <div className='max-w-[1536px] w-full flex flex-col gap-[60px] md:gap-[120px] -mt-[200px] xl:-mt-[475px] z-10'>
         {/** Contains the event-image and event-name */}
         <div className='flex flex-col gap-5 md:gap-0 md:items-end'>
-          {layout === 'with-flyer' ? (
-            <EventDetailsSection layout={layout} event={event} />
-          ) : (
-            <EventDetailsSection layout={layout} event={event} />
-          )}
-
-          {layout !== 'with-flyer' && (
-            <CartTrigger
-              event={event}
-              className='ml-[120px] max-md:hidden fixed bottom-6 right-4'
-            />
-          )}
+          <EventDetailsSection layout={layout} event={event} />
         </div>
+
+        <CartTrigger event={event} className='fixed bottom-6 right-4 z-[1001]' />
 
         {(layout === 'with-flyer' || layout === 'standard-carousel') && (
           <TicketSection layout={layout} eventId={event.eventId} />
@@ -66,8 +57,6 @@ export default function EventDetails({ event, layout = 'default' }: IEventDetail
         <ContactSection event={event} />
 
         <TermsSection />
-
-        <CartTrigger event={event} className='md:hidden bg-[#686868] rounded-t-[8px] px-4 py-6' />
       </div>
     </section>
   )
