@@ -56,7 +56,7 @@ export default function EventDetails({ event, layout = 'default' }: IEventDetail
         {/**Contact */}
         <ContactSection event={event} />
 
-        <TermsSection />
+        <TermsSection /> 
       </div>
     </section>
   )
