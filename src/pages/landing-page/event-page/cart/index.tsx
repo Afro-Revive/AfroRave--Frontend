@@ -1,15 +1,12 @@
 import BaseModal from '@/components/reusable/base-modal'
 import { Button } from '@/components/ui/button'
-import { DialogClose } from '@/components/ui/dialog'
 import { useGetAllCart } from '@/hooks/use-cart'
 import { useGetEventTickets } from '@/hooks/use-event-mutations'
-import { NavLogo } from '@/layouts/root-layout/header/nav-logo'
 import { formatNaira } from '@/lib/format-price'
 import { getCartTotals } from '@/lib/utils'
 import type { EventDetailData } from '@/types'
 import type { CartData } from '@/types/cart'
 import { useAfroStore, useCartStore } from '@/stores'
-import { X } from 'lucide-react'
 import { LoaderCircle } from 'lucide-react'
 import { useState } from 'react'
 import CheckoutPage from '../../checkout'
@@ -67,9 +64,6 @@ export default function Cart({ event }: CartProps) {
             }}
           />
         }>
-        {/* <div className='fixed top-0 left-0 w-full pointer-events-none'>
-          <NavLogo />
-        </div> */}
         <div className='flex flex-col h-fit w-full justify-center items-center mt-[100px]'>
           <CartContainer event={event} />
         </div>
@@ -77,19 +71,14 @@ export default function Cart({ event }: CartProps) {
 
       <BaseModal
         size='full'
-        className='bg-transparent'
+        className='bg-black !w-screen !h-screen !max-w-screen '
         floatingCancel
         removeCancel
         onClose={() => setCheckoutOpen(false)}
         open={checkoutOpen}>
-        <div className='w-full flex justify-between items-center px-8 !bg-transparent'>
-          <NavLogo />
-
-          <DialogClose className='bg-transparent !p-1 shadow-none !z-[1000]'>
-            <X size={16} color='#000000' strokeWidth={2} />
-          </DialogClose>
+        <div className='w-full flex justify-between items-center px-8'>          
         </div>
-        <CheckoutPage event_name={event.eventName} event_location={event.venue} />
+        <CheckoutPage event_name={event.eventName} event_location={event.venue} event_id={event.eventId} />
       </BaseModal>
     </>
   )

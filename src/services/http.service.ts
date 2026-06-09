@@ -6,10 +6,10 @@ export const multipartHeaders = {
 }
 
 // Force development mode for now to use proxy
-const isDev =
-  import.meta.env.DEV ||
-  import.meta.env.MODE === 'development' ||
-  window.location.hostname === 'localhost'
+// const isDev =
+//   import.meta.env.DEV ||
+//   import.meta.env.MODE === 'development' ||
+//   window.location.hostname === 'localhost'
 
 // const apiUrl = isDev
 //   ? '' // Use relative URLs in development (proxy will handle it)

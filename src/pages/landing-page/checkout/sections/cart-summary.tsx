@@ -1,9 +1,10 @@
 import { Input } from '@/components/ui/input'
 import { Badge, X } from 'lucide-react'
 import { formatNaira } from '@/lib/format-price'
-import { useGetAllCart } from '@/hooks/use-cart'
-import { getCartTotals } from '@/lib/utils'
-import { useValidatePromocode, useCheckoutCart, useClearCart } from '@/hooks/use-cart'
+import { useGetAllCart, useValidatePromocode, useCheckoutCart, useClearCart } from '@/hooks/use-cart'
+import { useGetEventTickets } from '@/hooks/use-event-mutations'
+import { useAfroStore, useCartStore } from '@/stores'
+import type { CartData } from '@/types/cart'
 import { useState } from 'react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -14,16 +15,45 @@ export default function CartSummary({
   name,
   location,
   isFanAccount = false,
+  eventId,
 }: {
   name: string
   location: string
   isFanAccount?: boolean
+  eventId?: string
 }) {
   const navigate = useNavigate()
   const [message, setMessage] = useState<string | null>(null)
   const [isValid, setIsValid] = useState<boolean | null>(null)
 
-  const cart = useGetAllCart().data?.data
+  const isAuthenticated = useAfroStore((state) => state.isAuthenticated)
+  const localItems = useCartStore((state) => state.items)
+  const { data: ticketsResponse } = useGetEventTickets(eventId ?? '')
+  const { data: serverCart } = useGetAllCart()
+
+  const cartItems = isAuthenticated
+    ? ((serverCart?.data ?? []) as unknown as CartData[]).map((item) => ({
+        cartId: String(item.cartId),
+        ticketId: item.ticketId,
+        eventId: item.eventId,
+        name: item.ticketName,
+        price: item.price,
+        quantity: item.quantity,
+      }))
+    : localItems.map((item) => {
+        const ticket = ticketsResponse?.data?.find((t) => t.ticketId === item.ticketId)
+        return {
+          cartId: item.ticketId,
+          ticketId: item.ticketId,
+          eventId: eventId ?? '',
+          name: ticket?.ticketName ?? 'Ticket',
+          price: ticket?.price ?? 0,
+          quantity: item.quantity,
+        }
+      })
+
+  const totalPrice = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
+  const totalQuantity = cartItems.reduce((sum, item) => sum + item.quantity, 0)
 
   const validatePromocodeMutation = useValidatePromocode()
   const checkoutMutation = useCheckoutCart()
@@ -34,10 +64,10 @@ export default function CartSummary({
       {
         data: {
           promoCode: promocode,
-          eventIds: cart?.map((item) => item.eventId) || [],
-          subtotal: getCartTotals(cart).totalPrice,
-          totalTickets: getCartTotals(cart).totalQuantity,
-          ticketIds: cart?.map((item) => item.ticketId) || [],
+          eventIds: cartItems.map((item) => item.eventId),
+          subtotal: totalPrice,
+          totalTickets: totalQuantity,
+          ticketIds: cartItems.map((item) => item.ticketId),
         },
       },
       {
@@ -79,10 +109,10 @@ export default function CartSummary({
       </div>
 
       <div className='w-full flex flex-col gap-7'>
-        {cart?.map((item) => (
+        {cartItems.map((item) => (
           <CartTicket
             key={item.cartId}
-            name={item.ticketName}
+            name={item.name}
             price={item.price}
             quantity={item.quantity}
           />
@@ -109,10 +139,7 @@ export default function CartSummary({
 
         <div className='w-full flex items-center justify-between'>
           <p className='font-sf-pro-display text-xl text-white leading-[100%]'>TOTAL:</p>
-
-          <p className='text-white font-sf-pro-text leading-[100%]'>
-            {formatNaira(getCartTotals(cart).totalPrice)}
-          </p>
+          <p className='text-white font-sf-pro-text leading-[100%]'>{formatNaira(totalPrice)}</p>
         </div>
 
         {isFanAccount && (

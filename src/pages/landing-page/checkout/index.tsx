@@ -2,13 +2,17 @@ import CartSummary from './sections/cart-summary'
 import { UserLoginForm } from '@/pages/auth/user-login/user-login-form'
 import { useAfroStore } from '@/stores'
 import { cn } from '@/lib/utils'
+import { DialogClose } from '@/components/ui/dialog'
+import { X } from 'lucide-react'
 
 export default function CheckoutPage({
   event_name,
   event_location,
+  event_id,
 }: {
   event_name: string
   event_location: string
+  event_id?: string
 }) {
   const { isAuthenticated, isFan, user} = useAfroStore()
   console.log(isAuthenticated, isFan, user)
@@ -16,7 +20,10 @@ export default function CheckoutPage({
   const isFanAccount = isAuthenticated && isFan
 
   return (
-    <section className='w-full min-h-screen flex'>
+    <section className='relative w-full min-h-screen flex'>
+      <DialogClose className='absolute top-4 right-4 bg-transparent shadow-none z-[1001] p-1'>
+        <X size={18} color='#000000' strokeWidth={3} />
+      </DialogClose>
       <div
         className={cn(
           'min-h-full flex items-center justify-end px-14 bg-gradient-to-b from-soft-gray via-cool-gray to-deep-gray backdrop-blur-[3px]',
@@ -25,7 +32,7 @@ export default function CheckoutPage({
             'w-1/2': !isFanAccount,
           },
         )}>
-        <CartSummary name={event_name} location={event_location} isFanAccount={isFanAccount} />
+        <CartSummary name={event_name} location={event_location} isFanAccount={isFanAccount} eventId={event_id} />
       </div>
 
       {!isFanAccount && (
