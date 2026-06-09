@@ -1,8 +1,10 @@
 import { getRoutePath } from '@/config/get-route-path'
 import { useAuth } from '@/contexts/auth-context'
+import { cartKeys } from '@/lib/cart-keys'
 import { authToasts, profileToasts } from '@/lib/toast'
 import authService from '@/services/auth.service'
-import { useAfroStore } from '@/stores'
+import { cartService } from '@/services/cart.service'
+import { useAfroStore, useCartStore } from '@/stores'
 import type {
   LoginData,
   OrganizerRegisterData,
@@ -174,6 +176,19 @@ export function useLogin() {
       // Store user data and token in store
       if (data.data.userData && data.data.token) {
         setAuth(data.data.userData, data.data.token)
+
+        // Sync local cart to server in the background
+        const localItems = useCartStore.getState().items
+        if (localItems.length > 0) {
+          Promise.allSettled(
+            localItems.map(({ ticketId, quantity }) =>
+              cartService.createCart({ ticketId, quantity }),
+            ),
+          ).then(() => {
+            useCartStore.getState().clearLocal()
+            queryClient.invalidateQueries({ queryKey: cartKeys.lists() })
+          })
+        }
 
         // Close auth modal
         closeAuthModal()

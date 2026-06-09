@@ -2,10 +2,13 @@ import BaseModal from '@/components/reusable/base-modal'
 import { Button } from '@/components/ui/button'
 import { DialogClose } from '@/components/ui/dialog'
 import { useGetAllCart } from '@/hooks/use-cart'
+import { useGetEventTickets } from '@/hooks/use-event-mutations'
 import { NavLogo } from '@/layouts/root-layout/header/nav-logo'
 import { formatNaira } from '@/lib/format-price'
 import { getCartTotals } from '@/lib/utils'
 import type { EventDetailData } from '@/types'
+import type { CartData } from '@/types/cart'
+import { useAfroStore, useCartStore } from '@/stores'
 import { X } from 'lucide-react'
 import { LoaderCircle } from 'lucide-react'
 import { useState } from 'react'
@@ -20,7 +23,18 @@ export default function Cart({ event }: CartProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [checkoutOpen, setCheckoutOpen] = useState(false)
 
+  const isAuthenticated = useAfroStore((state) => state.isAuthenticated)
+  const localItems = useCartStore((state) => state.items)
+  const { data: ticketsResponse } = useGetEventTickets(event.eventId)
   const { data, isLoading } = useGetAllCart()
+
+
+  const totalPrice = isAuthenticated
+    ? getCartTotals((data?.data ?? []) as unknown as CartData[]).totalPrice
+    : localItems.reduce((sum, item) => {
+        const ticket = ticketsResponse?.data?.find((t) => t.ticketId === item.ticketId)
+        return sum + (ticket?.price ?? 0) * item.quantity
+      }, 0)
 
   return (
     <>
@@ -29,33 +43,33 @@ export default function Cart({ event }: CartProps) {
         onClick={() => setIsOpen(true)}>
         <span className='text-sm'>Checkout</span>
         <span className='text-2xl'>
-          {isLoading ? (
+          {isAuthenticated && isLoading ? (
             <LoaderCircle color='#ffffff' size={24} className='animate-spin' />
           ) : (
-            formatNaira(getCartTotals(data?.data).totalPrice)
+            formatNaira(totalPrice)
           )}
         </span>
       </Button>
 
       <BaseModal
         size='full'
-        className='bg-transparent'
+        className='bg-black'
         floatingCancel
         onClose={() => setIsOpen(false)}
         open={isOpen}
         hasFooter
         footerContent={
           <FooterContent
-            totalPrice={getCartTotals(data?.data).totalPrice}
+            totalPrice={totalPrice}
             action={() => {
               setIsOpen(false)
               setCheckoutOpen(true)
             }}
           />
         }>
-        <div className='fixed top-0 left-0 w-full pointer-events-none'>
+        {/* <div className='fixed top-0 left-0 w-full pointer-events-none'>
           <NavLogo />
-        </div>
+        </div> */}
         <div className='flex flex-col h-fit w-full justify-center items-center mt-[100px]'>
           <CartContainer event={event} />
         </div>

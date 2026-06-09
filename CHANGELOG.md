@@ -65,6 +65,17 @@ All notable changes to this project will be documented in this file.
     - **Changed route path** from `/fans/creators` to `/creators` in `src/config/route-map.ts`.
     - All navigation links automatically updated via `getRoutePath('creators')` helper.
     - **Updated content padding** from `pt-32` to `pt-40 md:pt-36` to accommodate larger header.
+- **Guest Cart Support — Unauthenticated fans can now add tickets to cart**:
+    - Created `useCartStore` in `src/stores/index.ts` using Zustand `persist` middleware, storing `{ ticketId, quantity }` items in localStorage under the key `afro-cart`. Cart survives page refreshes.
+    - Updated all cart hooks in `src/hooks/use-cart.ts` to check authentication before acting:
+        - `useGetAllCart`: returns local store items when unauthenticated, server data when authenticated.
+        - `useCreateCart`: writes to `useCartStore` when unauthenticated, calls `POST /api/Cart` when authenticated.
+        - `useDeleteCart`: removes from `useCartStore` when unauthenticated, calls `DELETE /api/cart/:id` when authenticated.
+        - `useUpdateCartQuantity`: updates `useCartStore` when unauthenticated, calls `PATCH /api/cart/:id/quantity` when authenticated. Also now invalidates `cartKeys.lists()` on success so ticket counts stay in sync.
+    - Updated `cart-trigger.tsx`: count badge reads from `useCartStore` directly when unauthenticated; loading spinner only shown for authenticated server fetches.
+    - Updated `cart/index.tsx` and `cart/cart-container.tsx`: when unauthenticated, local cart items are enriched with ticket name and price via `useGetEventTickets` for display and total price calculation.
+    - Updated `tickets.tsx`: replaced local `ticketCount` and `cartId` `useState` with values derived from global cart state — unauthenticated reads from `useCartStore`, authenticated reads from `useGetAllCart`. When unauthenticated, `ticketId` is used in place of `cartId`.
+    - Updated `useLogin` in `src/hooks/use-auth.ts`: on successful login, any items in the local cart are synced to the server via `Promise.allSettled` (parallel calls to `POST /api/Cart`). Once all calls settle, the local cart is cleared and `cartKeys.lists()` is invalidated. Sync runs in the background so it does not block navigation.
 
 ### Removed
 - Duplicate header component from `src/pages/landing-page/creators/index.tsx`.

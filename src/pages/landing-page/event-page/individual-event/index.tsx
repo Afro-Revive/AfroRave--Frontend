@@ -8,7 +8,6 @@ import EventDetails from './event-details'
 
 export default function IndividualEventPage() {
   const { eventId } = useParams()
-  console.log(eventId)
 
   const { data: eventResponse, isPending: isLoading } = useGetEventByCustomUrl(eventId || '')
   console.log(eventResponse, isLoading)

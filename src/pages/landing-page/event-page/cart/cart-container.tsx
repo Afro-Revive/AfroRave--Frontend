@@ -4,10 +4,35 @@ import { formatNaira } from '@/lib/format-price'
 import { useState } from 'react'
 import type { EventDetailData } from '@/types'
 import { RenderEventImage } from '@/components/shared/render-event-flyer'
-import { useUpdateCartQuantity, useGetAllCart, useExtendReservation } from '@/hooks/use-cart'
+import { useUpdateCartQuantity, useGetAllCart } from '@/hooks/use-cart'
+import { useGetEventTickets } from '@/hooks/use-event-mutations'
+import { useAfroStore, useCartStore } from '@/stores'
+import type { CartData } from '@/types/cart'
 
 export default function CartContainer({ event }: CartContainerProps) {
-  const cart = useGetAllCart().data?.data
+  const isAuthenticated = useAfroStore((state) => state.isAuthenticated)
+  const localItems = useCartStore((state) => state.items)
+  const { data: ticketsResponse } = useGetEventTickets(event.eventId)
+  const { data: serverCart } = useGetAllCart()
+
+// If the user is authenticated, we use the cart data from the server. If not, we use the cart data from local storage. We also need to map the cart data to include the ticket name and price, which are not included in the cart data from local storage.
+  const cartItems = isAuthenticated
+    ? ((serverCart?.data ?? []) as unknown as CartData[]).map((item) => ({
+        id: String(item.cartId),
+        name: item.ticketName,
+        price: item.price,
+        quantity: item.quantity,
+      }))
+    : localItems.map((item) => {
+      // Find the ticket details from the tickets response using the ticketId from the cart item. This is necessary because the local cart items only have the ticketId and quantity, and we need to get the ticket name and price to display in the cart.
+        const ticket = ticketsResponse?.data?.find((t) => t.ticketId === item.ticketId)
+        return {
+          id: item.ticketId,
+          name: ticket?.ticketName ?? 'Unknown Ticket',
+          price: ticket?.price ?? 0,
+          quantity: item.quantity,
+        }
+      })
 
   return (
     <section className='container flex items-center justify-center gap-[192px] z-10 min-h-[calc(100vh-210px)]'>
@@ -25,11 +50,11 @@ export default function CartContainer({ event }: CartContainerProps) {
         </div>
 
         <ul className='flex flex-col gap-[72px]'>
-          {cart?.map((item) => (
+          {cartItems.map((item) => (
             <CartTicketCard
-              key={item.cartId}
-              id={String(item.cartId)}
-              name={item.ticketName}
+              key={item.id}
+              id={item.id}
+              name={item.name}
               price={item.price}
               quantity={item.quantity}
             />
@@ -60,7 +85,7 @@ function TicketQuantityControl({ quantity, cartId }: { quantity: number; cartId:
   const [ticketCount, setTicketCount] = useState<number>(quantity)
 
   const updateQuantityMutation = useUpdateCartQuantity()
-  const extendReservationMutation = useExtendReservation()
+  // const extendReservationMutation = useExtendReservation()
 
   function updateCart(quantity: number) {
     updateQuantityMutation.mutate(
@@ -68,7 +93,7 @@ function TicketQuantityControl({ quantity, cartId }: { quantity: number; cartId:
       {
         onSuccess: () => {
           setTicketCount(quantity)
-          extendReservationMutation.mutate({ cartId: cartId })
+          // extendReservationMutation.mutate({ cartId: cartId })
         },
       },
     )

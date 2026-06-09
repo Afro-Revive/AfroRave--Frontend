@@ -1,6 +1,8 @@
 import type { CreateEventRequest } from '@/types'
 import type { User } from '@/types/auth'
+import { CreateCartRequest } from '@/types/cart'
 import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
 
 interface AfroState {
   user: User | null
@@ -126,3 +128,45 @@ export const useEventSelectorStore = create<EventSelectorState>()((set) => ({
   selectedEventId: null,
   setSelectedEventId: (id) => set({ selectedEventId: id }),
 }))
+
+
+interface CartState {
+  items: CreateCartRequest[]
+  addItem: (item: CreateCartRequest) => void
+  removeItem: (ticketId: string) => void
+  updateQuantity: (ticketId: string, quantity: number) => void
+  clearLocal: () => void
+}
+
+export const useCartStore = create<CartState>()(
+  persist(
+    (set) => ({
+      items: [],
+      addItem: (item) =>
+        set((state) => {
+          const existing = state.items.find((i) => i.ticketId === item.ticketId)
+          if (existing) {
+            return {
+              items: state.items.map((i) =>
+                i.ticketId === item.ticketId
+                  ? { ...i, quantity: i.quantity + item.quantity }
+                  : i,
+              ),
+            }
+          }
+          return { items: [...state.items, item] }
+        }),
+      removeItem: (ticketId) =>
+        set((state) => ({ items: state.items.filter((i) => i.ticketId !== ticketId) })),
+      updateQuantity: (ticketId, quantity) =>
+        set((state) => ({
+          items:
+            quantity <= 0
+              ? state.items.filter((i) => i.ticketId !== ticketId)
+              : state.items.map((i) => (i.ticketId === ticketId ? { ...i, quantity } : i)),
+        })),
+      clearLocal: () => set({ items: [] }),
+    }),
+    { name: 'afro-cart' },
+  ),
+)
