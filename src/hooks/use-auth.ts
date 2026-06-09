@@ -164,7 +164,7 @@ export function useRegisterOrganizer() {
 }
 
 // Login Hook
-export function useLogin() {
+export function useLogin(options?: { onSuccess?: () => void }) {
   const queryClient = useQueryClient()
   const setAuth = useAfroStore((state) => state.setAuth)
   const navigate = useNavigate()
@@ -172,41 +172,49 @@ export function useLogin() {
 
   return useMutation({
     mutationFn: (data: LoginData) => authService.login(data),
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
       // Store user data and token in store
       if (data.data.userData && data.data.token) {
         setAuth(data.data.userData, data.data.token)
 
-        // Sync local cart to server in the background
+        // Sync local cart to server and wait for it to complete before navigating
         const localItems = useCartStore.getState().items
         if (localItems.length > 0) {
-          Promise.allSettled(
-            localItems.map(({ ticketId, quantity }) =>
-              cartService.createCart({ ticketId, quantity }),
-            ),
-          ).then(() => {
+          useCartStore.getState().setSyncing(true)
+          try {
+            await Promise.allSettled(
+              localItems.map(({ ticketId, quantity }) =>
+                cartService.createCart({ ticketId, quantity }),
+              ),
+            )
             useCartStore.getState().clearLocal()
-            queryClient.invalidateQueries({ queryKey: cartKeys.lists() })
-          })
+            await queryClient.invalidateQueries({ queryKey: cartKeys.lists() })
+          } finally {
+            useCartStore.getState().setSyncing(false)
+          }
         }
 
         // Close auth modal
         closeAuthModal()
 
-        // Redirect based on account type
-        const accountType = data.data.userData.accountType
-        switch (accountType) {
-          case 'User':
-            navigate(getRoutePath('account'))
-            break
-          case 'Vendor':
-            navigate(getRoutePath('vendor_profile'))
-            break
-          case 'Organizer':
-            navigate(getRoutePath('standalone'))
-            break
-          default:
-            navigate(getRoutePath('account'))
+        if (options?.onSuccess) {
+          options.onSuccess()
+        } else {
+          // Redirect based on account type
+          const accountType = data.data.userData.accountType
+          switch (accountType) {
+            case 'User':
+              navigate(getRoutePath('account'))
+              break
+            case 'Vendor':
+              navigate(getRoutePath('vendor_profile'))
+              break
+            case 'Organizer':
+              navigate(getRoutePath('standalone'))
+              break
+            default:
+              navigate(getRoutePath('account'))
+          }
         }
       }
 

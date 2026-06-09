@@ -14,8 +14,7 @@ export default function CheckoutPage({
   event_location: string
   event_id?: string
 }) {
-  const { isAuthenticated, isFan, user} = useAfroStore()
-  console.log(isAuthenticated, isFan, user)
+  const { isAuthenticated, isFan } = useAfroStore()
 
   const isFanAccount = isAuthenticated && isFan
 
@@ -47,7 +46,7 @@ export default function CheckoutPage({
           </div>
 
           <div className='h-full py-[100px] flex flex-col items-center gap-10'>
-            <UserLoginForm />
+            <UserLoginForm onLoginSuccess={() => {}} />
             <p className='text-xs font-input-mono text-deep-red'>
               Please checkout within 10:00 minutes
             </p>

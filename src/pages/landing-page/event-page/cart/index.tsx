@@ -22,6 +22,7 @@ export default function Cart({ event }: CartProps) {
 
   const isAuthenticated = useAfroStore((state) => state.isAuthenticated)
   const localItems = useCartStore((state) => state.items)
+  const isSyncingCart = useCartStore((state) => state.isSyncingCart)
   const { data: ticketsResponse } = useGetEventTickets(event.eventId)
   const { data, isLoading } = useGetAllCart()
 
@@ -40,7 +41,7 @@ export default function Cart({ event }: CartProps) {
         onClick={() => setIsOpen(true)}>
         <span className='text-sm'>Checkout</span>
         <span className='text-2xl'>
-          {isAuthenticated && isLoading ? (
+          {(isAuthenticated && isLoading) || isSyncingCart ? (
             <LoaderCircle color='#ffffff' size={24} className='animate-spin' />
           ) : (
             formatNaira(totalPrice)

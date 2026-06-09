@@ -8,12 +8,12 @@ interface AfroState {
   user: User | null
   token: string | null
   isAuthenticated: boolean
+  isCreator: boolean
+  isFan: boolean
+  isVendor: boolean
   setAuth: (user: User, token: string) => void
   clearAuth: () => void
   updateUser: (user: User) => void
-  get isCreator(): boolean
-  get isFan(): boolean
-  get isVendor(): boolean
 }
 
 interface EventState {
@@ -30,8 +30,9 @@ const getInitialState = () => {
     const stored = localStorage.getItem('afro-store-v1')
     if (stored) {
       const parsed = JSON.parse(stored)
+      const user = parsed.state?.user || null
       return {
-        user: parsed.state?.user || null,
+        user,
         token: parsed.state?.token || null,
         isAuthenticated: parsed.state?.isAuthenticated || false,
       }
@@ -52,14 +53,19 @@ export const useAfroStore = create<AfroState>()((set, get) => ({
   user: initialState.user,
   token: initialState.token,
   isAuthenticated: initialState.isAuthenticated,
+  isCreator: initialState.user?.accountType === 'Organizer',
+  isFan: initialState.user?.accountType === 'User',
+  isVendor: initialState.user?.accountType === 'Vendor',
   setAuth: (user: User, token: string) => {
     const newState = {
       user,
       token,
       isAuthenticated: true,
+      isCreator: user.accountType === 'Organizer',
+      isFan: user.accountType === 'User',
+      isVendor: user.accountType === 'Vendor',
     }
     set(newState)
-    // Persist to localStorage
     localStorage.setItem('afro-store-v1', JSON.stringify({ state: newState }))
   },
   clearAuth: () => {
@@ -67,9 +73,11 @@ export const useAfroStore = create<AfroState>()((set, get) => ({
       user: null,
       token: null,
       isAuthenticated: false,
+      isCreator: false,
+      isFan: false,
+      isVendor: false,
     }
     set(newState)
-    // Clear from localStorage
     localStorage.removeItem('afro-store-v1')
   },
   updateUser: (user: User) => {
@@ -77,19 +85,12 @@ export const useAfroStore = create<AfroState>()((set, get) => ({
     const newState = {
       ...currentState,
       user,
+      isCreator: user.accountType === 'Organizer',
+      isFan: user.accountType === 'User',
+      isVendor: user.accountType === 'Vendor',
     }
     set(newState)
-    // Update localStorage
     localStorage.setItem('afro-store-v1', JSON.stringify({ state: newState }))
-  },
-  get isCreator() {
-    return get().user?.accountType === 'Organizer'
-  },
-  get isFan() {
-    return get().user?.accountType === 'User'
-  },
-  get isVendor() {
-    return get().user?.accountType === 'Vendor'
   },
 }))
 
@@ -132,16 +133,19 @@ export const useEventSelectorStore = create<EventSelectorState>()((set) => ({
 
 interface CartState {
   items: CreateCartRequest[]
+  isSyncingCart: boolean
   addItem: (item: CreateCartRequest) => void
   removeItem: (ticketId: string) => void
   updateQuantity: (ticketId: string, quantity: number) => void
   clearLocal: () => void
+  setSyncing: (value: boolean) => void
 }
 
 export const useCartStore = create<CartState>()(
   persist(
     (set) => ({
       items: [],
+      isSyncingCart: false,
       addItem: (item) =>
         set((state) => {
           const existing = state.items.find((i) => i.ticketId === item.ticketId)
@@ -166,7 +170,11 @@ export const useCartStore = create<CartState>()(
               : state.items.map((i) => (i.ticketId === ticketId ? { ...i, quantity } : i)),
         })),
       clearLocal: () => set({ items: [] }),
+      setSyncing: (value) => set({ isSyncingCart: value }),
     }),
-    { name: 'afro-cart' },
+    {
+      name: 'afro-cart',
+      partialize: (state) => ({ items: state.items }),
+    },
   ),
 )

@@ -25,9 +25,9 @@ const formSchema = z.object({
     }),
 })
 
-export function UserLoginForm({ onForgotPassword }: { onForgotPassword?: () => void }) {
+export function UserLoginForm({ onForgotPassword, onLoginSuccess }: { onForgotPassword?: () => void; onLoginSuccess?: () => void }) {
   const { loginType, switchToSignup } = useAuth()
-  const login = useLogin()
+  const login = useLogin({ onSuccess: onLoginSuccess })
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
