@@ -8,11 +8,10 @@ import { cartKeys } from '@/lib/cart-keys'
 export function useGetAllCart() {
   const isAuthenticated = useAfroStore((state) => state.isAuthenticated)
   return useQuery({
-    queryKey: cartKeys.lists(),
-    queryFn: () =>{
-      if(!isAuthenticated) {
+    queryKey: [...cartKeys.lists(), { isAuthenticated }],
+    queryFn: () => {
+      if (!isAuthenticated) {
         const localCartItems = useCartStore.getState().items
-        // return a promise that resolves to an object with the same shape as the API response
         return Promise.resolve({ data: localCartItems })
       }
       return cartService.getAllCart()

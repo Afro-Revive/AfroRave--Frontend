@@ -184,7 +184,7 @@ export function useLogin(options?: { onSuccess?: () => void }) {
           try {
             await Promise.allSettled(
               localItems.map(({ ticketId, quantity }) =>
-                cartService.createCart({ ticketId, quantity }),
+                cartService.syncCart([{ ticketId, quantity }]),
               ),
             )
             useCartStore.getState().clearLocal()

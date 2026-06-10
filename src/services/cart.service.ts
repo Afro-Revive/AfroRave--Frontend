@@ -52,6 +52,15 @@ class CartServce {
     return response.data
   }
 
+    /**
+   * Sync Local cart to server cart
+   */
+  async syncCart(items: { ticketId: string; quantity: number }[]): Promise<ApiResponse<unknown>> {
+    console.log('Syncing cart with items:', items)
+    const response = await api.post('/api/cart/sync', { items })
+    return response.data
+  }
+
   /**
    * Clear cart
    */
