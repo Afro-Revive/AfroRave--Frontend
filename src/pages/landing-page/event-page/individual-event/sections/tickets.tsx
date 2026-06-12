@@ -17,8 +17,8 @@ export default function TicketSection({ eventId, layout }: ITicketProps) {
   return (
     <div
       className={cn('!w-full flex flex-col gap-7', {
-        'px-5 lg:px-[120px]': layout === 'default',
-        'pl-5 lg:pl-[120px]': layout !== 'default',
+        'px-5 lg:px-32': layout === 'default',
+        'pl-5 lg:pl-32': layout !== 'default',
       })}>
       <div className='flex items-center gap-5'>
         <BlockName name='tickets' />
@@ -81,9 +81,9 @@ function TicketCard({ name, price, layout, ticketId }: ITicketCard) {
   return (
     <div
       className={cn(
-        'flex items-center justify-between h-fit rounded-[8px] bg-gunmetal-gray pl-5 pr-2 py-2.5 text-xl font-sf-pro-display',
+        'flex items-center justify-between h-fit rounded-md bg-gunmetal-gray pl-5 pr-2 py-2.5 text-xl font-sf-pro-display',
         {
-          'min-w-[480px] last:mr-5': layout === 'with-flyer' || layout === 'standard-carousel',
+          'md:min-w-[480px] min-w-80 last:mr-5': layout === 'with-flyer' || layout === 'standard-carousel',
           'w-full': layout === 'default',
         },
       )}>
@@ -136,9 +136,9 @@ function TicketCardSkeleton({ layout }: { layout: ITicketProps['layout'] }) {
   return (
     <Skeleton
       className={cn(
-        'flex items-center justify-between h-[76px] rounded-[8px] bg-gunmetal-gray pl-5 pr-2 py-2.5 text-xl font-sf-pro-display',
+        'flex items-center justify-between h-[76px] rounded-md bg-gunmetal-gray pl-5 pr-2 py-2.5 text-xl font-sf-pro-display',
         {
-          'min-w-[480px] last:mr-5': layout === 'with-flyer' || layout === 'standard-carousel',
+          'md:min-w-[480px] last:mr-5': layout === 'with-flyer' || layout === 'standard-carousel',
           'w-full': layout === 'default',
         },
       )}

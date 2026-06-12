@@ -15,7 +15,6 @@ export function CategoryBlock({
   isLoading = false,
 }: ICategoryBlock) {
   const filteredData = homePage ? data?.slice(0, 5) : data
-  console.log(filteredData)
 
   if (isLoading) {
     return <CategoryBlockSkeleton name={name} />
@@ -83,7 +82,7 @@ function EventCard({
       <RenderEventImage
         image={image}
         event_name={event_name}
-        className='rounded-[5px] md:rounded-[15px]'
+        className='rounded-sm md:rounded-lg'
       />
 
       <div className='flex flex-col gap-1 md:gap-2 py-2 px-1'>

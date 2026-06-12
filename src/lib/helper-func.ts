@@ -156,6 +156,33 @@ export function formatEventTime(timeString: string): string {
   return `${hour12}${period}`
 }
 
+export function formatTimeLong(timeString: string): string {
+  const [hourStr, minuteStr] = timeString.split(':')
+  const hour = parseInt(hourStr, 10)
+  if (isNaN(hour)) return timeString
+  const period = hour < 12 ? 'AM' : 'PM'
+  const hour12 = hour % 12 || 12
+  return `${hour12}:${minuteStr}${period}`
+}
+
+export function formatDateLong(dateString: string): string {
+  try {
+    const date = parseISO(dateString)
+    const day = format(date, 'd')
+    const suffix =
+      day === '1' || day === '21' || day === '31'
+        ? 'st'
+        : day === '2' || day === '22'
+          ? 'nd'
+          : day === '3' || day === '23'
+            ? 'rd'
+            : 'th'
+    return format(date, `MMMM ${day}`) + suffix + format(date, ' yyyy')
+  } catch {
+    return dateString
+  }
+}
+
 export function formatEventDate(dateString: string): string {
   try {
     const date = parseISO(dateString)

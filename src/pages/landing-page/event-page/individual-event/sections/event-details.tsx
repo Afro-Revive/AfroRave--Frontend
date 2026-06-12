@@ -1,5 +1,6 @@
 import { cn } from '@/lib/utils'
 import type { EventDetailData } from '@/types'
+import { formatDateLong } from '@/lib/helper-func'
 import { RenderEventImage } from '@/components/shared/render-event-flyer'
 
 export default function EventDetailsSection({ event, layout }: ComponentProps) {
@@ -20,13 +21,13 @@ export default function EventDetailsSection({ event, layout }: ComponentProps) {
         )}
 
         <div className='flex flex-col gap-1'>
-          <p className='text-2xl md:text-[30px] lg:text-[30px] uppercase font-sf-compact tracking-[-0.25px] font-bold'>
+          <p className='text-2xl md:text-3xl uppercase font-sf-compact tracking-[-0.25px] font-black'>
             {event.eventName}
           </p>
 
           <div className='flex flex-col gap-2 font-sf-pro-display font-light'>
-            <p className='text-lg md:text-2xl lg:text-xl'>{event.venue}</p>
-            <p>{event.eventDate.endDate}</p>
+            <p className='text-xl  md:text-2xl'>{event.venue}</p>
+            <p className='text-base'>{formatDateLong(event.eventDate.endDate)}</p>
           </div>
         </div>
       </div>

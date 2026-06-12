@@ -23,10 +23,14 @@ export default function ResellPage() {
           <div className="absolute inset-0 bg-gradient-to-t from-dark-gray via-dark-gray/10 to-transparent" />
 
           {/* Content (remains on top) */}
-          <div className="w-full relative z-10 pl-5 md:pl-10 lg:pl-24">
-            <p className="w-full text-start text-[32px] md:text-[40px] lg:text-[72px] text-white font-bold">
-              Resell with <br className="md:hidden" /> Ease on Afro{" "}
-              <br className="max-lg:hidden" /> Revive <ListYourTicketButton />
+          <div className="w-full relative z-10 md:pl-10 lg:pl-24">
+            <p className="w-full text-center md:text-start text-[48px] md:text-[40px] lg:text-[72px] text-white font-bold leading-tight">
+              Resell with Ease{" "}
+              <br className="max-lg:hidden" />{" "}
+              on Afro{" "}
+              <span className="inline-flex items-center gap-3 whitespace-nowrap">
+                Revive <ListYourTicketButton />
+              </span>
             </p>
 
             <div className="flex w-full h-fit justify-center mt-[30px]">
@@ -138,7 +142,7 @@ function ListYourTicketButton({
     <Button
       asChild
       className={cn(
-        "relative w-[180px] h-14 rounded-[10px] py-[1px] px-5 bg-black text-white font-black font-sf-pro-text",
+        "relative w-fit h-fit rounded-md  px-6 py-4 bg-black text-white font-black font-sf-pro-text",
         {
           "max-md:hidden": type === "desktop",
           "flex md:hidden": type === "mobile",

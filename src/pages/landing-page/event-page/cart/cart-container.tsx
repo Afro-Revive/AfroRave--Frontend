@@ -35,21 +35,30 @@ export default function CartContainer({ event }: CartContainerProps) {
       })
 
   return (
-    <section className='container flex items-center justify-center gap-[192px] z-10 min-h-[calc(100vh-210px)]'>
-      <RenderEventImage
-        image={event.eventDetails.desktopMedia?.flyer}
-        event_name={event.eventName}
-      />
+    <section className='container flex flex-col md:flex-row md:items-center md:justify-center md:gap-[192px] z-10 py-10 md:min-h-[calc(100vh-210px)] md:py-0'>
+      <div className='hidden md:block'>
+        <RenderEventImage
+          image={event.eventDetails.desktopMedia?.flyer}
+          event_name={event.eventName}
+        />
+      </div>
 
-      <div className='max-w-[703px] w-1/2 flex flex-col gap-[67px] px-5 py-[71px]'>
-        <div className='flex flex-col items-center gap-1'>
-          <p className='text-5xl uppercase text-center leading-normal font-phosphate'>
+      <div className='w-full md:max-w-[703px] md:w-1/2 items-center flex flex-col gap-5 md:gap-[67px] px-5 md:py-[71px]'>
+        <div className='flex flex-col gap-1'>
+          <p className='text-2xl md:text-5xl uppercase md:text-center leading-normal font-phosphate'>
             {event.eventName}
           </p>
-          <p className='font-extralight text-2xl font-sf-pro-display text-center'>{event.venue}</p>
+          <p className='font-extralight text-xl md:text-2xl font-sf-pro-display md:text-center'>{event.venue}</p>
         </div>
 
-        <ul className='flex flex-col gap-[72px]'>
+        <div className='md:hidden flex items-center justify-center w-full min-h-[300px]'>
+          <RenderEventImage
+            image={event.eventDetails.desktopMedia?.flyer}
+            event_name={event.eventName}
+          />
+        </div>
+
+        <ul className='w-full flex flex-col gap-10 md:gap-[72px]'>
           {cartItems.map((item) => (
             <CartTicketCard
               key={item.id}

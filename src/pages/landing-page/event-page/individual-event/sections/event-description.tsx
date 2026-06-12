@@ -3,6 +3,7 @@ import { BlockName } from '../../_components/block-name'
 import { Clock4, Plus } from 'lucide-react'
 import { EventOutlineButton } from '../../_components/event-otline-btn'
 import type { EventDetailData } from '@/types'
+import { formatTimeLong } from '@/lib/helper-func'
 import { OnlyShowIf } from '@/lib/environment'
 
 export default function EventDescription({ event }: { event: EventDetailData }) {
@@ -22,7 +23,7 @@ export default function EventDescription({ event }: { event: EventDetailData }) 
             <Clock4 color='#ffffff' size={16} />
 
             <p>
-              {event.eventDate.startDate} - {event.eventDate.endDate}
+              {formatTimeLong(event.eventDate.startTime)} - {formatTimeLong(event.eventDate.endTime)}
             </p>
           </div>
 

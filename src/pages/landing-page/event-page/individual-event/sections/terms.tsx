@@ -5,11 +5,11 @@ import { EventOutlineButton } from "../../_components/event-otline-btn";
 export default function TermsSection() {
   return (
     <SectionContainer>
-      <div className="w-[150px]">
+      <div className="w-36">
         <BlockName name="TERMS" />
       </div>
 
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-4 mb-20">
         <p className="font-sf-pro-display">
           Step into the vibrant world of ALTÉ — where sound, fashion, and
           self-expression collide. ALTÉ RENAISSANCE is a night curated for the

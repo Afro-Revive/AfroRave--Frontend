@@ -3,14 +3,14 @@ import { cn } from '@/lib/utils'
 export function RenderEventImage({
   image,
   event_name,
-  className = ' rounded-[5px] md:rounded-[15px]',
+  className = ' rounded-sm md:rounded-lg',
 }: { image?: string; event_name: string; className?: string }) {
   return (
     <>
       {!image || image === '' ? (
         <div
           className={cn(
-            'flex items-center justify-center bg-white/30 px-5 min-h-[160px] h-[160px] md:h-[250px]',
+            'flex items-center justify-center bg-white/30 px-5 min-h-40 h-60 md:h-64',
             className,
           )}>
           <p className='text-center font-semibold text-white'>{event_name}</p>

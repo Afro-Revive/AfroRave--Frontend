@@ -51,7 +51,7 @@ export default function Cart({ event }: CartProps) {
 
       <BaseModal
         size='full'
-        className='bg-black'
+        className='bg-black !w-full'
         floatingCancel
         onClose={() => setIsOpen(false)}
         open={isOpen}
@@ -77,8 +77,6 @@ export default function Cart({ event }: CartProps) {
         removeCancel
         onClose={() => setCheckoutOpen(false)}
         open={checkoutOpen}>
-        <div className='w-full flex justify-between items-center px-8'>          
-        </div>
         <CheckoutPage event_name={event.eventName} event_location={event.venue} event_id={event.eventId} />
       </BaseModal>
     </>
@@ -93,8 +91,8 @@ function FooterContent({
   action: () => void
 }) {
   return (
-    <footer className='w-[595px] flex flex-col items-center gap-2 pl-[81px] pr-[51px] py-[30px] rounded-t-[20px] self-end ml-auto right-[73px] bg-secondary'>
-      <div className='w-full flex items-center justify-between font-sf-pro-display'>
+    <footer className='w-full md:w-84 flex flex-col items-center gap-2 px-5  py-4 rounded-t-xl md:self-end md:ml-auto bg-secondary'>
+      <div className='w-full flex items-center justify-between max-md:gap-10 font-sf-pro-display'>
         <span className='font-light text-2xl'>{formatNaira(totalPrice)}</span>
         <Button onClick={action} className='bg-white text-black hover:bg-white/90'>
           Continue

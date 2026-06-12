@@ -100,12 +100,12 @@ export default function CartSummary({
   }
 
   return (
-    <div className='max-w-[752px] w-full flex flex-col items-center gap-[67px]'>
+    <div className='max-w-3xl w-full flex flex-col items-center gap-[67px]'>
       <div className='flex flex-col items-center text-white'>
-        <p className='text-[32px] font-bold font-sf-compact leading-[100%] tracking-[-0.25px] capitalize text-center'>
+        <p className='text-3xl md:text-4xl font-bold font-sf-compact leading-[100%] tracking-[-0.25px] capitalize text-center mb-4'>
           {name}
         </p>
-        <p className='font-sf-pro-display leading-[100%]'>{location}</p>
+        <p className='font-sf-pro-display text-base md:text-xl leading-[100%]'>{location}</p>
       </div>
 
       <div className='w-full flex flex-col gap-7'>
@@ -138,14 +138,14 @@ export default function CartSummary({
         </div>
 
         <div className='w-full flex items-center justify-between'>
-          <p className='font-sf-pro-display text-xl text-white leading-[100%]'>TOTAL:</p>
-          <p className='text-white font-sf-pro-text leading-[100%]'>{formatNaira(totalPrice)}</p>
+          <p className='font-sf-pro-display md:text-xl  text-white leading-[100%]'>TOTAL:</p>
+          <p className='text-white font-sf-pro-text md:text-xl leading-[100%]'>{formatNaira(totalPrice)}</p>
         </div>
 
         {isFanAccount && (
           <Button
             onClick={handleCheckout}
-            className='w-[140px] h-8 rounded-[6px] bg-deep-red uppercase text-sm font-sf-pro-display leading-[100%]'>
+            className='w-[140px] flex items-center h-8 rounded-[6px] bg-deep-red uppercase text-sm font-sf-pro-display leading-[100%] self-center mx-auto'>
             checkout
           </Button>
         )}
@@ -158,18 +158,18 @@ function CartTicket({ name, price, quantity }: InitialTickets) {
   return (
     <div className='w-full flex items-center justify-between'>
       <div className='flex flex-col gap-1 text-white'>
-        <p className='font-sf-pro-display uppercase leading-[100%]'>{name}</p>
+        <p className='font-sf-pro-display uppercase md:text-xl leading-[100%]'>{name}</p>
         <div className='flex flex-col gap-0.5'>
-          <p className='text-sm font-sf-pro-text leading-[100%]'>{formatNaira(price)}</p>
-          <p className='text-xs font-sf-pro-display leading-[100%] text-[#ACACAC]'>
+          <p className='text-sm md:text-base font-sf-pro-text leading-[100%]'>{formatNaira(price)}</p>
+          <p className='text-xs md:text-sm font-sf-pro-display leading-[100%] text-[#ACACAC]'>
             +{formatNaira(1500)} fee
           </p>
         </div>
       </div>
 
       <div className='h-[60px] w-14 flex items-center justify-end gap-2'>
-        <X color='#ffffff' size={9} />
-        <p className='text-xl font-sf-pro-text leading-[100px]'>{quantity}</p>
+        <X color='#ffffff' size={20} />
+        <p className='text-xl md:text-2xl font-sf-pro-text leading-[100px]'>{quantity}</p>
       </div>
     </div>
   )

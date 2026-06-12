@@ -36,7 +36,7 @@ const sizeClasses = {
   /** Large modal (864px max width) */
   large: 'sm:max-w-[864px]',
   /** Full height modal with vertical scrolling */
-  full: ' h-full sm:overflow-y-auto w-full max-w-full',
+  full: ' h-full w-full max-w-full',
 }
 
 interface CustomModalProps {
@@ -104,7 +104,7 @@ function BaseModal({
       {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
       <DialogContent
         className={cn(
-          ` ${sizeClasses[size]} p-0 rounded-[8px]  block w-[90%] sm:w-full`,
+          ` ${sizeClasses[size]} p-0 rounded-[8px] flex flex-col gap-0 w-[90%] sm:w-full`,
           'transition-all duration-500 ease-[cubic-bezier(0.25,0.1,0.25,1)]',
           className,
         )}
@@ -129,7 +129,7 @@ function BaseModal({
 
         <div className='flex flex-col transition-all duration-500 ease-[cubic-bezier(0.25,0.1,0.25,1)]'>{children}</div>
 
-        {hasFooter && <div className='mt-auto pt-4 ml-auto'>{footerContent}</div>}
+        {hasFooter && <div className='absolute  bottom-0  right-0 z-10'>{footerContent}</div>}
       </DialogContent>
     </Dialog>
   )
