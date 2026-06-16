@@ -6,6 +6,36 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 - Initial Changelog creation.
+- `formatTimeLong`, `formatDateLong`, `formatTimezone` utility functions added to `src/lib/helper-func.ts` for consistent event time and timezone display (e.g. `+1` → `WAT`).
+- `PromoCode` extracted into a standalone reusable component (`src/components/reusable/promo-code.tsx`) with typed `cartItems`, `totalPrice`, and `totalQuantity` props — replaces inline promo code logic in both cart-container and cart-summary.
+- `TotalAccordion` component: collapsible total price breakdown showing ticket subtotal and service fee, with TOTAL + price in the trigger and line-by-line breakdown in the content.
+- Full-screen login step on mobile checkout for unauthenticated users: cart summary hidden on mobile until authenticated, login form takes full screen width.
+- 10-minute countdown timer on checkout login screen (`useCountdown` hook using `setInterval`).
+- `isSyncingCart` flag to `useCartStore` for tracking post-login cart sync state (excluded from localStorage persistence).
+
+### Fixed
+- **React Query stale cache after login** (`use-cart.ts`): Added `isAuthenticated` to the `useGetAllCart` query key so a state change from unauthenticated → authenticated creates a new cache slot, preventing local-format cart data from being served as server `CartData`.
+- **Race condition on login** (`use-auth.ts`, `stores/index.ts`): Local cart sync is now `await`ed before navigation and `onSuccess` callback fire. `isSyncingCart` wraps the full `Promise.allSettled` call so the UI spinner stays active for the entire sync duration.
+- **Post-login redirect to checkout** (`user-login-form.tsx`, `checkout/index.tsx`): User is correctly returned to the checkout page after signing in from the checkout flow.
+- **Cart trigger positioning**: Removed duplicate/conflicting layout in `event-details.tsx` that caused incorrect cart trigger placement on the event page.
+- **Base modal footer not visible on mobile** (`base-modal.tsx`): Switched `DialogContent` from `block` to `flex flex-col gap-0`; footer positioned with `absolute bottom-0 right-0 z-10`; removed `sm:overflow-y-auto` from full-size class.
+- **Lucide icon `color` prop misuse** (`cart-container.tsx`): Changed `color="text-white"` (invalid Tailwind class as CSS value) to `color="white"` on Plus/Minus icons — icons now render correctly.
+- **Cart container not scrollable on mobile**: Set `max-h-[calc(100vh-100px)] overflow-y-auto` on the inner content div so content scrolls within the modal.
+- **AccordionTrigger chevron misaligned**: Overrode base `items-start` with `items-center` so the chevron is vertically centred with TOTAL text and price.
+- **AccordionTrigger price appearing in the middle**: Wrapped TOTAL and price in a single `flex w-full justify-between` div before the auto-appended chevron, so layout is `TOTAL ... price ˅` rather than three separate flex items.
+- **Forgot password stacking a second dialog** (`35463f7`): Renders forgot password form inside the existing auth modal instead of opening a nested dialog.
+- **Settings button not opening / mobile sidebar trigger broken** (`5dc703b`): Fixed interactive trigger wiring on mobile sidebar and settings menu.
+- **Resell page mobile layout** (`resell-page/index.tsx`): "Revive" headline and CTA button now inline on same row; responsive text sizing (`text-[48px] md:text-[40px] lg:text-[72px]`); text centred on mobile, left-aligned on desktop.
+- **`isFan` / `isCreator` / `isVendor` always returning `false`** (`stores/index.ts`): Replaced getter pattern with explicit boolean properties set in `setAuth`, `clearAuth`, and `updateUser`.
+
+### Changed
+- **Event routing migrated from `eventID` to `customUrl`** (`hooks/use-event-mutations.ts`, `services/event.service.ts`, `components/shared/category-block.tsx`, `event-page/`): All event navigation now uses `customUrl` as the route parameter for cleaner, human-readable URLs.
+- **`eventID` removed as API request payload** (`event-transforms.ts`, creator edit-event tabs): Event ID no longer sent as part of the create/update request body; back-click navigation fixed in edit event tab.
+- **Cart summary** (`cart-summary.tsx`): Fully supports both authenticated (server `CartData`) and unauthenticated (local store + ticket enrichment via `useGetEventTickets`) states. `totalPrice` and `totalQuantity` computed from the normalised cart items array.
+- **Fans homepage UI** (`home/`, `afro-carousel.tsx`, `base-dropdown.tsx`): Various layout and dropdown bug fixes; carousel and own-the-stage section improvements.
+- **Footer social links** (`home/socials.tsx`, footer components): Real social media URLs added, open in new tab; social icon sizing reduced; top border added to footer social row; language selector removed.
+- **About-us mobile layout** (`/about-us`): Improved section spacing, typography scaling, and text readability across all mobile breakpoints.
+- **`cart-summary.tsx` checkout button**: Aligned to `self-center mx-auto`.
 - 2-step vendor signup flow matching Figma design specifications.
 - Responsive design for Vendor Dashboard (mobile and tablet support).
 - Enhanced creators landing page header with improved desktop sizing and layout.

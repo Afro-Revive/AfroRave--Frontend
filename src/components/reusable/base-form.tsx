@@ -70,7 +70,7 @@ export function FormBase<T extends FieldValues>({
 }: FormBaseProps<T>) {
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit, onError)} className={cn('space-y-8', className)}>
+      <form onSubmit={form.handleSubmit(onSubmit, onError)} className={cn('', className)}>
         {children}
       </form>
     </Form>

@@ -10,7 +10,7 @@ export function RenderEventImage({
       {!image || image === '' ? (
         <div
           className={cn(
-            'flex items-center justify-center bg-white/30 px-5 min-h-40 h-60 md:h-64',
+            'flex items-center justify-center bg-white/30 px-8 min-h-40 h-60 md:h-64',
             className,
           )}>
           <p className='text-center font-semibold text-white'>{event_name}</p>

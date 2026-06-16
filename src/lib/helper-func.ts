@@ -165,6 +165,39 @@ export function formatTimeLong(timeString: string): string {
   return `${hour12}:${minuteStr}${period}`
 }
 
+const timezoneOffsetMap: Record<string, string> = {
+  '-12': 'IDLW',
+  '-11': 'SST',
+  '-10': 'HST',
+  '-9':  'AKST',
+  '-8':  'PST',
+  '-7':  'MST',
+  '-6':  'CST',
+  '-5':  'EST',
+  '-4':  'AST',
+  '-3':  'BRT',
+  '-2':  'UYST',
+  '-1':  'AZOT',
+  '0':   'GMT',
+  '+1':   'WAT',
+  '+2':   'CAT',
+  '+3':   'EAT',
+  '+4':   'GST',
+  '+5':   'PKT',
+  '+6':   'BST',
+  '+7':   'ICT',
+  '+8':   'SGT',
+  '+9':   'JST',
+  '+10':  'AEST',
+  '+11':  'SBT',
+  '+12':  'NZST',
+}
+
+export function formatTimezone(offset: string | number): string {
+  const key = String(offset)
+  return timezoneOffsetMap[key] ?? `UTC${Number(offset) >= 0 ? '+' : ''}${offset}`
+}
+
 export function formatDateLong(dateString: string): string {
   try {
     const date = parseISO(dateString)

@@ -55,18 +55,12 @@ export default function Cart({ event }: CartProps) {
         floatingCancel
         onClose={() => setIsOpen(false)}
         open={isOpen}
-        hasFooter
-        footerContent={
-          <FooterContent
-            totalPrice={totalPrice}
-            action={() => {
+        hasFooter>
+        <div className='flex flex-col h-fit w-full justify-center items-center md:mt-24 mt-16'>
+          <CartContainer event={event}  action={() => {
               setIsOpen(false)
               setCheckoutOpen(true)
-            }}
-          />
-        }>
-        <div className='flex flex-col h-fit w-full justify-center items-center mt-[100px]'>
-          <CartContainer event={event} />
+            }} />
         </div>
       </BaseModal>
 
@@ -83,21 +77,21 @@ export default function Cart({ event }: CartProps) {
   )
 }
 
-function FooterContent({
-  totalPrice,
-  action,
-}: {
-  totalPrice: number
-  action: () => void
-}) {
-  return (
-    <footer className='w-full md:w-84 flex flex-col items-center gap-2 px-5  py-4 rounded-t-xl md:self-end md:ml-auto bg-secondary'>
-      <div className='w-full flex items-center justify-between max-md:gap-10 font-sf-pro-display'>
-        <span className='font-light text-2xl'>{formatNaira(totalPrice)}</span>
-        <Button onClick={action} className='bg-white text-black hover:bg-white/90'>
-          Continue
-        </Button>
-      </div>
-    </footer>
-  )
-}
+// function FooterContent({
+//   totalPrice,
+//   action,
+// }: {
+//   totalPrice: number
+//   action: () => void
+// }) {
+//   return (
+//     <footer className='w-full md:w-84 flex flex-col items-center gap-2 px-5  py-4 rounded-t-xl md:self-end md:ml-auto bg-secondary'>
+//       <div className='w-full flex items-center justify-between max-md:gap-10 font-sf-pro-display'>
+//         <span className='font-light text-2xl'>{formatNaira(totalPrice)}</span>
+//         <Button onClick={action} className='bg-white text-black hover:bg-white/90'>
+//           Continue
+//         </Button>
+//       </div>
+//     </footer>
+//   )
+// }

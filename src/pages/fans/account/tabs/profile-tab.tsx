@@ -1,60 +1,64 @@
-import { date_list } from '@/components/constants'
-import { FormBase, FormField } from '@/components/reusable/base-form'
-import { BaseSelect } from '@/components/reusable/base-select'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { useUpdateUserProfile, useUserProfile } from '@/hooks/use-profile-mutations'
-import { FakeDataGenerator } from '@/lib/fake-data-generator'
+import { date_list } from "@/components/constants";
+import { FormBase, FormField } from "@/components/reusable/base-form";
+import { BaseSelect } from "@/components/reusable/base-select";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  useUpdateUserProfile,
+  useUserProfile,
+} from "@/hooks/use-profile-mutations";
+import { FakeDataGenerator } from "@/lib/fake-data-generator";
 import {
   transformProfileFromResponse,
   transformProfileToUpdateRequest,
-} from '@/lib/profile-transforms'
-import { africanCountryCodes } from '@/pages/creators/add-event/constant'
-import { ProfileSchema, defaultProfileValues } from '@/schema/profile-shema'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useEffect, useState } from 'react'
-import { useForm } from 'react-hook-form'
-import type { z } from 'zod'
-import { motion, AnimatePresence } from 'framer-motion'
-import { X } from 'lucide-react'
+} from "@/lib/profile-transforms";
+import { africanCountryCodes } from "@/pages/creators/add-event/constant";
+import { ProfileSchema, defaultProfileValues } from "@/schema/profile-shema";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import type { z } from "zod";
+import { motion, AnimatePresence } from "framer-motion";
+import { X } from "lucide-react";
 // import '../fan-account.css'
 
 export default function ProfileTab() {
-  const { data: profileData, isLoading: isLoadingProfile } = useUserProfile()
-  const updateProfileMutation = useUpdateUserProfile()
-  const [showBanner, setShowBanner] = useState(false)
+  const { data: profileData, isLoading: isLoadingProfile } = useUserProfile();
+  const updateProfileMutation = useUpdateUserProfile();
+  const [showBanner, setShowBanner] = useState(false);
 
   const form = useForm<z.infer<typeof ProfileSchema>>({
     resolver: zodResolver(ProfileSchema),
     defaultValues: defaultProfileValues,
-  })
+  });
 
   useEffect(() => {
     if (profileData) {
-      console.log(profileData)
-      const transformedData = transformProfileFromResponse(profileData.data)
-      form.reset(transformedData)
+      console.log(profileData);
+      const transformedData = transformProfileFromResponse(profileData.data);
+      form.reset(transformedData);
     }
-  }, [profileData, form])
+  }, [profileData, form]);
 
   async function onSubmit(values: z.infer<typeof ProfileSchema>) {
     try {
-      const updateRequest = transformProfileToUpdateRequest(values)
-      await updateProfileMutation.mutateAsync(updateRequest)
-      setShowBanner(true)
+      const updateRequest = transformProfileToUpdateRequest(values);
+      await updateProfileMutation.mutateAsync(updateRequest);
+      setShowBanner(true);
     } catch (error) {
-      console.error('Failed to update profile:', error)
+      console.error("Failed to update profile:", error);
     }
   }
 
   // Shared input styling - Figma specifications
-  const inputStyle = 'w-full h-[52px] rounded-[8px] border border-white/10 bg-transparent px-4 text-white text-[14px] font-ibm-plex-mono placeholder:text-white/30 focus:border-white/30 focus-visible:ring-0 focus-visible:ring-offset-0 transition-all uppercase tracking-wider'
-  const labelStyle = 'text-white/60 text-[11px] font-ibm-plex-mono uppercase tracking-widest mb-2 ml-1 block'
+  const inputStyle =
+    "w-full h-[52px] rounded-[8px] border border-white/10 bg-transparent px-4 text-white text-[14px] font-ibm-plex-mono placeholder:text-white/30 focus:border-white/30 focus-visible:ring-0 focus-visible:ring-offset-0 transition-all uppercase tracking-wider";
+  const labelStyle =
+    "text-white/60 text-[11px] font-ibm-plex-mono uppercase tracking-widest mb-2 ml-1 block";
 
   return (
-    <div className='w-full flex-1 flex flex-col items-center px-4 md:px-0 pt-8'>
-      <div className='w-full max-w-[550px] flex flex-col gap-6'>
-
+    <div className="w-full flex-1 flex flex-col items-center px-4 md:px-0 pt-8">
+      <div className="w-full max-w-[550px] flex flex-col ">
         {/* Green Notification Banner */}
         <AnimatePresence>
           {showBanner && (
@@ -63,48 +67,58 @@ export default function ProfileTab() {
               animate={{ x: 0, opacity: 1 }}
               exit={{ opacity: 0, x: 50 }}
               transition={{ duration: 0.8, ease: "easeOut" }}
-              className='w-full bg-[#D4F4DD] rounded-[4px] px-5 py-[14px] flex items-center justify-between mb-6'
+              className="w-full bg-[#D4F4DD] rounded-[4px] px-5 py-[14px] flex items-center justify-between mb-6"
             >
-              <p className='text-[#1F1F1F] text-[13px] font-ibm-plex-mono font-medium'>
-                User profile has been successfully completed. You can now <span className="underline cursor-pointer">view your tickets</span>
+              <p className="text-[#1F1F1F] text-[13px] font-ibm-plex-mono font-medium">
+                User profile has been successfully completed. You can now{" "}
+                <span className="underline cursor-pointer">
+                  view your tickets
+                </span>
               </p>
               <button
                 onClick={() => setShowBanner(false)}
-                className='text-[#1F1F1F] hover:text-[#1F1F1F]/70 transition-colors'
-                aria-label='Close banner'
+                className="text-[#1F1F1F] hover:text-[#1F1F1F]/70 transition-colors"
+                aria-label="Close banner"
               >
-                <X className='w-4 h-4' strokeWidth={2} />
+                <X className="w-4 h-4" strokeWidth={2} />
               </button>
             </motion.div>
           )}
         </AnimatePresence>
 
         {/* Dev helper - hidden in production */}
-        {process.env.NODE_ENV === 'development' && (
-          <div className='flex justify-end'>
+        {process.env.NODE_ENV === "development" && (
+          <div className="flex justify-end">
             <FakeDataGenerator
-              type='profile'
+              type="profile"
               onGenerate={form.reset}
-              buttonText='🎲 Fill with sample data'
-              variant='outline'
-              className='h-9 px-4 border-white/30 text-white/70 hover:bg-white/5 hover:text-white text-[13px]'
+              buttonText="🎲 Fill with sample data"
+              variant="outline"
+              className="h-9 px-4 border-white/30 text-white/70 hover:bg-white/5 hover:text-white text-[13px]"
             />
           </div>
         )}
 
+        <h2 className="text-xl font-extrabold font-inter tracking-wide text-white mb-4">
+          Profile
+        </h2>
+
+        <h2 className="text-lg text-white">User Information</h2>
+
         <FormBase
           form={form}
           onSubmit={onSubmit}
-          className='w-full flex flex-col gap-6'>
-
+          className="w-full flex flex-col "
+        >
           {/* First Name */}
           <FormField
             form={form}
             name="first_name"
             label="First Name"
-            className="w-full">
+            className="w-full"
+          >
             {(field) => (
-              <div className='w-full'>
+              <div className="w-full">
                 <label className={labelStyle}>First Name</label>
                 <Input
                   {...field}
@@ -121,9 +135,10 @@ export default function ProfileTab() {
             form={form}
             name="last_name"
             label="Last Name"
-            className="w-full">
+            className="w-full"
+          >
             {(field) => (
-              <div className='w-full'>
+              <div className="w-full">
                 <label className={labelStyle}>Last Name</label>
                 <Input
                   {...field}
@@ -136,13 +151,9 @@ export default function ProfileTab() {
           </FormField>
 
           {/* Email */}
-          <FormField
-            form={form}
-            name="email"
-            label="Email"
-            className="w-full">
+          <FormField form={form} name="email" label="Email" className="w-full">
             {(field) => (
-              <div className='w-full'>
+              <div className="w-full">
                 <label className={labelStyle}>Email</label>
                 <Input
                   {...field}
@@ -160,9 +171,10 @@ export default function ProfileTab() {
             form={form}
             name="password"
             label="Password"
-            className="w-full">
+            className="w-full"
+          >
             {(field) => (
-              <div className='w-full'>
+              <div className="w-full">
                 <label className={labelStyle}>Password</label>
                 <Input
                   {...field}
@@ -178,21 +190,22 @@ export default function ProfileTab() {
           {/* Gender */}
           <FormField
             form={form}
-            name='gender'
-            label='Gender'
-            className='w-full'>
+            name="gender"
+            label="Gender"
+            className="w-full"
+          >
             {(field) => (
-              <div className='w-full'>
+              <div className="w-full">
                 <label className={labelStyle}>Gender</label>
                 <BaseSelect
                   onChange={(value) => field.onChange(value)}
-                  label='Gender'
-                  placeholder='Select gender'
+                  label="Gender"
+                  placeholder="Select gender"
                   value={field.value as string}
                   items={[
-                    { value: 'male', label: 'Male' },
-                    { value: 'female', label: 'Female' },
-                    { value: 'other', label: 'Other' },
+                    { value: "male", label: "Male" },
+                    { value: "female", label: "Female" },
+                    { value: "other", label: "Other" },
                   ]}
                   triggerClassName={inputStyle}
                 />
@@ -201,14 +214,20 @@ export default function ProfileTab() {
           </FormField>
 
           {/* Birthday */}
-          <div className='w-full'>
+          <div className="w-full">
             <label className={labelStyle}>Birthday</label>
-            <div className='w-full grid grid-cols-3 gap-4'>
+            <div className="w-full grid grid-cols-3 gap-4">
               {/* Year */}
-              <FormField form={form} name="birthday.year" className='w-full' labelClassName='sr-only' label='Year'>
+              <FormField
+                form={form}
+                name="birthday.year"
+                className="w-full"
+                labelClassName="sr-only"
+                label="Year"
+              >
                 {(field) => (
                   <BaseSelect
-                    type='others'
+                    type="others"
                     placeholder="Year"
                     onChange={field.onChange}
                     value={field.value as string}
@@ -219,10 +238,16 @@ export default function ProfileTab() {
               </FormField>
 
               {/* Month */}
-              <FormField form={form} name="birthday.month" className='w-full' labelClassName='sr-only' label='Month'>
+              <FormField
+                form={form}
+                name="birthday.month"
+                className="w-full"
+                labelClassName="sr-only"
+                label="Month"
+              >
                 {(field) => (
                   <BaseSelect
-                    type='others'
+                    type="others"
                     placeholder="Month"
                     onChange={field.onChange}
                     value={field.value as string}
@@ -233,10 +258,16 @@ export default function ProfileTab() {
               </FormField>
 
               {/* Day */}
-              <FormField form={form} name="birthday.day" className='w-full' labelClassName='sr-only' label='Day'>
+              <FormField
+                form={form}
+                name="birthday.day"
+                className="w-full"
+                labelClassName="sr-only"
+                label="Day"
+              >
                 {(field) => (
                   <BaseSelect
-                    type='others'
+                    type="others"
                     placeholder="Day"
                     onChange={field.onChange}
                     value={field.value as string}
@@ -251,22 +282,23 @@ export default function ProfileTab() {
           {/* Country */}
           <FormField
             form={form}
-            name='country'
-            label='Country'
-            className='w-full'>
+            name="country"
+            label="Country"
+            className="w-full"
+          >
             {(field) => (
-              <div className='w-full'>
+              <div className="w-full">
                 <label className={labelStyle}>Country</label>
                 <BaseSelect
                   onChange={(value) => field.onChange(value)}
-                  label='Country'
-                  placeholder='Select country'
+                  label="Country"
+                  placeholder="Select country"
                   value={field.value as string}
                   items={[
-                    { value: 'nigeria', label: 'Nigeria' },
-                    { value: 'ghana', label: 'Ghana' },
-                    { value: 'kenya', label: 'Kenya' },
-                    { value: 'south_africa', label: 'South Africa' },
+                    { value: "nigeria", label: "Nigeria" },
+                    { value: "ghana", label: "Ghana" },
+                    { value: "kenya", label: "Kenya" },
+                    { value: "south_africa", label: "South Africa" },
                   ]}
                   triggerClassName={inputStyle}
                 />
@@ -275,13 +307,9 @@ export default function ProfileTab() {
           </FormField>
 
           {/* State */}
-          <FormField
-            form={form}
-            name='state'
-            label='State'
-            className='w-full'>
+          <FormField form={form} name="state" label="State" className="w-full">
             {(field) => (
-              <div className='w-full'>
+              <div className="w-full">
                 <label className={labelStyle}>State</label>
                 <Input
                   {...field}
@@ -294,20 +322,21 @@ export default function ProfileTab() {
           </FormField>
 
           {/* Phone Number */}
-          <div className='w-full'>
+          <div className="w-full">
             <label className={labelStyle}>Phone Number</label>
-            <div className='flex items-end gap-3'>
+            <div className="flex items-end gap-3">
               <FormField
                 form={form}
-                name='number.country_code'
-                label='Code'
-                className='w-[140px]'
-                labelClassName='sr-only'>
+                name="number.country_code"
+                label="Code"
+                className="w-[140px]"
+                labelClassName="sr-only"
+              >
                 {(field) => (
                   <BaseSelect
                     onChange={(value) => field.onChange(value)}
-                    label='Code'
-                    placeholder='+234'
+                    label="Code"
+                    placeholder="+234"
                     value={field.value as string}
                     items={africanCountryCodes}
                     triggerClassName={inputStyle}
@@ -317,15 +346,16 @@ export default function ProfileTab() {
 
               <FormField
                 form={form}
-                name='number.digits'
-                label='Phone Number'
-                labelClassName='sr-only'
-                className='flex-1'>
+                name="number.digits"
+                label="Phone Number"
+                labelClassName="sr-only"
+                className="flex-1"
+              >
                 {(field) => (
                   <Input
                     {...field}
-                    type='tel'
-                    placeholder='Phone Number'
+                    type="tel"
+                    placeholder="Phone Number"
                     className={inputStyle}
                     value={field.value as string}
                   />
@@ -337,25 +367,25 @@ export default function ProfileTab() {
           {/* Save Button */}
           <div className="flex justify-center mt-8 pb-12">
             <Button
-              type='submit'
+              type="submit"
               disabled={isLoadingProfile || updateProfileMutation.isPending}
-              className='w-[160px] h-[48px] font-ibm-plex-mono font-bold uppercase tracking-widest bg-white text-deep-red hover:bg-white/90 disabled:opacity-50 disabled:cursor-not-allowed rounded-[4px] text-[13px] transition-all border-none'>
-              {updateProfileMutation.isPending ? 'SAVING...' : 'SAVE'}
+              className="w-[160px] h-[48px] font-ibm-plex-mono font-bold uppercase tracking-widest bg-white text-deep-red hover:bg-white/90 disabled:opacity-50 disabled:cursor-not-allowed rounded-[4px] text-[13px] transition-all border-none"
+            >
+              {updateProfileMutation.isPending ? "SAVING..." : "SAVE"}
             </Button>
           </div>
-
         </FormBase>
       </div>
     </div>
-  )
+  );
 }
 
 const years = Array.from({ length: 100 }, (_, i) => {
-  const year = `${new Date().getFullYear() - i}`
-  return { value: year, label: year }
-})
+  const year = `${new Date().getFullYear() - i}`;
+  return { value: year, label: year };
+});
 
 const days = Array.from({ length: 31 }, (_, i) => ({
   value: (i + 1).toString(),
   label: (i + 1).toString(),
-}))
+}));

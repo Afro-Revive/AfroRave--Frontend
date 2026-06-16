@@ -1,15 +1,13 @@
-import { Input } from '@/components/ui/input'
-import { Badge, X } from 'lucide-react'
+import { X } from 'lucide-react'
 import { formatNaira } from '@/lib/format-price'
-import { useGetAllCart, useValidatePromocode, useCheckoutCart, useClearCart } from '@/hooks/use-cart'
+import { useGetAllCart, useCheckoutCart, useClearCart } from '@/hooks/use-cart'
 import { useGetEventTickets } from '@/hooks/use-event-mutations'
 import { useAfroStore, useCartStore } from '@/stores'
 import type { CartData } from '@/types/cart'
-import { useState } from 'react'
-import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { useNavigate } from 'react-router-dom'
 import { getRoutePath } from '@/config/get-route-path'
+import PromoCode from '@/pages/fans/account/components/promo-code'
 
 export default function CartSummary({
   name,
@@ -23,8 +21,6 @@ export default function CartSummary({
   eventId?: string
 }) {
   const navigate = useNavigate()
-  const [message, setMessage] = useState<string | null>(null)
-  const [isValid, setIsValid] = useState<boolean | null>(null)
 
   const isAuthenticated = useAfroStore((state) => state.isAuthenticated)
   const localItems = useCartStore((state) => state.items)
@@ -52,32 +48,11 @@ export default function CartSummary({
         }
       })
 
-  const totalPrice = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
-  const totalQuantity = cartItems.reduce((sum, item) => sum + item.quantity, 0)
+    const totalPrice = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
+    const totalQuantity = cartItems.reduce((sum, item) => sum + item.quantity, 0)
 
-  const validatePromocodeMutation = useValidatePromocode()
   const checkoutMutation = useCheckoutCart()
   const clearCartMutation = useClearCart()
-
-  function handleValidatePromocode(promocode: string) {
-    validatePromocodeMutation.mutate(
-      {
-        data: {
-          promoCode: promocode,
-          eventIds: cartItems.map((item) => item.eventId),
-          subtotal: totalPrice,
-          totalTickets: totalQuantity,
-          ticketIds: cartItems.map((item) => item.ticketId),
-        },
-      },
-      {
-        onSuccess: (data) => {
-          setMessage(data.data.data.message)
-          setIsValid(data.data.data.isValid)
-        },
-      },
-    )
-  }
 
   function handleCheckout() {
     checkoutMutation.mutate(
@@ -108,7 +83,7 @@ export default function CartSummary({
         <p className='font-sf-pro-display text-base md:text-xl leading-[100%]'>{location}</p>
       </div>
 
-      <div className='w-full flex flex-col gap-7'>
+      <div className='w-full flex flex-col '>
         {cartItems.map((item) => (
           <CartTicket
             key={item.cartId}
@@ -118,27 +93,14 @@ export default function CartSummary({
           />
         ))}
 
-        <div className='flex flex-col gap-2'>
-          <div
-            className={cn(
-              'max-w-[225px] w-full h-10 flex items-center gap-[5px] pl-2 rounded-[5px] border border-white',
-              { 'border-[#FF9500]': !isValid, 'border-white': isValid },
-            )}>
-            <Badge color='#ffffff' fill='#ffffff' stroke='#ffffff' size={13} />
-            <Input
-              placeholder='ENTER PROMO CODE'
-              className='border-none pl-none rounded-none uppercase text-xs font-input-mono text-white font-light placeholder:text-white'
-              onChange={(e) => handleValidatePromocode(e.target.value)}
-            />
-          </div>
-
-          {!isValid && (
-            <p className='text-sm font-sf-pro-display leading-[100%] text-[#FF9500]'>{message}</p>
-          )}
-        </div>
+        <PromoCode
+          cartItems={cartItems}
+          totalPrice={totalPrice}
+          totalQuantity={totalQuantity}
+        />
 
         <div className='w-full flex items-center justify-between'>
-          <p className='font-sf-pro-display md:text-xl  text-white leading-[100%]'>TOTAL:</p>
+          <p className='font-sf-pro-display md:text-xl text-white leading-[100%]'>TOTAL:</p>
           <p className='text-white font-sf-pro-text md:text-xl leading-[100%]'>{formatNaira(totalPrice)}</p>
         </div>
 
