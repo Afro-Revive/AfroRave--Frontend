@@ -57,43 +57,46 @@ export default function CartContainer({ event, action }: CartContainerProps) {
   return (
     <section className="container flex flex-col md:justify-center md:flex-row z-10">
       <div className="w-full  md:w-1/2 flex flex-col gap-5 px-5 md:py-10 max-h-[calc(100vh-100px)] overflow-y-auto">
-        <div className="w-full flex items-center">
-          <div className="flex flex-col gap-1">
-            <p className=" text-2xl md:text-4xl uppercase leading-normal font-inter font-black">
-              {event.eventName}
-            </p>
-            <p className="text-sm md:text-base font-sf-pro-display">
-              {event.venue}
-            </p>
-            <p className="text-xs md:text-sm font-sf-pro-display ">
-              {formatEventDate(event.eventDate.startDate)} -{" "}
-              {formatEventDate(event.eventDate.endDate)} at{" "}
-              {formatTimeLong(event.eventDate.startTime)}(
-              {formatTimezone(event.eventDate.timezone)})
-            </p>
+        <div className="w-full flex flex-col md:flex-row items-stretch gap-4">
+          <div className="flex flex-col flex-1 gap-4 md:gap-0 md:justify-between">
+            <div className="flex flex-col gap-1">
+              <p className="text-2xl md:text-4xl uppercase leading-normal font-inter font-black">
+                {event.eventName}
+              </p>
+              <p className="text-sm md:text-base font-sf-pro-display">
+                {event.venue}
+              </p>
+              <p className="text-xs md:text-sm font-sf-pro-display">
+                {formatEventDate(event.eventDate.startDate)} -{" "}
+                {formatEventDate(event.eventDate.endDate)} at{" "}
+                {formatTimeLong(event.eventDate.startTime)} (
+                {formatTimezone(event.eventDate.timezone)})
+              </p>
+            </div>
+
+            <div className="md:hidden w-fit ">
+              <RenderEventImage
+                image={event.eventDetails.desktopMedia?.flyer}
+                event_name={event.eventName}
+              />
+            </div>
+
+            <div>
+              <p className="text-xl md:text-2xl uppercase leading-normal font-inter font-black">
+                Order Summary
+              </p>
+              <p className="text-sm md:text-base font-sf-pro-display">
+                Complete payment to secure your ticket!
+              </p>
+            </div>
           </div>
-          <div className="hidden md:block">
+
+          <div className="hidden md:block w-[200px] shrink-0">
             <RenderEventImage
               image={event.eventDetails.desktopMedia?.flyer}
               event_name={event.eventName}
             />
           </div>
-        </div>
-
-        <div className="md:hidden flex  w-full min-h-[200px]">
-          <RenderEventImage
-            image={event.eventDetails.desktopMedia?.flyer}
-            event_name={event.eventName}
-          />
-        </div>
-
-        <div>
-          <p className="text-xl md:text-2xl uppercase leading-normal font-inter font-black">
-            Order Summary
-          </p>
-          <p className="text-sm md:text-base font-sf-pro-display">
-            Complete payment to secure your ticket!
-          </p>
         </div>
 
         <ul className="w-full flex flex-col gap-2 ">

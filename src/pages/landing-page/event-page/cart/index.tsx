@@ -71,7 +71,7 @@ export default function Cart({ event }: CartProps) {
         removeCancel
         onClose={() => setCheckoutOpen(false)}
         open={checkoutOpen}>
-        <CheckoutPage event_name={event.eventName} event_location={event.venue} event_id={event.eventId} />
+        <CheckoutPage event={event} event_id={event.eventId} />
       </BaseModal>
     </>
   )
