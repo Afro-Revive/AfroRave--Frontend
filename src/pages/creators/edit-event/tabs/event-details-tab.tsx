@@ -62,17 +62,7 @@ export default function EventDetailsTab({ event, setActiveTab, handleBackClick }
     const eventData = transformEventDetailsToCreateRequest(values)
 
     mutate(
-      {
-        eventId,
-        data: {
-          ...eventData,
-          eventDetails: {
-            ...eventData.eventDetails,
-            theme: event.eventDetails.theme,
-            desktopMedia: event.eventDetails.desktopMedia,
-          },
-        },
-      },
+      { eventId, data: eventData },
       {
         onSuccess: () => {
           setActiveTab('tickets')

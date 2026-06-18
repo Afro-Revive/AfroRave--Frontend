@@ -34,6 +34,10 @@ export default function Cart({ event }: CartProps) {
         return sum + (ticket?.price ?? 0) * item.quantity
       }, 0)
 
+  const hasCartItems = isAuthenticated
+    ? ((data?.data ?? []) as CartData[]).length > 0
+    : localItems.length > 0
+
   return (
     <>
       <Button
@@ -44,7 +48,7 @@ export default function Cart({ event }: CartProps) {
           {(isAuthenticated && isLoading) || isSyncingCart ? (
             <LoaderCircle color='#ffffff' size={24} className='animate-spin' />
           ) : (
-            formatNaira(totalPrice)
+            formatNaira(totalPrice, { free: totalPrice === 0 && hasCartItems })
           )}
         </span>
       </Button>
@@ -55,6 +59,9 @@ export default function Cart({ event }: CartProps) {
         floatingCancel
         onClose={() => setIsOpen(false)}
         open={isOpen}
+        confirmClose
+        confirmCloseTitle='Exit Cart?'
+        confirmCloseMessage='Your cart will be cleared if you leave this page. Are you sure you want to go back?'
         hasFooter>
         <div className='flex flex-col h-fit w-full justify-center items-center md:mt-24 mt-16'>
           <CartContainer event={event}  action={() => {
@@ -68,6 +75,10 @@ export default function Cart({ event }: CartProps) {
         size='full'
         className='bg-black !w-screen !h-screen !max-w-screen '
         floatingCancel
+        confirmClose
+        confirmCloseTitle='Exit Checkout?'
+        confirmCloseMessage='Your cart will be cleared if you leave this page. Are you sure you want to go back?'
+        confirmCloseCancelText='Return to checkout'
         removeCancel
         onClose={() => setCheckoutOpen(false)}
         open={checkoutOpen}>

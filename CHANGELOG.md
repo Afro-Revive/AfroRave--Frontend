@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 
 ### Added
+- **`BaseModal` confirm-close overlay** (`base-modal.tsx`): Added `confirmClose` prop that intercepts close attempts (X button, Escape, overlay click) and renders an absolute-positioned confirmation card on top of the modal instead of closing immediately. Configurable via `confirmCloseTitle`, `confirmCloseMessage`, `confirmCloseConfirmText`, `confirmCloseCancelText`. Includes an X icon to dismiss the overlay without closing the modal. Applied to both the cart modal and checkout modal in `cart/index.tsx`.
+- **`TotalAccordion` component** (`src/pages/fans/account/components/totalPrice-accordion.tsx`): Collapsible total price breakdown showing ticket subtotal and service fee in the content, with TOTAL + price in the trigger and auto-appended chevron.
+- **`PromoCode` component** (`src/pages/fans/account/components/promo-code.tsx`): Extracted standalone reusable promo code component with typed `cartItems`, `totalPrice`, and `totalQuantity` props.
+- **`CheckoutSummary` component** (`src/pages/landing-page/checkout/sections/checkout-summary.tsx`): New component replacing the old `cart-summary` in the checkout flow, matching updated Figma. Layout: desktop flex-row with event details + order summary on the left and event image on the right; mobile stacks event details → image → order summary.
+- **Inter font** added to project (`src/styles/fonts.css`, `public/fonts/inter/`): Variable font files for Inter Regular and Italic; registered as `font-inter` in CSS.
 - Initial Changelog creation.
 - `formatTimeLong`, `formatDateLong`, `formatTimezone` utility functions added to `src/lib/helper-func.ts` for consistent event time and timezone display (e.g. `+1` → `WAT`).
 - `PromoCode` extracted into a standalone reusable component (`src/components/reusable/promo-code.tsx`) with typed `cartItems`, `totalPrice`, and `totalQuantity` props — replaces inline promo code logic in both cart-container and cart-summary.
@@ -14,6 +19,11 @@ All notable changes to this project will be documented in this file.
 - `isSyncingCart` flag to `useCartStore` for tracking post-login cart sync state (excluded from localStorage persistence).
 
 ### Fixed
+- **Business signup form not submitting** (`business-signup-form.tsx`): `InputField` and `SelectField` wrappers were not passing `showMessage` to their inner `FormField`, so Zod validation errors were invisible — form appeared to do nothing on submit. Added `showMessage` to both field components.
+- **Theme tab `onSubmit` not triggering** (`theme-tab.tsx`): `RadioGroupItem` had `className='hidden'` which sets `display:none`, making the element non-interactive — label's `htmlFor` could not activate it, so `field.onChange` was never called and the theme value stayed `undefined`, failing `z.enum` validation silently. Fixed by changing to `className='sr-only'`. Also corrected typo `'defualt'` → `'default'` in the default theme option.
+- **Theme and desktopMedia cleared on event details save** (`event-details-tab.tsx`): `transformEventDetailsToCreateRequest` did not include `theme` or `desktopMedia` in its output, so the backend treated missing fields as a full replace and cleared them. Fixed by merging the existing event's `theme` and `desktopMedia` into the update payload in `onSubmit`.
+- **Ticket validation errors not surfaced** (`tickets-tab.tsx`): Added `onError` callback as the second argument to `handleSubmit` so Zod validation failures log to the console for debugging.
+- **Mobile screens for fans route** (`bceb4d9`): Fixed layout issues across cart container, checkout page, event description, event details, ticket section, and resell page on mobile viewports. Improved helper functions for time formatting (`formatTimeLong`, `formatDateLong`, `formatTimezone`).
 - **React Query stale cache after login** (`use-cart.ts`): Added `isAuthenticated` to the `useGetAllCart` query key so a state change from unauthenticated → authenticated creates a new cache slot, preventing local-format cart data from being served as server `CartData`.
 - **Race condition on login** (`use-auth.ts`, `stores/index.ts`): Local cart sync is now `await`ed before navigation and `onSuccess` callback fire. `isSyncingCart` wraps the full `Promise.allSettled` call so the UI spinner stays active for the entire sync duration.
 - **Post-login redirect to checkout** (`user-login-form.tsx`, `checkout/index.tsx`): User is correctly returned to the checkout page after signing in from the checkout flow.
@@ -29,6 +39,11 @@ All notable changes to this project will be documented in this file.
 - **`isFan` / `isCreator` / `isVendor` always returning `false`** (`stores/index.ts`): Replaced getter pattern with explicit boolean properties set in `setAuth`, `clearAuth`, and `updateUser`.
 
 ### Changed
+- **`formatNaira` refactored to options object** (`src/lib/format-price.ts`): Signature changed from `(amount, aproximate?)` to `(amount, options: { aproximate?, free? })`. Added `free` option — when `amount === 0 && free` returns the string `'FREE'` instead of `'₦0'`. Callers that previously passed a positional boolean now use `{ aproximate: true }`.
+- **Cart button FREE display** (`cart/index.tsx`): Added `hasCartItems` derived boolean; the checkout button now shows `'FREE'` only when the cart has items and the total price is ₦0, so the default empty-cart state still shows `₦0`.
+- **Cart container redesigned to match Figma** (`cart-container.tsx`, `875ad8a`): Layout updated to flex-row on desktop — event details and order summary on the left column, event image fixed on the right. On mobile, stacks as event details → image → order summary. Integrated `TotalAccordion` and `PromoCode` components. Inner content div uses `max-h-[calc(100vh-100px)] overflow-y-auto` for scrollability.
+- **Checkout page redesigned to match Figma** (`checkout/index.tsx`, `a6c6e6b`): `cart-summary` replaced by new `CheckoutSummary` component with matching layout. `useCountdown` hook moved inside `CheckoutSummary`.
+- **Publish event redirects to standalone route** (`event-details-tab.tsx`): After a successful publish, `onPublish` now calls `navigate(getRoutePath('standalone'))` instead of staying on the edit page.
 - **Event routing migrated from `eventID` to `customUrl`** (`hooks/use-event-mutations.ts`, `services/event.service.ts`, `components/shared/category-block.tsx`, `event-page/`): All event navigation now uses `customUrl` as the route parameter for cleaner, human-readable URLs.
 - **`eventID` removed as API request payload** (`event-transforms.ts`, creator edit-event tabs): Event ID no longer sent as part of the create/update request body; back-click navigation fixed in edit event tab.
 - **Cart summary** (`cart-summary.tsx`): Fully supports both authenticated (server `CartData`) and unauthenticated (local store + ticket enrichment via `useGetEventTickets`) states. `totalPrice` and `totalQuantity` computed from the normalised cart items array.

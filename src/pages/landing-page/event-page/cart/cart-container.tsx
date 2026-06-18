@@ -131,7 +131,7 @@ function CartTicketCard({ id, name, price, quantity }: ICartTicketCard) {
       <div className="flex flex-col gap-1">
         <p className="text-base font-sf-pro-display">{name}</p>
         <div className="flex flex-col gap-1 font-sf-pro-display">
-          <p className="text-sm">{formatNaira(price)}</p>
+          <p className="text-sm">{formatNaira(price, { free: price === 0 })}</p>
         </div>
       </div>
 

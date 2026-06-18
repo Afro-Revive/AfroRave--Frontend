@@ -18,14 +18,14 @@ const TotalAccordion = ({ totalPrice }: { totalPrice: number }) => {
           <div className="flex w-full items-center justify-between ">
             <span className="md:text-lg text-base">TOTAL</span>
             <span className="md:text-lg text-base">
-              {formatNaira(totalPrice + serviceFee)}
+              {formatNaira(totalPrice + serviceFee, { free: totalPrice === 0 })}
             </span>
           </div>
         </AccordionTrigger>
         <AccordionContent className="px-4 text-sm font-inter ">
           <div className="flex items-center justify-between py-2">
             <p>Ticket Price</p>
-            <p>{formatNaira(totalPrice)}</p>
+            <p>{formatNaira(totalPrice, { free: totalPrice === 0 })}</p>
           </div>
           <div className="flex items-center justify-between py-2  ">
             <p>Service Fee</p>

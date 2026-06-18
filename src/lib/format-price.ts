@@ -1,4 +1,12 @@
-export function formatNaira(amount: number, aproximate?: boolean) {
+interface FormatNairaOptions {
+  aproximate?: boolean;
+  free?: boolean;
+}
+
+export function formatNaira(amount: number, options: FormatNairaOptions = {}) {
+  const { aproximate, free } = options;
+
+  if (amount === 0 && free) return 'FREE';
 
   if (amount < 1000 && aproximate) {
     return `₦${amount.toLocaleString()}`;

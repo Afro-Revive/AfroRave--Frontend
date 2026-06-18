@@ -189,7 +189,7 @@ function CartTicket({ name, price, quantity }: InitialTickets) {
         </p>
         <div className="flex flex-col gap-0.5">
           <p className="text-xs md:text-sm font-sf-pro-display leading-[100%]">
-            {formatNaira(price)}
+            {formatNaira(price, { free: price === 0 })}
           </p>
         </div>
       </div>

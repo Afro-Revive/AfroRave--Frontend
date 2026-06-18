@@ -1,23 +1,6 @@
-/**
- * A reusable modal component built on top of shadcn/ui Dialog.
- * Provides a flexible way to display content in a modal dialog with various customization options.
- * Supports different sizes, footer content, and overlay behaviors.
- *
- * @example
- * ```tsx
- * <BaseModal
- *   trigger={<Button>Open Modal</Button>}
- *   title="Modal Title"
- *   description="Modal description"
- *   size="large"
- *   hasFooter
- *   footerContent={<Button>Close</Button>}
- * >
- *   <div>Modal content goes here</div>
- * </BaseModal>
- * ```
- */
 import type { ReactNode } from 'react'
+import { useState } from 'react'
+import { X } from 'lucide-react'
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden'
 import {
   Dialog,
@@ -27,55 +10,43 @@ import {
   DialogTitle,
   DialogDescription,
 } from '../ui/dialog'
+import { Button } from '../ui/button'
 import { cn } from '@/lib/utils'
 
-/** Available modal size options */
 const sizeClasses = {
-  /** Small modal (415px max width) */
   small: 'sm:max-w-[415px]',
-  /** Large modal (864px max width) */
   large: 'sm:max-w-[864px]',
-  /** Full height modal with vertical scrolling */
   full: ' h-full w-full max-w-full',
 }
 
 interface CustomModalProps {
-  /** Trigger element that opens the modal (usually a button) */
   trigger?: ReactNode
-  /** Modal title (visually hidden by default) */
   title?: string | React.ReactNode
-  /** Modal description (visually hidden by default) */
   description?: string | React.ReactNode
-  /** Modal content */
   children: ReactNode
-  /** Additional CSS classes for the modal */
   className?: string
-  /** Controlled open state */
   open?: boolean
-  /** Callback when modal closes */
   onClose?: (open: boolean) => void
-  /** Modal size variant */
   size?: keyof typeof sizeClasses
-  /** Whether to remove the default cancel button */
   removeCancel?: boolean
-  /** Whether to show a floating cancel button */
   floatingCancel?: boolean
-  /** Whether to show the footer section */
   hasFooter?: boolean
-  /** Footer content (usually buttons) */
   footerContent?: ReactNode
-  /** Whether to disable closing on overlay click */
   disableOverlayClick?: boolean
-  /** Whether to cancel on overlay click */
   cancelOnOverlay?: boolean
-  /** Additional CSS classes for the overlay */
   overlayClassName?: string
+  /** Show a confirmation overlay on top of the modal when close is clicked */
+  confirmClose?: boolean
+  /** Header title of the confirmation overlay */
+  confirmCloseTitle?: string
+  /** Description shown in the confirmation overlay */
+  confirmCloseMessage?: string
+  /** Label for the "leave" button */
+  confirmCloseConfirmText?: string
+  /** Label for the "stay" button */
+  confirmCloseCancelText?: string
 }
 
-/**
- * Base modal component that provides a consistent way to display content in a modal dialog.
- * Supports various customization options including size, footer, and overlay behaviors.
- */
 function BaseModal({
   trigger,
   title,
@@ -92,15 +63,31 @@ function BaseModal({
   disableOverlayClick = false,
   cancelOnOverlay = false,
   overlayClassName,
+  confirmClose = false,
+  confirmCloseTitle = 'Are you sure?',
+  confirmCloseMessage = 'Your progress will be lost if you leave.',
+  confirmCloseConfirmText = 'Go Back',
+  confirmCloseCancelText = 'Return to Cart',
 }: CustomModalProps) {
+  const [showConfirm, setShowConfirm] = useState(false)
+
+  function handleOpenChange(nextOpen: boolean) {
+    if (!nextOpen) {
+      if (confirmClose) {
+        setShowConfirm(true)
+        return
+      }
+      onClose?.(nextOpen)
+    }
+  }
+
+  function handleConfirmClose() {
+    setShowConfirm(false)
+    onClose?.(false)
+  }
+
   return (
-    <Dialog
-      open={open}
-      onOpenChange={(open) => {
-        if (!open) {
-          onClose?.(open)
-        }
-      }}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
       <DialogContent
         className={cn(
@@ -113,8 +100,9 @@ function BaseModal({
         floatingCancel={floatingCancel}
         onClick={(e) => e.stopPropagation()}
         onInteractOutside={(e) => {
-          if (disableOverlayClick) {
+          if (disableOverlayClick || confirmClose) {
             e.preventDefault()
+            if (confirmClose) setShowConfirm(true)
           }
         }}
         cancelOnOverlay={cancelOnOverlay}>
@@ -129,7 +117,41 @@ function BaseModal({
 
         <div className='flex flex-col transition-all duration-500 ease-[cubic-bezier(0.25,0.1,0.25,1)]'>{children}</div>
 
-        {hasFooter && <div className='absolute  bottom-0  right-0 z-10'>{footerContent}</div>}
+        {hasFooter && <div className='absolute bottom-0 right-0 z-10'>{footerContent}</div>}
+
+        {/* Confirmation overlay rendered on top of modal content */}
+        {showConfirm && (
+          <div className='absolute inset-0 z-50 flex flex-col items-center justify-center bg-black/80 rounded-lg'>
+            <div className='relative bg-white pt-12 pb-6 rounded-2xl flex flex-col items-center gap-4 px-8 w-full max-w-[350px]'>
+              <button
+                type='button'
+                className='absolute top-3 right-3 text-[#1E1E1E] hover:text-black'
+                onClick={() => setShowConfirm(false)}>
+                <X size={24} />
+              </button>
+              <p className='text-black text-center text-xl font-semibold font-sf-pro-display'>
+                {confirmCloseTitle}
+              </p>
+              <p className='text-[#1E1E1E] text-sm font-inter '>
+                {confirmCloseMessage}
+              </p>
+              <div className='flex gap-4 mt-4'>
+                <Button
+                  variant='link'
+                  className='bg-[#EBC8C8] text-[#AE2323] font-sf-pro-display px-8'
+                  onClick={handleConfirmClose}>
+                  {confirmCloseConfirmText}
+                </Button>
+                <Button
+                  variant='default'
+                  className='font-sf-pro-display px-8'
+                  onClick={() => setShowConfirm(false)}>
+                  {confirmCloseCancelText}
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   )
