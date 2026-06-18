@@ -23,7 +23,7 @@ export default function TicketSection({ eventId, layout }: ITicketProps) {
       <div className='flex items-center gap-5'>
         <BlockName name='tickets' />
 
-        <p className='font-sf-pro-display text-xl font-extrabold text-white/60'>SALE</p>
+        {/* <p className='font-sf-pro-display text-xl font-extrabold text-white/60'>SALE</p> */}
       </div>
 
       {isLoading ? (

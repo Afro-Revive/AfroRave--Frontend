@@ -6,9 +6,7 @@ import { RenderEventImage } from '@/components/shared/render-event-flyer'
 export default function EventDetailsSection({ event, layout }: ComponentProps) {
   return (
     <div
-      className={cn('relative w-full flex items-end justify-between px-5 lg:px-[120px]', {
-        'mb-[220px]': layout === 'standard-carousel',
-      })}>
+      className={cn('relative w-full flex items-end justify-between px-5 lg:px-[120px]')}>
       <div className='flex flex-col gap-3'>
         {layout === 'standard-carousel' && (
           <>

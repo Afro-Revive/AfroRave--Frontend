@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { format, parseISO } from 'date-fns'
+import { format, parseISO, differenceInCalendarDays } from 'date-fns'
 
 function generateRandomString(length = 10) {
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
@@ -232,4 +232,8 @@ export function formatEventDate(dateString: string): string {
   } catch {
     return dateString
   }
+}
+
+export function daysUntilEvent(startDate: string): number {
+  return differenceInCalendarDays(parseISO(startDate), new Date())
 }
