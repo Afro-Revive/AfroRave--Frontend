@@ -6,12 +6,14 @@ import { FormBase } from '@/components/reusable'
 import { BaseSelect } from '@/components/reusable'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
-import { useUpdateEvent } from '@/hooks/use-event-mutations'
+import { useUpdateEvent, usePublishEvent } from '@/hooks/use-event-mutations'
 import { OnlyShowIf } from '@/lib/environment'
 import { EditEventDetailsSchema, type EventDetailsSchema } from '@/schema/edit-event-details'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useForm, type UseFormReturn } from 'react-hook-form'
+import { getRoutePath } from '@/config/get-route-path'
 import { africanTimezones, ageRatings, eventCategories, frequencyOptions } from '../constant'
 import type { EventDetailData } from '@/types'
 import { transformEventToSchema } from '../helper'
@@ -20,6 +22,7 @@ import { transformEventDetailsToCreateRequest } from '@/lib/event-transforms'
 import { TabChildrenContainer } from '../component/edit-tab-children-container'
 
 export default function EventDetailsTab({ event, setActiveTab, handleBackClick }: IEventDetailsTab) {
+  const navigate = useNavigate()
   const eventDate = event.eventDate
   const eventId = event.eventId
 
@@ -30,6 +33,8 @@ export default function EventDetailsTab({ event, setActiveTab, handleBackClick }
   )
 
   const updateEventMutation = useUpdateEvent()
+  const publishEventMutation = usePublishEvent()
+  const { isPending: isPublishing, mutate: publishEvent } = publishEventMutation
 
   const { isPending, mutate } = updateEventMutation
 
@@ -37,6 +42,8 @@ export default function EventDetailsTab({ event, setActiveTab, handleBackClick }
     resolver: zodResolver(EditEventDetailsSchema),
     defaultValues: transformEventToSchema(event, eventType),
   })
+
+  console.log(event) // Log the form values for debugging
 
   // const { isDirty } = form.formState
 
@@ -51,11 +58,21 @@ export default function EventDetailsTab({ event, setActiveTab, handleBackClick }
     }
   }, [eventType, form])
 
-  async function onSubmit(values: EventDetailsSchema) {
+  function onSubmit(values: EventDetailsSchema) {
     const eventData = transformEventDetailsToCreateRequest(values)
 
-    await mutate(
-      { eventId, data: eventData },
+    mutate(
+      {
+        eventId,
+        data: {
+          ...eventData,
+          eventDetails: {
+            ...eventData.eventDetails,
+            theme: event.eventDetails.theme,
+            desktopMedia: event.eventDetails.desktopMedia,
+          },
+        },
+      },
       {
         onSuccess: () => {
           setActiveTab('tickets')
@@ -64,11 +81,23 @@ export default function EventDetailsTab({ event, setActiveTab, handleBackClick }
     )
   }
 
+  function onPublish() {
+
+    publishEvent(eventId, {
+      onSuccess: () => {
+        navigate(getRoutePath('standalone'))
+      },
+    })
+  }
+
   return (
     <TabChildrenContainer
       handleSaveEvent={() => form.handleSubmit(onSubmit)()}
+      handlePublishEvent={onPublish}
       handleBackClick={handleBackClick}
+      isPublished={event.isPublished}
       isLoading={isPending}
+      isPublishing={isPublishing}
       currentTab='event-details'
       onChange={setActiveTab}>
       <div className='w-full flex flex-col items-center p-0 md:p-14 gap-2.5'>

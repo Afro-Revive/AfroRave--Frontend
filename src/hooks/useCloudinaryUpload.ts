@@ -8,7 +8,7 @@ async function uploadImageToCloudinary(file: File): Promise<string> {
   data.append('upload_preset', 'afro-rave')
 
   try {
-    const res = await axios.post('https://api.cloudinary.com/v1_1/dyuvjypyj/image/upload', data)
+    const res = await axios.post('https://api.cloudinary.com/v1_1/dyufpxzbz/image/upload', data)
     console.log(res.data.secure_url)
     return res.data.secure_url
   } catch (err) {

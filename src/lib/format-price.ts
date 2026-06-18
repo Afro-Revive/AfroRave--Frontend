@@ -1,4 +1,5 @@
 export function formatNaira(amount: number, aproximate?: boolean) {
+
   if (amount < 1000 && aproximate) {
     return `₦${amount.toLocaleString()}`;
   }

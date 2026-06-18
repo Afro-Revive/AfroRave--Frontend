@@ -200,7 +200,7 @@ export default function TicketsTab({ eventId, setActiveTab, eventName }: ITicket
               <TicketForm
                 form={ticketForm}
                 type={selectedType || 'single_ticket'}
-                onSubmit={() => ticketForm.handleSubmit(handleCreateTicket)()}
+                onSubmit={() => ticketForm.handleSubmit(handleCreateTicket, (errors) => console.log('Ticket validation errors:', errors))()}
                 isLoading={isCreatingTIcket}
                 onCancel={() => { setTicketFormOpen(false); setSelectedType(undefined); ticketForm.reset() }}
               />

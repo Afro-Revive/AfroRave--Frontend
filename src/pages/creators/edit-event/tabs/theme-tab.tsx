@@ -33,7 +33,9 @@ export default function ThemeTab({ event, setActiveTab }: IThemeTab) {
     },
   })
 
+    console.log('Form Values:', form.getValues()) // Log the form values for debugging
   function onSubmit(data: ThemeAndBannerSchema) {
+    console.log('Form Data:', data) // Log the form data for debugging
     const themeRequest = transformThemeToCreateRequest(data, event.eventId)
 
     updateThemeMutation.mutateAsync(
@@ -44,7 +46,7 @@ export default function ThemeTab({ event, setActiveTab }: IThemeTab) {
 
   return (
     <TabChildrenContainer
-      handleSaveEvent={() => form.handleSubmit(onSubmit)()}
+      handleSaveEvent={() => form.handleSubmit(onSubmit, (errors) => console.log('Validation errors:', errors))()}
       handleBackClick={() => setActiveTab('ticket')}
       isLoading={updateThemeMutation.isPending}
       currentTab='theme'
@@ -70,7 +72,7 @@ export default function ThemeTab({ event, setActiveTab }: IThemeTab) {
                 className='flex items-center justify-center flex-wrap gap-10'>
                 {theme.map((item) => (
                   <div key={item.name} className='w-fit flex flex-col'>
-                    <RadioGroupItem value={item.name} id={item.name} className='hidden' />
+                    <RadioGroupItem value={item.name} id={item.name} className='sr-only' />
                     <ThemePreviewCards {...item} isChecked={field.value === item.name} />
                   </div>
                 ))}
@@ -193,7 +195,7 @@ function ThemePreviewCards({ name, src, isChecked }: IThemeProps & { isChecked: 
 }
 
 const theme: IThemeProps[] = [
-  { name: 'defualt', src: '/assets/event/t1.png' },
+  { name: 'default', src: '/assets/event/t1.png' },
   { name: 'standard-carousel', src: '/assets/event/t2.png' },
   { name: 'with-flyer', src: '/assets/event/t3.png' },
 ]

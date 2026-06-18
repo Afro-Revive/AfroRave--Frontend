@@ -224,7 +224,7 @@ export function transformTicketsToCreateRequest(
     validDays:
       ticket.ticketType === 'multi_day' && ticket.days_valid
         ? Number.parseInt(ticket.days_valid, 10)
-        : 0,
+        : 1,
     description: ticket.description,
     eventId,
     ticketDetails: {

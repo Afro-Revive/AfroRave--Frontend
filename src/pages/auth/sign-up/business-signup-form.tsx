@@ -263,7 +263,7 @@ function InputField<T extends FieldValues>({
   className,
 }: InputField<T>) {
   return (
-    <FormField form={form} name={name} className='w-full'>
+    <FormField form={form} name={name} className='w-full' showMessage>
       <Input
         type={type}
         className={cn('w-full text-white h-14 rounded-[6px] border border-white py-6 px-3 font-sf-pro-text text-[10px] font-light', className)}
@@ -291,7 +291,7 @@ function SelectField<T extends FieldValues>({
   placeholder,
 }: ISelectField<T>) {
   return (
-    <FormField form={form} name={name} className='w-full'>
+    <FormField form={form} name={name} className='w-full' showMessage>
       {(field) => (
         <BaseSelect
           type='others'
