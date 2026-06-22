@@ -177,17 +177,15 @@ export function useLogin(options?: { onSuccess?: () => void }) {
       if (data.data.userData && data.data.token) {
         setAuth(data.data.userData, data.data.token)
 
-        // Sync local cart to server and wait for it to complete before navigating
+        // Sync local cart to server on login (needed for checkout flow).
+        // Local store is NOT cleared so checkout-summary can still read from it for display.
         const localItems = useCartStore.getState().items
         if (localItems.length > 0) {
           useCartStore.getState().setSyncing(true)
           try {
-            await Promise.allSettled(
-              localItems.map(({ ticketId, quantity }) =>
-                cartService.syncCart([{ ticketId, quantity }]),
-              ),
+            await cartService.syncCart(
+              localItems.map(({ ticketId, quantity }) => ({ ticketId, quantity })),
             )
-            useCartStore.getState().clearLocal()
             await queryClient.invalidateQueries({ queryKey: cartKeys.lists() })
           } finally {
             useCartStore.getState().setSyncing(false)

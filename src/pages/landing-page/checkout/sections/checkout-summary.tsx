@@ -1,9 +1,8 @@
 import { X } from "lucide-react";
 import { formatNaira } from "@/lib/format-price";
-import { useGetAllCart, useCheckoutCart, useClearCart } from "@/hooks/use-cart";
+import { useCheckoutCart, useClearCart } from "@/hooks/use-cart";
 import { useGetEventTickets } from "@/hooks/use-event-mutations";
 import { useAfroStore, useCartStore } from "@/stores";
-import type { CartData } from "@/types/cart";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { getRoutePath } from "@/config/get-route-path";
@@ -32,30 +31,18 @@ export default function CartSummary({
   const isAuthenticated = useAfroStore((state) => state.isAuthenticated);
   const localItems = useCartStore((state) => state.items);
   const { data: ticketsResponse } = useGetEventTickets(eventId ?? "");
-  const { data: serverCart } = useGetAllCart();
 
-  const cartItems = isAuthenticated
-    ? ((serverCart?.data ?? []) as unknown as CartData[]).map((item) => ({
-        cartId: String(item.cartId),
-        ticketId: item.ticketId,
-        eventId: item.eventId,
-        name: item.ticketName,
-        price: item.price,
-        quantity: item.quantity,
-      }))
-    : localItems.map((item) => {
-        const ticket = ticketsResponse?.data?.find(
-          (t) => t.ticketId === item.ticketId,
-        );
-        return {
-          cartId: item.ticketId,
-          ticketId: item.ticketId,
-          eventId: eventId ?? "",
-          name: ticket?.ticketName ?? "Ticket",
-          price: ticket?.price ?? 0,
-          quantity: item.quantity,
-        };
-      });
+  const cartItems = localItems.map((item) => {
+    const ticket = ticketsResponse?.data?.find((t) => t.ticketId === item.ticketId);
+    return {
+      cartId: item.ticketId,
+      ticketId: item.ticketId,
+      eventId: eventId ?? "",
+      name: ticket?.ticketName ?? "Ticket",
+      price: ticket?.price ?? 0,
+      quantity: item.quantity,
+    };
+  });
 
   const totalPrice = cartItems.reduce(
     (sum, item) => sum + item.price * item.quantity,
@@ -98,15 +85,18 @@ export default function CartSummary({
     const s = String(remaining % 60).padStart(2, "0");
     return { display: `${m}:${s}`, expired: remaining <= 0 };
   }
-  const { display, expired } = useCountdown(10 * 60);
+  // Countdown timer for 15 minutes
+  const { display, expired } = useCountdown(15 * 60);
 
   return (
     <div className="max-w-3xl w-full flex flex-col gap-5 md:gap-10">
-      <p className="text-xs text-center font-input-mono text-white">
-        {expired
-          ? "Your session has expired"
-          : `Please checkout within ${display} minutes`}
-      </p>
+      {isAuthenticated && (
+        <p className="text-xs text-center font-input-mono text-white">
+          {expired
+            ? "Your session has expired"
+            : `Please checkout within ${display} minutes`}
+        </p>
+      )}
       <div className="w-full flex flex-col md:flex-row items-stretch gap-4">
         <div className="flex flex-col flex-1 gap-4 md:gap-0 md:justify-between">
           <div className="flex flex-col gap-1">

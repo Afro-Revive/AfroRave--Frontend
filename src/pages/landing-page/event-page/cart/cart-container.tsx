@@ -1,52 +1,36 @@
 import { Button } from "@/components/ui/button";
-import { Plus, Minus } from "lucide-react";
+import { Plus, Minus, LoaderCircle } from "lucide-react";
 import { formatNaira } from "@/lib/format-price";
 import { useState } from "react";
 import type { EventDetailData } from "@/types";
 import { RenderEventImage } from "@/components/shared/render-event-flyer";
-import { useUpdateCartQuantity, useGetAllCart } from "@/hooks/use-cart";
+import { useUpdateCartQuantity } from "@/hooks/use-cart";
 import { useGetEventTickets } from "@/hooks/use-event-mutations";
-import { useAfroStore, useCartStore } from "@/stores";
+import { useCartStore } from "@/stores";
 import {
   formatEventDate,
   formatTimeLong,
   formatTimezone,
 } from "@/lib/helper-func";
-import type { CartData } from "@/types/cart";
 import PromoCode from "@/pages/fans/account/components/promo-code";
 import TotalAccordion from "@/pages/fans/account/components/totalPrice-accordion";
 
 
-export default function CartContainer({ event, action }: CartContainerProps) {
-  const isAuthenticated = useAfroStore((state) => state.isAuthenticated);
+export default function CartContainer({ event, action, isLoading = false }: CartContainerProps) {
   const localItems = useCartStore((state) => state.items);
   const { data: ticketsResponse } = useGetEventTickets(event.eventId);
-  const { data: serverCart } = useGetAllCart();
 
-  // If the user is authenticated, we use the cart data from the server. If not, we use the cart data from local storage. We also need to map the cart data to include the ticket name and price, which are not included in the cart data from local storage.
-  const cartItems = isAuthenticated
-    ? ((serverCart?.data ?? []) as unknown as CartData[]).map((item) => ({
-        cartId: String(item.cartId),
-        ticketId: item.ticketId,
-        eventId: item.eventId,
-        name: item.ticketName,
-        price: item.price,
-        quantity: item.quantity,
-      }))
-    : localItems.map((item) => {
-        // Find the ticket details from the tickets response using the ticketId from the cart item. This is necessary because the local cart items only have the ticketId and quantity, and we need to get the ticket name and price to display in the cart.
-        const ticket = ticketsResponse?.data?.find(
-          (t) => t.ticketId === item.ticketId,
-        );
-        return {
-          cartId: String(item.ticketId),
-          ticketId: item.ticketId,
-          eventId: event.eventId,
-          name: ticket?.ticketName ?? "Unknown Ticket",
-          price: ticket?.price ?? 0,
-          quantity: item.quantity,
-        };
-      });
+  const cartItems = localItems.map((item) => {
+    const ticket = ticketsResponse?.data?.find((t) => t.ticketId === item.ticketId);
+    return {
+      cartId: String(item.ticketId),
+      ticketId: item.ticketId,
+      eventId: event.eventId,
+      name: ticket?.ticketName ?? "Unknown Ticket",
+      price: ticket?.price ?? 0,
+      quantity: item.quantity,
+    };
+  });
 
   const totalPrice = cartItems.reduce(
     (sum, item) => sum + item.price * item.quantity,
@@ -116,8 +100,8 @@ export default function CartContainer({ event, action }: CartContainerProps) {
           totalQuantity={totalQuantity}
         />
         <TotalAccordion totalPrice={totalPrice} />
-         <Button onClick={action} className='bg-white font-sf-pro-display text-black hover:bg-white/90'>
-          CONTINUE
+         <Button onClick={action} disabled={isLoading} className='bg-white font-sf-pro-display text-black hover:bg-white/90'>
+          {isLoading ? <LoaderCircle size={18} className='animate-spin' /> : 'CONTINUE'}
         </Button>
        
       </div>
@@ -193,6 +177,7 @@ function TicketQuantityControl({
 interface CartContainerProps {
   event: EventDetailData;
   action: () => void;
+  isLoading?: boolean;
 }
 
 interface ICartTicketCard {

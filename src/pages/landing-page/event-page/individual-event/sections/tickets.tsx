@@ -5,9 +5,8 @@ import { type LucideIcon, Plus, Minus, LoaderCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useGetEventTickets } from '@/hooks/use-event-mutations'
 import { Skeleton } from '@/components/ui/skeleton'
-import { useCreateCart, useGetAllCart, useUpdateCartQuantity } from '@/hooks/use-cart'
-import { useAfroStore, useCartStore } from '@/stores'
-import type { CartData } from '@/types/cart'
+import { useCreateCart, useUpdateCartQuantity } from '@/hooks/use-cart'
+import { useCartStore } from '@/stores'
 
 export default function TicketSection({ eventId, layout }: ITicketProps) {
   const { data: ticketResponse, isPending: isLoading } = useGetEventTickets(eventId)
@@ -53,19 +52,10 @@ export default function TicketSection({ eventId, layout }: ITicketProps) {
 }
 
 function TicketCard({ name, price, layout, ticketId }: ITicketCard) {
-  const isAuthenticated = useAfroStore((state) => state.isAuthenticated)
   const localItems = useCartStore((state) => state.items)
-  const { data: serverCart } = useGetAllCart()
 
-  const serverItems = (serverCart?.data ?? []) as unknown as CartData[]
-  const serverItem = serverItems.find((i) => i.ticketId === ticketId)
-
-  // 
-  const ticketCount = isAuthenticated
-    ? (serverItem?.quantity ?? 0)
-    : (localItems.find((i) => i.ticketId === ticketId)?.quantity ?? 0)
-
-  const cartId = isAuthenticated ? String(serverItem?.cartId ?? '') : ticketId
+  const ticketCount = localItems.find((i) => i.ticketId === ticketId)?.quantity ?? 0
+  const cartId = ticketId
 
   const createCartMutation = useCreateCart()
   const updateQuantityMutation = useUpdateCartQuantity()

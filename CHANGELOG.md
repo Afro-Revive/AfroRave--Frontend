@@ -5,6 +5,8 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 
 ### Added
+- **`useSyncCartToServer` hook** (`use-cart.ts`): New mutation that calls `POST /api/cart/sync` with all local store items when an authenticated user clicks Continue in the cart. Server-side cart is only created at this point, not during browsing.
+- **`daysUntilEvent` utility** (`src/lib/helper-func.ts`): Returns the number of calendar days between today and an event's start date using `differenceInCalendarDays` from date-fns.
 - **`BaseModal` confirm-close overlay** (`base-modal.tsx`): Added `confirmClose` prop that intercepts close attempts (X button, Escape, overlay click) and renders an absolute-positioned confirmation card on top of the modal instead of closing immediately. Configurable via `confirmCloseTitle`, `confirmCloseMessage`, `confirmCloseConfirmText`, `confirmCloseCancelText`. Includes an X icon to dismiss the overlay without closing the modal. Applied to both the cart modal and checkout modal in `cart/index.tsx`.
 - **`TotalAccordion` component** (`src/pages/fans/account/components/totalPrice-accordion.tsx`): Collapsible total price breakdown showing ticket subtotal and service fee in the content, with TOTAL + price in the trigger and auto-appended chevron.
 - **`PromoCode` component** (`src/pages/fans/account/components/promo-code.tsx`): Extracted standalone reusable promo code component with typed `cartItems`, `totalPrice`, and `totalQuantity` props.
@@ -17,6 +19,18 @@ All notable changes to this project will be documented in this file.
 - Full-screen login step on mobile checkout for unauthenticated users: cart summary hidden on mobile until authenticated, login form takes full screen width.
 - 10-minute countdown timer on checkout login screen (`useCountdown` hook using `setInterval`).
 - `isSyncingCart` flag to `useCartStore` for tracking post-login cart sync state (excluded from localStorage persistence).
+
+### Fixed
+- **Cart close button now clears local cart** (`cart/index.tsx`): `onClose` on the cart and checkout modals calls `clearCart()` before closing, so confirming exit wipes the local store & server store (if authenticated)
+
+### Changed
+- **Cart architecture — local store as single source of truth**: All cart mutations (`useCreateCart`, `useDeleteCart`, `useUpdateCartQuantity`) now always write to `useCartStore` regardless of auth state. Server cart is only created when an authenticated user clicks Continue (`useSyncCartToServer`). Unauthenticated flow is unchanged.
+- **`useGetAllCart` always reads from local store**: Removed the server fetch branch — all consumers (cart-container, tickets, checkout-summary) read from `useCartStore` directly, with ticket names/prices enriched via `useGetEventTickets`.
+- **`cart-container.tsx`**: Removed auth branching; always derives `cartItems` from local store. Added `isLoading` prop that disables and shows a spinner on the Continue button during server sync.
+- **`tickets.tsx` `TicketCard`**: `ticketCount` always read from `useCartStore`; `cartId` is always `ticketId`. Removed `useGetAllCart`, `useAfroStore`, and `CartData` imports.
+- **`checkout-summary.tsx`**: `cartItems` always derived from local store + `useGetEventTickets` enrichment; auth branching removed. Countdown timer only rendered for authenticated users (server cart can expire; local-only carts cannot).
+- **`useLogin` cart sync simplified** (`use-auth.ts`): Replaced per-item `Promise.allSettled` with a single `cartService.syncCart` call. Local store is **no longer cleared** after login sync so checkout-summary can still read items for display.
+- **`useClearCart`** (`use-cart.ts`): Now also calls `useCartStore.clearLocal()` after the server clear. Only calls the server when the user is authenticated.
 
 ### Fixed
 - **Business signup form not submitting** (`business-signup-form.tsx`): `InputField` and `SelectField` wrappers were not passing `showMessage` to their inner `FormField`, so Zod validation errors were invisible — form appeared to do nothing on submit. Added `showMessage` to both field components.

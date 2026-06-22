@@ -5,62 +5,39 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { cartKeys } from '@/lib/cart-keys'
 
+// Always reads from local store — server sync happens only when user clicks Continue
 export function useGetAllCart() {
-  const isAuthenticated = useAfroStore((state) => state.isAuthenticated)
   return useQuery({
-    queryKey: [...cartKeys.lists(), { isAuthenticated }],
-    queryFn: () => {
-      if (!isAuthenticated) {
-        const localCartItems = useCartStore.getState().items
-        return Promise.resolve({ data: localCartItems })
-      }
-      return cartService.getAllCart()
-    },
+    queryKey: cartKeys.lists(),
+    queryFn: () => Promise.resolve({ data: useCartStore.getState().items }),
   })
 }
 
 export function useCreateCart() {
   const queryClient = useQueryClient()
-  const isAuthenticated = useAfroStore((state) => state.isAuthenticated)
-
-
   return useMutation({
     mutationFn: async (data: CreateCartRequest) => {
-      // if user is not authenticated, add to local cart and return
-      if (!isAuthenticated) {
-        useCartStore.getState().addItem(data)
-        return
-      }
-      // if user is authenticated, make API call to add to cart
-      return cartService.createCart(data)
+      useCartStore.getState().addItem(data)
     },
     onSuccess: () => {
       toast.success('Added to cart.')
-      if (isAuthenticated) {
-        queryClient.invalidateQueries({ queryKey: cartKeys.lists() })
-      }
+      queryClient.invalidateQueries({ queryKey: cartKeys.lists() })
     },
     onError: () => toast.error('Failed to add to cart.'),
   })
 }
 
 export function useDeleteCart() {
-  const isAuthenticated = useAfroStore((state) => state.isAuthenticated)
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: async({ cartId }: { cartId: string }) => {
-      if(!isAuthenticated) {
-        useCartStore.getState().removeItem(cartId)
-        return
-      }
-      return cartService.deleteCart(cartId)
+    mutationFn: async ({ cartId }: { cartId: string }) => {
+      useCartStore.getState().removeItem(cartId)
     },
-    onSuccess: (_, cartId) => {
-      toast.success('Cart deleted successfully.')
+    onSuccess: () => {
+      toast.success('Cart item removed.')
       queryClient.invalidateQueries({ queryKey: cartKeys.lists() })
-      queryClient.invalidateQueries({ queryKey: cartKeys.detail(cartId.cartId) })
     },
-    onError: () => toast.error('Failed to delete cart.'),
+    onError: () => toast.error('Failed to remove from cart.'),
   })
 }
 
@@ -72,20 +49,13 @@ export function useGetCart(cartId: string) {
 }
 
 export function useUpdateCartQuantity() {
-    const isAuthenticated = useAfroStore((state) => state.isAuthenticated)
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: async ({ cartId, data }: { data: number; cartId: string }) => {
-      // where cartId is ticketId for local cart and cartId for server cart.
-      if (!isAuthenticated) {
-        useCartStore.getState().updateQuantity(cartId, data)
-        return
-      }
-      return cartService.updateQuantity(cartId, data)
+      useCartStore.getState().updateQuantity(cartId, data)
     },
-    onSuccess: (_, { cartId }) => {
-      toast.success('Quantity updated successfully.')
-      queryClient.invalidateQueries({ queryKey: cartKeys.detail(cartId) })
+    onSuccess: () => {
+      toast.success('Quantity updated.')
       queryClient.invalidateQueries({ queryKey: cartKeys.lists() })
     },
     onError: () => toast.error('Failed to update quantity'),
@@ -94,13 +64,31 @@ export function useUpdateCartQuantity() {
 
 export function useClearCart() {
   const queryClient = useQueryClient()
+  const isAuthenticated = useAfroStore((state) => state.isAuthenticated)
   return useMutation({
-    mutationFn: () => cartService.clearCart(),
+    mutationFn: async () => {
+      if (isAuthenticated) {
+        await cartService.clearCart()
+      }
+      useCartStore.getState().clearLocal()
+    },
     onSuccess: () => {
-      toast.success('Cart cleared successfully.')
+      toast.success('Cart cleared.')
       queryClient.invalidateQueries({ queryKey: cartKeys.lists() })
     },
     onError: () => toast.error('Failed to clear cart.'),
+  })
+}
+
+// Syncs local cart items to server — called when authenticated user clicks Continue
+export function useSyncCartToServer() {
+  return useMutation({
+    mutationFn: async () => {
+      const items = useCartStore.getState().items
+      if (items.length === 0) return
+      await cartService.syncCart(items.map(({ ticketId, quantity }) => ({ ticketId, quantity })))
+    },
+    onError: () => toast.error('Failed to sync cart. Please try again.'),
   })
 }
 
@@ -131,7 +119,7 @@ export function useExtendReservation() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: ({ cartId }: { cartId: string }) => cartService.extendReservation(cartId),
-    mutationKey: cartKeys.extendReservation('dynamic-id'), // replaced at runtime
+    mutationKey: cartKeys.extendReservation('dynamic-id'),
     onSuccess: (_, cartId) => {
       toast.success('Reservation extended successfully.')
       queryClient.invalidateQueries({ queryKey: cartKeys.detail(cartId.cartId) })

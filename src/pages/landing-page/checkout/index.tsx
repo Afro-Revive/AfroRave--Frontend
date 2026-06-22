@@ -20,7 +20,7 @@ export default function CheckoutPage({
   return (
     <section className="relative w-full min-h-screen flex flex-col md:flex-row">
       <DialogClose className="absolute top-4 right-4 bg-transparent shadow-none z-[1001] p-1">
-        <X size={18} color="#000000" strokeWidth={3} />
+        <X size={18} color="white" strokeWidth={3} />
       </DialogClose>
 
       <div
