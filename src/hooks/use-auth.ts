@@ -175,7 +175,7 @@ export function useLogin(options?: { onSuccess?: () => void }) {
     onSuccess: async (data) => {
       // Store user data and token in store
       if (data.data.userData && data.data.token) {
-        setAuth(data.data.userData, data.data.token)
+        setAuth(data.data.userData, data.data.token, data.data.refreshToken)
 
         // Sync local cart to server on login (needed for checkout flow).
         // Local store is NOT cleared so checkout-summary can still read from it for display.

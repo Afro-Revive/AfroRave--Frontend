@@ -1,17 +1,22 @@
 import type { CreateEventRequest } from '@/types'
 import type { User } from '@/types/auth'
 import { CreateCartRequest } from '@/types/cart'
+import { decodeTokenExpiry, isTokenExpired } from '@/lib/token'
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
 interface AfroState {
   user: User | null
   token: string | null
+  refreshToken: string | null
+  tokenExpiry: number | null
   isAuthenticated: boolean
   isCreator: boolean
   isFan: boolean
   isVendor: boolean
-  setAuth: (user: User, token: string) => void
+  setAuth: (user: User, token: string, refreshToken?: string) => void
+  setToken: (token: string) => void
+  setTokens: (token: string, refreshToken: string) => void
   clearAuth: () => void
   updateUser: (user: User) => void
 }
@@ -30,21 +35,26 @@ const getInitialState = () => {
     const stored = localStorage.getItem('afro-store-v1')
     if (stored) {
       const parsed = JSON.parse(stored)
-      const user = parsed.state?.user || null
+      const token: string | null = parsed.state?.token || null
+
+      // Don't restore auth state if the token is already expired
+      if (token && isTokenExpired(token)) {
+        localStorage.removeItem('afro-store-v1')
+        return { user: null, token: null, refreshToken: null, tokenExpiry: null, isAuthenticated: false }
+      }
+
       return {
-        user,
-        token: parsed.state?.token || null,
+        user: parsed.state?.user || null,
+        token,
+        refreshToken: parsed.state?.refreshToken || null,
+        tokenExpiry: token ? decodeTokenExpiry(token) : null,
         isAuthenticated: parsed.state?.isAuthenticated || false,
       }
     }
   } catch (error) {
     console.error('Error loading auth state from localStorage:', error)
   }
-  return {
-    user: null,
-    token: null,
-    isAuthenticated: false,
-  }
+  return { user: null, token: null, refreshToken: null, tokenExpiry: null, isAuthenticated: false }
 }
 
 const initialState = getInitialState()
@@ -52,14 +62,18 @@ const initialState = getInitialState()
 export const useAfroStore = create<AfroState>()((set, get) => ({
   user: initialState.user,
   token: initialState.token,
+  refreshToken: initialState.refreshToken,
+  tokenExpiry: initialState.tokenExpiry,
   isAuthenticated: initialState.isAuthenticated,
   isCreator: initialState.user?.accountType === 'Organizer',
   isFan: initialState.user?.accountType === 'User',
   isVendor: initialState.user?.accountType === 'Vendor',
-  setAuth: (user: User, token: string) => {
+  setAuth: (user: User, token: string, refreshToken?: string) => {
     const newState = {
       user,
       token,
+      refreshToken: refreshToken ?? null,
+      tokenExpiry: decodeTokenExpiry(token),
       isAuthenticated: true,
       isCreator: user.accountType === 'Organizer',
       isFan: user.accountType === 'User',
@@ -68,10 +82,24 @@ export const useAfroStore = create<AfroState>()((set, get) => ({
     set(newState)
     localStorage.setItem('afro-store-v1', JSON.stringify({ state: newState }))
   },
+  setToken: (token: string) => {
+    const currentState = get()
+    const newState = { ...currentState, token, tokenExpiry: decodeTokenExpiry(token) }
+    set(newState)
+    localStorage.setItem('afro-store-v1', JSON.stringify({ state: newState }))
+  },
+  setTokens: (token: string, refreshToken: string) => {
+    const currentState = get()
+    const newState = { ...currentState, token, refreshToken, tokenExpiry: decodeTokenExpiry(token) }
+    set(newState)
+    localStorage.setItem('afro-store-v1', JSON.stringify({ state: newState }))
+  },
   clearAuth: () => {
     const newState = {
       user: null,
       token: null,
+      refreshToken: null,
+      tokenExpiry: null,
       isAuthenticated: false,
       isCreator: false,
       isFan: false,

@@ -1,4 +1,5 @@
 import { useAfroStore } from '@/stores'
+import { isTokenExpired } from '@/lib/token'
 import axios from 'axios'
 
 export const multipartHeaders = {
@@ -29,25 +30,26 @@ api.interceptors.request.use(
   (req) => {
     if (req.url?.includes('login') || req.url?.includes('register')) return req
 
-    // Get token from auth store
     const token = useAfroStore.getState().token
 
     if (token) {
+      if (isTokenExpired(token)) {
+        useAfroStore.getState().clearAuth()
+        return Promise.reject(new Error('Session expired. Please log in again.'))
+      }
       req.headers.Authorization = `Bearer ${token}`
     }
     return req
   },
-  (err) => {
-    return Promise.reject(err)
-  },
+  (err) => Promise.reject(err),
 )
 
-// Add response interceptor for better error handling
 api.interceptors.response.use(
-  (response) => {
-    return response
-  },
+  (response) => response,
   (error) => {
+    if (error.response?.status === 401) {
+      useAfroStore.getState().clearAuth()
+    }
     return Promise.reject(error)
   },
 )

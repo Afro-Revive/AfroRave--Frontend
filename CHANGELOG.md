@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 
 ### Added
+- **Token refresh system**: Proactive JWT refresh before expiry and automatic session cleanup on expiry or 401.
+  - **`src/lib/token.ts`**: `decodeTokenExpiry(token)` decodes the `exp` claim from a JWT payload (returns Unix seconds). `isTokenExpired(token)` returns `true` if the token is malformed or `Date.now() >= exp * 1000`.
+  - **`src/hooks/use-token-refresh.ts`**: `useTokenRefresh` hook mounted globally in `AppRoutes`. Calculates `delay = tokenExpiry * 1000 - 60000 - Date.now()` and schedules a `setTimeout` to fire 1 minute before expiry. On fire: calls `authService.refreshToken({ accessToken, refreshToken })`; on success stores new tokens via `setTokens` and reschedules; on failure calls `clearAuth()` which triggers `AuthGuard` to redirect.
+  - **`stores/index.ts`**: Added `refreshToken`, `tokenExpiry` fields; `setAuth` now accepts optional `refreshToken`; new `setTokens(token, refreshToken)` action updates both and persists to localStorage; `clearAuth` wipes both; `getInitialState` clears stored auth if the persisted token is already expired on page load.
+  - **`services/auth.service.ts`**: Added `refreshToken({ accessToken, refreshToken })` calling `POST /api/Auth/refresh`.
+  - **`services/http.service.ts`**: Request interceptor calls `clearAuth()` and rejects the request if the stored token is already expired before sending. Response interceptor calls `clearAuth()` on any `401` response.
+  - **`types/auth.ts`**: Added `RefreshTokenResponse` type `{ message, token, refreshToken }`; added `refreshToken?` to `LoginResponse` and `AuthResponse`.
 - **`useSyncCartToServer` hook** (`use-cart.ts`): New mutation that calls `POST /api/cart/sync` with all local store items when an authenticated user clicks Continue in the cart. Server-side cart is only created at this point, not during browsing.
 - **`daysUntilEvent` utility** (`src/lib/helper-func.ts`): Returns the number of calendar days between today and an event's start date using `differenceInCalendarDays` from date-fns.
 - **`BaseModal` confirm-close overlay** (`base-modal.tsx`): Added `confirmClose` prop that intercepts close attempts (X button, Escape, overlay click) and renders an absolute-positioned confirmation card on top of the modal instead of closing immediately. Configurable via `confirmCloseTitle`, `confirmCloseMessage`, `confirmCloseConfirmText`, `confirmCloseCancelText`. Includes an X icon to dismiss the overlay without closing the modal. Applied to both the cart modal and checkout modal in `cart/index.tsx`.

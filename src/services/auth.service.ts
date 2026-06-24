@@ -5,6 +5,7 @@ import type {
   OrganizerRegisterData,
   UserRegisterData,
   VendorRegisterData,
+  RefreshTokenResponse,
 } from '@/types/auth'
 import api from './http.service'
 
@@ -35,6 +36,10 @@ class AuthService {
 
   static changePassword(data: { currentPassword: string; newPassword: string }) {
     return api.post<{ message: string }>('/api/Auth/change-password', data)
+  }
+
+  static refreshToken(data: { accessToken: string; refreshToken: string }) {
+    return api.post<RefreshTokenResponse>('/api/Auth/refresh', data)
   }
 }
 

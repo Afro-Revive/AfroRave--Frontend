@@ -83,12 +83,20 @@ export interface AuthResponse {
   message: string
   userData: User
   token?: string
+  refreshToken?: string
+}
+
+export interface RefreshTokenResponse {
+  message: string
+  token: string
+  refreshToken: string
 }
 
 export interface LoginResponse {
   message: string
   userData: User
   token: string
+  refreshToken?: string
 }
 
 export interface VerifyLoginResponse {
