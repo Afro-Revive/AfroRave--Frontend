@@ -234,6 +234,11 @@ export function formatEventDate(dateString: string): string {
   }
 }
 
+export function monthNumberToName(month: number | string): string {
+  return new Date(2000, Number(month) - 1, 1).toLocaleString('en-US', { month: 'short' }).toLowerCase()
+}
+
+
 export function daysUntilEvent(startDate: string): number {
   return differenceInCalendarDays(parseISO(startDate), new Date())
 }

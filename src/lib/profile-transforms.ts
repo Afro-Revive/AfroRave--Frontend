@@ -1,6 +1,7 @@
 import type { ProfileSchema } from '@/schema/profile-shema'
 import type { UpdateUserProfileRequest, UserProfileData } from '@/types'
 import type { z } from 'zod'
+import { monthNumberToName } from './helper-func'
 
 /**
  * Transforms profile form data to API request format
@@ -34,10 +35,13 @@ export function transformProfileFromResponse(
   apiData: UserProfileData,
 ): z.infer<typeof ProfileSchema> {
   // Parse date of birth
+  // currently using createdDate as a placeholder for dateOfBirth 
+  // would be updated once the backend provides a dateOfBirth field
   const dateOfBirth = new Date(apiData.createdDate)
   const year = dateOfBirth.getFullYear().toString()
-  const month = (dateOfBirth.getMonth() + 1).toString()
+  const month = monthNumberToName((dateOfBirth.getMonth() + 1).toString())
   const day = dateOfBirth.getDate().toString()
+  console.log('Parsed date of birth:', { year, month, day })
 
   // Parse phone number
   const phoneNumber = apiData.phoneNumber || ''

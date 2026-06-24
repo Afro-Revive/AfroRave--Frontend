@@ -7,7 +7,6 @@ import {
   useUpdateUserProfile,
   useUserProfile,
 } from "@/hooks/use-profile-mutations";
-import { FakeDataGenerator } from "@/lib/fake-data-generator";
 import {
   transformProfileFromResponse,
   transformProfileToUpdateRequest,
@@ -50,11 +49,21 @@ export default function ProfileTab() {
     }
   }
 
-  // Shared input styling - Figma specifications
+  // Sub-field inputs (birthday selects, phone code) — no inset label
   const inputStyle =
-    "w-full h-[52px] rounded-[8px] border border-white/10 bg-transparent px-4 text-white text-[14px] font-ibm-plex-mono placeholder:text-white/30 focus:border-white/30 focus-visible:ring-0 focus-visible:ring-offset-0 transition-all uppercase tracking-wider";
+    "w-full !h-[64px] rounded-[8px] border border-white bg-transparent px-4 pb-2 text-white text-sm font-sf-pro-display placeholder:text-white/30 focus:border-white/30 focus-visible:ring-0 focus-visible:ring-offset-0 transition-all tracking-wider";
+  // Taller <Input> with room for inset label at top
+  const labeledInputStyle =
+    "w-full h-[64px] rounded-[8px] border border-white bg-transparent px-4 pt-6 text-white text-sm font-sf-pro-display placeholder:text-white/30 focus:border-white/30 focus-visible:ring-0 focus-visible:ring-offset-0 transition-all tracking-wider";
+  // Taller <BaseSelect> trigger with value pushed to bottom
+  const labeledSelectStyle =
+    "w-full !h-[64px] rounded-[8px] border border-white bg-transparent px-4 pb-2 text-white text-sm font-sf-pro-display placeholder:text-white/30 focus:border-white/30 focus-visible:ring-0 focus-visible:ring-offset-0 transition-all tracking-wider";
+  // Absolute label rendered inside the input container
+  const insetLabelStyle =
+    "absolute left-4 top-[10px] text-white text-[10px] font-sf-pro-display uppercase tracking-widest pointer-events-none z-10";
+
   const labelStyle =
-    "text-white/60 text-[11px] font-ibm-plex-mono uppercase tracking-widest mb-2 ml-1 block";
+    "text-white text-[11px] font-sf-pro-display uppercase tracking-widest  ml-1 block";
 
   return (
     <div className="w-full flex-1 flex flex-col items-center px-4 md:px-0 pt-8">
@@ -86,44 +95,28 @@ export default function ProfileTab() {
           )}
         </AnimatePresence>
 
-        {/* Dev helper - hidden in production */}
-        {process.env.NODE_ENV === "development" && (
-          <div className="flex justify-end">
-            <FakeDataGenerator
-              type="profile"
-              onGenerate={form.reset}
-              buttonText="🎲 Fill with sample data"
-              variant="outline"
-              className="h-9 px-4 border-white/30 text-white/70 hover:bg-white/5 hover:text-white text-[13px]"
-            />
-          </div>
-        )}
-
         <h2 className="text-xl font-extrabold font-inter tracking-wide text-white mb-4">
           Profile
         </h2>
 
-        <h2 className="text-lg text-white">User Information</h2>
+        <h2 className="text-base text-white font-inter mb-3">
+          User Information
+        </h2>
 
         <FormBase
           form={form}
           onSubmit={onSubmit}
-          className="w-full flex flex-col "
+          className="w-full flex flex-col gap-3 "
         >
           {/* First Name */}
-          <FormField
-            form={form}
-            name="first_name"
-            label="First Name"
-            className="w-full"
-          >
+          <FormField form={form} name="first_name" className="w-full">
             {(field) => (
-              <div className="w-full">
-                <label className={labelStyle}>First Name</label>
+              <div className="relative w-full">
+                <label className={insetLabelStyle}>First Name</label>
                 <Input
                   {...field}
-                  placeholder="First Name"
-                  className={inputStyle}
+                  placeholder=""
+                  className={labeledInputStyle}
                   value={field.value as string}
                 />
               </div>
@@ -131,19 +124,14 @@ export default function ProfileTab() {
           </FormField>
 
           {/* Last Name */}
-          <FormField
-            form={form}
-            name="last_name"
-            label="Last Name"
-            className="w-full"
-          >
+          <FormField form={form} name="last_name" className="w-full">
             {(field) => (
-              <div className="w-full">
-                <label className={labelStyle}>Last Name</label>
+              <div className="relative w-full">
+                <label className={insetLabelStyle}>Last Name</label>
                 <Input
                   {...field}
-                  placeholder="Last Name"
-                  className={inputStyle}
+                  placeholder=""
+                  className={labeledInputStyle}
                   value={field.value as string}
                 />
               </div>
@@ -151,63 +139,58 @@ export default function ProfileTab() {
           </FormField>
 
           {/* Email */}
-          <FormField form={form} name="email" label="Email" className="w-full">
+          <FormField form={form} name="email" className="w-full">
             {(field) => (
-              <div className="w-full">
-                <label className={labelStyle}>Email</label>
+              <div className="relative w-full">
+                <label className={insetLabelStyle}>Email</label>
                 <Input
                   {...field}
                   type="email"
-                  placeholder="Email"
-                  className={inputStyle}
+                  placeholder=""
+                  className={labeledInputStyle}
                   value={field.value as string}
                 />
               </div>
             )}
           </FormField>
 
-          {/* Password */}
-          <FormField
-            form={form}
-            name="password"
-            label="Password"
-            className="w-full"
-          >
+          {/* Password — display only, not editable on this screen */}
+          <FormField form={form} name="password" className="w-full">
             {(field) => (
-              <div className="w-full">
-                <label className={labelStyle}>Password</label>
+              <div className="relative w-full opacity-70 cursor-not-allowed">
+                <label className={`${insetLabelStyle} !text-[#ACACAC] `}>Password</label>
                 <Input
                   {...field}
                   type="password"
-                  placeholder="Password"
-                  className={inputStyle}
+                  placeholder="********"
+                  disabled
+                  tabIndex={-1}
+                  className={`${labeledInputStyle} pointer-events-none bg-[#595959] text-[#ACACAC] placeholder-[#ACACAC] border-none`}
                   value={field.value as string}
                 />
               </div>
             )}
           </FormField>
 
+          <h2 className="text-base text-white font-inter my-2">
+            Personal Details{" "}
+          </h2>
+
           {/* Gender */}
-          <FormField
-            form={form}
-            name="gender"
-            label="Gender"
-            className="w-full"
-          >
+          <FormField form={form} name="gender" className="w-full">
             {(field) => (
-              <div className="w-full">
-                <label className={labelStyle}>Gender</label>
+              <div className="relative  w-full">
+                <label className={insetLabelStyle}>Gender</label>
                 <BaseSelect
                   onChange={(value) => field.onChange(value)}
-                  label="Gender"
-                  placeholder="Select gender"
+                  placeholder=""
                   value={field.value as string}
                   items={[
                     { value: "male", label: "Male" },
                     { value: "female", label: "Female" },
                     { value: "other", label: "Other" },
                   ]}
-                  triggerClassName={inputStyle}
+                  triggerClassName={labeledSelectStyle}
                 />
               </div>
             )}
@@ -215,27 +198,10 @@ export default function ProfileTab() {
 
           {/* Birthday */}
           <div className="w-full">
-            <label className={labelStyle}>Birthday</label>
-            <div className="w-full grid grid-cols-3 gap-4">
-              {/* Year */}
-              <FormField
-                form={form}
-                name="birthday.year"
-                className="w-full"
-                labelClassName="sr-only"
-                label="Year"
-              >
-                {(field) => (
-                  <BaseSelect
-                    type="others"
-                    placeholder="Year"
-                    onChange={field.onChange}
-                    value={field.value as string}
-                    items={years}
-                    triggerClassName={inputStyle}
-                  />
-                )}
-              </FormField>
+            <div className="w-full grid grid-cols-4 gap-4">
+              <div className="border border-white rounded-md flex items-center px-2">
+                <label className={labelStyle}>Birthday</label>
+              </div>
 
               {/* Month */}
               <FormField
@@ -243,17 +209,19 @@ export default function ProfileTab() {
                 name="birthday.month"
                 className="w-full"
                 labelClassName="sr-only"
-                label="Month"
               >
                 {(field) => (
-                  <BaseSelect
-                    type="others"
-                    placeholder="Month"
-                    onChange={field.onChange}
-                    value={field.value as string}
-                    items={date_list.items}
-                    triggerClassName={inputStyle}
-                  />
+                  <div className="relative w-full">
+                    <label className={insetLabelStyle}>Month</label>
+                    <BaseSelect
+                      type="others"
+                      placeholder="Month"
+                      onChange={field.onChange}
+                      value={field.value as string}
+                      items={date_list.items}
+                      triggerClassName={inputStyle}
+                    />
+                  </div>
                 )}
               </FormField>
 
@@ -263,105 +231,123 @@ export default function ProfileTab() {
                 name="birthday.day"
                 className="w-full"
                 labelClassName="sr-only"
-                label="Day"
               >
                 {(field) => (
-                  <BaseSelect
-                    type="others"
-                    placeholder="Day"
-                    onChange={field.onChange}
-                    value={field.value as string}
-                    items={days}
-                    triggerClassName={inputStyle}
-                  />
+                  <div className="relative w-full">
+                    <label className={insetLabelStyle}>Day</label>
+                    <BaseSelect
+                      type="others"
+                      placeholder="Day"
+                      onChange={field.onChange}
+                      value={field.value as string}
+                      items={days}
+                      triggerClassName={inputStyle}
+                    />
+                  </div>
+                )}
+              </FormField>
+
+              {/* Year */}
+              <FormField
+                form={form}
+                name="birthday.year"
+                className="w-full"
+                labelClassName="sr-only"
+              >
+                {(field) => (
+                  <div className="relative w-full">
+                    <label className={insetLabelStyle}>Year</label>
+                    <BaseSelect
+                      type="others"
+                      placeholder="Year"
+                      onChange={field.onChange}
+                      value={field.value as string}
+                      items={years}
+                      triggerClassName={inputStyle}
+                      valueClassName=""
+                    />
+                  </div>
                 )}
               </FormField>
             </div>
           </div>
 
           {/* Country */}
-          <FormField
-            form={form}
-            name="country"
-            label="Country"
-            className="w-full"
-          >
-            {(field) => (
-              <div className="w-full">
-                <label className={labelStyle}>Country</label>
-                <BaseSelect
-                  onChange={(value) => field.onChange(value)}
-                  label="Country"
-                  placeholder="Select country"
-                  value={field.value as string}
-                  items={[
-                    { value: "nigeria", label: "Nigeria" },
-                    { value: "ghana", label: "Ghana" },
-                    { value: "kenya", label: "Kenya" },
-                    { value: "south_africa", label: "South Africa" },
-                  ]}
-                  triggerClassName={inputStyle}
-                />
-              </div>
-            )}
-          </FormField>
-
-          {/* State */}
-          <FormField form={form} name="state" label="State" className="w-full">
-            {(field) => (
-              <div className="w-full">
-                <label className={labelStyle}>State</label>
-                <Input
-                  {...field}
-                  placeholder="Enter state"
-                  className={inputStyle}
-                  value={field.value as string}
-                />
-              </div>
-            )}
-          </FormField>
-
-          {/* Phone Number */}
-          <div className="w-full">
-            <label className={labelStyle}>Phone Number</label>
-            <div className="flex items-end gap-3">
-              <FormField
-                form={form}
-                name="number.country_code"
-                label="Code"
-                className="w-[140px]"
-                labelClassName="sr-only"
-              >
-                {(field) => (
+          <div className="w-full flex flex-row gap-4">
+            <FormField form={form} name="country" className="w-full">
+              {(field) => (
+                <div className="relative w-full">
+                  <label className={insetLabelStyle}>Country</label>
                   <BaseSelect
                     onChange={(value) => field.onChange(value)}
-                    label="Code"
-                    placeholder="+234"
+                    placeholder=""
                     value={field.value as string}
-                    items={africanCountryCodes}
-                    triggerClassName={inputStyle}
+                    items={[
+                      { value: "nigeria", label: "Nigeria" },
+                      { value: "ghana", label: "Ghana" },
+                      { value: "kenya", label: "Kenya" },
+                      { value: "south_africa", label: "South Africa" },
+                    ]}
+                    triggerClassName={labeledSelectStyle}
                   />
-                )}
-              </FormField>
+                </div>
+              )}
+            </FormField>
 
-              <FormField
-                form={form}
-                name="number.digits"
-                label="Phone Number"
-                labelClassName="sr-only"
-                className="flex-1"
-              >
-                {(field) => (
+            {/* State */}
+            <FormField form={form} name="state" className="w-full">
+              {(field) => (
+                <div className="relative w-full">
+                  <label className={insetLabelStyle}>State</label>
+                  <Input
+                    {...field}
+                    placeholder=""
+                    className={labeledInputStyle}
+                    value={field.value as string}
+                  />
+                </div>
+              )}
+            </FormField>
+          </div>
+
+          {/* Phone Number */}
+          <div className="flex gap-3">
+            <FormField
+              form={form}
+              name="number.country_code"
+              className="w-[120px] shrink-0"
+              labelClassName="sr-only"
+            >
+              {(field) => (
+                <BaseSelect
+                  onChange={(value) => field.onChange(value)}
+                  placeholder="+234"
+                  value={field.value as string}
+                  items={africanCountryCodes}
+                  triggerClassName={`${inputStyle} !items-center`}
+                />
+              )}
+            </FormField>
+
+            <FormField
+              form={form}
+              name="number.digits"
+              labelClassName="sr-only"
+              className="flex-1"
+            >
+              {(field) => (
+                <div className="relative w-full">
+                  <label className={insetLabelStyle}>Phone Number</label>
                   <Input
                     {...field}
                     type="tel"
-                    placeholder="Phone Number"
-                    className={inputStyle}
+                    placeholder=""
+                    className={labeledInputStyle}
                     value={field.value as string}
                   />
-                )}
-              </FormField>
-            </div>
+                </div>
+              )}
+            </FormField>
           </div>
 
           {/* Save Button */}

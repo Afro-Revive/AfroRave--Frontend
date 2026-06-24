@@ -58,6 +58,8 @@ export interface ICustomSelectProps {
   contentClassName?: string;
   /** Additional CSS classes for the item elements */
   itemClassName?: string;
+  /** Additional CSS classes applied directly to the SelectValue span */
+  valueClassName?: string;
 }
 
 /**
@@ -79,6 +81,7 @@ export function BaseSelect({
   triggerClassName,
   contentClassName,
   itemClassName,
+  valueClassName,
 }: ICustomSelectProps) {
   const safeItems = Array.isArray(items)
     ? items.filter(
@@ -121,7 +124,7 @@ export function BaseSelect({
         {selectedItemRenderer ? (
           <SelectValue
             placeholder={placeholder}
-            className={cn("leading-normal", {
+            className={cn("leading-normal", valueClassName, {
               "font-light font-input-mono text-sm": type === "others",
               "font-normal font-sf-pro-text": type === "auth",
             })}
@@ -131,7 +134,7 @@ export function BaseSelect({
         ) : (
           <SelectValue
             placeholder={placeholder}
-            className={cn("leading-normal", {
+            className={cn("leading-normal", valueClassName, {
               "font-light font-input-mono text-sm": type === "others",
               "font-normal font-sf-pro-text": type === "auth",
             })}

@@ -33,66 +33,51 @@ export default function AccountSidebar() {
                 {/* Navigation Items */}
                 <nav className='flex flex-col gap-0'> {/* Removed gap-2 to bring items closer */}
                     {/* PROFILE */}
-                    <div className='mb-0'>
+                    <div className='mb-4'>
                         <button
                             onClick={() => navigate('/fans/account')}
-                            className={`fan-sidebar-link group relative flex-col items-start ${isProfileActive()
+                            className={`fan-sidebar-link group relative ${isProfileActive()
                                 ? 'fan-sidebar-link-active'
                                 : ''
                                 }`}
                         >
-                            <div className="flex items-center gap-4"> {/* Icon + Text Row */}
-                                <div className='w-5 h-5 flex items-center justify-center shrink-0 text-deep-red'>
-                                    <Zap className="w-5 h-5" strokeWidth={1.5} />
-                                </div>
-                                <span className='fan-sidebar-text'>
-                                    PROFILE
-                                </span>
+                            <div className='w-5 h-5 flex items-center justify-center shrink-0 text-deep-red'>
+                                <Zap className="w-5 h-5" strokeWidth={1.5} />
                             </div>
-                            {/* Divider aligned with Icon start */}
-                            <div className="h-[1px] bg-white/10 w-full mt-4"></div>
+                            <span className='fan-sidebar-text'>PROFILE</span>
                         </button>
+                        <div className="h-[1px] bg-white/10 w-full ml-[60px]"></div>
                     </div>
 
                     {/* SETTINGS */}
-                    <div className='mb-0'>
+                    <div className='mb-4'>
                         <button
                             onClick={() => navigate('/fans/settings')}
-                            className={`fan-sidebar-link group relative flex-col items-start ${location.pathname === '/fans/settings'
+                            className={`fan-sidebar-link group relative ${location.pathname === '/fans/settings'
                                 ? 'fan-sidebar-link-active'
                                 : ''
                                 }`}
                         >
-                            <div className="flex items-center gap-4"> {/* Icon + Text Row */}
-                                <div className='w-5 h-5 flex items-center justify-center shrink-0 text-deep-red'>
-                                    <Settings className="w-5 h-5" strokeWidth={1.5} />
-                                </div>
-                                <span className='fan-sidebar-text'>
-                                    SETTINGS
-                                </span>
+                            <div className='w-5 h-5 flex items-center justify-center shrink-0 text-deep-red'>
+                                <Settings className="w-5 h-5" strokeWidth={1.5} />
                             </div>
-                            {/* Divider aligned with Icon start */}
-                            <div className="h-[1px] bg-white/10 w-full mt-4"></div>
+                            <span className='fan-sidebar-text'>SETTINGS</span>
                         </button>
+                        <div className="h-[1px] bg-white/10 w-full ml-[60px]"></div>
                     </div>
 
                     {/* LOG OUT */}
-                    <div className='mb-0'>
+                    <div className='mb-4'>
                         <button
                             onClick={handleLogout}
-                            className='fan-sidebar-link group relative flex-col items-start'
+                            className='fan-sidebar-link group relative'
                         >
-                            <div className="flex items-center gap-4"> {/* Icon + Text Row matching others */}
-                                <div className='w-5 h-5 flex items-center justify-center shrink-0 text-deep-red'>
-                                    <LogOut className="w-5 h-5" strokeWidth={1.5} />
-                                </div>
-                                <span className='fan-sidebar-text'>
-                                    LOG OUT
-                                </span>
+                            <div className='w-5 h-5 flex items-center justify-center shrink-0 text-deep-red'>
+                                <LogOut className="w-5 h-5" strokeWidth={1.5} />
                             </div>
-                            {/* Divider aligned with Icon start */}
-                            <div className="h-[1px] bg-white/10 w-full mt-4"></div>
+                            <span className='fan-sidebar-text'>LOG OUT</span>
                         </button>
+                        <div className="h-[1px] bg-white/10 w-full ml-[60px]"></div>
                     </div>
                 </nav>
             </div>

@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 
 ### Added
+- **`monthNumberToName` utility** (`src/lib/helper-func.ts`): Converts a month number to a 3-letter lowercase month code (e.g. `6` → `"jun"`) matching `date_list.items` values used in birthday selects. Used in `profile-transforms.ts` to correctly map `dateOfBirth.getMonth() + 1` to the select's value format.
+- **Inset/floating label pattern on fan profile tab** (`src/pages/fans/account/tabs/profile-tab.tsx`): All form fields now show the field label inside the input at the top (`position: absolute`, `top-[10px]`), with the value text pushed to the bottom via `pt-6` on inputs and `items-end` on selects. Applied to First Name, Last Name, Email, Gender, Birthday (Month/Day/Year), Country, State, and Phone Number.
+- **Birthday row layout** (`profile-tab.tsx`): Birthday rendered as a 4-column grid — a static "Birthday" label box on the left and Month, Day, Year selects on the same horizontal line, each with inset labels.
+- **Disabled password field** (`profile-tab.tsx`): Password field rendered as a non-interactive display — `disabled`, `tabIndex={-1}`, `pointer-events-none`, muted grey background (`bg-[#595959]`) and grey label/text to communicate it is not editable on this screen.
+- **`valueClassName` prop** (`src/components/reusable/base-select.tsx`): Added optional `valueClassName` to `ICustomSelectProps` for future styling of the selected value span.
+
+### Changed
+- **`SelectTrigger` default alignment** (`src/components/ui/select.tsx`): Changed `items-center` to `items-end` so the selected value text aligns to the bottom of the trigger, matching the inset label layout. `ChevronDownIcon` uses `self-center` to remain vertically centred regardless.
+- **Sidebar nav divider lines** (`src/layouts/user-dashboard-layout/sidebar.tsx`): Divider elements moved outside the `<button>` into the wrapper `<div>` with `ml-[60px]` to align with the icon position (matching the button's `padding-left: 60px`). Removed `flex-col items-start` from buttons.
+
+### Added
 - **Token refresh system**: Proactive JWT refresh before expiry and automatic session cleanup on expiry or 401.
   - **`src/lib/token.ts`**: `decodeTokenExpiry(token)` decodes the `exp` claim from a JWT payload (returns Unix seconds). `isTokenExpired(token)` returns `true` if the token is malformed or `Date.now() >= exp * 1000`.
   - **`src/hooks/use-token-refresh.ts`**: `useTokenRefresh` hook mounted globally in `AppRoutes`. Calculates `delay = tokenExpiry * 1000 - 60000 - Date.now()` and schedules a `setTimeout` to fire 1 minute before expiry. On fire: calls `authService.refreshToken({ accessToken, refreshToken })`; on success stores new tokens via `setTokens` and reschedules; on failure calls `clearAuth()` which triggers `AuthGuard` to redirect.
