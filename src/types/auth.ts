@@ -37,6 +37,25 @@ export interface OrganizerRegisterData {
   password: string
 }
 
+export interface CompleteProfileData {
+  token: string
+  firstName?: string
+  lastName?: string
+  country?: string
+  dateOfBirth?: string
+  gender?: string
+  telephone?: string
+  state?: string
+  website?: string
+  businessName?: string
+  vendorType?: string
+  category?: string
+  portfolio?: string
+  socials?: string
+  companyName?: string
+}
+
+
 // Login types
 export interface LoginData {
   email: string
@@ -91,7 +110,6 @@ export interface RefreshTokenResponse {
   token: string
   refreshToken: string
 }
-
 export interface LoginResponse {
   message: string
   userData: User

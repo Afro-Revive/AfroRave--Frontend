@@ -6,6 +6,7 @@ import type {
   UserRegisterData,
   VendorRegisterData,
   RefreshTokenResponse,
+  CompleteProfileData,
 } from '@/types/auth'
 import api from './http.service'
 
@@ -40,6 +41,10 @@ class AuthService {
 
   static refreshToken(data: { accessToken: string; refreshToken: string }) {
     return api.post<RefreshTokenResponse>('/api/Auth/refresh', data)
+  }
+
+  static completeProfile(data: CompleteProfileData){
+    return api.post<AuthResponse>('/api/Auth/complete-profile', data)
   }
 }
 

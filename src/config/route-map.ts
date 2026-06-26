@@ -67,6 +67,9 @@ export const ROUTE_PATHS = {
   vendor_event_details: '/vendor/discover/:eventId',
   vendor_slot_details: '/vendor/slots/:eventId',
   vendor_slots: '/vendor/slots',
+
+  // Email-token routes
+  complete_profile: '/fans/complete-profile',
 } as const
 
 /**
@@ -146,4 +149,7 @@ export interface RouteParams {
   vendor_event_details: { eventId: string | number }
   vendor_slots: never
   vendor_slot_details: { eventId: string | number }
+
+  // Email-token routes
+  complete_profile: never
 }

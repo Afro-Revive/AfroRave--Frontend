@@ -95,4 +95,6 @@ export const profileToasts = {
   profileUpdated: () => toast.success('Profile updated successfully! ✨'),
   passwordChanged: () => toast.success('Password changed successfully! 🔒'),
   avatarUpdated: () => toast.success('Profile picture updated successfully! 📸'),
+  profileCompleted: () => toast.success('Profile completed successfully! ✨'),
+  profileCompletionError: (message?: string) => toast.error(message || 'Failed to complete profile. Please try again.'),
 }

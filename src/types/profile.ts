@@ -13,6 +13,23 @@ export interface UpdateUserProfileRequest {
   password: string
 }
 
+export interface CompleteProfileRequest {
+  token: string
+  firstName?: string
+  lastName?: string
+  country?: string
+  dateOfBirth?: string
+  gender?: string
+  telephone?: string
+  website?: string
+  businessName?: string
+  vendorType?: string
+  category?: string
+  portfolio?: string
+  socials?: string
+  companyName?: string
+}
+
 // User Profile Data for GET /api/Profile/user
 export interface UserProfileData {
   userId: string

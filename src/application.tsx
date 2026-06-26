@@ -24,6 +24,7 @@ import VendorDashboardLayout from './layouts/vendor-dashboard-layout'
 
 const AddEventPage = lazy(() => import('./pages/creators/add-event'))
 const SlotDetailsPage = lazy(() => import('./pages/vendor/slots/slot-details'))
+const CompleteProfilePage = lazy(() => import('./pages/fans/complete-profile'))
 
 // Create a client
 const queryClient = new QueryClient({
@@ -95,6 +96,15 @@ function AppRoutes() {
               <AddEventPage />
             </Suspense>
           </OrganizerAuthGuard>
+        }
+      />
+
+      <Route
+        path={getRoutePath('complete_profile')}
+        element={
+          <Suspense fallback={<LoadingFallback />}>
+            <CompleteProfilePage />
+          </Suspense>
         }
       />
     </Routes>

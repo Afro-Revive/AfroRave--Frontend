@@ -41,7 +41,6 @@ export function transformProfileFromResponse(
   const year = dateOfBirth.getFullYear().toString()
   const month = monthNumberToName((dateOfBirth.getMonth() + 1).toString())
   const day = dateOfBirth.getDate().toString()
-  console.log('Parsed date of birth:', { year, month, day })
 
   // Parse phone number
   const phoneNumber = apiData.phoneNumber || ''
