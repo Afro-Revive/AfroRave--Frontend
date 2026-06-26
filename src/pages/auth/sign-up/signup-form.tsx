@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import PasswordInput from '@/components/ui/password-input'
 import { useRegisterUser } from '@/hooks/use-auth'
-import type { UserRegisterData } from '@/types/auth'
+import type { UserSignup } from '@/types/auth'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
@@ -51,16 +51,12 @@ export function SignupForm({ }: SignupFormProps) {
   })
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    const userData: UserRegisterData = {
+    const userData: UserSignup = {
       firstName: values.first_name,
       lastName: values.last_name,
       email: values.email,
-      telphone: '0000000000',
-      gender: 'male',
-      dateOfBirth: '2000-01-01',
-      country: 'Nigeria',
-      state: 'Lagos',
       password: values.password,
+      accountType: 'User',
     }
 
     registerUser.mutate(userData)

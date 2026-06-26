@@ -11,6 +11,15 @@ export interface UserRegisterData {
   password: string
 }
 
+// User signup types
+export interface UserSignup{
+  firstName: string
+  lastName: string
+  email: string
+  password: string
+  accountType: 'User' | 'Vendor' | 'Organizer'
+}
+
 export interface VendorRegisterData {
   firstName: string
   lastName: string

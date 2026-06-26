@@ -8,7 +8,7 @@ import { useAfroStore, useCartStore } from '@/stores'
 import type {
   LoginData,
   OrganizerRegisterData,
-  UserRegisterData,
+  UserSignup,
   VendorRegisterData,
 } from '@/types/auth'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
@@ -73,7 +73,7 @@ export function useRegisterUser() {
   const { closeAuthModal } = useAuth()
 
   return useMutation({
-    mutationFn: (data: UserRegisterData) => authService.registerUser(data),
+    mutationFn: (data: UserSignup) => authService.registerUser(data),
     onSuccess: (data) => {
       // Store user data and token in store
       if (data.data.userData && data.data.token) {
