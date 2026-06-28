@@ -95,6 +95,7 @@ export function useRegisterUser() {
   })
 }
 
+
 // Vendor Registration Hook
 export function useRegisterVendor() {
   const queryClient = useQueryClient()

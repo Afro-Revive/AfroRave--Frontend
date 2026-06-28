@@ -72,7 +72,7 @@ export interface EventData {
   }
 }
 
-export type EventsResponse = ApiResponse<EventData[]>
+export type EventsResponse = ApiResponse<EventData>
 
 // Detailed Event Data for GET /api/Event/{eventId}
 export interface EventDetailData {
@@ -233,12 +233,12 @@ export interface TrendingEventData {
   customUrl: string
 }
 
-export type TrendingEventsResponse = ApiResponse<TrendingEventData[]>
+export type TrendingEventsResponse = ApiResponse<TrendingEventData>
 
 // List Response Types
-export type EventTicketsResponse = ApiResponse<TicketData[]>
-export type EventPromoCodesResponse = ApiResponse<PromoCodeData[]>
-export type EventVendorsResponse = ApiResponse<VendorData[]>
+export type EventTicketsResponse = ApiResponse<TicketData>
+export type EventPromoCodesResponse = ApiResponse<PromoCodeData>
+export type EventVendorsResponse = ApiResponse<VendorData>
 
 // Ticket creation interfaces
 export interface TicketMail {

@@ -34,9 +34,10 @@ const fieldBoxClass = 'w-full flex items-center gap-2.5 bg-white border border-g
 
 interface SignupFormProps {
   onSwitchToLogin: () => void
+  type?: 'creator' | 'vendor'
 }
 
-export function SignupForm({ }: SignupFormProps) {
+export function SignupForm({ type }: SignupFormProps) {
   const registerUser = useRegisterUser()
 
   const form = useForm<z.infer<typeof formSchema>>({
