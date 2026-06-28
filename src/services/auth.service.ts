@@ -3,16 +3,17 @@ import type {
   LoginData,
   LoginResponse,
   OrganizerRegisterData,
-  UserRegisterData,
   VendorRegisterData,
   RefreshTokenResponse,
+  CompleteProfileData,
+  UserSignup,
 } from '@/types/auth'
 import api from './http.service'
 
 class AuthService {
   // User Registration
-  static registerUser(data: UserRegisterData) {
-    return api.post<AuthResponse>('/api/Auth/register/user', data)
+  static registerUser(data: UserSignup) {
+    return api.post<AuthResponse>('/api/Auth/signup', data)
   }
 
   // Vendor Registration
@@ -40,6 +41,10 @@ class AuthService {
 
   static refreshToken(data: { accessToken: string; refreshToken: string }) {
     return api.post<RefreshTokenResponse>('/api/Auth/refresh', data)
+  }
+
+  static completeProfile(data: CompleteProfileData){
+    return api.post<AuthResponse>('/api/Auth/complete-profile', data)
   }
 }
 

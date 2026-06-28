@@ -11,6 +11,15 @@ export interface UserRegisterData {
   password: string
 }
 
+// User signup types
+export interface UserSignup{
+  firstName: string
+  lastName: string
+  email: string
+  password: string
+  accountType: 'User' | 'Vendor' | 'Organizer'
+}
+
 export interface VendorRegisterData {
   firstName: string
   lastName: string
@@ -36,6 +45,25 @@ export interface OrganizerRegisterData {
   website: string
   password: string
 }
+
+export interface CompleteProfileData {
+  token: string
+  firstName?: string
+  lastName?: string
+  country?: string
+  dateOfBirth?: string
+  gender?: string
+  telephone?: string
+  state?: string
+  website?: string
+  businessName?: string
+  vendorType?: string
+  category?: string
+  portfolio?: string
+  socials?: string
+  companyName?: string
+}
+
 
 // Login types
 export interface LoginData {
@@ -91,7 +119,6 @@ export interface RefreshTokenResponse {
   token: string
   refreshToken: string
 }
-
 export interface LoginResponse {
   message: string
   userData: User

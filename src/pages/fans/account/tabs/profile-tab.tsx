@@ -51,7 +51,7 @@ export default function ProfileTab() {
 
   // Sub-field inputs (birthday selects, phone code) — no inset label
   const inputStyle =
-    "w-full !h-[64px] rounded-[8px] border border-white bg-transparent px-4 pb-2 text-white text-sm font-sf-pro-display placeholder:text-white/30 focus:border-white/30 focus-visible:ring-0 focus-visible:ring-offset-0 transition-all tracking-wider";
+    "w-full !h-[64px] rounded-[8px] border border-white bg-transparent font-light px-4 pb-2 text-white text-sm font-sf-pro-display placeholder:text-white/30 focus:border-white/30 focus-visible:ring-0 focus-visible:ring-offset-0 transition-all tracking-wider";
   // Taller <Input> with room for inset label at top
   const labeledInputStyle =
     "w-full h-[64px] rounded-[8px] border border-white bg-transparent px-4 pt-6 text-white text-sm font-sf-pro-display placeholder:text-white/30 focus:border-white/30 focus-visible:ring-0 focus-visible:ring-offset-0 transition-all tracking-wider";

@@ -8,7 +8,7 @@ import { useAfroStore, useCartStore } from '@/stores'
 import type {
   LoginData,
   OrganizerRegisterData,
-  UserRegisterData,
+  UserSignup,
   VendorRegisterData,
 } from '@/types/auth'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
@@ -73,7 +73,7 @@ export function useRegisterUser() {
   const { closeAuthModal } = useAuth()
 
   return useMutation({
-    mutationFn: (data: UserRegisterData) => authService.registerUser(data),
+    mutationFn: (data: UserSignup) => authService.registerUser(data),
     onSuccess: (data) => {
       // Store user data and token in store
       if (data.data.userData && data.data.token) {
@@ -220,6 +220,7 @@ export function useLogin(options?: { onSuccess?: () => void }) {
       authToasts.loginSuccess()
     },
     onError: (error: unknown) => {
+      console.log('Login error:', error)
       const errorMessage = extractErrorMessage(error)
       authToasts.loginError(errorMessage)
     },
@@ -256,6 +257,32 @@ export function useLogout() {
     onError: (error: unknown) => {
       const errorMessage = extractErrorMessage(error)
       authToasts.logoutError(errorMessage)
+    },
+  })
+}
+
+// Complete Profile Hook
+export function useCompleteProfile() {
+  const queryClient = useQueryClient()
+  const setAuth = useAfroStore((state) => state.setAuth)
+  const navigate = useNavigate()
+
+  return useMutation({
+    mutationFn: (data: Parameters<typeof authService.completeProfile>[0]) =>
+      authService.completeProfile(data),
+    onSuccess: (data) => {
+      // Update user data in store
+      if (data.data.userData && data.data.token) {
+        setAuth(data.data.userData, data.data.token, data.data.refreshToken)
+      }
+
+      queryClient.invalidateQueries({ queryKey: authKeys.user() })
+      profileToasts.profileCompleted()
+      navigate(getRoutePath('account'))
+    },
+    onError: (error: unknown) => {
+      const errorMessage = extractErrorMessage(error)
+      profileToasts.profileCompletionError(errorMessage)
     },
   })
 }
