@@ -8,6 +8,8 @@ import {
 import { useGetOrganizerEvents } from '@/hooks/use-event-mutations'
 import { useEventSelectorStore } from '@/stores'
 import { cn } from '@/lib/utils'
+import type { PaginatedResponse } from '@/types/api'
+import type { EventData } from '@/types'
 import { useEffect } from 'react'
 
 interface VendorSelectProps {
@@ -18,8 +20,11 @@ export default function VendorSelect({ className }: VendorSelectProps) {
   const { data: response, isPending } = useGetOrganizerEvents()
   const { selectedEventId, setSelectedEventId } = useEventSelectorStore()
 
-  const events = response?.data
-    ? [...response.data].sort(
+  console.log('VendorSelect response:', response)
+
+const eventData = response?.data as PaginatedResponse<EventData> | undefined
+  const events = eventData?.items
+    ? [...eventData.items].sort(
         (a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime(),
       )
     : []

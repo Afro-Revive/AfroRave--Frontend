@@ -111,7 +111,7 @@ export interface AuthResponse {
   message: string
   userData: User
   token?: string
-  refreshToken?: string
+  refreshToken: string
 }
 
 export interface RefreshTokenResponse {

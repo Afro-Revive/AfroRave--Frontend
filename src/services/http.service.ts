@@ -16,7 +16,7 @@ export const multipartHeaders = {
 //   ? '' // Use relative URLs in development (proxy will handle it)
 //   : import.meta.env.VITE_API_PROD || 'https://afro-revive-latest.onrender.com'
 
-const apiUrl = "https://api.afrorevive.com"
+const apiUrl = "https://dev.afrorevive.com/"
 
 const api = axios.create({
   baseURL: apiUrl,

@@ -3,6 +3,8 @@ import { CategoryBlock } from '@/components/shared/category-block'
 import { getRoutePath } from '@/config/get-route-path'
 import { useGetTrendingEvents } from '@/hooks/use-event-mutations'
 import { cn } from '@/lib/utils'
+import type { PaginatedResponse } from '@/types/api'
+import type { TrendingEventData } from '@/types'
 import { Link } from 'react-router-dom'
 import { motion, useInView } from 'framer-motion'
 import { useRef } from 'react'
@@ -10,7 +12,7 @@ import { useRef } from 'react'
 export default function OwnTheStage() {
   const { data: trendingEventResponse, isPending: isLoadingTrending } = useGetTrendingEvents()
 
-  const trendingEvents = trendingEventResponse?.data
+  const trendingEvents = (trendingEventResponse?.data as PaginatedResponse<TrendingEventData> | undefined)?.items?.filter((event) => event) ?? []
 
   // Ref and inView for the CategoryBlock animation (x-slide)
   const categoryRef = useRef(null)

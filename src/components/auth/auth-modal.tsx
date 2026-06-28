@@ -27,7 +27,7 @@ export function AuthModal() {
 
     switch (signupType) {
       case 'creator':
-        return <BusinessSignUp onSwitchToLogin={() => switchAuthType('login', 'creator')} type='creator' />
+        return <SignupForm onSwitchToLogin={() => switchAuthType('login')} />
       case 'vendor':
         return <BusinessSignUp onSwitchToLogin={() => switchAuthType('login', 'vendor')} type='vendor' />
       default:
