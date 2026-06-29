@@ -7,6 +7,7 @@ import { Bookmark } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import WishListBtn from '../component/wishlist-button'
 import { useAfroStore } from '@/stores'
+import type { VendorAvailableEventData } from '@/types'
 
 const SKELETON_IDS = ['1', '2', '3', '4', '5', '6']
 
@@ -33,9 +34,9 @@ export default function VendorDiscoverPage() {
   const { data: response, isPending: isLoading } = useGetVendorAvailableEvents()
   console.log(response)
 
-  const events = response?.data
+  const events = response?.data as VendorAvailableEventData[] | undefined
 
-  if (isLoading) {
+  if (isLoading) {  
     return (
       <section className='w-full h-full flex flex-col justify-start items-start px-[1px]'>
         <div className='w-full h-14 flex items-center justify-between px-8 bg-white'>

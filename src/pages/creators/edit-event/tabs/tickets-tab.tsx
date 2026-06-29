@@ -25,6 +25,7 @@ import {
 } from '@/hooks/use-event-mutations'
 import { transformTicketsToCreateRequest } from '@/lib/event-transforms'
 import type { PromoCodeData, TicketData } from '@/types'
+import type { PaginatedResponse } from '@/types/api'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { EllipsisVertical, Plus, Ticket, Trash2, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
@@ -71,8 +72,8 @@ export default function TicketsTab({ eventId, setActiveTab, eventName }: ITicket
   const deleteTicketMutation = useDeleteTicket(eventId)
   const deletePromocodeMutation = useDeletePromoCode(eventId)
 
-  const tickets = ticketsResponse?.data || []
-  const promocodes = promocodeResponse?.data || []
+  const tickets = ticketsResponse?.data as PaginatedResponse<TicketData> | undefined
+  const promocodes = promocodeResponse?.data as PaginatedResponse<PromoCodeData> | undefined
 
   useEffect(() => {
     const formParam = searchParams.get('form')
@@ -156,7 +157,7 @@ export default function TicketsTab({ eventId, setActiveTab, eventName }: ITicket
         onChange={setActiveTab}
         isLoading={isCreatingPromoCode}>
         <FormBase form={promocodeForm} onSubmit={() => {}} className='max-w-[560px] w-full'>
-          <PromoCodeFormFields form={promocodeForm} eventTickets={tickets} />
+          <PromoCodeFormFields form={promocodeForm} eventTickets={tickets?.items} />
         </FormBase>
       </TabChildrenContainer>
     )
@@ -244,7 +245,7 @@ export default function TicketsTab({ eventId, setActiveTab, eventName }: ITicket
               </Button>
             </OnlyShowIf>
 
-            <OnlyShowIf condition={ticketTab === 'ticket' && tickets.length > 0}>
+            <OnlyShowIf condition={ticketTab === 'ticket' && (tickets?.items?.length ?? 0) > 0}>
               <TicketModal onContinue={handleAddTicket} />
             </OnlyShowIf>
           </div>
@@ -262,11 +263,11 @@ export default function TicketsTab({ eventId, setActiveTab, eventName }: ITicket
               return <ErrorState activeTab={ticketTab} onClick={refetchPromocodes} />
             }
 
-            if (tickets.length === 0 && ticketTab === 'ticket') {
+            if ((tickets?.items?.length ?? 0) === 0 && ticketTab === 'ticket') {
               return <EmptyTicketState onAddTicket={handleAddTicket} />
             }
 
-            if (promocodes.length === 0 && ticketTab === 'promocode') {
+            if ((promocodes?.items?.length ?? 0) === 0 && ticketTab === 'promocode') {
               return (
                 <div className='w-full py-12 flex flex-col items-center justify-center bg-gray-50 rounded-lg border-2 border-dashed border-gray-300'>
                   <Button
@@ -284,7 +285,7 @@ export default function TicketsTab({ eventId, setActiveTab, eventName }: ITicket
             }
 
             if (ticketTab === 'ticket') {
-              return tickets.map((ticket) => (
+              return (tickets?.items ?? []).map((ticket) => (
                 <TicketCard
                   key={ticket.ticketId}
                   ticket={ticket}
@@ -294,7 +295,7 @@ export default function TicketsTab({ eventId, setActiveTab, eventName }: ITicket
               ))
             }
 
-            return promocodes.map((promocode) => (
+            return (promocodes?.items ?? []).map((promocode) => (
               <PromoCodeCard
                 key={promocode.promocodeId}
                 promocode={promocode}
@@ -305,7 +306,7 @@ export default function TicketsTab({ eventId, setActiveTab, eventName }: ITicket
           })()}
         </div>
 
-        {tickets.length > 0 ? <TicketSales tickets={tickets} /> : null}
+        {(tickets?.items?.length ?? 0) > 0 ? <TicketSales tickets={tickets!.items} /> : null}
       </div>
     </TabChildrenContainer>
   )
@@ -472,12 +473,6 @@ function TicketCard({ ticket, onDelete, isLoading = false }: ITIcketCard) {
     (fullTicketResponse as { data?: TicketData })?.data ??
     (fullTicketResponse as unknown as TicketData) ??
     null
-
-  // Log the raw response once loaded to help debug API response shape
-  if (fullTicketResponse && !isLoadingDetail) {
-    console.log('[TicketCard] raw API response for', ticket.ticketId, fullTicketResponse)
-    console.log('[TicketCard] extracted fullTicket:', fullTicket)
-  }
 
   const detail = fullTicket ?? ticket
 

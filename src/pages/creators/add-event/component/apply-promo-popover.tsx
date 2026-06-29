@@ -5,13 +5,15 @@ import { useGetEventTickets } from '@/hooks/use-event-mutations'
 import { useEventStore } from '@/stores'
 import { useState } from 'react'
 import { toast } from 'sonner'
+import { SavedTicket } from '../ticket-forms/create/helper'
+import { PaginatedResponse } from '@/types/api'
 
 export function ApplyPromoCodePopover() {
     const { eventId } = useEventStore()
     const { data: ticketsData } = useGetEventTickets(eventId || '')
     const [selectedTickets, setSelectedTickets] = useState<string[]>([])
     const [open, setOpen] = useState(false)
-
+    const ticketInformation = ticketsData?.data as PaginatedResponse<SavedTicket> | undefined
     const handleToggleTicket = (ticketId: string) => {
         setSelectedTickets((prev) =>
             prev.includes(ticketId) ? prev.filter((id) => id !== ticketId) : [...prev, ticketId],
@@ -43,7 +45,7 @@ export function ApplyPromoCodePopover() {
                     <div className='px-4 py-2 pb-0'>
                         <p className='text-[10px] text-gray-500 mb-2'>Choose Tickets</p>
                         <div className='flex flex-col gap-2 max-h-[200px] overflow-y-auto'>
-                            {ticketsData?.data?.map((ticket) => (
+                            {ticketInformation?.items?.map((ticket) => (
                                 <div key={ticket.ticketId} className='flex items-center justify-between py-1'>
                                     <label
                                         htmlFor={ticket.ticketId}
@@ -58,7 +60,7 @@ export function ApplyPromoCodePopover() {
                                     />
                                 </div>
                             ))}
-                            {(!ticketsData?.data || ticketsData.data.length === 0) && (
+                            {(!ticketInformation || ticketInformation.items.length === 0) && (
                                 <p className='text-[10px] text-gray-400 italic'>No tickets found</p>
                             )}
                         </div>

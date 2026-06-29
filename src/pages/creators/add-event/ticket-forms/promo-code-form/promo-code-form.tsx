@@ -27,7 +27,7 @@ import {
   onSubmit,
   updatePromoCode,
 } from './helper'
-import type { PromoCodeData, TicketData } from '@/types'
+import type { PaginatedResponse, PromoCodeData, PromoCodeWithDetailsResponse, TicketData } from '@/types'
 import { useEventStore } from '@/stores'
 import {
   useGetEventPromoCodes,
@@ -59,17 +59,21 @@ export default function PromoCodeForm({
   const { data: createdPromoCodes } = useGetEventPromoCodes(eventId || '')
   const { data: promoCodeDetails } = useGetPromoCode(editingPromoId || '')
 
+  const promoCodeDetailsData = promoCodeDetails?.data as PromoCodeWithDetailsResponse | undefined
+  const createdPromoCodesData = createdPromoCodes?.data as PaginatedResponse<PromoCodeData> | undefined
+  const eventTicketsData = eventTickets as PaginatedResponse<TicketData> | undefined
+
   const form = useForm<{ promoCodes: TPromoCodeSchema }>({
     resolver: zodResolver(z.object({ promoCodes: promoCodeSchema })),
     defaultValues: { promoCodes: defaultPromoCodeValues },
   })
 
   useEffect(() => {
-    if (promoCodeDetails?.data && editingPromoId) {
-      console.log('Promo code details loaded:', promoCodeDetails.data)
-      handleEditPromoCode(promoCodeDetails.data, form, setEditingPromoId, setCurrentPromoCode)
+    if (promoCodeDetailsData && editingPromoId) {
+      console.log('Promo code details loaded:', promoCodeDetailsData)
+      handleEditPromoCode(promoCodeDetailsData, form, setEditingPromoId, setCurrentPromoCode)
     }
-  }, [promoCodeDetails, editingPromoId])
+  }, [promoCodeDetailsData, editingPromoId])
 
   const handleCreatePromoCode = () =>
     createPromoCode(form, setCurrentPromoCode, setEditingPromoId, eventId, createPromoCodeMutation)
@@ -86,7 +90,6 @@ export default function PromoCodeForm({
   const handleAddPromoCode = () => addPromoCode(form, setEditingPromoId, setCurrentPromoCode)
 
   const handleEditPromoCodeWrapper = (promoCode: PromoCodeData) => {
-    console.log('Editing promo code:', promoCode)
     setEditingPromoId(promoCode.promocodeId)
     setCurrentPromoCode(true)
   }
@@ -127,9 +130,9 @@ export default function PromoCodeForm({
         className='max-w-[560px] w-full flex flex-col'
         form={form}
         onSubmit={handleSubmit}>
-        {createdPromoCodes?.data && createdPromoCodes.data.length > 0 && (
+        {createdPromoCodesData?.items && createdPromoCodesData.items.length > 0 && (
           <div className='w-full flex flex-col gap-3'>
-            {createdPromoCodes.data.map((promoCode) => (
+            {createdPromoCodesData.items.map((promoCode) => (
               <CreatedPromoCard
                 key={promoCode.promoCode}
                 promoCode={promoCode}
@@ -154,7 +157,7 @@ export default function PromoCodeForm({
             />
             <PromoCodeFormFields
               form={form}
-              eventTickets={eventTickets}
+              eventTickets={eventTicketsData?.items || []}
               onSubmit={
                 editingPromoId
                   ? form.handleSubmit(handleUpdatePromoCode)
@@ -312,6 +315,7 @@ export function PromoCodeFormFields({
           <FormField
             form={form}
             name='promoCodes.conditions.tickets.quantity'
+            showMessage
             label='TICKET QUANTITY'>
             {(field) => (
               <Input

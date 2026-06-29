@@ -1,56 +1,51 @@
-import { date_list } from "@/components/constants";
 import { FormBase, FormField } from "@/components/reusable/base-form";
 import { BaseSelect } from "@/components/reusable/base-select";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { getRoutePath } from "@/config/get-route-path";
 import { useCompleteProfile } from "@/hooks";
-import { useUserProfile } from "@/hooks/use-profile-mutations";
-import { transformProfileFromResponse } from "@/lib/profile-transforms";
+import { useAuth } from "@/hooks/use-auth-store";
 import { africanCountryCodes } from "@/pages/creators/add-event/constant";
 import { zodResolver } from "@hookform/resolvers/zod";
-import axios from "axios";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
-import { z } from "zod";
-
-const PersonalDetailsSchema = z.object({
-  gender: z.string().min(1, { message: "Select a gender." }),
-  birthday: z.object({
-    month: z.string().min(1, { message: "Select a month." }),
-    day: z.string().min(1, { message: "Select a day." }),
-    year: z.string().min(4, { message: "Select a year." }),
-  }),
-  country: z.string().min(1, { message: "Select a country." }),
-  state: z.string().min(1, { message: "Enter a state." }),
-  number: z.object({
-    country_code: z.string(),
-    digits: z.string(),
-  }),
-});
-
-type PersonalDetailsValues = z.infer<typeof PersonalDetailsSchema>;
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select'
+import { PersonalDetailsSchema, PersonalDetailsValues } from "./zod-schema";
+import { VENDOR_CATEGORIES } from "@/types/vendor";
 
 export default function CompleteProfilePage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const token = searchParams.get("token");
+  const { user } = useAuth();
+  const userAccountType = user?.accountType;
 
-  const { data: profileData, isLoading, error } = useUserProfile();
   const completeProfileMutation = useCompleteProfile();
 
   const form = useForm<PersonalDetailsValues>({
     resolver: zodResolver(PersonalDetailsSchema),
     defaultValues: {
       gender: "",
+      companyName: "",
+      companyWebsite: "",
       birthday: { month: "", day: "", year: "" },
       country: "",
       state: "",
-      number: { country_code: "", digits: "" },
+      number: { country_code: "+234", digits: "" },
+      category: "",
     },
   });
+
+  const { formState: { errors, isSubmitting }, watch, setValue } = form
+  const category = watch('category')
 
   useEffect(() => {
     if (!token) {
@@ -59,40 +54,22 @@ export default function CompleteProfilePage() {
   }, [token, navigate]);
 
   useEffect(() => {
-    if (axios.isAxiosError(error) && error.response?.status === 401) {
+    if (user === null) {
       toast.error("Session expired. Please log in to continue.");
       navigate(getRoutePath("home"), { replace: true });
     }
-  }, [error, navigate]);
-
-  useEffect(() => {
-    if (profileData) {
-      const transformed = transformProfileFromResponse(profileData.data);
-      form.reset({
-        gender: transformed.gender,
-        birthday: transformed.birthday,
-        country: transformed.country,
-        state: transformed.state,
-        number: transformed.number,
-      });
-    }
-  }, [profileData, form]);
+  }, [user, navigate]);
 
   if (!token) return null;
 
-  const profile = profileData
-    ? transformProfileFromResponse(profileData.data)
-    : null;
-
   async function onSubmit(values: PersonalDetailsValues) {
-    if (!profileData) return;
-    const { data } = profileData;
+    if (!user) return;
     const dateOfBirth = `${values.birthday.year}-${values.birthday.month.padStart(2, "0")}-${values.birthday.day.padStart(2, "0")}`;
     await completeProfileMutation.mutateAsync({
       token: token || "",
-      firstName: data.firstName || "",
-      lastName: data.lastName || "",
       telephone: `${values.number.country_code}${values.number.digits}`,
+      companyName: values.companyName,
+      website: values.companyWebsite,
       gender: values.gender,
       dateOfBirth,
       country: values.country,
@@ -134,25 +111,28 @@ export default function CompleteProfilePage() {
 
         {/* Read-only User Information */}
         <div className="w-full flex flex-col gap-3 mb-6">
-          <div className="relative w-full">
-            <label className={dimInsetLabelStyle}>First Name</label>
-            <Input
-              tabIndex={-1}
-              placeholder=""
-              className={`${labeledInputStyle} bg-[#949494] text-white/70 border-none`}
-              value={isLoading ? "" : (profile?.first_name ?? "")}
-            />
-          </div>
+          <div className="w-full flex flex-row gap-4">
+            <div className="relative w-full">
+              <label className={dimInsetLabelStyle}>First Name</label>
+              <Input
+                readOnly
+                tabIndex={-1}
+                placeholder=""
+                className={`${labeledInputStyle} bg-[#949494] text-white/70 border-none`}
+                value={user?.profile.firstName ?? ""}
+              />
+            </div>
 
-          <div className="relative w-full">
-            <label className={dimInsetLabelStyle}>Last Name</label>
-            <Input
-              readOnly
-              tabIndex={-1}
-              placeholder=""
-              className={`${labeledInputStyle} bg-[#949494] text-white/70 border-none`}
-              value={isLoading ? "" : (profile?.last_name ?? "")}
-            />
+            <div className="relative w-full">
+              <label className={dimInsetLabelStyle}>Last Name</label>
+              <Input
+                readOnly
+                tabIndex={-1}
+                placeholder=""
+                className={`${labeledInputStyle} bg-[#949494] text-white/70 border-none`}
+                value={user?.profile.lastName ?? ""}
+              />
+            </div>
           </div>
 
           <div className="relative w-full">
@@ -163,7 +143,7 @@ export default function CompleteProfilePage() {
               type="email"
               placeholder=""
               className={`${labeledInputStyle} bg-[#949494] text-white/70 border-none`}
-              value={isLoading ? "" : (profile?.email ?? "")}
+              value={user?.email ?? ""}
             />
           </div>
 
@@ -179,18 +159,101 @@ export default function CompleteProfilePage() {
           </div>
         </div>
 
-        {/* Editable Personal Details */}
-        <h2 className="text-base text-white font-inter mb-3">
-          Personal Details
-        </h2>
-
         <FormBase
           form={form}
-          onSubmit={onSubmit}
+          onSubmit={(onSubmit)}
           className="w-full flex flex-col gap-3"
         >
+          {userAccountType === "Vendor" && (
+            <div className="w-full flex-row gap-4">
+              <div>
+                <Select
+                  value={category}
+                  onValueChange={(value) => setValue("category", value)}
+                  disabled={isSubmitting}
+                >
+                  <SelectTrigger className="w-full bg-[#1C1C1E] text-white border-0 h-11">
+                    <SelectValue placeholder="CATEGORY" />
+                  </SelectTrigger>
+                  <SelectContent className="z-[1000001]">
+                    {VENDOR_CATEGORIES.map((cat) => (
+                      <SelectItem key={cat.value} value={cat.value}>
+                        {cat.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {errors.category && (
+                  <p className="text-xs text-red-400 mt-1">
+                    {errors.category.message}
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
+
+          {(userAccountType === "Organizer" || userAccountType === "Vendor") && (
+              <div className="w-full flex flex-col gap-3 mb-3">
+                <h2 className="text-base text-white font-inter mb-3">
+                  Business Details
+                </h2>
+                <FormField
+                  form={form}
+                  name="companyName"
+                  labelClassName="sr-only"
+                  className="flex-1"
+                  showMessage
+                >
+                  {(field) => (
+                    <div className="relative w-full">
+                      <label
+                        className={`${insetLabelStyle} placeholder:text-white `}
+                      >
+                        COMPANY NAME
+                      </label>
+                      <Input
+                        {...field}
+                        type="text"
+                        placeholder=""
+                        className={editableInputStyle}
+                        value={field.value as string}
+                      />
+                    </div>
+                  )}
+                </FormField>
+                <FormField
+                  form={form}
+                  name="companyWebsite"
+                  labelClassName="sr-only"
+                  className="flex-1"
+                  showMessage
+                >
+                  {(field) => (
+                    <div className="relative w-full">
+                      <label
+                        className={`${insetLabelStyle} placeholder:text-white `}
+                      >
+                        WEB URL (OPTIONAL)
+                      </label>
+                      <Input
+                        {...field}
+                        type="text"
+                        placeholder=""
+                        className={editableInputStyle}
+                        value={field.value as string}
+                      />
+                    </div>
+                  )}
+                </FormField>
+              </div>
+          )}
+
+          {/* Editable Personal Details */}
+          <h2 className="text-base text-white font-inter mb-3">
+            Personal Details
+          </h2>
           {/* Gender */}
-          <FormField form={form} name="gender" className="w-full">
+          <FormField form={form} name="gender" className="w-full" showMessage>
             {(field) => (
               <div className="relative w-full">
                 <label className={insetLabelStyle}>Gender</label>
@@ -221,6 +284,7 @@ export default function CompleteProfilePage() {
                 name="birthday.month"
                 className="w-full"
                 labelClassName="sr-only"
+                showMessage
               >
                 {(field) => (
                   <div className="relative w-full">
@@ -230,7 +294,7 @@ export default function CompleteProfilePage() {
                       placeholder=""
                       onChange={field.onChange}
                       value={field.value as string}
-                      items={date_list.items}
+                      items={months}
                       triggerClassName={editableInputStyleNoLabel}
                     />
                   </div>
@@ -366,7 +430,7 @@ export default function CompleteProfilePage() {
           <div className="flex justify-center mt-8 pb-4">
             <Button
               type="submit"
-              disabled={isLoading || completeProfileMutation.isPending}
+              disabled={completeProfileMutation.isPending}
               className="w-full h-[48px] font-sf-pro-display font-bold uppercase tracking-widest bg-white text-[#AE0D0D] hover:bg-white/90 disabled:opacity-50 disabled:cursor-not-allowed rounded-[4px] text-[13px] transition-all border-none"
             >
               {completeProfileMutation.isPending ? "SAVING..." : "SAVE"}
@@ -387,3 +451,18 @@ const days = Array.from({ length: 31 }, (_, i) => ({
   value: (i + 1).toString(),
   label: (i + 1).toString(),
 }));
+
+const months = [
+  { value: "01", label: "January" },
+  { value: "02", label: "February" },
+  { value: "03", label: "March" },
+  { value: "04", label: "April" },
+  { value: "05", label: "May" },
+  { value: "06", label: "June" },
+  { value: "07", label: "July" },
+  { value: "08", label: "August" },
+  { value: "09", label: "September" },
+  { value: "10", label: "October" },
+  { value: "11", label: "November" },
+  { value: "12", label: "December" },
+];

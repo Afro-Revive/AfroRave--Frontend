@@ -7,6 +7,7 @@ import { useSearchParams } from 'react-router-dom'
 import VendorSelect from '@/components/shared/vendor-select'
 import { useEventSelectorStore } from '@/stores'
 import { useGetOrganizerEvents } from '@/hooks/use-event-mutations'
+import { EventData, PaginatedResponse } from '@/types'
 
 export default function ChartPage() {
   const [activeTab, setActiveTab] = useState<string>('issued-net')
@@ -75,7 +76,8 @@ export default function ChartPage() {
 function ChartHeader() {
   const { selectedEventId } = useEventSelectorStore()
   const { data: response } = useGetOrganizerEvents()
-  const selectedEvent = response?.data?.find((e) => e.eventId === selectedEventId)
+  const eventData = response?.data as PaginatedResponse<EventData> | undefined
+  const selectedEvent = eventData?.items.find((e) => e.eventId === selectedEventId)
 
   return (
     <div className='w-full flex items-center justify-between bg-white h-14 px-8 border-l border-light-gray'>

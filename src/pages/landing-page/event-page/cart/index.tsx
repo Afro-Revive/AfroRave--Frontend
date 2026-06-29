@@ -4,7 +4,7 @@ import { useClearCart } from '@/hooks/use-cart'
 import { useSyncCartToServer } from '@/hooks/use-cart'
 import { useGetEventTickets } from '@/hooks/use-event-mutations'
 import { formatNaira } from '@/lib/format-price'
-import type { EventDetailData } from '@/types'
+import type { EventDetailData, PaginatedResponse, TicketData } from '@/types'
 import { useAfroStore, useCartStore } from '@/stores'
 import { useState } from 'react'
 import CheckoutPage from '../../checkout'
@@ -25,8 +25,10 @@ export default function Cart({ event }: CartProps) {
   const { mutateAsync: syncCart, isPending: isSyncing } = useSyncCartToServer()
   const {mutate: clearCart} = useClearCart()
 
+  const ticketInformation = ticketsResponse?.data as PaginatedResponse<TicketData> | undefined
+
   const totalPrice = localItems.reduce((sum, item) => {
-    const ticket = ticketsResponse?.data?.find((t) => t.ticketId === item.ticketId)
+    const ticket = ticketInformation?.items.find((t) => t.ticketId === item.ticketId)
     return sum + (ticket?.price ?? 0) * item.quantity
   }, 0)
 

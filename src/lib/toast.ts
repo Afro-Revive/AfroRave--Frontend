@@ -4,6 +4,7 @@ import { toast } from 'sonner'
 export const authToasts = {
   // Registration success messages
   userRegistered: () => toast.success('Account created successfully! Welcome to AfroRave! 🎉'),
+  userVerified: () => toast.success('An email has been sent to your inbox for verification. Please check your email to complete the registration process.'),
   vendorRegistered: () =>
     toast.success('Vendor account created successfully! Welcome to AfroRave! 🎉'),
   organizerRegistered: () =>

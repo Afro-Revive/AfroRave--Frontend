@@ -19,6 +19,7 @@ import { useForm } from "react-hook-form";
 import type { z } from "zod";
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
+import { UserProfileData } from "@/types";
 // import '../fan-account.css'
 
 export default function ProfileTab() {
@@ -31,13 +32,14 @@ export default function ProfileTab() {
     defaultValues: defaultProfileValues,
   });
 
+  const profile = profileData?.data as UserProfileData
+
   useEffect(() => {
     if (profileData) {
-      console.log(profileData);
-      const transformedData = transformProfileFromResponse(profileData.data);
+      const transformedData = transformProfileFromResponse(profile);
       form.reset(transformedData);
     }
-  }, [profileData, form]);
+  }, [profileData, profile, form]);
 
   async function onSubmit(values: z.infer<typeof ProfileSchema>) {
     try {

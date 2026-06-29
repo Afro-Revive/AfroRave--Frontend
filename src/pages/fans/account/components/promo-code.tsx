@@ -3,6 +3,7 @@ import { Badge } from "lucide-react";
 import { Input } from "../../../../components/ui/input";
 import { useState } from "react";
 import { useValidatePromocode } from "@/hooks/use-cart";
+import type { ValidatePromocodeData } from "@/types/cart";
 
 interface CartItem {
   cartId: string;
@@ -38,8 +39,9 @@ const PromoCode = ({ cartItems, totalPrice, totalQuantity }: PromoCodeProps) => 
       },
       {
         onSuccess: (data) => {
-          setMessage(data.data.data.message);
-          setIsValid(data.data.data.isValid);
+          const payload = data.data as ValidatePromocodeData
+          setMessage(payload.message);
+          setIsValid(payload.data.isValid);
         },
       },
     );

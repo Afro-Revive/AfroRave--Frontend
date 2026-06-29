@@ -7,11 +7,12 @@ import { useGetEventTickets } from '@/hooks/use-event-mutations'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useCreateCart, useUpdateCartQuantity } from '@/hooks/use-cart'
 import { useCartStore } from '@/stores'
+import { PaginatedResponse, TicketData } from '@/types'
 
 export default function TicketSection({ eventId, layout }: ITicketProps) {
   const { data: ticketResponse, isPending: isLoading } = useGetEventTickets(eventId)
 
-  const tickets = ticketResponse?.data
+  const tickets = ticketResponse?.data as PaginatedResponse<TicketData> | undefined
 
   return (
     <div
@@ -35,7 +36,7 @@ export default function TicketSection({ eventId, layout }: ITicketProps) {
                 layout === 'with-flyer' || layout === 'standard-carousel',
               'grid sm:grid-cols-2 gap-x-5 gap-y-7': layout === 'default',
             })}>
-            {tickets?.map((item) => (
+            {tickets?.items.map((item) => (
               <TicketCard
                 key={item.ticketName}
                 name={item.ticketName}

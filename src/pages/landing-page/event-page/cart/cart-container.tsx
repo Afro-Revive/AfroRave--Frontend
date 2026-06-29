@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Plus, Minus, LoaderCircle } from "lucide-react";
 import { formatNaira } from "@/lib/format-price";
 import { useState } from "react";
-import type { EventDetailData } from "@/types";
+import type { EventDetailData, PaginatedResponse, TicketData } from "@/types";
 import { RenderEventImage } from "@/components/shared/render-event-flyer";
 import { useUpdateCartQuantity } from "@/hooks/use-cart";
 import { useGetEventTickets } from "@/hooks/use-event-mutations";
@@ -20,8 +20,10 @@ export default function CartContainer({ event, action, isLoading = false }: Cart
   const localItems = useCartStore((state) => state.items);
   const { data: ticketsResponse } = useGetEventTickets(event.eventId);
 
+  const ticketInformation = ticketsResponse?.data as PaginatedResponse<TicketData> | undefined
+
   const cartItems = localItems.map((item) => {
-    const ticket = ticketsResponse?.data?.find((t) => t.ticketId === item.ticketId);
+    const ticket = ticketInformation?.items.find((t) => t.ticketId === item.ticketId);
     return {
       cartId: String(item.ticketId),
       ticketId: item.ticketId,

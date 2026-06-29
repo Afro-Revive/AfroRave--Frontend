@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import authService from '@/services/auth.service'
 import { useAfroStore } from '@/stores'
 
-const REFRESH_BEFORE_MS = 60 * 1000 // fire 1 minute before expiry
+const REFRESH_BEFORE_MS = 3 * 60 * 1000 // fire 3 minutes before expiry
 
 export function useTokenRefresh() {
   const token = useAfroStore((state) => state.token)
@@ -24,6 +24,7 @@ export function useTokenRefresh() {
     const timer = setTimeout(async () => {
       try {
         const response = await authService.refreshToken({ accessToken: token, refreshToken })
+        console.log('Token refreshed successfully:', response.data)
         setTokens(response.data.token, response.data.refreshToken)
       } catch {
         clearAuth()

@@ -44,6 +44,7 @@ class AuthService {
   }
 
   static completeProfile(data: CompleteProfileData){
+    console.log(data)
     return api.post<AuthResponse>('/api/Auth/complete-profile', data)
   }
 }

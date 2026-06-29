@@ -17,6 +17,7 @@ import { useAfroStore } from "@/stores"
 import { useLogout, useChangePassword } from '@/hooks/use-auth'
 import { useOrganizerProfile, useUpdateOrganizerProfile } from '@/hooks/use-profile-mutations'
 import { formToasts } from '@/lib/toast'
+import { OrganizerProfileData } from "@/types/profile"
 
 interface CreatorSettingsModalProps {
     open?: boolean
@@ -127,7 +128,7 @@ export function CreatorSettingsModal({ open, onOpenChange, customTrigger }: Crea
     // Pre-fill profile form from API data when it loads
     useEffect(() => {
         if (profileData?.data) {
-            const p = profileData.data
+            const p = profileData.data as OrganizerProfileData
             if (p.businessName) setCompanyName(p.businessName)
             if (p.contactPhone) setTelphone(p.contactPhone)
             if (p.website) setPortfolioLink(p.website)

@@ -34,7 +34,7 @@ const fieldBoxClass = 'w-full flex items-center gap-2.5 bg-white border border-g
 
 interface SignupFormProps {
   onSwitchToLogin: () => void
-  type?: 'creator' | 'vendor'
+  type: 'User' | 'Vendor' | 'Organizer'
 }
 
 export function SignupForm({ type }: SignupFormProps) {
@@ -57,7 +57,7 @@ export function SignupForm({ type }: SignupFormProps) {
       lastName: values.last_name,
       email: values.email,
       password: values.password,
-      accountType: 'User',
+      accountType: type,
     }
 
     registerUser.mutate(userData)

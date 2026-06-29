@@ -2,7 +2,6 @@ import BaseModal from '@/components/reusable/base-modal'
 import { useAuth } from '@/contexts/auth-context'
 import { OnlyShowIf } from '@/lib/environment'
 import { cn } from '@/lib/utils'
-import { BusinessSignUp } from '@/pages/auth/sign-up/business-signup-form'
 import { SignupForm } from '@/pages/auth/sign-up/signup-form'
 // import { VendorSignupForm } from '@/pages/auth/sign-up/vendor-signup-form'
 import { CreatorLogo, UserLoginForm } from '@/pages/auth/user-login/user-login-form'
@@ -27,11 +26,11 @@ export function AuthModal() {
 
     switch (signupType) {
       case 'creator':
-        return <SignupForm onSwitchToLogin={() => switchAuthType('login')} />
+        return <SignupForm onSwitchToLogin={() => switchAuthType('login')} type='Organizer' />
       case 'vendor':
-        return <BusinessSignUp onSwitchToLogin={() => switchAuthType('login', 'vendor')} type='vendor' />
+        return <SignupForm onSwitchToLogin={() => switchAuthType('login')} type='Vendor' />
       default:
-        return <SignupForm onSwitchToLogin={() => switchAuthType('login')} />
+        return <SignupForm onSwitchToLogin={() => switchAuthType('login')} type='User' />
     }
   }
 
