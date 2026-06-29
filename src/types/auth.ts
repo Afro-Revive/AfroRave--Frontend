@@ -48,8 +48,6 @@ export interface OrganizerRegisterData {
 
 export interface CompleteProfileData {
   token: string
-  firstName?: string
-  lastName?: string
   country?: string
   dateOfBirth?: string
   gender?: string

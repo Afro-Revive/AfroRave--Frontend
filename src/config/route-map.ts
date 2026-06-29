@@ -69,7 +69,7 @@ export const ROUTE_PATHS = {
   vendor_slots: '/vendor/slots',
 
   // Email-token routes
-  complete_profile: '/fans/complete-profile',
+  complete_profile: '/complete-profile',
 } as const
 
 /**

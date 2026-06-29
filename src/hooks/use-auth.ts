@@ -69,7 +69,6 @@ export const authKeys = {
 export function useRegisterUser() {
   const queryClient = useQueryClient()
   const setAuth = useAfroStore((state) => state.setAuth)
-  const navigate = useNavigate()
   const { closeAuthModal } = useAuth()
 
   return useMutation({
@@ -77,7 +76,7 @@ export function useRegisterUser() {
     onSuccess: (data) => {
       // Store user data and token in store
       if (data.data.userData && data.data.token) {
-        setAuth(data.data.userData, data.data.token)
+        setAuth(data.data.userData, data.data.token, data.data.refreshToken)
       }
 
       // Close auth modal
@@ -85,8 +84,13 @@ export function useRegisterUser() {
 
       // Invalidate and refetch user data
       queryClient.invalidateQueries({ queryKey: authKeys.user() })
-      authToasts.userRegistered()
-      navigate(getRoutePath('account'))
+      authToasts.userVerified()
+      // if(data.data.userData.accountType === 'User'){
+      //   navigate(getRoutePath('account'))
+      // } else if(data.data.userData.accountType === 'Organizer'){
+      //   navigate(getRoutePath('standalone'))
+      // }
+    
     },
     onError: (error: unknown) => {
       const errorMessage = extractErrorMessage(error)
@@ -114,7 +118,7 @@ export function useRegisterVendor() {
 
       // Store user data and token in store
       if (data.data.userData && data.data.token) {
-        setAuth(data.data.userData, data.data.token)
+        setAuth(data.data.userData, data.data.token, data.data.refreshToken)
 
         // Close auth modal
         closeAuthModal()
@@ -145,7 +149,7 @@ export function useRegisterOrganizer() {
     onSuccess: (data) => {
       // Store user data and token in store
       if (data.data.userData && data.data.token) {
-        setAuth(data.data.userData, data.data.token)
+        setAuth(data.data.userData, data.data.token, data.data.refreshToken)
 
         // Close auth modal
         closeAuthModal()
