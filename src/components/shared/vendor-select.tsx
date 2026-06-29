@@ -20,7 +20,6 @@ export default function VendorSelect({ className }: VendorSelectProps) {
   const { data: response, isPending } = useGetOrganizerEvents()
   const { selectedEventId, setSelectedEventId } = useEventSelectorStore()
 
-  console.log('VendorSelect response:', response)
 
 const eventData = response?.data as PaginatedResponse<EventData> | undefined
   const events = eventData?.items

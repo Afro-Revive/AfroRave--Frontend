@@ -2,7 +2,7 @@ import { transformTicketsToCreateRequest } from '@/lib/event-transforms'
 import { defaultUnifiedTicketValues, type UnifiedTicketForm } from '../../schemas/ticket-schema'
 import type { UseFormReturn } from 'react-hook-form'
 import type { useCreateTicket, useUpdateTicket, useDeleteTicket } from '@/hooks/use-event-mutations'
-import type { EventTicketsResponse } from '@/types'
+import type { EventTicketsResponse, PaginatedResponse } from '@/types'
 
 interface ITicketHelper {
   form: UseFormReturn<UnifiedTicketForm>
@@ -222,13 +222,16 @@ export function onSubmit(eventId: string | null, handleFormChange: (form: string
 export function transformTicketsResponse(
   ticketsResponse: EventTicketsResponse | undefined,
 ): SavedTicket[] {
-  return (ticketsResponse?.data || []).map((ticket) => ({
+  console.log('ticketsResponse', ticketsResponse)
+  const ticketInformation = ticketsResponse?.data as PaginatedResponse<SavedTicket> | undefined
+  if (!ticketInformation) return []
+  return (ticketInformation.items).map((ticket) => ({
     ticketId: ticket.ticketId,
     ticketName: ticket.ticketName,
     ticketType: 'single_ticket',
     invite_only: false,
     price: ticket.price,
     quantity: ticket.quantity,
-    description: ticket.ticketDetails?.description,
+    description: ticket.description,
   }))
 }

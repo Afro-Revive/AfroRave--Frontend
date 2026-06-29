@@ -192,8 +192,7 @@ export default function CompleteProfilePage() {
             </div>
           )}
 
-          {userAccountType === "Organizer" ||
-            (userAccountType === "Vendor" && (
+          {(userAccountType === "Organizer" || userAccountType === "Vendor") && (
               <div className="w-full flex flex-col gap-3 mb-3">
                 <h2 className="text-base text-white font-inter mb-3">
                   Business Details
@@ -247,7 +246,7 @@ export default function CompleteProfilePage() {
                   )}
                 </FormField>
               </div>
-            ))}
+          )}
 
           {/* Editable Personal Details */}
           <h2 className="text-base text-white font-inter mb-3">

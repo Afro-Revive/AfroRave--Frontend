@@ -6,7 +6,8 @@ import { Button } from '@/components/ui/button'
 import { getRoutePath } from '@/config/get-route-path'
 import { useGetEvent, useGetOrganizerEvents } from '@/hooks/use-event-mutations'
 import { formatNaira } from '@/lib/format-price'
-import type { EventDetailData } from '@/types'
+import type { EventDetailData, EventData } from '@/types'
+import type { PaginatedResponse } from '@/types/api'
 import { Plus } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
@@ -30,10 +31,11 @@ export default function StandalonePage() {
   const { startGuide } = useGuideStore()
   const { selectedEventId } = useEventSelectorStore()
 
-  const allEvents = response?.data
+  const allEvents = (response?.data as PaginatedResponse<EventData> | undefined)?.items ?? []
+
   // If a specific event is selected in the dropdown, show only that one; otherwise show all
   const events = selectedEventId
-    ? allEvents?.filter((e) => e.eventId === selectedEventId)
+    ? allEvents.filter((e) => e.eventId === selectedEventId)
     : allEvents
 
   if (isLoading) {
@@ -122,7 +124,7 @@ function getEventStatus(event: EventDetailData): 'drafts' | 'upcoming' | 'ongoin
 function StandAloneEvents({ id, activeFilter }: { id: string; activeFilter: EventFilter }) {
   const { data: response, isPending: isLoading } = useGetEvent(id)
 
-  const event = response?.data
+  const event = response?.data as EventDetailData | undefined
 
   if (isLoading) {
     return <DashboardCardSkeleton />
