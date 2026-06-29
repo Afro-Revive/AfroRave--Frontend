@@ -12,6 +12,7 @@ import ThemeTab from './tabs/theme-tab'
 import TicketsTab from './tabs/tickets-tab'
 import { LoadingFallback } from '@/components/loading-fallback'
 import ConfimationMailTab from './tabs/confimation-mail-tab'
+import { EventDetailData} from '@/types'
 
 export default function EditEventPage() {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -25,7 +26,7 @@ export default function EditEventPage() {
 
   const { data: eventResponse, isPending: isLoading } = useGetEvent(eventId || '')
 
-  const event = eventResponse?.data
+  const event = eventResponse?.data as EventDetailData | undefined
 
   useEffect(() => {
     const editParam = searchParams.get('tab')

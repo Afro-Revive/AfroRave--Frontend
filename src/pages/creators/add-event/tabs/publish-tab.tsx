@@ -11,6 +11,7 @@ import { useMemo } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { ContinueButton } from '../component/continue-button'
 import { RenderEventImage } from '@/components/shared/render-event-flyer'
+import { EventDetailData, PaginatedResponse, PromoCodeData, TicketData, VendorData} from '@/types'
 
 export default function PublishTab({
   setStep,
@@ -21,10 +22,10 @@ export default function PublishTab({
 
   const { eventId } = useEventStore()
 
-  const vendors = useGetEventVendors(eventId || '').data?.data
-  const event = useGetEvent(eventId || '').data?.data
-  const tickets = useGetEventTickets(eventId || '').data?.data
-  const promoCodes = useGetEventPromoCodes(eventId || '').data?.data
+  const vendors = useGetEventVendors(eventId || '').data?.data as PaginatedResponse<VendorData> | undefined
+  const event = useGetEvent(eventId || '').data?.data as EventDetailData | undefined
+  const tickets = useGetEventTickets(eventId || '').data?.data as PaginatedResponse<TicketData> | undefined
+  const promoCodes = useGetEventPromoCodes(eventId || '').data?.data as PaginatedResponse<PromoCodeData> | undefined
 
   const publishEventMutation = usePublishEvent()
   const navigate = useNavigate()
@@ -91,14 +92,14 @@ export default function PublishTab({
         <div className='flex flex-col gap-0'>
           <SectionContainer
             name='Tickets'
-            quantity={tickets?.length || 0}
+            quantity={tickets?.items.length || 0}
             href={`${getRoutePath('add_event')}/?tab=tickets`}
             data={ticketNames.map((item) => ({ tool: item, enabled: false }))}
           />
 
           <SectionContainer
             name='Vendor Listings'
-            quantity={vendors?.length || 0}
+            quantity={vendors?.items.length || 0}
             href={`${getRoutePath('add_event')}/?tab=vendor`}
             data={vendorNames.map((name) => ({ tool: name, enabled: false }))}
           />
@@ -107,7 +108,7 @@ export default function PublishTab({
             name='Advanced Tools'
             href={`${getRoutePath('add_event')}/?tab=tickets`}
             data={[
-              { tool: 'Promo Codes', enabled: (promoCodes?.length ?? 0) > 0 },
+              { tool: 'Promo Codes', enabled: (promoCodes?.items.length ?? 0) > 0 },
               { tool: 'Upgrades', enabled: true },
               { tool: 'Ticket Resale', enabled: true },
             ]}

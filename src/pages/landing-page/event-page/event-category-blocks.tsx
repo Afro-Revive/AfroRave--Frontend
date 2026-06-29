@@ -4,7 +4,7 @@ import { useMemo } from 'react'
 import { useGetTrendingEvents, useGetAllEvents } from '@/hooks/use-event-mutations'
 import { CategoryBlock } from '@/components/shared/category-block'
 import { useSearchParams, useNavigate, useLocation } from 'react-router-dom'
-import type { EventData } from '@/types/event'
+import type { EventData, TrendingEventData } from '@/types/event'
 
 const MONTH_ABBRS = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec']
 
@@ -75,11 +75,11 @@ export default function EventCategoryBlocks() {
   const { data: trendingEventResponse, isPending: isLoadingTrending } = useGetTrendingEvents()
   const { data: allEventResponse, isPending: isLoadingAllEvent } = useGetAllEvents()
 
-  const trendingEvents = trendingEventResponse?.data
-  const allEvents = allEventResponse?.data ?? []
+  const trendingEvents = trendingEventResponse?.data as TrendingEventData[] | undefined
+  const allEvents = allEventResponse?.data as EventData[] | undefined
 
   const filteredEvents = useMemo(
-    () => filterEvents(allEvents, searchParams),
+    () => filterEvents(allEvents || [], searchParams),
     [allEvents, searchParams]
   )
   console.log('Filtered events:', trendingEventResponse)

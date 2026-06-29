@@ -15,8 +15,9 @@ export default function MyTicketsPage() {
   const { data: activeTicketResponse, isLoading: isLoadingActiveTickets } = useUserActiveTickets()
   const { data: pastTicketResponse, isLoading: isLoadingPastTickets } = useUserPastTickets()
 
-  const activeTickets: UserTicketData[] = activeTicketResponse?.data || []
-  const pastTickets: UserTicketData[] = pastTicketResponse?.data || []
+
+  const activeTickets: UserTicketData[] = activeTicketResponse?.data as UserTicketData[] || []
+  const pastTickets: UserTicketData[] = pastTicketResponse?.data as UserTicketData[] || []
 
   useEffect(() => {
     if (myTicketParam === 'active' || myTicketParam === 'past') {

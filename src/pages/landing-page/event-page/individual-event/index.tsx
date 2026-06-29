@@ -5,6 +5,7 @@ import { useGetEventByCustomUrl } from '@/hooks/use-event-mutations'
 import { useParams } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
 import EventDetails from './event-details'
+import { EventDetailData } from '@/types/event'
 
 export default function IndividualEventPage() {
   const { eventId } = useParams()
@@ -12,7 +13,7 @@ export default function IndividualEventPage() {
   const { data: eventResponse, isPending: isLoading } = useGetEventByCustomUrl(eventId || '')
   console.log(eventResponse, isLoading)
 
-  const event = eventResponse?.data
+  const event = eventResponse?.data as EventDetailData | undefined
 
   const navigate = useNavigate()
 

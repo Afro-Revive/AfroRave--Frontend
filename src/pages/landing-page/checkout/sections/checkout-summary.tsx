@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { getRoutePath } from "@/config/get-route-path";
 import PromoCode from "@/pages/fans/account/components/promo-code";
-import { EventDetailData } from "@/types";
+import type { EventDetailData, PaginatedResponse, TicketData } from "@/types";
 import {
   formatEventDate,
   formatTimeLong,
@@ -32,8 +32,10 @@ export default function CartSummary({
   const localItems = useCartStore((state) => state.items);
   const { data: ticketsResponse } = useGetEventTickets(eventId ?? "");
 
+   const ticketInformation = ticketsResponse?.data as PaginatedResponse<TicketData> | undefined
+
   const cartItems = localItems.map((item) => {
-    const ticket = ticketsResponse?.data?.find((t) => t.ticketId === item.ticketId);
+    const ticket = ticketInformation?.items.find((t) => t.ticketId === item.ticketId);
     return {
       cartId: item.ticketId,
       ticketId: item.ticketId,

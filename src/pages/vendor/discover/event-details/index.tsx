@@ -6,12 +6,13 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { useGetEvent } from '@/hooks/use-event-mutations'
 import { cn } from '@/lib/utils'
 import { useState } from 'react'
+import { EventDetailData } from '@/types/event'
 
 export default function VendorEventDetailsPage() {
     const { eventId } = useParams()
     const navigate = useNavigate()
     const { data: eventResponse, isPending: isLoading } = useGetEvent(eventId || '')
-    const event = eventResponse?.data
+    const event = eventResponse?.data as EventDetailData | undefined
     const [isExpanded, setIsExpanded] = useState(false)
 
     if (isLoading) return <LoadingFallback />
