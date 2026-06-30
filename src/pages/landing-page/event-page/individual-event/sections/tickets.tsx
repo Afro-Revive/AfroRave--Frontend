@@ -63,6 +63,7 @@ function TicketCard({ name, price, layout, ticketId }: ITicketCard) {
 
   function createCart() {
     createCartMutation.mutate({ ticketId, quantity: 1 })
+    useCartStore.getState().openCart()
   }
 
   function updateCart(quantity: number) {

@@ -1,7 +1,6 @@
 import { SectionContainer } from '../_components/section-container'
 import { BlockName } from '../../_components/block-name'
-import { Clock4, Plus } from 'lucide-react'
-import { EventOutlineButton } from '../../_components/event-otline-btn'
+import { Clock4 } from 'lucide-react'
 import type { EventDetailData } from '@/types'
 import { daysUntilEvent, formatTimeLong } from '@/lib/helper-func'
 import { OnlyShowIf } from '@/lib/environment'
@@ -47,12 +46,12 @@ export default function EventDescription({ event }: { event: EventDetailData }) 
           </div> */}
         </div>
 
-        <EventOutlineButton className='justify-between'>
+        {/* <EventOutlineButton className='justify-between'>
           <>
             <span className='text-sm font-medium font-sf-pro-rounded'>Read More</span>
             <Plus color='var(--foreground)' size={12} />
           </>
-        </EventOutlineButton>
+        </EventOutlineButton> */}
       </div>
     </SectionContainer>
   )

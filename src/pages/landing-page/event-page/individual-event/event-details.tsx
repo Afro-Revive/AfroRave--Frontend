@@ -1,6 +1,6 @@
 import { EventLocation } from '@/pages/landing-page/event-page/event-location'
 import type { EventDetailData } from '@/types'
-import CartTrigger from './_components/cart-trigger'
+import Cart from '../cart'
 import { SectionContainer } from './_components/section-container'
 import ContactSection from './sections/contact'
 import EventDescription from './sections/event-description'
@@ -36,7 +36,7 @@ export default function EventDetails({ event, layout = 'default' }: IEventDetail
           <EventDetailsSection layout={layout} event={event} />
         </div>
 
-        <CartTrigger event={event} className='fixed bottom-6 right-4 z-[1001]' />
+        <Cart event={event} />
 
         {(layout === 'with-flyer' || layout === 'standard-carousel') && (
           <TicketSection layout={layout} eventId={event.eventId} />

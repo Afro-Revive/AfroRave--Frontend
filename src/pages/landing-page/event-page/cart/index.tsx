@@ -1,9 +1,6 @@
 import BaseModal from '@/components/reusable/base-modal'
-import { Button } from '@/components/ui/button'
-import { useClearCart } from '@/hooks/use-cart'
-import { useSyncCartToServer } from '@/hooks/use-cart'
+import { useClearCart, useSyncCartToServer } from '@/hooks/use-cart'
 import { useGetEventTickets } from '@/hooks/use-event-mutations'
-import { formatNaira } from '@/lib/format-price'
 import type { EventDetailData, PaginatedResponse, TicketData } from '@/types'
 import { useAfroStore, useCartStore } from '@/stores'
 import { useState } from 'react'
@@ -15,24 +12,17 @@ interface CartProps {
 }
 
 export default function Cart({ event }: CartProps) {
-  const [isOpen, setIsOpen] = useState(false)
   const [checkoutOpen, setCheckoutOpen] = useState(false)
 
   const isAuthenticated = useAfroStore((state) => state.isAuthenticated)
-  const localItems = useCartStore((state) => state.items)
-  
+  const isOpen = useCartStore((state) => state.isCartOpen)
+  const closeCart = useCartStore((state) => state.closeCart)
+
   const { data: ticketsResponse } = useGetEventTickets(event.eventId)
   const { mutateAsync: syncCart, isPending: isSyncing } = useSyncCartToServer()
-  const {mutate: clearCart} = useClearCart()
+  const { mutate: clearCart } = useClearCart()
 
   const ticketInformation = ticketsResponse?.data as PaginatedResponse<TicketData> | undefined
-
-  const totalPrice = localItems.reduce((sum, item) => {
-    const ticket = ticketInformation?.items.find((t) => t.ticketId === item.ticketId)
-    return sum + (ticket?.price ?? 0) * item.quantity
-  }, 0)
-
-  const hasCartItems = localItems.length > 0
 
   async function handleContinue() {
     if (isAuthenticated) {
@@ -42,26 +32,18 @@ export default function Cart({ event }: CartProps) {
         return
       }
     }
-    setIsOpen(false)
+    closeCart()
     setCheckoutOpen(true)
   }
 
   return (
     <>
-      <Button
-        className='w-full h-14 flex items-center justify-between bg-deep-red px-3 rounded-[8px] gap-[50px] md:gap-[107px] font-sf-pro-display hover:bg-deep-red/80'
-        onClick={() => setIsOpen(true)}>
-        <span className='text-sm'>Checkout</span>
-        <span className='text-2xl'>
-          {formatNaira(totalPrice, { free: totalPrice === 0 && hasCartItems })}
-        </span>
-      </Button>
-
       <BaseModal
         size='full'
-        className='bg-black !w-full'
+        className='bg-system-black !w-full'
         floatingCancel
-        onClose={() => { clearCart(); setIsOpen(false) }}
+        slideFromBottom
+        onClose={() => { clearCart(); closeCart() }}
         open={isOpen}
         confirmClose
         confirmCloseTitle='Exit Cart?'
@@ -71,6 +53,7 @@ export default function Cart({ event }: CartProps) {
           <CartContainer
             event={event}
             isLoading={isSyncing}
+            eventTickets={ticketInformation}
             action={handleContinue}
           />
         </div>
