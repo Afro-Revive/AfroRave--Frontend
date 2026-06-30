@@ -1,62 +1,68 @@
 import { Button } from "@/components/ui/button";
-import { Plus, Minus, LoaderCircle } from "lucide-react";
+import { Plus, Minus, LoaderCircle, ShoppingCart, type LucideIcon } from "lucide-react";
 import { formatNaira } from "@/lib/format-price";
-import { useState } from "react";
 import type { EventDetailData, PaginatedResponse, TicketData } from "@/types";
 import { RenderEventImage } from "@/components/shared/render-event-flyer";
-import { useUpdateCartQuantity } from "@/hooks/use-cart";
-import { useGetEventTickets } from "@/hooks/use-event-mutations";
+import { useCreateCart, useUpdateCartQuantity } from "@/hooks/use-cart";
 import { useCartStore } from "@/stores";
 import {
   formatEventDate,
   formatTimeLong,
   formatTimezone,
 } from "@/lib/helper-func";
-import PromoCode from "@/pages/fans/account/components/promo-code";
-import TotalAccordion from "@/pages/fans/account/components/totalPrice-accordion";
+import { BlockName } from "../_components/block-name";
 
-
-export default function CartContainer({ event, action, isLoading = false }: CartContainerProps) {
+export default function CartContainer({
+  event,
+  action,
+  isLoading = false,
+  eventTickets,
+}: CartContainerProps) {
   const localItems = useCartStore((state) => state.items);
-  const { data: ticketsResponse } = useGetEventTickets(event.eventId);
 
-  const ticketInformation = ticketsResponse?.data as PaginatedResponse<TicketData> | undefined
+  const totalPrice = localItems.reduce((sum, item) => {
+    const ticket = eventTickets?.items.find((t) => t.ticketId === item.ticketId);
+    return sum + (ticket?.price ?? 0) * item.quantity;
+  }, 0);
 
-  const cartItems = localItems.map((item) => {
-    const ticket = ticketInformation?.items.find((t) => t.ticketId === item.ticketId);
-    return {
-      cartId: String(item.ticketId),
-      ticketId: item.ticketId,
-      eventId: event.eventId,
-      name: ticket?.ticketName ?? "Unknown Ticket",
-      price: ticket?.price ?? 0,
-      quantity: item.quantity,
-    };
-  });
+  const totalTickets = localItems.reduce((sum, item) => sum + item.quantity, 0);
 
-  const totalPrice = cartItems.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0,
-  );
-  const totalQuantity = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+  const isEventMultiDay = event.eventDate.startDate !== event.eventDate.endDate;
+  const eventDate = isEventMultiDay
+    ? `${formatEventDate(event.eventDate.startDate)} - ${formatEventDate(
+        event.eventDate.endDate,
+      )}`
+    : formatEventDate(event.eventDate.startDate);
 
   return (
-    <section className="container flex flex-col md:justify-center md:flex-row z-10">
-      <div className="w-full  md:w-1/2 flex flex-col gap-5 px-5 md:py-10 max-h-[calc(100vh-100px)] overflow-y-auto">
+    <section className="container flex flex-col  md:flex-row z-10">
+      <div className="w-full  flex flex-col gap-5 px-5 md:py-10 max-h-[calc(100vh-100px)] overflow-y-auto">
         <div className="w-full flex flex-col md:flex-row items-stretch gap-4">
+          <div className="hidden md:block w-[300px] h-[400px] shrink-0">
+            <RenderEventImage
+              image={event.eventDetails.desktopMedia?.flyer}
+              event_name={event.eventName}
+              className="!w-full !h-full object-cover"
+            />
+          </div>
           <div className="flex flex-col flex-1 gap-4 md:gap-0 md:justify-between">
             <div className="flex flex-col gap-1">
-              <p className="text-2xl md:text-4xl uppercase leading-normal font-inter font-black">
+              <p className="text-2xl md:text-4xl uppercase leading-normal font-sf-compact font-black">
                 {event.eventName}
               </p>
               <p className="text-sm md:text-base font-sf-pro-display">
                 {event.venue}
               </p>
               <p className="text-xs md:text-sm font-sf-pro-display">
-                {formatEventDate(event.eventDate.startDate)} -{" "}
-                {formatEventDate(event.eventDate.endDate)} at{" "}
+                {eventDate} at {""}
                 {formatTimeLong(event.eventDate.startTime)} (
                 {formatTimezone(event.eventDate.timezone)})
+              </p>
+              <p className="text-lg md:text-xl mt-8 mb-3 font-black font-sf-pro-display">
+                DESCRIPTION
+              </p>
+              <p className="text-sm md:text-base max-w-2xl font-sf-pro-display">
+                {event.description}
               </p>
             </div>
 
@@ -66,113 +72,98 @@ export default function CartContainer({ event, action, isLoading = false }: Cart
                 event_name={event.eventName}
               />
             </div>
-
-            <div>
-              <p className="text-xl md:text-2xl uppercase leading-normal font-inter font-black">
-                Order Summary
-              </p>
-              <p className="text-sm md:text-base font-sf-pro-display">
-                Complete payment to secure your ticket!
-              </p>
-            </div>
-          </div>
-
-          <div className="hidden md:block w-[200px] shrink-0">
-            <RenderEventImage
-              image={event.eventDetails.desktopMedia?.flyer}
-              event_name={event.eventName}
-            />
           </div>
         </div>
 
-        <ul className="w-full flex flex-col gap-2 ">
-          {cartItems.map((item) => (
+        <div className="flex items-center gap-5 mt-4">
+          <BlockName name="tickets" />
+
+          {/* <p className='font-sf-pro-display text-xl font-extrabold text-white/60'>SALE</p> */}
+        </div>
+
+        <ul className="w-full grid sm:grid-cols-2 gap-x-5 gap-y-7">
+          {eventTickets?.items.map((ticket) => (
             <CartTicketCard
-              key={item.cartId}
-              id={item.ticketId}
-              name={item.name}
-              price={item.price}
-              quantity={item.quantity}
+              key={ticket.ticketId}
+              ticketId={ticket.ticketId}
+              name={ticket.ticketName}
+              price={ticket.price}
             />
           ))}
         </ul>
-        <PromoCode
-          cartItems={cartItems}
-          totalPrice={totalPrice}
-          totalQuantity={totalQuantity}
-        />
-        <TotalAccordion totalPrice={totalPrice} />
-         <Button onClick={action} disabled={isLoading} className='bg-white font-sf-pro-display text-black hover:bg-white/90'>
-          {isLoading ? <LoaderCircle size={18} className='animate-spin' /> : 'CONTINUE'}
-        </Button>
-       
+
       </div>
     </section>
   );
 }
 
-function CartTicketCard({ id, name, price, quantity }: ICartTicketCard) {
+function CartTicketCard({ ticketId, name, price }: ICartTicketCard) {
+  const localItems = useCartStore((state) => state.items);
+  const ticketCount =
+    localItems.find((i) => i.ticketId === ticketId)?.quantity ?? 0;
+
+  const createCartMutation = useCreateCart();
+  const updateQuantityMutation = useUpdateCartQuantity();
+
+  function createCart() {
+    createCartMutation.mutate({ ticketId, quantity: 1 });
+  }
+
+  function updateCart(quantity: number) {
+    updateQuantityMutation.mutate({ data: quantity, cartId: ticketId });
+  }
+
   return (
-    <li className="list-disc bg-white border rounded-lg text-black md:py-4 py-3 md:px-6 px-3 flex items-center justify-between">
-      <div className="flex flex-col gap-1">
-        <p className="text-base font-sf-pro-display">{name}</p>
-        <div className="flex flex-col gap-1 font-sf-pro-display">
-          <p className="text-sm">{formatNaira(price, { free: price === 0 })}</p>
-        </div>
+    <li className="flex items-center justify-between h-fit rounded-md bg-gunmetal-gray pl-5 pr-2 py-2.5 text-xl font-sf-pro-display text-white">
+      <div className="flex flex-col gap-1 font-sf-pro-display font-normal">
+        <p className="font-base">{name}</p>
+        <p className="text-sm">{formatNaira(price, { free: price === 0 })}</p>
+        <p className="text-xs text-[#ACACAC]">(includes fees)</p>
       </div>
 
-      <TicketQuantityControl cartId={id} quantity={quantity} />
+      <div className="flex items-center gap-2 px-3 rounded-full h-12 bg-light-green">
+        {ticketCount > 0 && (
+          <>
+            <TicketButton
+              action={() => updateCart(ticketCount - 1)}
+              Icon={Minus}
+              isLoading={updateQuantityMutation.isPending}
+            />
+
+            <span className="font-sf-pro-rounded font-bold text-sm">
+              {ticketCount}
+            </span>
+          </>
+        )}
+
+        <TicketButton
+          action={() =>
+            ticketCount > 0 ? updateCart(ticketCount + 1) : createCart()
+          }
+          Icon={Plus}
+          isLoading={
+            createCartMutation.isPending || updateQuantityMutation.isPending
+          }
+        />
+      </div>
     </li>
   );
 }
 
-function TicketQuantityControl({
-  quantity,
-  cartId,
-}: {
-  quantity: number;
-  cartId: string;
-}) {
-  const [ticketCount, setTicketCount] = useState<number>(quantity);
-
-  const updateQuantityMutation = useUpdateCartQuantity();
-  // const extendReservationMutation = useExtendReservation()
-
-  function updateCart(quantity: number) {
-    updateQuantityMutation.mutate(
-      { data: quantity, cartId: cartId },
-      {
-        onSuccess: () => {
-          setTicketCount(quantity);
-          // extendReservationMutation.mutate({ cartId: cartId })
-        },
-      },
-    );
-  }
-
+function TicketButton({ action, Icon, isLoading = false }: ITicketButton) {
   return (
-    <div className="flex items-center border bg-[#34C759] rounded-4xl py-1">
-      <Button
-        variant="ghost"
-        className="hover:bg-white/10"
-        onClick={() => updateCart(ticketCount - 1)}
-        disabled={ticketCount <= 0}
-      >
-        <Minus color="white" size={25} />
-      </Button>
-
-      <span className="font-sf-pro-rounded text-white text-sm">
-        {ticketCount}
-      </span>
-
-      <Button
-        variant="ghost"
-        className="hover:bg-white/10"
-        onClick={() => updateCart(ticketCount + 1)}
-      >
-        <Plus color="white" size={25} />
-      </Button>
-    </div>
+    <Button
+      disabled={isLoading}
+      variant="ghost"
+      className="p-1 w-fit h-fit hover:bg-black/10"
+      onClick={action}
+    >
+      {isLoading ? (
+        <LoaderCircle size={16} className="animate-spin" />
+      ) : (
+        <Icon size={16} />
+      )}
+    </Button>
   );
 }
 
@@ -180,11 +171,17 @@ interface CartContainerProps {
   event: EventDetailData;
   action: () => void;
   isLoading?: boolean;
+  eventTickets: PaginatedResponse<TicketData> | undefined;
 }
 
 interface ICartTicketCard {
-  id: string;
+  ticketId: string;
   name: string;
   price: number;
-  quantity: number;
+}
+
+interface ITicketButton {
+  action: () => void;
+  Icon: LucideIcon;
+  isLoading?: boolean;
 }

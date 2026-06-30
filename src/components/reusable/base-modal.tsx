@@ -45,6 +45,8 @@ interface CustomModalProps {
   confirmCloseConfirmText?: string
   /** Label for the "stay" button */
   confirmCloseCancelText?: string
+  /** Animate in from the bottom instead of the center */
+  slideFromBottom?: boolean
 }
 
 function BaseModal({
@@ -68,6 +70,7 @@ function BaseModal({
   confirmCloseMessage = 'Your progress will be lost if you leave.',
   confirmCloseConfirmText = 'Go Back',
   confirmCloseCancelText = 'Return to Cart',
+  slideFromBottom = false,
 }: CustomModalProps) {
   const [showConfirm, setShowConfirm] = useState(false)
 
@@ -98,6 +101,7 @@ function BaseModal({
         overlayClassName={overlayClassName}
         noCancel={removeCancel}
         floatingCancel={floatingCancel}
+        slideFromBottom={slideFromBottom}
         onClick={(e) => e.stopPropagation()}
         onInteractOutside={(e) => {
           if (disableOverlayClick || confirmClose) {

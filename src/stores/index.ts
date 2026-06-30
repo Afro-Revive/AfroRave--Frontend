@@ -162,11 +162,14 @@ export const useEventSelectorStore = create<EventSelectorState>()((set) => ({
 interface CartState {
   items: CreateCartRequest[]
   isSyncingCart: boolean
+  isCartOpen: boolean
   addItem: (item: CreateCartRequest) => void
   removeItem: (ticketId: string) => void
   updateQuantity: (ticketId: string, quantity: number) => void
   clearLocal: () => void
   setSyncing: (value: boolean) => void
+  openCart: () => void
+  closeCart: () => void
 }
 
 export const useCartStore = create<CartState>()(
@@ -174,6 +177,7 @@ export const useCartStore = create<CartState>()(
     (set) => ({
       items: [],
       isSyncingCart: false,
+      isCartOpen: false,
       addItem: (item) =>
         set((state) => {
           const existing = state.items.find((i) => i.ticketId === item.ticketId)
@@ -199,6 +203,8 @@ export const useCartStore = create<CartState>()(
         })),
       clearLocal: () => set({ items: [] }),
       setSyncing: (value) => set({ isSyncingCart: value }),
+      openCart: () => set({ isCartOpen: true }),
+      closeCart: () => set({ isCartOpen: false }),
     }),
     {
       name: 'afro-cart',
