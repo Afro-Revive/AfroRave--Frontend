@@ -7,7 +7,7 @@ export function BlockName({
 }) {
   return (
     <p
-      className={`text-2xl font-sf-pro-display font-black tracking-[-0.25px] text-white uppercase ${className}`}
+      className={`md:text-2xl text-xl font-sf-pro-display font-black tracking-[-0.25px] text-white uppercase ${className}`}
     >
       {name}
     </p>

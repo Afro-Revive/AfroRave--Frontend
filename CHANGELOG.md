@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 
 ### Added
+- **Google Maps embed on event location** (`src/pages/landing-page/event-page/event-location.tsx`): Replaced react-leaflet `MapContainer`/`TileLayer`/`Marker` with a Google Maps `<iframe>` embed. Both the embed URL and the "Open in Maps" link are now derived synchronously from `event_location` via `encodeURIComponent` — no async geocoding or API key required. Removed all leaflet imports and the `createCustomIcon` helper.
+- **`toGoogleMapsUrl` and `locationToGoogleMapsUrl` utilities** (`src/lib/geocode.ts`): Added `toGoogleMapsUrl(lat, lon)` that returns a `google.com/maps?q=` URL from coordinates, and `locationToGoogleMapsUrl(location)` that geocodes a string via Nominatim and returns the Maps URL in one call.
+
+### Added
 - **Pagination cast pattern applied across pages**: All list endpoints now cast `response?.data` to `PaginatedResponse<ItemType> | undefined` and access `.items` for the array; single-item endpoints cast directly to the data type. `PaginatedResponse` is imported from `@/types/api` (not re-exported from `@/types`). Plain-array endpoints (e.g. vendor available events) cast to `Array<ItemType> | undefined` directly. Response types for list endpoints use the singular item type (`ApiResponse<EventData>` not `ApiResponse<EventData[]>`) so `items` resolves to `T[]` not `T[][]`.
 - **Promo code validation response fix** (`src/pages/fans/account/components/promo-code.tsx`): Cast `data.data` to `ValidatePromocodeData` before accessing `.data.isValid` — the type has a nested `data` object with the validity flag, not a top-level `isValid`.
 - **Business Details section shown for both Organizer and Vendor** (`complete-profile/index.tsx`): Fixed `userAccountType === "Organizer" || (userAccountType === "Vendor" && <JSX>)` — `||` short-circuited to boolean `true` for Organizer, rendering nothing. Changed to `(userAccountType === "Organizer" || userAccountType === "Vendor") && <JSX>`.

@@ -80,7 +80,7 @@ function TicketCard({ name, price, layout, ticketId }: ITicketCard) {
         },
       )}>
       <div className='flex flex-col gap-1 font-sf-pro-display font-normal'>
-        <p className='font-base'>{name}</p>
+        <p className='md:text-base text-sm capitalize'>{name}</p>
         <p className='text-sm'>{formatNaira(price, { free: price === 0 })}</p>
         <p className='text-xs text-[#ACACAC]'>(includes fees)</p>
       </div>

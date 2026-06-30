@@ -1,9 +1,10 @@
 import { Button } from "@/components/ui/button";
-import { Plus, Minus, LoaderCircle, ShoppingCart, type LucideIcon } from "lucide-react";
+import { Plus, Minus, LoaderCircle, type LucideIcon } from "lucide-react";
 import { formatNaira } from "@/lib/format-price";
 import type { EventDetailData, PaginatedResponse, TicketData } from "@/types";
 import { RenderEventImage } from "@/components/shared/render-event-flyer";
 import { useCreateCart, useUpdateCartQuantity } from "@/hooks/use-cart";
+import { CartSummaryFloat } from "../individual-event/_components/cart-float";
 import { useCartStore } from "@/stores";
 import {
   formatEventDate,
@@ -18,15 +19,6 @@ export default function CartContainer({
   isLoading = false,
   eventTickets,
 }: CartContainerProps) {
-  const localItems = useCartStore((state) => state.items);
-
-  const totalPrice = localItems.reduce((sum, item) => {
-    const ticket = eventTickets?.items.find((t) => t.ticketId === item.ticketId);
-    return sum + (ticket?.price ?? 0) * item.quantity;
-  }, 0);
-
-  const totalTickets = localItems.reduce((sum, item) => sum + item.quantity, 0);
-
   const isEventMultiDay = event.eventDate.startDate !== event.eventDate.endDate;
   const eventDate = isEventMultiDay
     ? `${formatEventDate(event.eventDate.startDate)} - ${formatEventDate(
@@ -36,9 +28,9 @@ export default function CartContainer({
 
   return (
     <section className="container flex flex-col  md:flex-row z-10">
-      <div className="w-full  flex flex-col gap-5 px-5 md:py-10 max-h-[calc(100vh-100px)] overflow-y-auto">
+      <div className="w-full flex flex-col gap-5 px-5 md:py-10 pb-36 md:pb-10 max-h-[calc(100vh-100px)] overflow-y-auto">
         <div className="w-full flex flex-col md:flex-row items-stretch gap-4">
-          <div className="hidden md:block w-[300px] h-[400px] shrink-0">
+          <div className=" md:w-[300px] md:h-[400px] w-[200px] h-[300px] shrink-0">
             <RenderEventImage
               image={event.eventDetails.desktopMedia?.flyer}
               event_name={event.eventName}
@@ -66,12 +58,6 @@ export default function CartContainer({
               </p>
             </div>
 
-            <div className="md:hidden w-fit ">
-              <RenderEventImage
-                image={event.eventDetails.desktopMedia?.flyer}
-                event_name={event.eventName}
-              />
-            </div>
           </div>
         </div>
 
@@ -93,6 +79,12 @@ export default function CartContainer({
         </ul>
 
       </div>
+
+      <CartSummaryFloat
+        eventTickets={eventTickets}
+        action={action}
+        isLoading={isLoading}
+      />
     </section>
   );
 }
@@ -116,12 +108,12 @@ function CartTicketCard({ ticketId, name, price }: ICartTicketCard) {
   return (
     <li className="flex items-center justify-between h-fit rounded-md bg-gunmetal-gray pl-5 pr-2 py-2.5 text-xl font-sf-pro-display text-white">
       <div className="flex flex-col gap-1 font-sf-pro-display font-normal">
-        <p className="font-base">{name}</p>
-        <p className="text-sm">{formatNaira(price, { free: price === 0 })}</p>
-        <p className="text-xs text-[#ACACAC]">(includes fees)</p>
+        <p className="md:text-base text-sm capitalize">{name}</p>
+        <p className="md:text-sm text-xs">{formatNaira(price, { free: price === 0 })}</p>
+        <p className="md:text-xs text-[10px] text-[#ACACAC]">(includes fees)</p>
       </div>
 
-      <div className="flex items-center gap-2 px-3 rounded-full h-12 bg-light-green">
+      <div className="flex items-center md:gap-2 px-1 md:px-3 rounded-full h-12 bg-light-green">
         {ticketCount > 0 && (
           <>
             <TicketButton
@@ -130,7 +122,7 @@ function CartTicketCard({ ticketId, name, price }: ICartTicketCard) {
               isLoading={updateQuantityMutation.isPending}
             />
 
-            <span className="font-sf-pro-rounded font-bold text-sm">
+            <span className="font-sf-pro-rounded font-bold md:text-sm text-xs">
               {ticketCount}
             </span>
           </>
@@ -166,6 +158,7 @@ function TicketButton({ action, Icon, isLoading = false }: ITicketButton) {
     </Button>
   );
 }
+
 
 interface CartContainerProps {
   event: EventDetailData;
