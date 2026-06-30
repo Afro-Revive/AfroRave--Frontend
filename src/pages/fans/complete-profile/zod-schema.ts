@@ -14,6 +14,7 @@ export const PersonalDetailsSchema = z.object({
     digits: z.string(),
   }),
   companyName: z.string().optional(),
+  businessName: z.string().optional(),
   companyWebsite: z
     .string()
     .optional()
@@ -21,6 +22,7 @@ export const PersonalDetailsSchema = z.object({
       message: "Website must start with https://",
     }),
     category: z.string().optional(),
+    vendorType: z.string().optional(),
 });
 
 export type PersonalDetailsValues = z.infer<typeof PersonalDetailsSchema>;

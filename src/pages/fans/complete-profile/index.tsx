@@ -11,13 +11,6 @@ import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select'
 import { PersonalDetailsSchema, PersonalDetailsValues } from "./zod-schema";
 import { VENDOR_CATEGORIES } from "@/types/vendor";
 
@@ -41,11 +34,18 @@ export default function CompleteProfilePage() {
       state: "",
       number: { country_code: "+234", digits: "" },
       category: "",
+      businessName: "",
+      vendorType: "",
     },
   });
 
-  const { formState: { errors, isSubmitting }, watch, setValue } = form
-  const category = watch('category')
+  const {
+    formState: { errors },
+    watch,
+    setValue,
+  } = form;
+  const category = watch("category");
+  const vendorType = watch("vendorType");
 
   useEffect(() => {
     if (!token) {
@@ -74,6 +74,9 @@ export default function CompleteProfilePage() {
       dateOfBirth,
       country: values.country,
       state: values.state,
+      category: values.category,
+      vendorType: values.vendorType,
+      businessName: values.businessName,
     });
   }
 
@@ -161,28 +164,69 @@ export default function CompleteProfilePage() {
 
         <FormBase
           form={form}
-          onSubmit={(onSubmit)}
+          onSubmit={onSubmit}
           className="w-full flex flex-col gap-3"
         >
           {userAccountType === "Vendor" && (
             <div className="w-full flex-row gap-4">
               <div>
-                <Select
+                <p className="font-inter text-white md:text-base text-sm font-medium mb-2">
+                  Choose Vendor Type
+                </p>
+                <p className="font-sf-pro-text md:text-sm text-xs font-light mb-2">
+                  This helps organizers understand what you offer and match you
+                  with the right event opportunities.
+                </p>
+                <div className="w-full flex flex-row gap-6 mb-6">
+                  {[
+                    {
+                      value: "revenue",
+                      label: "REVENUE VENDOR",
+                      description:
+                        "Vendors who sell goods or products at events through a paid slot",
+                    },
+                    {
+                      value: "service",
+                      label: "SERVICE VENDOR",
+                      description:
+                        "Vendors who get paid to provide professional services",
+                    },
+                  ].map(({ value, label, description }) => (
+                    <Button
+                      key={value}
+                      type="button"
+                      variant="outline"
+                      onClick={() => setValue("vendorType", value)}
+                      className={
+                        vendorType === value
+                          ? "flex-1 py-4 hover:bg-white/10 px-6 h-auto border-white bg-white text-black font-sf-pro-display"
+                          : "flex-1 py-4 px-6 h-auto border-white/40 bg-transparent text-white font-sf-pro-display hover:bg-white/10 hover:text-white"
+                      }
+                    >
+                      <div className="flex flex-col items-center gap-1 whitespace-normal text-center">
+                        {label}
+                        <p className={`text-xs font-sf-pro-text font-light mt-1 ${vendorType === value ? "text-black/60" : "text-white"}`}>
+                          {description}
+                        </p>
+                      </div>
+                    </Button>
+                  ))}
+                </div>
+                {errors.vendorType && (
+                  <p className="text-xs text-red-400 mt-1">
+                    {errors.vendorType.message}
+                  </p>
+                )}
+              </div>
+              <div className="relative w-full">
+                <label className={insetLabelStyle}>Category</label>
+                <BaseSelect
+                  placeholder=""
                   value={category}
-                  onValueChange={(value) => setValue("category", value)}
-                  disabled={isSubmitting}
-                >
-                  <SelectTrigger className="w-full bg-[#1C1C1E] text-white border-0 h-11">
-                    <SelectValue placeholder="CATEGORY" />
-                  </SelectTrigger>
-                  <SelectContent className="z-[1000001]">
-                    {VENDOR_CATEGORIES.map((cat) => (
-                      <SelectItem key={cat.value} value={cat.value}>
-                        {cat.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  onChange={(value) => setValue("category", value)}
+                  items={VENDOR_CATEGORIES}
+                  triggerClassName={editableSelectStyle}
+                />
                 {errors.category && (
                   <p className="text-xs text-red-400 mt-1">
                     {errors.category.message}
@@ -200,7 +244,7 @@ export default function CompleteProfilePage() {
                 </h2>
                 <FormField
                   form={form}
-                  name="companyName"
+                  name={userAccountType === 'Vendor' ? 'businessName' : 'companyName'}
                   labelClassName="sr-only"
                   className="flex-1"
                   showMessage
@@ -210,7 +254,7 @@ export default function CompleteProfilePage() {
                       <label
                         className={`${insetLabelStyle} placeholder:text-white `}
                       >
-                        COMPANY NAME
+                        {userAccountType === "Vendor" ? "BUSINESS NAME" : "COMPANY NAME"}
                       </label>
                       <Input
                         {...field}
