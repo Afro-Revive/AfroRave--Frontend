@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { useState } from 'react'
+import { useState, useLayoutEffect } from 'react'
 import { X } from 'lucide-react'
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden'
 import {
@@ -73,6 +73,9 @@ function BaseModal({
   slideFromBottom = false,
 }: CustomModalProps) {
   const [showConfirm, setShowConfirm] = useState(false)
+  useLayoutEffect(() => {
+    setShowConfirm(false)
+  }, [open])
 
   function handleOpenChange(nextOpen: boolean) {
     if (!nextOpen) {

@@ -6,7 +6,7 @@ import {
 } from "@/components/ui/accordion";
 import { formatNaira } from "@/lib/format-price";
 const TotalAccordion = ({ totalPrice }: { totalPrice: number }) => {
-  const serviceFee = 0.05 * totalPrice;
+  const serviceFee = parseFloat(import.meta.env.VITE_TICKET_SALES_PERCENTAGE || "0") * totalPrice;
   return (
     <Accordion
       type="single"

@@ -26,7 +26,7 @@ export default function ProfileTab() {
   const { data: profileData, isLoading: isLoadingProfile } = useUserProfile();
   const updateProfileMutation = useUpdateUserProfile();
   const [showBanner, setShowBanner] = useState(false);
-
+console.log("profileData", profileData);
   const form = useForm<z.infer<typeof ProfileSchema>>({
     resolver: zodResolver(ProfileSchema),
     defaultValues: defaultProfileValues,

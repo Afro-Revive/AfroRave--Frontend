@@ -164,8 +164,8 @@ const dummyLoginData: { type: LoginType; email: string; password: string }[] = [
   },
   {
     type: 'guest',
-    email: 'iseoluwaariyibi@gmail.com',
-    password: 'password123',
+    email: 'iseoluwaariyibi+10@gmail.com',
+    password: 'password',
   },
 ]
 

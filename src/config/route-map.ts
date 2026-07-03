@@ -28,6 +28,7 @@ export const ROUTE_PATHS = {
   terms_and_conditions: '/fans/terms-and-conditions',
   privacy_policy: '/fans/privacy-policy',
   not_found: '*',
+  payment_confirmation: '/fans/payment-confirmation',
 
   // User dashboard routes
   account: '/fans/account',
@@ -110,6 +111,7 @@ export interface RouteParams {
   terms_and_conditions: never
   privacy_policy: never
   not_found: never
+  payment_confirmation: never
 
   // User dashboard routes
   account: never

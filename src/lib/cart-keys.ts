@@ -5,6 +5,7 @@ export const cartKeys = {
   details: () => [...cartKeys.all, 'detail'] as const,
   detail: (id: string) => [...cartKeys.details(), id] as const,
   checkout: () => [...cartKeys.all, 'checkout'] as const,
+  processCheckout: () => [...cartKeys.all, 'process-checkout'] as const,
   validatePromocode: () => [...cartKeys.all, 'validate-promocode'] as const,
   extendReservation: (id: string) => [...cartKeys.detail(id), 'extend-reservation'] as const,
 }

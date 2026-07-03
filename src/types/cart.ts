@@ -75,14 +75,6 @@ export interface GetCartData {
 
 export type GetCartResponse = ApiResponse<GetCartData>
 
-export interface CheckoutRequest {
-  paymentMethod: string
-  promoCode?: string
-  promoCodeId?: string
-  paymentReference: string
-  transactionReference: string
-}
-
 export interface CheckoutData {
   message: string
   data: {
@@ -108,6 +100,42 @@ export interface ValidatePromocodeRequest {
   subtotal: number
   totalTickets: number
   ticketIds: string[]
+}
+
+export interface InitializePaymentResponse {
+  message: string
+  data:{
+  authorizationUrl: string
+  accessCode: string
+  reference: string
+}
+  cursor: string
+  id: UUID
+  status: boolean
+  statusCode: number
+}
+
+export interface CheckoutRequest {
+  paymentMethod: string
+  promoCodeId?: string | null
+  transactionReference: string
+}
+
+export interface CheckoutResponseData {
+  message: string
+  data: {
+    orderId: string
+    totalAmount: number
+    tax: number
+    discount: number
+    status: string
+    createdDate: Date
+    items: CartData[]
+  }
+  cursor: string
+  id: UUID
+  status: boolean
+  statusCode: number
 }
 
 export interface ValidatePromocodeData {

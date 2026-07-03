@@ -107,6 +107,7 @@ export const useAfroStore = create<AfroState>()((set, get) => ({
     }
     set(newState)
     localStorage.removeItem('afro-store-v1')
+    useCartStore.getState().clearLocal()
   },
   updateUser: (user: User) => {
     const currentState = get()
@@ -162,6 +163,8 @@ export const useEventSelectorStore = create<EventSelectorState>()((set) => ({
 interface CartState {
   items: CreateCartRequest[]
   isSyncingCart: boolean
+  promoCodeId: string | null
+  setPromoCodeId: (id: string | null) => void
   isCartOpen: boolean
   addItem: (item: CreateCartRequest) => void
   removeItem: (ticketId: string) => void
@@ -178,6 +181,8 @@ export const useCartStore = create<CartState>()(
       items: [],
       isSyncingCart: false,
       isCartOpen: false,
+      promoCodeId: null,
+      setPromoCodeId: (id) => set({ promoCodeId: id }),
       addItem: (item) =>
         set((state) => {
           const existing = state.items.find((i) => i.ticketId === item.ticketId)

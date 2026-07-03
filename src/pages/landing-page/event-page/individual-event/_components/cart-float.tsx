@@ -69,7 +69,7 @@ export function CartSummaryFloat({
               <button
                 type="button"
                 onClick={() => setIsOpen(false)}
-                className="text-black/60 hover:text-white transition-colors"
+                className="text-black/60 hover:text-black/20 transition-colors"
               >
                 <ChevronDown size={18} />
               </button>
@@ -129,22 +129,22 @@ export function CartSummaryFloat({
 
         {/* Bottom bar — hidden when panel is open */}
         {!isOpen && (
-          <div className="flex flex-col items-center w-full bg-mid-dark-gray px-6">
+          <div className="flex flex-col items-center w-full bg-white px-6">
             <button
               type="button"
               onClick={() => setIsOpen(true)}
               className="w-full flex justify-center pt-3 pb-6 hover:bg-white/5 transition-colors"
             >
-              <ChevronUp size={18} className="text-white/60" />
+              <ChevronUp size={18} className="text-black" />
             </button>
             <button
               type="button"
               onClick={action}
               disabled={isLoading || totalTickets === 0}
-              className="flex items-center bg-soft-gray rounded-md justify-between w-full px-5 py-4 mb-4 hover:bg-soft-gray/80 transition-colors disabled:opacity-50"
+              className="flex items-center bg-deep-red rounded-md justify-between w-full px-5 h-11 mb-4 hover:bg-soft-gray/80 transition-colors disabled:opacity-50"
             >
-              <span className="text-white text-sm font-sf-pro-display">Checkout</span>
-              <span className="text-white md:text-xl text-base font-inter">
+              <span className="text-white text-sm">Checkout</span>
+              <span className="text-base font-semibold">
                 {formatNaira(totalPrice, { free: totalPrice === 0 && totalTickets > 0 })}
               </span>
             </button>

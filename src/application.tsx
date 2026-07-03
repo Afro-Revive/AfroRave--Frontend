@@ -25,6 +25,7 @@ import VendorDashboardLayout from './layouts/vendor-dashboard-layout'
 const AddEventPage = lazy(() => import('./pages/creators/add-event'))
 const SlotDetailsPage = lazy(() => import('./pages/vendor/slots/slot-details'))
 const CompleteProfilePage = lazy(() => import('./pages/fans/complete-profile'))
+const PaymentConfirmationPage = lazy(() => import('./pages/landing-page/payment-confirmation'))
 
 // Create a client
 const queryClient = new QueryClient({
@@ -104,6 +105,15 @@ function AppRoutes() {
         element={
           <Suspense fallback={<LoadingFallback />}>
             <CompleteProfilePage />
+          </Suspense>
+        }
+      />
+
+      <Route
+        path={getRoutePath('payment_confirmation')}
+        element={
+          <Suspense fallback={<LoadingFallback />}>
+            <PaymentConfirmationPage />
           </Suspense>
         }
       />

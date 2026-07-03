@@ -95,13 +95,25 @@ export function useSyncCartToServer() {
 export function useCheckoutCart() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({ data }: { data: CheckoutRequest }) => cartService.checkoutCart(data),
+    mutationFn: ({ promoCodeId, callbackUrl }: { promoCodeId: string; callbackUrl: string }) => cartService.initialzePayment(promoCodeId, callbackUrl),
     mutationKey: cartKeys.checkout(),
     onSuccess: () => {
       toast.success('Checkout successful.')
       queryClient.invalidateQueries({ queryKey: cartKeys.lists() })
     },
     onError: () => toast.error('Failed to checkout.'),
+  })
+}
+
+export function useProcessCheckout() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (data: CheckoutRequest) => cartService.processCheckout(data),
+    mutationKey: cartKeys.processCheckout(),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: cartKeys.lists() })
+    },
+    onError: () => toast.error('Failed to process checkout.'),
   })
 }
 

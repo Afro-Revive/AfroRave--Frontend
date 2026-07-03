@@ -1,11 +1,9 @@
 import { X } from "lucide-react";
 import { formatNaira } from "@/lib/format-price";
-import { useCheckoutCart, useClearCart } from "@/hooks/use-cart";
+import { useCheckoutCart } from "@/hooks/use-cart";
 import { useGetEventTickets } from "@/hooks/use-event-mutations";
 import { useAfroStore, useCartStore } from "@/stores";
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
-import { getRoutePath } from "@/config/get-route-path";
 import PromoCode from "@/pages/fans/account/components/promo-code";
 import type { EventDetailData, PaginatedResponse, TicketData } from "@/types";
 import {
@@ -16,6 +14,7 @@ import {
 import { RenderEventImage } from "@/components/shared/render-event-flyer";
 import { useEffect, useState } from "react";
 import TotalAccordion from "@/pages/fans/account/components/totalPrice-accordion";
+import { InitializePaymentResponse } from "@/types/cart";
 
 export default function CartSummary({
   event,
@@ -26,16 +25,19 @@ export default function CartSummary({
   isFanAccount?: boolean;
   eventId?: string;
 }) {
-  const navigate = useNavigate();
 
   const isAuthenticated = useAfroStore((state) => state.isAuthenticated);
-  const localItems = useCartStore((state) => state.items);
+  const { items: localItems, promoCodeId } = useCartStore();
   const { data: ticketsResponse } = useGetEventTickets(eventId ?? "");
 
-   const ticketInformation = ticketsResponse?.data as PaginatedResponse<TicketData> | undefined
+  const ticketInformation = ticketsResponse?.data as
+    | PaginatedResponse<TicketData>
+    | undefined;
 
   const cartItems = localItems.map((item) => {
-    const ticket = ticketInformation?.items.find((t) => t.ticketId === item.ticketId);
+    const ticket = ticketInformation?.items.find(
+      (t) => t.ticketId === item.ticketId,
+    );
     return {
       cartId: item.ticketId,
       ticketId: item.ticketId,
@@ -53,23 +55,17 @@ export default function CartSummary({
   const totalQuantity = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
   const checkoutMutation = useCheckoutCart();
-  const clearCartMutation = useClearCart();
 
   function handleCheckout() {
     checkoutMutation.mutate(
       {
-        data: {
-          paymentMethod: "",
-          promoCode: "",
-          promoCodeId: "",
-          transactionReference: "",
-          paymentReference: "",
-        },
+        promoCodeId: promoCodeId || "",
+        callbackUrl: `${window.location.origin}/fans/payment-confirmation`,
       },
       {
-        onSuccess: () => {
-          clearCartMutation.mutate();
-          navigate(getRoutePath("account"));
+        onSuccess: (data) => {
+          const response = data as InitializePaymentResponse;
+          window.location.href = response.data.authorizationUrl;
         },
       },
     );

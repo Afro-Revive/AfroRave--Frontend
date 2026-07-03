@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 
 ### Added
+- **Payment confirmation page** (`src/pages/landing-page/payment-confirmation/index.tsx`): New standalone page (no navbar/layout) that Paystack redirects to after checkout via `callbackUrl`. Reads `reference`/`trxref` query params from the URL. On mount, fires `useProcessCheckout` to confirm the order with the backend. Shows a loading spinner while pending, a success state ("Thank You For Your Purchase!") with "Back to Events" and "View Tickets" CTAs on success, and an error state ("An Error Occurred") with a "Try Again" button on failure. Redirects to events if the reference param is missing.
+- **`payment_confirmation` route** (`src/config/route-map.ts`, `src/application.tsx`): Added `/fans/payment-confirmation` to `ROUTE_PATHS` and `RouteParams`. Registered as a standalone `<Route>` in `application.tsx` with no layout wrapper, so the navbar is not rendered.
+- **`useProcessCheckout` hook** (`src/hooks/use-cart.ts`): New mutation that calls `cartService.processCheckout(data)` with `paymentMethod`, `promoCodeId`, and `transactionReference`. Used by the payment confirmation page to finalise the order after Paystack redirect.
+
+### Changed
+- **Paystack callback URL** (`checkout-summary.tsx`): Changed from hardcoded `http://localhost:5173/fans` to `${window.location.origin}/fans/payment-confirmation`, so the redirect works correctly across dev, staging, and production environments.
+
+### Fixed
+- **`BaseModal` confirm overlay flashing on open** (`src/components/reusable/base-modal.tsx`): Replaced `useEffect` with `useLayoutEffect` to reset `showConfirm` whenever `open` changes. `useLayoutEffect` fires synchronously before the browser paints, so even if `showConfirm` was set to `true` in the same React batch as `open` becoming `true`, it is zeroed out before the user sees it. Also resets on `open → true` (not just `open → false`) so every modal open cycle starts with a clean confirm state.
+
+### Added
 - **Google Maps embed on event location** (`src/pages/landing-page/event-page/event-location.tsx`): Replaced react-leaflet `MapContainer`/`TileLayer`/`Marker` with a Google Maps `<iframe>` embed. Both the embed URL and the "Open in Maps" link are now derived synchronously from `event_location` via `encodeURIComponent` — no async geocoding or API key required. Removed all leaflet imports and the `createCustomIcon` helper.
 - **`toGoogleMapsUrl` and `locationToGoogleMapsUrl` utilities** (`src/lib/geocode.ts`): Added `toGoogleMapsUrl(lat, lon)` that returns a `google.com/maps?q=` URL from coordinates, and `locationToGoogleMapsUrl(location)` that geocodes a string via Nominatim and returns the Maps URL in one call.
 

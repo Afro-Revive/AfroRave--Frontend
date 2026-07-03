@@ -1,10 +1,12 @@
 import type {
   CheckoutRequest,
   CheckoutResponse,
+  CheckoutResponseData,
   CreateCartRequest,
   CreateCartResponse,
   GetAllCartResponse,
   GetCartResponse,
+  InitializePaymentResponse,
   ValidatePromocodeRequest,
   ValidatePromocodeResponse,
 } from '@/types/cart'
@@ -56,8 +58,8 @@ class CartServce {
    * Sync Local cart to server cart
    */
   async syncCart(items: { ticketId: string; quantity: number }[]): Promise<ApiResponse<unknown>> {
-    console.log('Syncing cart with items:', items)
     const response = await api.post('/api/cart/sync', { items })
+    console.log('syncCart response', response.data)
     return response.data
   }
 
@@ -82,6 +84,22 @@ class CartServce {
    */
   async validatePromoCode(data: ValidatePromocodeRequest): Promise<ValidatePromocodeResponse> {
     const response = await api.post('api/Cart/validate-promocode', data)
+    return response.data
+  }
+
+  /**
+   * Initalize payment for cart
+   */
+  async initialzePayment(promoCodeId:string, callbackUrl: string): Promise<InitializePaymentResponse> {
+    const response = await api.post('/api/Cart/initialize-payment', { promoCodeId, callbackUrl })
+    return response.data
+  }
+
+  /**
+   * Processes cart checkout after payment is completed
+   */
+  async processCheckout(data: CheckoutRequest): Promise<CheckoutResponseData>{
+    const response = await api.post('/api/Cart/checkout', data)
     return response.data
   }
 
