@@ -2,7 +2,6 @@ import { Outlet } from 'react-router-dom'
 import AccountHeader from './header'
 import AccountFooter from './footer'
 import { AuthProvider } from '@/contexts/auth-context'
-import AccountSidebar from './sidebar'
 import { useState } from 'react'
 import MobileSidebar from './mobile-sidebar'
 
@@ -15,8 +14,7 @@ export default function UserDashboardLayout() {
         <AccountHeader onMenuToggle={() => setIsMobileMenuOpen(true)} />
         <MobileSidebar isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
         <div className="flex flex-1 pt-[80px]">
-          <AccountSidebar />
-          <main className='flex-1 md:ml-[280px] flex flex-col'>
+          <main className='flex-1 flex flex-col'>
             <Outlet />
             <AccountFooter />
           </main>

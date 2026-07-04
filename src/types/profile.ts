@@ -68,7 +68,12 @@ export interface UserTicketData {
   desktopMedia: {
     flyer: string
     background: string
-  }
+  },
+  purchaseHistory: {
+    orderId: string
+    purchaseDate: string
+    quantity: number
+  }[]
 }
 
 export type UserTicketsResponse = ApiResponse<UserTicketData>

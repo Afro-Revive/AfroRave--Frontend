@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import { getRoutePath } from '@/config/get-route-path'
 import { RenderEventImage } from '@/components/shared/render-event-flyer'
 
-export function Tickets({ id, image, event_name, quantity }: ITickets) {
+export function Tickets({ id, image, event_name, quantity, ticketName }: ITickets) {
   return (
     <Link
       to={getRoutePath('active_tickets', { eventId: id })}
@@ -20,7 +20,7 @@ export function Tickets({ id, image, event_name, quantity }: ITickets) {
       </div>
 
       <p className='max-w-full font-sf-pro-display font-extrabold tracking-[-0.25px] text-wrap uppercase'>
-        {event_name}
+        {event_name} {""} - {ticketName}
       </p>
     </Link>
   )
@@ -31,4 +31,5 @@ interface ITickets {
   event_name: string
   image: string
   quantity: number
+  ticketName: string
 }

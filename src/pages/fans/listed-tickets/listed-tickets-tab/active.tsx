@@ -19,7 +19,7 @@ export default function ActiveListedTicketsTab() {
 
 function ActiveTickets() {
   return (
-    <div className='flex flex-wrap items-center gap-7 px-[100px] mb-[499px]'>
+    <div className='flex flex-wrap items-center gap-7 '>
       {events.map(({ event_name, image, id }) => (
         <Tickets key={id} id='1' event_name={event_name} image={image} quantity={0} />
       ))}
