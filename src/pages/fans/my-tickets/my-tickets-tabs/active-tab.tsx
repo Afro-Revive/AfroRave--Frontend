@@ -27,13 +27,13 @@ export default function ActiveTicketsTab({
 
 function ActiveTickets({ data }: { data: UserTicketData[] }) {
   return (
-    <div className='flex flex-wrap items-center justify-center gap-7 px-5 md:px-[50px] lg:px-[100px] mb-[100px]'>
+    <div className='flex flex-wrap overflow-y-auto items-center justify-center gap-7 px-5 md:px-[50px] lg:px-[100px] mb-[100px]'>
       {data.map((item) => (
         <Tickets
           key={item.eventId}
           id={item.eventId}
           event_name={item.eventName}
-          image={item.desktopMedia.flyer}
+          image={item.desktopMedia?.flyer}
           quantity={item.quantity}
         />
       ))}

@@ -37,7 +37,7 @@ export function transformProfileFromResponse(
   // Parse date of birth
   // currently using createdDate as a placeholder for dateOfBirth 
   // would be updated once the backend provides a dateOfBirth field
-  const dateOfBirth = new Date(apiData.createdDate)
+  const dateOfBirth = new Date(apiData.dateOfBirth)
   const year = dateOfBirth.getFullYear().toString()
   const month = monthNumberToName((dateOfBirth.getMonth() + 1).toString())
   const day = dateOfBirth.getDate().toString()
@@ -52,14 +52,14 @@ export function transformProfileFromResponse(
     last_name: apiData.lastName || '',
     email: apiData.email || '',
     password: '', // Don't populate password from API
-    gender: apiData.userType || '',
+    gender: apiData.gender || '',
     birthday: {
       month,
       day,
       year,
     },
-    country: '',
-    state: '',
+    country: apiData.country || '',
+    state: apiData.state || '',
     number: {
       country_code: countryCode,
       digits,

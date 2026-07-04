@@ -37,6 +37,10 @@ export interface UserProfileData {
   lastName: string
   email: string
   phoneNumber: string
+  gender: string
+  state: string
+  country: string
+  dateOfBirth: string
   profilePicture: string
   bio: string
   createdDate: string
@@ -67,7 +71,7 @@ export interface UserTicketData {
   }
 }
 
-export type UserTicketsResponse = ApiResponse<UserTicketData[]>
+export type UserTicketsResponse = ApiResponse<UserTicketData>
 
 // Vendor Profile Data for GET /api/Profile/vendor
 export interface VendorProfileData {
