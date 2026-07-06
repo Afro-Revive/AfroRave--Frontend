@@ -35,8 +35,8 @@ function ActiveTickets({ data }: { data: UserTicketData[] }) {
           id={item.eventId}
           event_name={item.eventName}
           image={item.desktopMedia?.flyer}
-          quantity={item.purchaseHistory?.length || 0}
-          ticketName={item.ticketName}
+          quantity={item.ticketDetails.reduce((sum, t) => sum + t.totalQuantity, 0)}
+          ticketName={item.ticketDetails[0]?.ticketName ?? ''}
         />
       ))}
     </div>

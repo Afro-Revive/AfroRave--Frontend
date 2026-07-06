@@ -51,24 +51,26 @@ export type UserProfileResponse = ApiResponse<UserProfileData>
 
 // User Ticket Data for GET /api/Profile/user/ticket/active and /api/Profile/user/ticket/past
 export interface UserTicketData {
-  ticketId: string
-  purchaseDate: string
-  status: string
   eventId: string
   eventName: string
   eventVenue: string
   eventStartDate: string
   eventEndDate: string
-  ticketName: string
-  price: number
-  quantity: number
   theme: {
     themeName: string
   }
   desktopMedia: {
     flyer: string
     background: string
-  },
+  }
+  ticketDetails: UserTicketTicketDetails[]
+}
+
+export interface UserTicketTicketDetails {
+  ticketId: string
+  ticketName: string
+  price: number
+  totalQuantity: number
   purchaseHistory: {
     orderId: string
     purchaseDate: string

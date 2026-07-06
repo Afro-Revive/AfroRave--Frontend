@@ -10,12 +10,7 @@ export const ProfileSchema = z.object({
   email: z.string().email({
     message: "Provide a valid email.",
   }),
-  password: z
-    .string()
-    .min(6, { message: "Password must be atleast 6 characters long." })
-    .max(20, {
-      message: "Password too long.",
-    }),
+  password: z.string().optional(),
   gender: z.string().min(4, { message: "Provide a valid gender." }),
   birthday: z.object({
     month: z.string().min(1, { message: "Provide a valid month." }),

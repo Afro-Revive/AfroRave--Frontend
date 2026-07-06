@@ -1,12 +1,15 @@
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, Clock, EllipsisVertical } from "lucide-react";
+import { ChevronLeft, Clock } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useGetEvent } from "@/hooks/use-event-mutations";
-import { useGetEventTickets } from "@/hooks/use-event-mutations";
-import { EventDetailData, PaginatedResponse, TicketData, UserTicketData } from "@/types";
+import {
+  EventDetailData,
+  PaginatedResponse,
+  UserTicketData,
+  UserTicketTicketDetails,
+} from "@/types";
 import { cn } from "@/lib/utils";
-import { useNavigate } from "react-router-dom";
 import { LoadingFallback } from "@/components/loading-fallback";
 import {
   daysUntilEvent,
@@ -16,26 +19,58 @@ import {
   formatTimezone,
 } from "@/lib/helper-func";
 import { useUserActiveTickets } from "@/hooks/use-profile-mutations";
+import { useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import OrderDetailsModal from "../components/order-details-modal";
+
+type EnrichedPurchase = {
+  orderId: string;
+  purchaseDate: string;
+  quantity: number;
+  ticketName: string;
+  ticketId: string;
+};
 
 export default function IndividualActiveTicketsPage() {
   const { eventId } = useParams<{ eventId: string }>();
   const navigate = useNavigate();
+  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
 
-  const { data: event, isLoading } = useGetEvent(eventId!);
-  const { data: tickets } = useGetEventTickets(eventId!);
-  const {data: activeTickets} = useUserActiveTickets()
-  const eventData = event?.data as EventDetailData | undefined;
-  const ticketData = tickets?.data as PaginatedResponse<TicketData> | undefined;
-  const activeTicketData = activeTickets?.data as PaginatedResponse<UserTicketData> | undefined;
-  const purchaseHistory = activeTicketData?.items.find(ticket => ticket.eventId === eventId)?.purchaseHistory || [];
+  const { data: eventResponse, isLoading: isLoadingEvent } = useGetEvent(
+    eventId!,
+  );
+  const { data: activeTicketResponse, isLoading: isLoadingTickets } =
+    useUserActiveTickets();
 
-  const isEventMultiDay =
-    eventData?.eventDate.startDate !== eventData?.eventDate.endDate;
+  const eventDetails = eventResponse?.data as EventDetailData | undefined;
+  const activeTickets =
+    (activeTicketResponse?.data as unknown as PaginatedResponse<UserTicketData>)
+      ?.items ?? [];
+  const activeEvent = activeTickets.find((t) => t.eventId === eventId);
+  const ticketDetails: UserTicketTicketDetails[] =
+    activeEvent?.ticketDetails ?? [];
+  console.log("ticketDetails", ticketDetails);
+
+  const allPurchaseHistory: EnrichedPurchase[] = ticketDetails.flatMap((t) =>
+    t.purchaseHistory.map((ph) => ({
+      ...ph,
+      ticketName: t.ticketName,
+      ticketId: t.ticketId,
+    })),
+  );
+
+  const selectedOrder = allPurchaseHistory.find(
+    (ph) => ph.orderId === selectedOrderId,
+  );
+
+  const isLoading = isLoadingEvent || isLoadingTickets;
+
+  const eventStartDate = activeEvent?.eventStartDate ?? "";
+  const eventEndDate = activeEvent?.eventEndDate ?? "";
+  const isEventMultiDay = eventStartDate !== eventEndDate;
   const eventDate = isEventMultiDay
-    ? `${formatEventDate(eventData?.eventDate.startDate ?? "")} - ${formatEventDate(
-        eventData?.eventDate.endDate ?? "",
-      )}`
-    : formatEventDate(eventData?.eventDate.startDate ?? "");
+    ? `${formatEventDate(eventStartDate)} - ${formatEventDate(eventEndDate)}`
+    : formatEventDate(eventStartDate);
 
   if (!eventId) return null;
 
@@ -57,90 +92,139 @@ export default function IndividualActiveTicketsPage() {
         <div className="flex flex-col md:flex-row gap-3 mb-10">
           <div className="w-fit h-fit relative">
             <img
-              src={eventData?.eventDetails.desktopMedia?.flyer}
-              alt={eventData?.eventName}
+              src={activeEvent?.desktopMedia?.flyer}
+              alt={activeEvent?.eventName}
               className="w-[200px] h-[256px] rounded-[10px]"
             />
-
             <span className="absolute w-6 h-[18px] top-1.5 right-1 bg-medium-gray/80 font-sf-pro-rounded text-[10px] text-center rounded-[10px]">
-              {/* 3 */}
+              {allPurchaseHistory.length}
             </span>
           </div>
 
           <div className="flex flex-col gap-3">
             <div className="flex flex-col gap-2 py-3 px-1">
               <p className="uppercase text-xl font-sf-pro-display font-bold">
-                {eventData?.eventName}
+                {activeEvent?.eventName}
               </p>
-              <p className="text-sm font-sf-pro-display">{eventData?.venue}</p>
               <p className="text-sm font-sf-pro-display">
-                {eventDate} at {""}
-                {formatTimeLong(eventData?.eventDate.startTime ?? "")} (
-                {formatTimezone(eventData?.eventDate.timezone ?? "")})
+                {activeEvent?.eventVenue}
+              </p>
+              <p className="text-sm font-sf-pro-display">
+                {eventDate} at{" "}
+                {formatTimeLong(eventDetails?.eventDate?.startTime ?? "")} (
+                {formatTimezone(eventDetails?.eventDate?.timezone ?? "")})
               </p>
             </div>
 
             <p className="py-2 px-3 flex items-center gap-1 bg-mid-dark-gray/50 rounded-[10px] max-w-[132px] w-fit h-8 text-xs font-medium font-sf-pro-display">
               <Clock size={12} />
-              Starts in {daysUntilEvent(
-                eventData?.eventDate?.startDate ?? "",
-              )}{" "}
-              Days
+              Starts in {daysUntilEvent(eventStartDate)} Days
             </p>
           </div>
         </div>
 
-        <div className="flex flex-col gap-1 mb-10">
+        <div className="flex flex-col gap-3 mb-10">
           <p className="uppercase font-sf-pro-display font-medium py-1">
             Your Orders
           </p>
 
-          <div className="flex flex-wrap gap-3">
-            {purchaseHistory.map((item, index) => (
-              <OrderCards
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+            {allPurchaseHistory.map((item, index) => (
+              <OrderCard
                 key={item.orderId}
                 orderDate={formatShortDate(item.purchaseDate)}
                 orderTime={formatTimeLong(item.purchaseDate)}
                 quantity={item.quantity}
                 index={index}
-                orderId={item.orderId || "N/A"}
+                orderId={item.orderId}
+                isSelected={selectedOrderId === item.orderId}
+                onClick={() =>
+                  setSelectedOrderId((prev) =>
+                    prev === item.orderId ? null : item.orderId,
+                  )
+                }
               />
             ))}
           </div>
         </div>
 
         <OtherActions />
-        <p className="font-sf-pro-display text-sm md:text-base mb-4" >Tickets</p>
-        <div className="flex flex-wrap gap-3">
-          {ticketData?.items.map((item) => (
-            <div
-              key={item.ticketId}
-              className="w-full md:w-[200px] h-16 rounded-[10px] p-3 bg-secondary-white flex items-center justify-between"
+
+        <AnimatePresence>
+          {selectedOrder && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.25 }}
+              className="overflow-hidden"
             >
-              <p className="text-sm font-sf-pro-display capitalize text-black">
-                {item.ticketName}
-              </p>
-              <EllipsisVertical color="#000000" size={11} />
-            </div>
-          ))}
-        </div>
+              <div className="flex flex-col gap-2 pt-1">
+                <p className="md:text-base text-sm uppercase font-sf-pro-display text-white tracking-wider">
+                  Tickets
+                </p>
+                <div className="flex flex-wrap gap-3 mb-6">
+                  {Array.from({ length: selectedOrder.quantity }).map(
+                    (_, i) => (
+                      <div
+                        key={i}
+                        className="w-fit rounded-md py-4 px-10 bg-secondary-white flex items-center text-left"
+                      >
+                        <p className="text-sm font-sf-pro-display capitalize text-black">
+                          {selectedOrder.ticketName}
+                        </p>
+                      </div>
+                    ),
+                  )}
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <OrderDetailsModal
+          isOpen={!!selectedOrderId}
+          orderId={selectedOrderId ?? ""}
+          onClose={() => setSelectedOrderId(null)}
+        />
       </div>
     </section>
   );
 }
 
-function OrderCards({ orderDate, orderTime, quantity, index, orderId }: { orderDate: string; orderTime: string; quantity: number; index: number; orderId: string }) {
+function OrderCard({
+  orderDate,
+  orderTime,
+  quantity,
+  orderId,
+  isSelected,
+  onClick,
+}: {
+  orderDate: string;
+  orderTime: string;
+  quantity: number;
+  index: number;
+  orderId: string;
+  isSelected: boolean;
+  onClick: () => void;
+}) {
   return (
-    <div
+    <button
+      type="button"
+      onClick={onClick}
       className={cn(
-        "relative w-full md:w-[196px] h-[120px] flex flex-col gap-1 py-5 px-3 rounded-[10px] border-white",
-        { "bg-white": index === 0, "bg-transparent border": index !== 0 },
+        "relative w-full md:w-[196px] h-[120px] flex flex-col gap-1 py-5 px-3 rounded-[10px] border-white text-left transition-all",
+        {
+          "bg-white": !isSelected,
+          "bg-white ": isSelected,
+          "bg-transparent border": !isSelected,
+        },
       )}
     >
       <span
         className={cn(
           "absolute w-[21px] h-4 top-5 right-3 font-sf-pro-rounded text-[10px] text-center rounded-full",
-          { "bg-[#DEDDDD] text-black": index === 0 },
+          { "bg-[#DEDDDD] text-black": isSelected },
         )}
       >
         {quantity}
@@ -150,8 +234,8 @@ function OrderCards({ orderDate, orderTime, quantity, index, orderId }: { orderD
         className={cn(
           "flex flex-col gap-0.5 font-sf-pro-rounded font-semibold",
           {
-            "text-black": index === 0,
-            "text-white": index !== 0,
+            "text-black": isSelected,
+            "text-white": !isSelected,
           },
         )}
       >
@@ -159,20 +243,23 @@ function OrderCards({ orderDate, orderTime, quantity, index, orderId }: { orderD
         <p className="text-[10px] text-soft-gray">{orderTime}</p>
       </div>
 
-      <p className="w-[53px] text-[8px] flex flex-col font-sf-pro-rounded text-soft-gray font-bold text-xs">
+      <p
+        className={cn("text-[8px] font-sf-pro-rounded font-bold text-xs", {
+          "text-soft-gray": true,
+        })}
+      >
         Order ID: {orderId}
       </p>
 
-      <Link
-        to="/"
+      <span
         className={cn("font-sf-pro-display text-[10px] underline", {
-          "text-black": index === 0,
-          "text-white": index !== 0,
+          "text-black": isSelected,
+          "text-white": !isSelected,
         })}
       >
-        View Order
-      </Link>
-    </div>
+        {"View Order"}
+      </span>
+    </button>
   );
 }
 
