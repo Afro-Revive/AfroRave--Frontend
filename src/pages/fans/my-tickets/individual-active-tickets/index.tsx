@@ -22,6 +22,7 @@ import { useUserActiveTickets } from "@/hooks/use-profile-mutations";
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import OrderDetailsModal from "../components/order-details-modal";
+import TicketResaleModal from "@/pages/fans/tickets-resale/modals/ticket-resale";
 
 type EnrichedPurchase = {
   orderId: string;
@@ -35,6 +36,8 @@ export default function IndividualActiveTicketsPage() {
   const { eventId } = useParams<{ eventId: string }>();
   const navigate = useNavigate();
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
+  const [receiptOrderId, setReceiptOrderId] = useState<string | null>(null);
+  const [resaleOpen, setResaleOpen] = useState(false);
 
   const { data: eventResponse, isLoading: isLoadingEvent } = useGetEvent(
     eventId!,
@@ -49,7 +52,6 @@ export default function IndividualActiveTicketsPage() {
   const activeEvent = activeTickets.find((t) => t.eventId === eventId);
   const ticketDetails: UserTicketTicketDetails[] =
     activeEvent?.ticketDetails ?? [];
-  console.log("ticketDetails", ticketDetails);
 
   const allPurchaseHistory: EnrichedPurchase[] = ticketDetails.flatMap((t) =>
     t.purchaseHistory.map((ph) => ({
@@ -143,12 +145,13 @@ export default function IndividualActiveTicketsPage() {
                     prev === item.orderId ? null : item.orderId,
                   )
                 }
+                onViewOrder={() => setReceiptOrderId(item.orderId)}
               />
             ))}
           </div>
         </div>
 
-        <OtherActions />
+        <OtherActions onSell={() => setResaleOpen(true)} />
 
         <AnimatePresence>
           {selectedOrder && (
@@ -183,9 +186,16 @@ export default function IndividualActiveTicketsPage() {
         </AnimatePresence>
 
         <OrderDetailsModal
-          isOpen={!!selectedOrderId}
-          orderId={selectedOrderId ?? ""}
-          onClose={() => setSelectedOrderId(null)}
+          isOpen={!!receiptOrderId}
+          orderId={receiptOrderId ?? ""}
+          onClose={() => setReceiptOrderId(null)}
+        />
+
+        <TicketResaleModal
+          isOpen={resaleOpen}
+          onClose={() => setResaleOpen(false)}
+          eventId={eventId!}
+          ticketDetails={ticketDetails}
         />
       </div>
     </section>
@@ -199,6 +209,7 @@ function OrderCard({
   orderId,
   isSelected,
   onClick,
+  onViewOrder,
 }: {
   orderDate: string;
   orderTime: string;
@@ -207,6 +218,7 @@ function OrderCard({
   orderId: string;
   isSelected: boolean;
   onClick: () => void;
+  onViewOrder: () => void;
 }) {
   return (
     <button
@@ -215,8 +227,7 @@ function OrderCard({
       className={cn(
         "relative w-full md:w-[196px] h-[120px] flex flex-col gap-1 py-5 px-3 rounded-[10px] border-white text-left transition-all",
         {
-          "bg-white": !isSelected,
-          "bg-white ": isSelected,
+          "bg-white": isSelected,
           "bg-transparent border": !isSelected,
         },
       )}
@@ -243,42 +254,58 @@ function OrderCard({
         <p className="text-[10px] text-soft-gray">{orderTime}</p>
       </div>
 
-      <p
-        className={cn("text-[8px] font-sf-pro-rounded font-bold text-xs", {
-          "text-soft-gray": true,
-        })}
-      >
+      <p className="text-[8px] font-sf-pro-rounded font-bold text-xs text-soft-gray">
         Order ID: {orderId}
       </p>
 
-      <span
-        className={cn("font-sf-pro-display text-[10px] underline", {
+      <button
+        type="button"
+        className={cn("font-sf-pro-display text-left text-[10px] underline", {
           "text-black": isSelected,
           "text-white": !isSelected,
         })}
+        onClick={(e) => {
+          e.stopPropagation();
+          onViewOrder();
+        }}
       >
-        {"View Order"}
-      </span>
+        View Order
+      </button>
     </button>
   );
 }
 
-function OtherActions() {
+function OtherActions({ onSell }: { onSell: () => void }) {
   return (
     <div className="flex flex-wrap gap-3 font-sf-pro-rounded mb-10 ">
-      {actions.map((item) => (
-        <Link
-          key={item.name}
-          to="#"
-          className="w-[172px] h-18 flex flex-col justify-between gap-1 p-2 bg-medium-gray rounded-[10px]"
-        >
-          <img src={item.icon} alt={item.name} className="size-3" />
-          <div className="flex flex-col gap-0.5">
-            <p className="font-bold text-xs">{item.name}</p>
-            <p className="text-[10px]">{item.description}</p>
-          </div>
-        </Link>
-      ))}
+      {actions.map((item) => {
+        const isSell = item.name === "SELL";
+        const className =
+          "w-[172px] h-18 flex flex-col justify-between gap-1 p-2 bg-medium-gray rounded-[10px] text-left";
+        const inner = (
+          <>
+            <img src={item.icon} alt={item.name} className="size-3" />
+            <div className="flex flex-col gap-0.5">
+              <p className="font-bold text-xs">{item.name}</p>
+              <p className="text-[10px]">{item.description}</p>
+            </div>
+          </>
+        );
+        return isSell ? (
+          <button
+            key={item.name}
+            type="button"
+            onClick={onSell}
+            className={className}
+          >
+            {inner}
+          </button>
+        ) : (
+          <Link key={item.name} to="#" className={className}>
+            {inner}
+          </Link>
+        );
+      })}
     </div>
   );
 }

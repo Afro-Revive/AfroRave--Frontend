@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 
 ### Added
+- **Ticket resale modal** (`src/pages/fans/tickets-resale/modals/ticket-resale.tsx`): Three-step flow — select tickets → set prices → price picker — within a single Radix Dialog to avoid the focus-trap issue with nested dialogs. Users can select multiple ticket types with per-type quantities capped at 3 total across all types. Price picker uses ChevronLeft/ChevronRight to step ±₦1,000, seeded from the ticket's original price on first open and persisting changes across re-opens. Fee breakdown (service fee + payout) shown inline on each ticket card once a price is set. "List for Sale" button disabled until all selected tickets have a price set; shows "Listing..." and stays disabled while the request is in-flight.
+- **`TransformedTicket` component** (`src/pages/fans/my-tickets/components/transformed-ticket-icon.tsx`): Lucide `Ticket` icon rotated 180° with configurable `color` (required) and `size` (optional, default `16`) props. Used in the resale modal's price step to represent listed tickets.
+- **`useTicketResale` hook** (`src/hooks/use-tickets-mutations.ts`): `useMutation` that calls `ticketService.resellTickets(TicketResaleRequest[])`. Accepts an array so all ticket types are submitted in a single request (atomic — backend either lists all or none). Shows success/error toasts via `onSuccess`/`onError`.
+- **`TicketResaleRequest` type** (`src/types/ticket.ts`): `{ ticketId: string; quantity: number; price: number }`.
+- **`ticketService.resellTickets`** (`src/services/tickets.service.ts`): `POST /api/profile/user/ticket/resale/list` accepting `TicketResaleRequest[]`.
+
+### Changed
+- **SELL action wired to resale modal** (`src/pages/fans/my-tickets/individual-active-tickets/index.tsx`): SELL card now renders as a `<button>` (TRANSFER/UPGRADE remain `<Link>`). Clicking opens `TicketResaleModal` via `resaleOpen` state; `OtherActions` accepts an `onSell` prop.
+
+### Added
 - **Payment confirmation page** (`src/pages/landing-page/payment-confirmation/index.tsx`): New standalone page (no navbar/layout) that Paystack redirects to after checkout via `callbackUrl`. Reads `reference`/`trxref` query params from the URL. On mount, fires `useProcessCheckout` to confirm the order with the backend. Shows a loading spinner while pending, a success state ("Thank You For Your Purchase!") with "Back to Events" and "View Tickets" CTAs on success, and an error state ("An Error Occurred") with a "Try Again" button on failure. Redirects to events if the reference param is missing.
 - **`payment_confirmation` route** (`src/config/route-map.ts`, `src/application.tsx`): Added `/fans/payment-confirmation` to `ROUTE_PATHS` and `RouteParams`. Registered as a standalone `<Route>` in `application.tsx` with no layout wrapper, so the navbar is not rendered.
 - **`useProcessCheckout` hook** (`src/hooks/use-cart.ts`): New mutation that calls `cartService.processCheckout(data)` with `paymentMethod`, `promoCodeId`, and `transactionReference`. Used by the payment confirmation page to finalise the order after Paystack redirect.

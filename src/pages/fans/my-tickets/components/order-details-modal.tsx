@@ -33,7 +33,7 @@ export default function OrderDetailsModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="bg-secondary-white text-black border-none p-0 max-w-[460px] rounded-lg overflow-hidden shadow-2xl [&>button]:hidden">
+      <DialogContent className="bg-secondary-white text-black border-none p-0 md:max-w-[460px] max-w-full rounded-lg overflow-hidden shadow-2xl [&>button]:hidden">
         <DialogTitle className="sr-only">Order Receipt</DialogTitle>
 
         {/* Header */}
