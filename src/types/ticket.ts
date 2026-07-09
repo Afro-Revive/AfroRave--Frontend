@@ -16,4 +16,20 @@ export interface UsersResaleTickets{
     createdDate: string;
 }
 
+export interface VerifyTransferRecipient {
+    userId: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    phoneNumber: string;
+}
+
+export type VerifyTransferRecipientResponse = ApiResponse<VerifyTransferRecipient>
+
 export type UsersResaleTicketsResponse = ApiResponse<UsersResaleTickets>
+
+export interface TicketTransferRequest {
+    ticketId: string
+    quantity: number
+    recipientIdentifier: string
+}

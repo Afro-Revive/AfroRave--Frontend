@@ -9,7 +9,7 @@ import {
   SquarePen,
   X,
 } from "lucide-react";
-import { TransformedTicket } from "../../my-tickets/components/transformed-ticket-icon";
+import { TransformedTicket } from "../../components/transformed-ticket-icon";
 import { useTicketResale } from "@/hooks/use-tickets-mutations";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";

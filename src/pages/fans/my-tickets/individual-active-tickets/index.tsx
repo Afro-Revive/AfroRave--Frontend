@@ -1,6 +1,5 @@
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, Clock } from "lucide-react";
-import { Link } from "react-router-dom";
 import { useParams, useNavigate } from "react-router-dom";
 import { useGetEvent } from "@/hooks/use-event-mutations";
 import {
@@ -9,7 +8,7 @@ import {
   UserTicketData,
   UserTicketTicketDetails,
 } from "@/types";
-import { cn } from "@/lib/utils";
+import OrderCard from "../components/order-card";
 import { LoadingFallback } from "@/components/loading-fallback";
 import {
   daysUntilEvent,
@@ -22,7 +21,8 @@ import { useUserActiveTickets } from "@/hooks/use-profile-mutations";
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import OrderDetailsModal from "../components/order-details-modal";
-import TicketResaleModal from "@/pages/fans/tickets-resale/modals/ticket-resale";
+import TicketResaleModal from "@/pages/fans/my-tickets/tickets-resale/modals/ticket-resale";
+import TicketTransferModal from "@/pages/fans/my-tickets/tickets-transfer";
 
 type EnrichedPurchase = {
   orderId: string;
@@ -38,6 +38,7 @@ export default function IndividualActiveTicketsPage() {
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
   const [receiptOrderId, setReceiptOrderId] = useState<string | null>(null);
   const [resaleOpen, setResaleOpen] = useState(false);
+  const [transferOpen, setTransferOpen] = useState(false);
 
   const { data: eventResponse, isLoading: isLoadingEvent } = useGetEvent(
     eventId!,
@@ -151,7 +152,11 @@ export default function IndividualActiveTicketsPage() {
           </div>
         </div>
 
-        <OtherActions onSell={() => setResaleOpen(true)} />
+        <OtherActions
+          onSell={() => setResaleOpen(true)}
+          onTransfer={() => setTransferOpen(true)}
+          onUpgrade={() => {}}
+        />
 
         <AnimatePresence>
           {selectedOrder && (
@@ -197,133 +202,61 @@ export default function IndividualActiveTicketsPage() {
           eventId={eventId!}
           ticketDetails={ticketDetails}
         />
+
+        <TicketTransferModal
+          isOpen={transferOpen}
+          onClose={() => setTransferOpen(false)}
+          ticketDetails={ticketDetails}
+        />
       </div>
     </section>
   );
 }
 
-function OrderCard({
-  orderDate,
-  orderTime,
-  quantity,
-  orderId,
-  isSelected,
-  onClick,
-  onViewOrder,
-}: {
-  orderDate: string;
-  orderTime: string;
-  quantity: number;
-  index: number;
-  orderId: string;
-  isSelected: boolean;
-  onClick: () => void;
-  onViewOrder: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={cn(
-        "relative w-full md:w-[196px] h-[120px] flex flex-col gap-1 py-5 px-3 rounded-[10px] border-white text-left transition-all",
-        {
-          "bg-white": isSelected,
-          "bg-transparent border": !isSelected,
-        },
-      )}
-    >
-      <span
-        className={cn(
-          "absolute w-[21px] h-4 top-5 right-3 font-sf-pro-rounded text-[10px] text-center rounded-full",
-          { "bg-[#DEDDDD] text-black": isSelected },
-        )}
-      >
-        {quantity}
-      </span>
-
-      <div
-        className={cn(
-          "flex flex-col gap-0.5 font-sf-pro-rounded font-semibold",
-          {
-            "text-black": isSelected,
-            "text-white": !isSelected,
-          },
-        )}
-      >
-        <p className="text-xs">{orderDate}</p>
-        <p className="text-[10px] text-soft-gray">{orderTime}</p>
-      </div>
-
-      <p className="text-[8px] font-sf-pro-rounded font-bold text-xs text-soft-gray">
-        Order ID: {orderId}
-      </p>
-
-      <button
-        type="button"
-        className={cn("font-sf-pro-display text-left text-[10px] underline", {
-          "text-black": isSelected,
-          "text-white": !isSelected,
-        })}
-        onClick={(e) => {
-          e.stopPropagation();
-          onViewOrder();
-        }}
-      >
-        View Order
-      </button>
-    </button>
-  );
+export interface otherActionProps {
+  onSell: () => void;
+  onTransfer: () => void;
+  onUpgrade: () => void;
 }
 
-function OtherActions({ onSell }: { onSell: () => void }) {
+function OtherActions({ onSell, onTransfer, onUpgrade }: otherActionProps) {
+  const actions = [
+    {
+      icon: "/assets/dashboard/sell.png",
+      name: "SELL",
+      description: "Sell tickets at your own price",
+      action: onSell,
+    },
+    {
+      icon: "/assets/dashboard/transfer.png",
+      name: "TRANSFER",
+      description: "Send tickets and items to anyone",
+      action: onTransfer,
+    },
+    {
+      icon: "/assets/dashboard/upgrade.png",
+      name: "UPGRADE",
+      description: "View available upgrade offers",
+      action: onUpgrade,
+    },
+  ];
+
   return (
-    <div className="flex flex-wrap gap-3 font-sf-pro-rounded mb-10 ">
-      {actions.map((item) => {
-        const isSell = item.name === "SELL";
-        const className =
-          "w-[172px] h-18 flex flex-col justify-between gap-1 p-2 bg-medium-gray rounded-[10px] text-left";
-        const inner = (
-          <>
-            <img src={item.icon} alt={item.name} className="size-3" />
-            <div className="flex flex-col gap-0.5">
-              <p className="font-bold text-xs">{item.name}</p>
-              <p className="text-[10px]">{item.description}</p>
-            </div>
-          </>
-        );
-        return isSell ? (
-          <button
-            key={item.name}
-            type="button"
-            onClick={onSell}
-            className={className}
-          >
-            {inner}
-          </button>
-        ) : (
-          <Link key={item.name} to="#" className={className}>
-            {inner}
-          </Link>
-        );
-      })}
+    <div className="flex flex-wrap gap-3 font-sf-pro-rounded mb-10">
+      {actions.map((item) => (
+        <button
+          key={item.name}
+          type="button"
+          onClick={item.action}
+          className="w-[172px] h-18 flex flex-col justify-between gap-1 p-2 bg-medium-gray rounded-[10px] text-left"
+        >
+          <img src={item.icon} alt={item.name} className="size-3" />
+          <div className="flex flex-col gap-0.5">
+            <p className="font-bold text-xs">{item.name}</p>
+            <p className="text-[10px]">{item.description}</p>
+          </div>
+        </button>
+      ))}
     </div>
   );
 }
-
-const actions = [
-  {
-    icon: "/assets/dashboard/sell.png",
-    name: "SELL",
-    description: "Sell tickets at your own price",
-  },
-  {
-    icon: "/assets/dashboard/transfer.png",
-    name: "TRANSFER",
-    description: "Send tickets and items to anyone",
-  },
-  {
-    icon: "/assets/dashboard/upgrade.png",
-    name: "UPGRADE",
-    description: "View available upgrade offers",
-  },
-];

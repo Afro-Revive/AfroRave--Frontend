@@ -1,5 +1,6 @@
-import { TicketResaleRequest, UsersResaleTicketsResponse } from "@/types/ticket";
+import { TicketResaleRequest, TicketTransferRequest, UsersResaleTicketsResponse, VerifyTransferRecipientResponse } from "@/types/ticket";
 import api from "./http.service";
+import { ApiResponse } from "@/types";
 
 class TicketService {
 
@@ -19,6 +20,26 @@ class TicketService {
         const response = await api.get('/api/Profile/user/ticket/resale/my');
         return response.data;
 
+    }
+
+    /**
+     * Verify Transfer Recepient Identifier
+     */
+
+    async verifyTransferRecipient(recipientIdentifier: string): Promise<VerifyTransferRecipientResponse> {
+        const response = await api.get('/api/Profile/user/ticket/transfer/verify-recipient', {
+            params: { recipientIdentifier },
+        });
+        return response.data;
+    }
+
+    /**
+     * Transfer Tickets Ownership
+     */
+
+    async transferTickets(data: TicketTransferRequest[]): Promise<ApiResponse<null>> {
+        const response = await api.post('/api/Profile/user/ticket/transfer', data);
+        return response.data;
     }
 
 }

@@ -29,12 +29,13 @@ function PastTickets({ data }: { data: UserTicketData[] }) {
   return (
     <div className='flex flex-wrap items-center justify-center gap-7 px-5 md:px-[50px] lg:px-[100px] mb-[100px]'>
       {data.map((item) => (
-        <Tickets
+         <Tickets
           key={item.eventId}
           id={item.eventId}
           event_name={item.eventName}
-          image={item.desktopMedia.flyer}
-          quantity={item.quantity}
+          image={item.desktopMedia?.flyer}
+          quantity={item.ticketDetails.reduce((sum, t) => sum + t.totalQuantity, 0)}
+          ticketName={item.ticketDetails[0]?.ticketName ?? ''}
         />
       ))}
     </div>

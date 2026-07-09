@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { TransformedTicket } from "../../my-tickets/components/transformed-ticket-icon";
+import { TransformedTicket } from "../../components/transformed-ticket-icon";
 import { formatNaira } from "@/lib/format-price";
 import { Plus, Minus } from "lucide-react";
 interface TicketCardProps {
