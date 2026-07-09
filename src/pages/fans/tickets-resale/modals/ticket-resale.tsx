@@ -13,6 +13,7 @@ import { TransformedTicket } from "../../my-tickets/components/transformed-ticke
 import { useTicketResale } from "@/hooks/use-tickets-mutations";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { getRoutePath } from "@/config/get-route-path";
 
 interface TicketResaleModalProps {
   isOpen: boolean;
@@ -153,8 +154,8 @@ export default function TicketResaleModal({
       price: parsedPrices[t.ticketId],
     }));
     mutate(payload, { onSuccess: () => {
-        handleClose()
-        navigate('fans/listed-tickets')
+        handleClose();
+        navigate(getRoutePath('listed_tickets'));
     } });
   }
 

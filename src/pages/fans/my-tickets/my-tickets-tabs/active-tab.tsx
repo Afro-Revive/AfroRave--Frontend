@@ -9,7 +9,6 @@ export default function ActiveTicketsTab({
   isLoading = false,
 }: { data: UserTicketData[]; isLoading?: boolean }) {
   const isEmpty = data.length === 0
-  console.log('ActiveTicketsTab data:', data)
 
   if (isLoading) {
     return <LoadingFallback className='mb-[160px] h-[250px]' />

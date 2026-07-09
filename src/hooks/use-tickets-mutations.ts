@@ -1,6 +1,6 @@
 import { ticketService } from "@/services/tickets.service";
 import { TicketResaleRequest } from "@/types/ticket";
-import { useMutation} from "@tanstack/react-query";
+import { useMutation, useQuery} from "@tanstack/react-query";
 import { toast } from "sonner";
 
 export function useTicketResale() {
@@ -17,5 +17,11 @@ export function useTicketResale() {
             toast.error('Failed to resell tickets. Please try again.');
         },
     })
+}
 
+export function useGetUsersResaleTickets() {
+    return useQuery({
+        queryKey: ['user-resale-tickets'],
+        queryFn: () => ticketService.getUsersResaleTickets(),
+    })
 }
