@@ -219,7 +219,7 @@ export interface otherActionProps {
   onUpgrade: () => void;
 }
 
-function OtherActions({ onSell, onTransfer, onUpgrade }: otherActionProps) {
+function OtherActions({ onSell, onTransfer }: otherActionProps) {
   const actions = [
     {
       icon: "/assets/dashboard/sell.png",
@@ -233,12 +233,12 @@ function OtherActions({ onSell, onTransfer, onUpgrade }: otherActionProps) {
       description: "Send tickets and items to anyone",
       action: onTransfer,
     },
-    {
-      icon: "/assets/dashboard/upgrade.png",
-      name: "UPGRADE",
-      description: "View available upgrade offers",
-      action: onUpgrade,
-    },
+    // {
+    //   icon: "/assets/dashboard/upgrade.png",
+    //   name: "UPGRADE",
+    //   description: "View available upgrade offers",
+    //   action: onUpgrade,
+    // },
   ];
 
   return (
