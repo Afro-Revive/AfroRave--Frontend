@@ -1,81 +1,96 @@
-import { Badge } from '@/components/ui/badge'
-import { Input } from '@/components/ui/input'
-import { cn } from '@/lib/utils'
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
+import { useGetUsersResaleTickets } from "@/hooks/use-tickets-mutations";
 // import { AddFilterBUtton } from '@/pages/creators/standalone/components/add-filter-btn'
-import { Search } from 'lucide-react'
+import { Search } from "lucide-react";
+import { PaginatedResponse } from "@/types";
+import { UsersResaleTickets } from "@/types/ticket";
+import { LoadingFallback } from "@/components/loading-fallback";
+import { formatNaira } from "@/lib/format-price";
+import { formatShortDate } from "@/lib/helper-func";
 
 export default function ListedTicketPage() {
-  return (
-    <div className='w-full flex-1 flex flex-col items-center pt-8 pb-[100px] px-4 md:px-0'>
+  const { data, isLoading } = useGetUsersResaleTickets();
+  const listedTickets = data?.data as
+    | PaginatedResponse<UsersResaleTickets>
+    | undefined;
 
-      <div className='w-full max-w-[550px] flex flex-col gap-6'>
+  if (isLoading) {
+    <LoadingFallback className="mb-[160px] h-[250px]" />;
+  }
+  return (
+    <div className="w-full flex-1 flex flex-col items-center pt-8 pb-[100px] px-4 md:px-0">
+      <div className="w-full max-w-[550px] flex flex-col gap-6">
         {/* Search Bar */}
-        <div className='w-full flex items-center gap-3 py-3 px-4 rounded-lg border border-white/10 bg-transparent font-sf-pro-display text-white transition-colors focus-within:border-white/20'>
-          <Search className='w-4 h-4 text-white/40' />
+        <div className="w-full flex items-center gap-3 py-3 px-4 rounded-lg border border-white/10 bg-transparent font-sf-pro-display text-white transition-colors focus-within:border-white/20">
+          <Search className="w-4 h-4 text-white/40" />
           <Input
-            placeholder='Search'
-            className='p-0 h-auto bg-transparent border-none placeholder:text-white/40 text-sm focus-visible:ring-0 focus-visible:ring-offset-0'
+            placeholder="Search"
+            className="p-0 h-auto bg-transparent border-none placeholder:text-white/40 text-sm focus-visible:ring-0 focus-visible:ring-offset-0"
           />
         </div>
 
         {/* List */}
-        <div className='flex flex-col gap-0'>
-          {listedTickets.map((item) => (
-            <ListedTickets key={item.name} {...item} />
+        <div className="flex flex-col gap-0">
+          {listedTickets?.items.map((item) => (
+            <ListedTickets
+              key={item.ticketId}
+              date={item.createdDate}
+              price={item.price}
+              quantity={item.quantity}
+              ticketName={item.ticketName}
+            
+            />
           ))}
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-function ListedTickets({ name, ticket, date, status }: IListedTickets) {
+function ListedTickets({
+  ticketName,
+  price,
+  quantity,
+  date,
+  status,
+}: ListedTicketsProps) {
   return (
-    <div className='w-full flex items-center justify-between py-4 border-b border-white/5 font-sf-pro-display text-white hover:bg-white/5 transition-colors cursor-pointer rounded-lg px-2 -mx-2'>
-      <div className='flex flex-col gap-1'>
-        <p className='text-sm font-medium'>{name}</p>
-        <p className='text-xs text-white/40 uppercase tracking-wide'>{ticket}</p>
+    <div className="w-full flex items-center justify-between py-4 border-b border-white/5 font-sf-pro-display text-white hover:bg-white/5 transition-colors cursor-pointer rounded-lg px-2 -mx-2">
+      <div className="flex flex-col gap-1">
+        <p className="text-sm font-medium">{ticketName}</p>
+        <div className="flex items-center gap-2">
+          <p className="text-xs">x {quantity}</p>
+          <p className="text-xs text-white uppercase tracking-wide">{formatNaira(price)}</p>
+        </div>
       </div>
 
-      <div className='flex items-center gap-4'>
-        <p className='text-xs text-white/40 hidden md:block'>{date}</p>
+      <div className="flex items-center gap-4">
+        <p className="text-xs text-white/40 hidden md:block">{formatShortDate(date)}</p>
 
         <Badge
-          className={cn('capitalize font-normal px-2 py-0.5 text-[10px] tracking-wide', {
-            'bg-[#34C759]/20 text-[#34C759] hover:bg-[#34C759]/30': status === 'sold',
-            'bg-[#FF9500]/20 text-[#FF9500] hover:bg-[#FF9500]/30': status === 'active',
-          })}>
+          className={cn(
+            "capitalize font-normal px-2 py-0.5 text-[10px] tracking-wide",
+            {
+              "bg-[#34C759]/20 text-[#34C759] hover:bg-[#34C759]/30":
+                status === "sold",
+              "bg-[#FF9500]/20 text-[#FF9500] hover:bg-[#FF9500]/30":
+                status === "active",
+            },
+          )}
+        >
           {status}
         </Badge>
       </div>
     </div>
-  )
+  );
 }
 
-const listedTickets: IListedTickets[] = [
-  {
-    name: 'Lady Donli & The Lagos Madness',
-    ticket: 'EARLY BIRD ACCESS',
-    date: 'May 4, 2025',
-    status: 'active',
-  },
-  {
-    name: 'Punk Fest, Unleash Your Inner Rebel',
-    ticket: 'VIP ACCESS',
-    date: 'May 4, 2025',
-    status: 'sold',
-  },
-  {
-    name: 'Blackmarket Flea',
-    ticket: 'VIP ACCESS',
-    date: 'May 4, 2025',
-    status: 'sold',
-  },
-]
-
-interface IListedTickets {
-  name: string
-  ticket: string
-  date: string
-  status: 'active' | 'sold'
+export interface ListedTicketsProps {
+  ticketName: string;
+  price: number;
+  quantity: number;
+  date: string;
+  status?: string;
 }

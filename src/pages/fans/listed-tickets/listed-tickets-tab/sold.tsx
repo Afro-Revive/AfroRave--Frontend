@@ -1,27 +1,34 @@
 import { getRoutePath } from '@/config/get-route-path'
-import { events } from '@/data/events'
 import { EmptyState } from '@/pages/fans/my-tickets/components/empty-state'
 import { Tickets } from '@/pages/fans/my-tickets/components/tickets'
+import type { UserTicketData } from '@/types'
 
-export default function SoldTicketsTab() {
-  const isEmpty = false
+export default function SoldTicketsTab({ data }: { data: UserTicketData[] }) {
+  const isEmpty = data.length === 0
 
   return (
     <>
       {isEmpty ? (
         <EmptyState type='sold' btn_name='Resell Tickets' path={getRoutePath('resale')} />
       ) : (
-        <SoldTickets />
+        <SoldTickets data={data} />
       )}
     </>
   )
 }
 
-function SoldTickets() {
+function SoldTickets({ data }: { data: UserTicketData[] }) {
   return (
     <div className='flex flex-wrap items-center gap-7 px-[100px] mb-[499px]'>
-      {events.map(({ event_name, image, id }) => (
-        <Tickets key={id} id='1' event_name={event_name} image={image} quantity={0} />
+      {data.map((item) => (
+        <Tickets
+          key={item.eventId}
+          id={item.eventId}
+          event_name={item.eventName}
+          image={item.desktopMedia?.flyer}
+          quantity={item.ticketDetails.reduce((sum, t) => sum + t.totalQuantity, 0)}
+          ticketName={item.ticketDetails[0]?.ticketName ?? ''}
+        />
       ))}
     </div>
   )

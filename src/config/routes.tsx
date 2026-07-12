@@ -12,10 +12,10 @@ const AboutUsPage = lazy(() => import('../pages/landing-page/about-us'))
 const BlogPage = lazy(() => import('../pages/landing-page/blog'))
 const RefundPolicyPage = lazy(() => import('../pages/landing-page/refund-policy'))
 const WorkWithUsPage = lazy(() => import('../pages/landing-page/work-with-us'))
-const ResaleMarketPlacePage = lazy(() => import('../pages/landing-page/resale-marketplace'))
-const IndividualResaleTicket = lazy(
-  () => import('../pages/landing-page/resale-marketplace/individual-resale-event'),
-)
+// const ResaleMarketPlacePage = lazy(() => import('../pages/landing-page/resale-marketplace'))
+// const IndividualResaleTicket = lazy(
+//   () => import('../pages/landing-page/resale-marketplace/individual-resale-event'),
+// )
 const SellPage = lazy(() => import('../pages/landing-page/sell'))
 const TermsAndConditionPage = lazy(() => import('../pages/landing-page/terms-and-condition'))
 const PrivacyPolicyPage = lazy(() => import('../pages/landing-page/privacy-policy'))
@@ -85,22 +85,22 @@ export const routes: RouteObject[] = [
       </Suspense>
     ),
   },
-  {
-    path: getRoutePath('resale'),
-    element: (
-      <Suspense fallback={<LoadingFallback />}>
-        <ResaleMarketPlacePage />
-      </Suspense>
-    ),
-  },
-  {
-    path: getRoutePath('individual_resale', { eventId: ':eventId' }),
-    element: (
-      <Suspense fallback={<LoadingFallback />}>
-        <IndividualResaleTicket />
-      </Suspense>
-    ),
-  },
+  // {
+  //   path: getRoutePath('resale'),
+  //   element: (
+  //     <Suspense fallback={<LoadingFallback />}>
+  //       <ResaleMarketPlacePage />
+  //     </Suspense>
+  //   ),
+  // },
+  // {
+  //   path: getRoutePath('individual_resale', { eventId: ':eventId' }),
+  //   element: (
+  //     <Suspense fallback={<LoadingFallback />}>
+  //       <IndividualResaleTicket />
+  //     </Suspense>
+  //   ),
+  // },
   {
     path: getRoutePath('sell'),
     element: (

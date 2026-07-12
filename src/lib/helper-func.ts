@@ -234,6 +234,14 @@ export function formatEventDate(dateString: string): string {
   }
 }
 
+export function formatShortDate(dateString: string): string {
+  try {
+    return format(parseISO(dateString), 'MMMM d, yyyy')
+  } catch {
+    return dateString
+  }
+}
+
 export function monthNumberToName(month: number | string): string {
   return new Date(2000, Number(month) - 1, 1).toLocaleString('en-US', { month: 'short' }).toLowerCase()
 }

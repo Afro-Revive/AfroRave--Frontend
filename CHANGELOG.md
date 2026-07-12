@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 
 ### Added
+- **Ticket resale modal** (`src/pages/fans/tickets-resale/modals/ticket-resale.tsx`): Three-step flow — select tickets → set prices → price picker — within a single Radix Dialog to avoid the focus-trap issue with nested dialogs. Users can select multiple ticket types with per-type quantities capped at 3 total across all types. Price picker uses ChevronLeft/ChevronRight to step ±₦1,000, seeded from the ticket's original price on first open and persisting changes across re-opens. Fee breakdown (service fee + payout) shown inline on each ticket card once a price is set. "List for Sale" button disabled until all selected tickets have a price set; shows "Listing..." and stays disabled while the request is in-flight.
+- **`TransformedTicket` component** (`src/pages/fans/my-tickets/components/transformed-ticket-icon.tsx`): Lucide `Ticket` icon rotated 180° with configurable `color` (required) and `size` (optional, default `16`) props. Used in the resale modal's price step to represent listed tickets.
+- **`useTicketResale` hook** (`src/hooks/use-tickets-mutations.ts`): `useMutation` that calls `ticketService.resellTickets(TicketResaleRequest[])`. Accepts an array so all ticket types are submitted in a single request (atomic — backend either lists all or none). Shows success/error toasts via `onSuccess`/`onError`.
+- **`TicketResaleRequest` type** (`src/types/ticket.ts`): `{ ticketId: string; quantity: number; price: number }`.
+- **`ticketService.resellTickets`** (`src/services/tickets.service.ts`): `POST /api/profile/user/ticket/resale/list` accepting `TicketResaleRequest[]`.
+
+### Added
+- **Ticket transfer modal** (`src/pages/fans/my-tickets/tickets-transfer/index.tsx`): Two-step flow — select tickets → enter recipient emails — within a single Radix Dialog. Ticket cards show quantity selector (same cap of 3 total) without price. Email step shows one input per selected ticket; each input debounces 600ms after the user stops typing, fires `ticketService.verifyTransferRecipient` only when the value passes email regex validation, and shows a spinner while verifying, the recipient's name on success, or an error message on failure. "Send" button stays disabled until all tickets have a verified recipient. Resets all state on close.
+- **`TicketTransferRequest` type** (`src/types/ticket.ts`): `{ ticketId: string; quantity: number; recipientIdentifier: string }`.
+- **`VerifyTransferRecipient` / `VerifyTransferRecipientResponse` types** (`src/types/ticket.ts`): Response shape for the verify endpoint — `{ userId, firstName, lastName, email, phoneNumber }`.
+- **`ticketService.verifyTransferRecipient`** (`src/services/tickets.service.ts`): `GET /api/Profile/user/ticket/transfer/verify-recipient?recipientIdentifier=` — checks whether a recipient account exists before transfer.
+- **`ticketService.transferTickets`** (`src/services/tickets.service.ts`): `POST /api/Profile/user/ticket/transfer` accepting `TicketTransferRequest[]`. Returns `ApiResponse<null>` so the response `message` is available to the caller.
+- **`useTransferTickets` hook** (`src/hooks/use-tickets-mutations.ts`): `useMutation` wrapping `ticketService.transferTickets`. `onSuccess` toasts `data.message` from the API response.
+- **`useVerifyTransferRecipient` hook** (`src/hooks/use-tickets-mutations.ts`): `useMutation` wrapping `ticketService.verifyTransferRecipient` for use cases that need mutation lifecycle state.
+
+### Changed
+- **`OtherActions` refactored** (`src/pages/fans/my-tickets/individual-active-tickets/index.tsx`): `actions` array moved inside the component so each item holds its handler directly (`action: onSell / onTransfer / onUpgrade`). All three render as `<button>` elements. `otherActionProps` interface added with `onSell`, `onTransfer`, `onUpgrade`. TRANSFER wired to `TicketTransferModal` via `transferOpen` state.
+- **SELL action wired to resale modal** (`src/pages/fans/my-tickets/individual-active-tickets/index.tsx`): SELL card now renders as a `<button>`. Clicking opens `TicketResaleModal` via `resaleOpen` state.
+
+### Added
 - **Payment confirmation page** (`src/pages/landing-page/payment-confirmation/index.tsx`): New standalone page (no navbar/layout) that Paystack redirects to after checkout via `callbackUrl`. Reads `reference`/`trxref` query params from the URL. On mount, fires `useProcessCheckout` to confirm the order with the backend. Shows a loading spinner while pending, a success state ("Thank You For Your Purchase!") with "Back to Events" and "View Tickets" CTAs on success, and an error state ("An Error Occurred") with a "Try Again" button on failure. Redirects to events if the reference param is missing.
 - **`payment_confirmation` route** (`src/config/route-map.ts`, `src/application.tsx`): Added `/fans/payment-confirmation` to `ROUTE_PATHS` and `RouteParams`. Registered as a standalone `<Route>` in `application.tsx` with no layout wrapper, so the navbar is not rendered.
 - **`useProcessCheckout` hook** (`src/hooks/use-cart.ts`): New mutation that calls `cartService.processCheckout(data)` with `paymentMethod`, `promoCodeId`, and `transactionReference`. Used by the payment confirmation page to finalise the order after Paystack redirect.
