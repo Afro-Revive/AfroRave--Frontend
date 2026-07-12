@@ -24,7 +24,6 @@ export function transformProfileToUpdateRequest(
     dateOfBirth,
     country: formData.country,
     state: formData.state,
-    password: formData.password,
   }
 }
 

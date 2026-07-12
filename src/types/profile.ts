@@ -10,7 +10,6 @@ export interface UpdateUserProfileRequest {
   dateOfBirth: string
   country: string
   state: string
-  password: string
 }
 
 export interface CompleteProfileRequest {
