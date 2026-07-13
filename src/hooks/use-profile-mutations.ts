@@ -34,6 +34,17 @@ export function useUpdateUserProfile() {
 }
 
 /**
+ * Hook for fetching users wallet details
+ */
+
+export function useWalletDetails() {
+  return useQuery({
+    queryKey: ['wallet-details'],
+    queryFn: () => profileService.getWalletDetails(),
+  })
+}
+
+/**
  * Hook for fetching user active tickets
  */
 export function useUserActiveTickets() {

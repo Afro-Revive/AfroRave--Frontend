@@ -77,6 +77,19 @@ export interface UserTicketTicketDetails {
   }[]
 }
 
+export interface WalletDetailsData {
+  balance: number
+  transactions:{
+    id: string
+    amount: number
+    transactionType: string
+    description: string
+    createdDate: string
+  }
+}
+
+export type WalletDetailsResponse = ApiResponse<WalletDetailsData>
+
 export type UserTicketsResponse = ApiResponse<UserTicketData>
 
 // Vendor Profile Data for GET /api/Profile/vendor
@@ -107,6 +120,13 @@ export interface OrganizerProfileData {
   services: string
   location: string
   createdDate: string
+}
+
+export interface WithdrawFundsRequest {
+  amount: number
+  accountNumber: string
+  bankCode: string
+  accountName: string
 }
 
 export type OrganizerProfileResponse = ApiResponse<OrganizerProfileData>
