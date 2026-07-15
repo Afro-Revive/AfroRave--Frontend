@@ -50,6 +50,7 @@ import { PromoCodeFormFields } from '../../add-event/ticket-forms/promo-code-for
 import { TabChildrenContainer } from '../component/edit-tab-children-container'
 import { cn } from '@/lib/utils'
 import { OnlyShowIf } from '@/lib/environment'
+import { formatNaira } from '@/lib/format-price'
 
 export default function TicketsTab({ eventId, setActiveTab, eventName }: ITicketTab) {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -371,7 +372,7 @@ function TicketSales({ tickets }: { tickets: TicketData[] }) {
     return {
       ticketName: ticket.ticketName,
       ticketSold: isUnlimited ? `${sold} / ∞` : `${sold} / ${ticket.quantity}`,
-      price: `₦${ticket.price.toLocaleString()}`,
+      price: formatNaira(ticket.price, { free: ticket.price === 0 }),
       status: isSoldOut ? 'SOLD OUT' : ('ONGOING' as const),
     }
   })
@@ -380,7 +381,7 @@ function TicketSales({ tickets }: { tickets: TicketData[] }) {
     <div className='w-full bg-white p-3 md:p-5 flex flex-col gap-5 rounded-[10px]'>
       <div className='flex items-center gap-1'>
         <img src='/assets/harmburger/ticket.png' alt='Ticket' className='size-5' />
-        <p className='text-black font-medium text-xl font-sf-pro-display'>Ticket Sales</p>
+        <p className='text-black font-medium md:text-xl text-base font-sf-pro-display'>Ticket Sales</p>
       </div>
 
       <BaseTable caption='A table of your ticket sales' columns={columns} data={salesData} />

@@ -48,13 +48,13 @@ const eventData = response?.data as PaginatedResponse<EventData> | undefined
     >
       <SelectTrigger
         className={cn(
-          '!h-10 text-xs text-white uppercase font-sf-pro-display font-semibold bg-black border-none outline-none shadow-none rounded-[6px] px-3 [&>span]:text-white [&>span]:opacity-100 [&_svg]:!text-white [&_svg]:!opacity-100 disabled:opacity-100 disabled:bg-black !w-[180px]',
+          'text-xs text-white uppercase font-sf-pro-display font-semibold bg-black border-none outline-none shadow-none rounded-md px-3 [&>span]:text-white [&>span]:opacity-100 [&>span]:pb-0.5 [&_svg]:!text-white [&_svg]:!opacity-100 disabled:opacity-100 disabled:bg-black !w-[180px]',
           className,
         )}
       >
         <SelectValue placeholder={events.length === 0 ? 'No events yet' : 'Select event'} />
       </SelectTrigger>
-      <SelectContent className='max-w-[280px]'>
+      <SelectContent className='max-w-[280px] bg-black text-white'>
         {events.length === 0 ? (
           <div className='px-3 py-4 text-xs text-gray-400 font-sf-pro-text text-center'>
             No events yet
@@ -64,7 +64,7 @@ const eventData = response?.data as PaginatedResponse<EventData> | undefined
             <SelectItem
               key={event.eventId}
               value={event.eventId}
-              className='text-xs font-sf-pro-text'
+              className='text-xs font-sf-pro-text text-white focus:text-white focus:bg-white/10 data-[state=checked]:text-white'
             >
               {event.eventName}
             </SelectItem>

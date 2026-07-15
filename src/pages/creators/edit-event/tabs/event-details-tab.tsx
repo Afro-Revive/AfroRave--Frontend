@@ -87,6 +87,7 @@ export default function EventDetailsTab({ event, setActiveTab, handleBackClick }
       handleBackClick={handleBackClick}
       isPublished={event.isPublished}
       isLoading={isPending}
+      buttonText={event.eventName}
       isPublishing={isPublishing}
       currentTab='event-details'
       onChange={setActiveTab}>
@@ -110,7 +111,7 @@ export default function EventDetailsTab({ event, setActiveTab, handleBackClick }
 
 function EventDetailsForm({ form, onSubmit, setEventType, eventType }: IEventDetailsForm) {
   const selectClassname =
-    '!bg-transparent w-full !h-10 text-black bg-white px-3 py-[11px] rounded-[4px] border border-mid-dark-gray/50 text-sm font-sf-pro-display'
+    'w-full text-black !bg-white px-3 py-2 rounded-[4px] border border-mid-dark-gray/50 text-sm font-sf-pro-display'
 
   return (
     <FormBase

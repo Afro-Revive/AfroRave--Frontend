@@ -22,7 +22,7 @@ export function TabChildrenContainer({
 }: ITabChildrenProps) {
   return (
     <div className="w-full h-fit flex flex-col items-center">
-      <div className="w-full flex items-center justify-between py-3 px-5 md:px-8 bg-white border-l border-[#e9e9e9]">
+      <div className="w-full md:flex max-md:flex max-md:flex-col md:items-center justify-between py-3 px-5 md:px-8 bg-white border-l border-[#e9e9e9]">
         <Button
           variant="ghost"
           className="w-fit h-fit hover:bg-black/10 !p-1 flex items-center gap-3"
@@ -30,17 +30,17 @@ export function TabChildrenContainer({
           disabled={!handleBackClick}
         >
           <ChevronLeft color="#000000" className="min-w-1.5 min-h-3" />
-          <span className="text-sm font-medium leading-[100%] font-sf-pro-display text-[#0D0D0D]">
+          <span className="text-sm font-medium font-sf-pro-display text-black">
             {buttonText}
           </span>
         </Button>
 
-        <div className="flex items-center gap-8">
+        <div className="flex items-center md:gap-8 gap-4 mt-3 md:mt-0">
           <Select value={currentTab} onValueChange={onChange}>
-            <SelectTrigger className="w-[122px] h-8 bg-black !text-white rounded-[6px] !px-2 text-sm font-regular [&_svg]:!text-white [&_svg]:!opacity-100">
+            <SelectTrigger className=" bg-black !text-white rounded-md !px-4 text-sm font-regular [&_svg]:!text-white [&_svg]:!opacity-100">
               <SelectValue placeholder="Tabs" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-white">
               {[
                 { label: "Event Details", value: "event-details" },
                 { label: "Tickets", value: "tickets" },
@@ -56,7 +56,7 @@ export function TabChildrenContainer({
 
           <Button
             variant="destructive"
-            className="h-8 w-24 text-xs font-sf-pro-text font-black rounded-[5px]"
+            className="py-2 w-fit px-8 text-xs font-sf-pro-text font-black rounded-[5px]"
             onClick={handleSaveEvent}
             disabled={isLoading}
           >

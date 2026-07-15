@@ -147,7 +147,7 @@ export function BaseSelect({
           {
             "bg-white/10 backdrop-blur-md border border-white/20":
               type === "others",
-            "border-charcoal": type === "auth",
+            "border-charcoal bg-white": type === "auth",
           },
           contentClassName
         )}

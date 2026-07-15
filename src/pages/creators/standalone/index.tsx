@@ -38,6 +38,8 @@ export default function StandalonePage() {
     ? allEvents.filter((e) => e.eventId === selectedEventId)
     : allEvents
 
+    console.log(events)
+
   if (isLoading) {
     return <LoadingFallback />
   }
@@ -146,6 +148,7 @@ function StandAloneEvents({ id, activeFilter }: { id: string; activeFilter: Even
       name={event.eventName}
       startDate={formatEventDate(event.eventDate.startDate)}
       status={status}
+      eventId={event.eventId}
       cardInfo={[
         <StatParagraph
           key='sold_tickets'

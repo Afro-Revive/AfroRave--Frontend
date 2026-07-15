@@ -14,6 +14,7 @@ import type { z } from 'zod'
 import { PriceField } from '../../component/price-field'
 import { SelectField } from '../../component/select-field'
 import type { unifiedTicketFormSchema } from '../../schemas/ticket-schema'
+import { Label } from '@radix-ui/react-dropdown-menu'
 
 export function TicketForm({
   form,
@@ -101,12 +102,17 @@ export function TicketForm({
           {availabilityValue === 'limited' && (
             <FormField form={form} name='ticket.quantity.amount' className='mb-2'>
               {(field) => (
-                <Input
-                  className='w-full h-9'
+                <div className='flex flex-col gap-3'>
+                  <Label className='text-sm text-black leading-none font-medium font-sf-pro-text'>
+                    TICKET QUANTITY
+                  </Label>
+                  <Input
+                  className='w-full rounded-sm border border-mid-dark-gray/50 text-sm font-sf-pro-display'
                   type='number'
                   {...field}
                   value={field.value == null ? '' : String(field.value)}
                 />
+                </div>
               )}
             </FormField>
           )}

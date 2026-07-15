@@ -29,7 +29,7 @@ export function SelectField<T extends FieldValues>({
           items={data}
           placeholder={placeholder}
           triggerClassName={cn(
-            'w-[120px] h-10 text-black bg-white px-3 py-[11px] rounded-[4px] border border-mid-dark-gray/50 text-sm font-sf-pro-display',
+            'w-[120px] text-black !bg-white px-3 rounded-[4px] border border-mid-dark-gray/50 text-sm font-sf-pro-display',
             triggerClassName,
           )}
           value={field.value as string}
