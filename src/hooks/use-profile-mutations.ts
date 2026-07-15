@@ -1,5 +1,5 @@
 import { profileService } from '@/services/profile.service'
-import type { UpdateUserProfileRequest } from '@/types'
+import type { UpdateUserProfileRequest, WithdrawFundsRequest } from '@/types'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 
@@ -29,6 +29,35 @@ export function useUpdateUserProfile() {
     onError: (error) => {
       toast.error('Failed to update profile. Please try again.')
       console.error('Profile update error:', error)
+    },
+  })
+}
+
+/**
+ * Hook for fetching users wallet details
+ */
+
+export function useWalletDetails() {
+  return useQuery({
+    queryKey: ['wallet-details'],
+    queryFn: () => profileService.getWalletDetails(),
+  })
+}
+
+/**
+ * Hook for withdrawing funds from wallet
+ */
+export function useWithdrawFunds() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (data: WithdrawFundsRequest) => profileService.withdrawFunds(data),
+    onSuccess: () => {
+      toast.success('Withdrawal request submitted successfully!')
+      queryClient.invalidateQueries({ queryKey: ['wallet-details'] })
+    },
+    onError: (error) => {
+      toast.error('Failed to submit withdrawal request. Please try again.')
+      console.error('Withdrawal request error:', error)
     },
   })
 }

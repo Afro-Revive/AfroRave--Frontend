@@ -25,6 +25,7 @@ interface CustomModalProps {
   description?: string | React.ReactNode
   children: ReactNode
   className?: string
+  titleClassName?: string
   open?: boolean
   onClose?: (open: boolean) => void
   size?: keyof typeof sizeClasses
@@ -57,6 +58,7 @@ function BaseModal({
   open,
   onClose,
   size = 'small',
+  titleClassName,
   removeCancel = false,
   floatingCancel = false,
   hasFooter = false,
@@ -113,7 +115,7 @@ function BaseModal({
           }
         }}
         cancelOnOverlay={cancelOnOverlay}>
-        <DialogHeader className='w-full flex flex-col items-center justify-center font-input-mono'>
+        <DialogHeader className={cn('w-full flex flex-col items-center justify-center font-input-mono', titleClassName)}>
           <DialogTitle>
             {title || <VisuallyHidden>{title || 'Modal Dialog'}</VisuallyHidden>}
           </DialogTitle>

@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 
 ### Added
+- **Withdraw funds modal** (`src/pages/fans/account/components/withdraw-funds-modal.tsx`): Added bank account verification flow to the withdraw modal. Fetches Nigerian banks via `useGetNigerianBanks` on modal open and populates a `BaseSelect` dropdown (keyed by `bank.slug`, value is `bank.code`). Account number input (numeric, max 10 digits) debounces 400ms then calls `ticketService.verifyBankAccount` only when exactly 10 digits are entered and a bank is selected. Shows a spinner while verifying, the resolved account name in green on success, and "Account not found" on error. Confirm button disabled until amount is valid and bank account is verified. All state resets on close.
+- **`titleClassName` prop on `BaseModal`** (`src/components/reusable/base-modal.tsx`): Added optional `titleClassName` to `CustomModalProps` and destructured it into the component, applied to the `DialogHeader` via `cn`.
+
+### Changed
+- **Wallet tab loading guard** (`src/pages/fans/account/tabs/wallet-tab.tsx`): `isLoading` guard now returns the `LoadingFallback` (was missing `return`). `availableBalance` no longer defaults to `0` at the variable level — `?? 0` applied only at the two call sites so `₦0` is never rendered while data is loading.
+
+### Added
 - **Ticket resale modal** (`src/pages/fans/tickets-resale/modals/ticket-resale.tsx`): Three-step flow — select tickets → set prices → price picker — within a single Radix Dialog to avoid the focus-trap issue with nested dialogs. Users can select multiple ticket types with per-type quantities capped at 3 total across all types. Price picker uses ChevronLeft/ChevronRight to step ±₦1,000, seeded from the ticket's original price on first open and persisting changes across re-opens. Fee breakdown (service fee + payout) shown inline on each ticket card once a price is set. "List for Sale" button disabled until all selected tickets have a price set; shows "Listing..." and stays disabled while the request is in-flight.
 - **`TransformedTicket` component** (`src/pages/fans/my-tickets/components/transformed-ticket-icon.tsx`): Lucide `Ticket` icon rotated 180° with configurable `color` (required) and `size` (optional, default `16`) props. Used in the resale modal's price step to represent listed tickets.
 - **`useTicketResale` hook** (`src/hooks/use-tickets-mutations.ts`): `useMutation` that calls `ticketService.resellTickets(TicketResaleRequest[])`. Accepts an array so all ticket types are submitted in a single request (atomic — backend either lists all or none). Shows success/error toasts via `onSuccess`/`onError`.

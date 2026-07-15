@@ -4,6 +4,8 @@ import type {
   UserProfileResponse,
   UserTicketsResponse,
   VendorProfileResponse,
+  WalletDetailsResponse,
+  WithdrawFundsRequest,
 } from '@/types'
 import api from './http.service'
 
@@ -30,6 +32,22 @@ class ProfileService {
    */
   async getUserActiveTickets(): Promise<UserTicketsResponse> {
     const response = await api.get('/api/profile/user/ticket/active')
+    return response.data
+  }
+
+  /**
+   * Get Wallet Details
+   */
+  async getWalletDetails(): Promise<WalletDetailsResponse> {
+    const response = await api.get('/api/profile/user/wallet')
+    return response.data
+  }
+
+  /**
+   * Withdraw Funds from Wallet
+   */
+  async withdrawFunds(data: WithdrawFundsRequest): Promise<void> {
+    const response = await api.post('/api/profile/user/wallet/withdraw', data)
     return response.data
   }
 

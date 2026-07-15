@@ -3,6 +3,10 @@ import { Wallet } from 'lucide-react'
 import { useState } from 'react'
 import { WithdrawFundsModal } from '../components/withdraw-funds-modal'
 import { TransactionDetailsModal } from '../components/transaction-details-modal'
+import { useWalletDetails } from '@/hooks/use-profile-mutations'
+import {  WalletDetailsData } from '@/types'
+import { formatNaira } from '@/lib/format-price'
+import { LoadingFallback } from '@/components/loading-fallback'
 
 interface PayoutItem {
     id: string
@@ -44,7 +48,13 @@ const mockPayoutHistory: PayoutItem[] = [
 export default function WalletTab() {
     const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false)
     const [selectedTransaction, setSelectedTransaction] = useState<PayoutItem | null>(null)
-    const availableBalance = 40500
+    const { data: walletDetailsResponse, isLoading } = useWalletDetails()
+    const walletDetails = walletDetailsResponse?.data as WalletDetailsData | undefined
+    const availableBalance = walletDetails?.balance
+
+    if(isLoading) {
+        return <LoadingFallback className="mb-[160px] h-[250px]" />;
+    }
 
     const handleTransactionClick = (item: PayoutItem) => {
         setSelectedTransaction(item)
@@ -64,7 +74,7 @@ export default function WalletTab() {
                         <span className='text-sm font-sf-pro-display'>Available Balance</span>
                     </div>
                     <p className='text-white text-3xl md:text-4xl font-bold font-sf-pro-display'>
-                        ₦{availableBalance.toLocaleString()}
+                        {formatNaira(availableBalance ?? 0)}
                     </p>
                     <Button
                         onClick={() => setIsWithdrawModalOpen(true)}
@@ -98,7 +108,7 @@ export default function WalletTab() {
                 <WithdrawFundsModal
                     isOpen={isWithdrawModalOpen}
                     onClose={() => setIsWithdrawModalOpen(false)}
-                    availableBalance={availableBalance}
+                    availableBalance={availableBalance ?? 0}
                 />
 
                 {selectedTransaction && (
