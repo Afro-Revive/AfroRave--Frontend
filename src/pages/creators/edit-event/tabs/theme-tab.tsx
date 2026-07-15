@@ -21,6 +21,9 @@ import { TabChildrenContainer } from '../component/edit-tab-children-container'
 
 export default function ThemeTab({ event, setActiveTab }: IThemeTab) {
   const updateThemeMutation = useUpdateTheme()
+  const flyerUpload = useUploadImage()
+  const backgroundUpload = useUploadImage()
+  const isUploadingImage = flyerUpload.isPending || backgroundUpload.isPending
 
   const form = useForm<ThemeAndBannerSchema>({
     resolver: zodResolver(themeAndBannerSchema),
@@ -35,7 +38,6 @@ export default function ThemeTab({ event, setActiveTab }: IThemeTab) {
 
     console.log('Form Values:', form.getValues()) // Log the form values for debugging
   function onSubmit(data: ThemeAndBannerSchema) {
-    console.log('Form Data:', data) // Log the form data for debugging
     const themeRequest = transformThemeToCreateRequest(data, event.eventId)
 
     updateThemeMutation.mutateAsync(
@@ -48,6 +50,7 @@ export default function ThemeTab({ event, setActiveTab }: IThemeTab) {
     <TabChildrenContainer
       handleSaveEvent={() => form.handleSubmit(onSubmit, (errors) => console.log('Validation errors:', errors))()}
       handleBackClick={() => setActiveTab('ticket')}
+      isUploading={isUploadingImage}
       isLoading={updateThemeMutation.isPending}
       currentTab='theme'
       onChange={setActiveTab}
@@ -58,8 +61,8 @@ export default function ThemeTab({ event, setActiveTab }: IThemeTab) {
         className='w-full flex flex-col justify-center py-10 gap-[72px]'>
         <SectionWrapper title='event image' caption='Upload a PNG of JPEG file'>
           <div className='flex gap-[72px]'>
-            <FileUploadField form={form} name='banner.flyer' type='flyer' />
-            <FileUploadField form={form} name='banner.background' type='background' />
+            <FileUploadField form={form} name='banner.flyer' type='flyer' upload={flyerUpload} />
+            <FileUploadField form={form} name='banner.background' type='background' upload={backgroundUpload} />
           </div>
         </SectionWrapper>
 
@@ -97,14 +100,12 @@ function SectionWrapper({ title, caption, children }: ISectionWrapper) {
   )
 }
 
-function FileUploadField({ form, name, type }: IFileUploadField) {
+function FileUploadField({ form, name, type, upload }: IFileUploadField) {
   const value = form.getValues(name)
 
-  const uploadImage = useUploadImage()
-
   function handleFileChange(file: File) {
-    uploadImage.mutateAsync(file, {
-      onSuccess: (data) => {
+    upload.mutateAsync(file, {
+      onSuccess: (data: string) => {
         form.setValue(name, data)
       },
     })
@@ -217,6 +218,7 @@ interface IFileUploadField {
   form: UseFormReturn<ThemeAndBannerSchema>
   name: Path<ThemeAndBannerSchema>
   type: TFileType
+  upload: ReturnType<typeof useUploadImage>
 }
 
 interface IFileInputWithPreview {

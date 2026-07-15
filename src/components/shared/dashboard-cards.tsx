@@ -38,7 +38,7 @@ export function DashboardCards({
   return (
     <div className="w-full h-fit flex flex-col border border-gray-200 overflow-hidden">
       {/* Image section with text overlay */}
-      <div className="relative flex flex-col items-start justify-end h-[200px] group overflow-hidden">
+      <div className="relative flex flex-col items-start justify-end h-[300px] group overflow-hidden">
         <Link
           to={getRoutePath("edit_event", { eventId: eventId })}
           className="w-full h-full"

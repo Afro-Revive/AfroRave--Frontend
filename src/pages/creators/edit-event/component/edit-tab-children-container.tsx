@@ -12,6 +12,7 @@ export function TabChildrenContainer({
   handleBackClick,
   isLoading,
   isPublishing,
+  isUploading,
   isPublished,
   handleSaveEvent,
   handlePublishEvent,
@@ -58,9 +59,9 @@ export function TabChildrenContainer({
             variant="destructive"
             className="py-2 w-fit px-8 text-xs font-sf-pro-text font-black rounded-[5px]"
             onClick={handleSaveEvent}
-            disabled={isLoading}
+            disabled={isLoading || isUploading}
           >
-            {isLoading ? "SAVING..." : "SAVE"}
+            {isUploading ? "UPLOADING..." : isLoading ? "SAVING..." : "SAVE"}
           </Button>
 
           {isPublished === false && (
@@ -88,6 +89,7 @@ interface ITabChildrenProps {
   isLoading?: boolean;
   isPublished?: boolean;
   isPublishing?: boolean;
+  isUploading?: boolean;
   handleSaveEvent: () => void;
   handlePublishEvent?: () => void;
   currentTab: string;

@@ -19,7 +19,7 @@ export function RenderEventImage({
         <img
           src={image}
           alt={event_name}
-          className={cn('object-cover h-[160px] md:h-[250px]', className)}
+          className={cn('object-cover h-[160px] md:h-[300px]', className)}
         />
       )}
     </>

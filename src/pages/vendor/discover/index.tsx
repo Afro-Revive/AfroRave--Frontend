@@ -121,6 +121,7 @@ function DiscoverCard({ eventId, image, name, startDate, availableSlots, status 
   return (
     <Link to={getRoutePath('vendor_event_details', { eventId })}>
       <DashboardCards
+        eventId={eventId}
         image={image}
         name={name}
         startDate={startDate}
