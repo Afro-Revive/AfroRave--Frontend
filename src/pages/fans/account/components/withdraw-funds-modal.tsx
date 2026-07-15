@@ -4,6 +4,7 @@ import { Wallet, CheckCircle2, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useVerifyBankAccount, useGetNigerianBanks } from "@/hooks/use-payments";
 import { NigerianBanksResponse, NigerianBankResolve } from "@/types/payments";
+import { useWithdrawFunds } from "@/hooks/use-profile-mutations";
 import { useState, useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
 
@@ -32,6 +33,7 @@ export function WithdrawFundsModal({
 
   const { mutate: fetchBanks, data: banksResponse } = useGetNigerianBanks();
   const { mutateAsync: verifyBankAccount } = useVerifyBankAccount();
+    const { mutate: withdrawFunds } = useWithdrawFunds();
 
   const banks = (banksResponse?.data as NigerianBanksResponse[] | undefined) ?? [];
 
@@ -71,7 +73,7 @@ export function WithdrawFundsModal({
       const res = await verifyBankAccount({ accountNumber: accNum, bankCode });
       const resolved = res.data as NigerianBankResolve;
       console.log(resolved)
-      setAccountName(resolved.account_name);
+      setAccountName(resolved.accountName);
       setVerifyStatus("verified");
     } catch {
       setVerifyStatus("error");
@@ -88,7 +90,12 @@ export function WithdrawFundsModal({
   }
 
   const handleConfirm = () => {
-    // TODO: Implement withdrawal logic
+    withdrawFunds({
+      accountNumber,
+      bankCode: selectedBankCode,
+      amount: Number(amount),
+      accountName,
+    });
     handleClose();
   };
 

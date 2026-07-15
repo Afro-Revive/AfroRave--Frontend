@@ -10,9 +10,9 @@ export interface NigerianBanksResponse {
 export type NigerianBanksListResponse = ApiResponse<NigerianBanksResponse[]>;
 
 export interface NigerianBankResolve {
-    account_number: string;
-    account_name: string;
-    bank_id: number;
+    accountNumber: string;
+    accountName: string;
+    bankId: number;
 }
 
 export type NigerianBankResolveResponse = ApiResponse<NigerianBankResolve>;
