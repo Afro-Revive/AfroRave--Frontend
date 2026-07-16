@@ -16,7 +16,7 @@ import { useEffect, useState } from "react";
 import TotalAccordion from "@/pages/fans/account/components/totalPrice-accordion";
 import { InitializePaymentResponse } from "@/types/cart";
 
-export default function CartSummary({
+export default function CheckoutSummary({
   event,
   isFanAccount = false,
   eventId,
@@ -87,7 +87,7 @@ export default function CartSummary({
   const { display, expired } = useCountdown(15 * 60);
 
   return (
-    <div className="max-w-3xl w-full flex flex-col gap-5 md:gap-10">
+    <div className="max-w-3xl w-full flex flex-col gap-5 md:gap-10 pb-6">
       {isAuthenticated && (
         <p className="text-xs text-center font-input-mono text-white">
           {expired
@@ -112,10 +112,11 @@ export default function CartSummary({
             </p>
           </div>
 
-          <div className="md:hidden">
+          <div className="md:hidden w-[200px] h-[300px]  ">
             <RenderEventImage
               image={event.eventDetails.desktopMedia?.flyer}
               event_name={event.eventName}
+              className="!w-full !h-full object-cover"
             />
           </div>
 

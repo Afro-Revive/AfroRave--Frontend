@@ -4,7 +4,6 @@ import { getRoutePath } from '@/config/get-route-path'
 import { CalendarDays, MapPin } from 'lucide-react'
 import { RenderEventImage } from './render-event-flyer'
 import { formatEventDate, formatEventTime } from '@/lib/helper-func'
-
 export function CategoryBlock({
   name,
   data,
@@ -37,7 +36,7 @@ export function CategoryBlock({
               key={item.eventId}
               id={item.eventId}
               customUrl={item.customUrl}
-              image={item.image}
+              image={item.desktopMedia?.flyer}
               event_location={item.venue}
               event_date={item.startDate}
               event_name={item.eventName}
@@ -73,7 +72,7 @@ function EventCard({
     <Link
       to={getRoutePath('individual_event', { eventId: customUrl })}
       className={cn(
-        'flex flex-col gap-1 min-w-[125px] md:min-w-[195px] md:w-fit max-w-[195px] md:max-w-full lg:min-w-[200px] lg:max-w-[220px]',
+        'flex flex-col gap-1 min-w-[160px] md:min-w-[195px] md:w-fit max-w-[180px] md:max-w-full lg:min-w-[200px] lg:max-w-[220px]',
         {
           'items-start': layout === 'start',
           'items-center': layout === 'middle',
@@ -97,7 +96,7 @@ function EventCard({
         <div className='flex flex-col gap-1'>
           {showLocation && (
             <div
-              className={cn('flex items-start gap-1.5 justify-center', {
+              className={cn('flex items-start md:gap-1.5 gap-0.5 justify-center', {
                 'justify-center': layout === 'middle',
                 'justify-start': layout === 'start',
               })}>
@@ -107,7 +106,7 @@ function EventCard({
           )}
 
           <div
-            className={cn('flex items-start gap-1.5', {
+            className={cn('flex items-start md:gap-1.5 gap-0.5', {
               'justify-center': layout === 'middle',
             })}>
             {showLocation &&
@@ -135,10 +134,10 @@ export function CategoryBlockSkeleton({ name }: { name?: string }) {
       {name && <CategoryBlockName name={name} />}
 
       <div className='gap-7 flex pr-7 overflow-x-auto scrollbar-none w-full'>
-        {Array.from({ length: 4 }).map((_) => (
+        {Array.from({ length: 4 }).map((_, idx) => (
           <div
-            key={`event-skeleton-${crypto.randomUUID()}`}
-            className='flex flex-col gap-1 min-w-[125px] md:min-w-[195px] md:w-fit max-w-[195px] md:max-w-full lg:min-w-[200px] lg:max-w-[220px] w-full'>
+            key={`event-skeleton-${idx}`}
+            className='flex flex-col gap-1 min-w-[160px] md:min-w-[195px] md:w-fit max-w-[180px] md:max-w-full lg:min-w-[200px] lg:max-w-[220px] w-full'>
             <div className='w-full h-[160px] md:h-[250px] bg-gray-200 rounded-[5px] md:rounded-[15px] animate-pulse' />
             <div className='flex flex-col gap-1 md:gap-2 py-2 px-1'>
               <div className='h-4 md:h-6 w-3/4 bg-gray-200 rounded animate-pulse' />
@@ -154,9 +153,20 @@ export function CategoryBlockSkeleton({ name }: { name?: string }) {
   )
 }
 
+
+export interface IEventCardData {
+  eventId: string
+  eventName: string
+  venue: string
+  startDate: string
+  startTime: string
+  customUrl: string
+  desktopMedia?: { flyer?: string }
+}
+
 interface ICategoryBlock {
   name?: string
-  data?: IEventCardDataProps[]
+  data?: IEventCardData[]
   layout?: IEventCardProps['layout']
   showLocation?: IEventCardProps['showLocation']
   display?: 'flex' | 'grid'
@@ -174,15 +184,5 @@ interface IEventCardProps {
   isTrending?: boolean
   layout?: 'start' | 'middle'
   showLocation?: boolean
-  customUrl: string
-}
-
-interface IEventCardDataProps {
-  eventId: string
-  image?: string
-  venue: string
-  startDate: string
-  eventName: string
-  startTime: string
   customUrl: string
 }

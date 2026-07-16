@@ -50,17 +50,7 @@ export default function OwnTheStage() {
         >
           <CategoryBlock
             name='Trending'
-            data={(trendingEvents ?? [])
-              .filter((event) => event)
-              .map((event) => ({
-                eventId: event.eventId,
-                eventName: event.eventName,
-                image: event.desktopMedia?.flyer,
-                venue: event.venue,
-                startDate: event.startDate,
-                customUrl: event.customUrl,
-                startTime: event.startTime,
-              }))}
+            data={trendingEvents ?? []}
             showLocation={true}
             isLoading={isLoadingTrending}
             layout='start'

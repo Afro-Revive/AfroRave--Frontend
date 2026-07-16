@@ -1,4 +1,4 @@
-import CartSummary from './sections/checkout-summary'
+import CheckoutSummary from './sections/checkout-summary'
 import { UserLoginForm } from '@/pages/auth/user-login/user-login-form'
 import { useAfroStore } from '@/stores'
 import { cn } from '@/lib/utils'
@@ -25,13 +25,13 @@ export default function CheckoutPage({
 
       <div
         className={cn(
-          'min-h-full flex items-start md:items-center justify-start md:justify-center pt-30 md:pt-0 px-10 md:px-14 bg-[#1E1E1E]',
+          'h-screen overflow-y-auto md:h-auto md:overflow-y-visible md:min-h-full flex items-start md:items-center justify-start md:justify-center pt-16 md:pt-0 px-10 md:px-14 bg-[#1E1E1E]',
           {
             'w-full': isFanAccount,
             'hidden md:flex md:w-1/2': !isFanAccount,
           },
         )}>
-        <CartSummary event={event} isFanAccount={isFanAccount} eventId={event_id} />
+        <CheckoutSummary event={event} isFanAccount={isFanAccount} eventId={event_id} />
       </div>
 
       {!isFanAccount && (

@@ -8,7 +8,6 @@ import {
 } from "lucide-react";
 import type { PaginatedResponse, TicketData } from "@/types";
 import { formatNaira } from "@/lib/format-price";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 export function CartSummaryFloat({
@@ -45,7 +44,7 @@ export function CartSummaryFloat({
     }));
 
   return (
-    <div className="fixed bottom-0 md:right-0 right-10 z-[999999] w-80">
+    <div className="fixed bottom-0 left-1/2 -translate-x-1/2 md:left-auto md:translate-x-0 md:right-0 z-[999999] w-80">
       <div className={cn( isOpen ? "bg-white": " bg-mid-dark-gray ", "bg-white rounded-t-xl shadow-2xl overflow-hidden")}>
         {/* Expandable panel — grows upward from the bar */}
         <div
@@ -105,52 +104,57 @@ export function CartSummaryFloat({
           </ul>
 
           {/* Checkout CTA inside panel */}
-          <div className="px-5 py-4 border-t border-white/10">
-            <Button
-              onClick={action}
-              disabled={isLoading || totalTickets === 0}
-              className="w-full h-11 flex items-center justify-between bg-deep-red hover:bg-deep-red/80 px-3 rounded-lg font-sf-pro-display"
-            >
-              {isLoading ? (
-                <LoaderCircle size={16} className="animate-spin mx-auto" />
-              ) : (
-                <>
-                  <span className="text-sm">Checkout</span>
-                  <span className="text-base font-semibold">
-                    {formatNaira(totalPrice, {
-                      free: totalPrice === 0 && totalTickets > 0,
-                    })}
-                  </span>
-                </>
-              )}
-            </Button>
+          <div className="md:px-5 px-3 md:py-4 py-2 border-t border-white/10">
+            <CheckoutButton action={action} isLoading={isLoading} totalTickets={totalTickets} totalPrice={totalPrice} />
           </div>
         </div>
 
         {/* Bottom bar — hidden when panel is open */}
         {!isOpen && (
-          <div className="flex flex-col items-center w-full bg-white px-6">
+          <div className="flex flex-col items-center w-full bg-white md:px-5 px-3 md:py-4 py-2">
             <button
               type="button"
               onClick={() => setIsOpen(true)}
-              className="w-full flex justify-center pt-3 pb-6 hover:bg-white/5 transition-colors"
+              className="w-full flex justify-center  md:pb-3 pb-2 hover:bg-white/5 transition-colors"
             >
               <ChevronUp size={18} className="text-black" />
             </button>
-            <button
-              type="button"
-              onClick={action}
-              disabled={isLoading || totalTickets === 0}
-              className="flex items-center bg-deep-red rounded-md justify-between w-full px-5 h-11 mb-4 hover:bg-soft-gray/80 transition-colors disabled:opacity-50"
-            >
-              <span className="text-white text-sm">Checkout</span>
-              <span className="text-base font-semibold">
-                {formatNaira(totalPrice, { free: totalPrice === 0 && totalTickets > 0 })}
-              </span>
-            </button>
+            <CheckoutButton action={action} isLoading={isLoading} totalTickets={totalTickets} totalPrice={totalPrice} />
           </div>
         )}
       </div>
     </div>
+  );
+}
+
+function CheckoutButton({
+  action,
+  isLoading,
+  totalTickets,
+  totalPrice,
+}: {
+  action: () => void;
+  isLoading: boolean;
+  totalTickets: number;
+  totalPrice: number;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={action}
+      disabled={isLoading || totalTickets === 0}
+      className="w-full flex items-center justify-between py-2 bg-deep-red hover:bg-deep-red/80 px-3 rounded-lg font-sf-pro-display disabled:opacity-50 disabled:pointer-events-none transition-colors"
+    >
+      {isLoading ? (
+        <LoaderCircle size={16} className="animate-spin mx-auto text-white" />
+      ) : (
+        <>
+          <span className="text-white text-sm">Checkout</span>
+          <span className="text-white text-base font-semibold">
+            {formatNaira(totalPrice, { free: totalPrice === 0 && totalTickets > 0 })}
+          </span>
+        </>
+      )}
+    </button>
   );
 }

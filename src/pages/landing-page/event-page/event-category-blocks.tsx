@@ -5,6 +5,7 @@ import { useGetTrendingEvents, useGetAllEvents } from '@/hooks/use-event-mutatio
 import { CategoryBlock } from '@/components/shared/category-block'
 import { useSearchParams, useNavigate, useLocation } from 'react-router-dom'
 import type { EventData, TrendingEventData } from '@/types/event'
+import type { PaginatedResponse } from '@/types'
 
 const MONTH_ABBRS = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec']
 
@@ -21,25 +22,21 @@ const CATEGORY_KEYWORDS: Record<string, string[]> = {
 
 function filterEvents(events: EventData[], params: URLSearchParams): EventData[] {
   const q = params.get('q')?.toLowerCase().trim() ?? ''
-  const exactDate = params.get('date') ?? ''           // YYYY-MM-DD from calendar
-  const month = params.get('month') ?? ''              // jan/feb/... from BaseSelect
-  const categorySlug = params.get('category') ?? ''   // slug from BaseSelect
+  const exactDate = params.get('date') ?? ''
+  const month = params.get('month') ?? ''
+  const categorySlug = params.get('category') ?? ''
 
   return events.filter(event => {
-    // Text search — match event name or venue
     if (q) {
       const matchesName = event.eventName.toLowerCase().includes(q)
       const matchesVenue = event.venue.toLowerCase().includes(q)
       if (!matchesName && !matchesVenue) return false
     }
 
-    // Exact date filter (from search bar calendar, format YYYY-MM-DD)
     if (exactDate) {
-      // event.startDate could be "YYYY-MM-DD" or "YYYY-MM-DDTHH:mm:ss"
       if (!event.startDate.startsWith(exactDate)) return false
     }
 
-    // Month filter (from events page BaseSelect)
     if (month) {
       const eventDate = new Date(event.startDate)
       if (!isNaN(eventDate.getTime())) {
@@ -48,7 +45,6 @@ function filterEvents(events: EventData[], params: URLSearchParams): EventData[]
       }
     }
 
-    // Category filter — match against event name keywords
     if (categorySlug) {
       const keywords = CATEGORY_KEYWORDS[categorySlug] ?? []
       if (keywords.length > 0) {
@@ -75,14 +71,13 @@ export default function EventCategoryBlocks() {
   const { data: trendingEventResponse, isPending: isLoadingTrending } = useGetTrendingEvents()
   const { data: allEventResponse, isPending: isLoadingAllEvent } = useGetAllEvents()
 
-  const trendingEvents = trendingEventResponse?.data as TrendingEventData[] | undefined
-  const allEvents = allEventResponse?.data as EventData[] | undefined
+  const trendingEvents = trendingEventResponse?.data as PaginatedResponse<TrendingEventData> | undefined
+  const allEvents = allEventResponse?.data as PaginatedResponse<EventData> | undefined
 
   const filteredEvents = useMemo(
-    () => filterEvents(allEvents || [], searchParams),
+    () => filterEvents(allEvents?.items ?? [], searchParams),
     [allEvents, searchParams]
   )
-  console.log('Filtered events:', trendingEventResponse)
 
   const activeFilters = [
     searchParams.get('q'),
@@ -106,18 +101,10 @@ export default function EventCategoryBlocks() {
       <div className='lg:pl-[60px]'>
         <CategoryBlock
           name='Trending'
-          data={(trendingEvents ?? []).map((event) => ({
-            eventId: event.eventId,
-            eventName: event.eventName,
-            image: event.desktopMedia.flyer,
-            venue: event.venue,
-            startDate: event.startDate,
-            startTime: event.startTime,
-            customUrl: event.customUrl,
-          }))}
+          data={trendingEvents?.items ?? []}
           showLocation={false}
           isLoading={isLoadingTrending}
-          layout='middle'
+          layout='start'
         />
       </div>
 
@@ -172,15 +159,7 @@ export default function EventCategoryBlocks() {
         </div>
 
         <CategoryBlock
-          data={filteredEvents.map(event => ({
-            eventId: event.eventId,
-            eventName: event.eventName,
-            venue: event.venue,
-            image: event.metadata.desktopMedia.flyer,
-            startDate: event.startDate,
-            startTime: event.startTime,
-            customUrl: event.customUrl,
-          }))}
+          data={filteredEvents.map((e) => ({ ...e, desktopMedia: e.metadata.desktopMedia }))}
           showLocation={true}
           isLoading={isLoadingAllEvent}
           display='grid'
