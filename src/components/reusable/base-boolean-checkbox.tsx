@@ -15,7 +15,7 @@ export function BaseBooleanCheckbox({
   checkedClassName,
 }: IBaseBooleanCheckbox & Partial<ControllerRenderProps>) {
   return (
-    <div className='flex flex-col items-start gap-2'>
+    <div className='flex flex-col gap-0.5'>
       <div
         className={cn('flex', {
           'flex-col gap-5': orientation === 'vertical',

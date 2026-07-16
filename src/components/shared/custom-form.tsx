@@ -10,12 +10,14 @@ export function CustomFormField<T extends FieldValues>({
   form,
   label,
   className,
+  showMessage,
 }: FormFieldProps<T>) {
   return (
     <BaseFormField
       form={form}
       name={name}
       label={label}
+      showMessage={showMessage}
       className={cn(
         'w-full flex flex-col gap-1 text-black text-xs uppercase font-sf-pro-text',
         className,
