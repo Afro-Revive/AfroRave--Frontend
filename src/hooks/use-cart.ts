@@ -1,7 +1,14 @@
 import { cartService } from '@/services/cart.service'
-import type { CheckoutRequest, CreateCartRequest, ValidatePromocodeRequest } from '@/types/cart'
+import type {
+  CheckoutRequest,
+  CreateCartRequest,
+  ValidatePromocodeRequest,
+  ValidatePromocodeResponse,
+} from '@/types/cart'
+import type { ApiErrorResponse } from '@/types/api'
 import { useAfroStore, useCartStore } from '@/stores'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import type { AxiosError } from 'axios'
 import { toast } from 'sonner'
 import { cartKeys } from '@/lib/cart-keys'
 
@@ -118,12 +125,14 @@ export function useProcessCheckout() {
 }
 
 export function useValidatePromocode() {
-  return useMutation({
-    mutationFn: ({ data }: { data: ValidatePromocodeRequest }) =>
-      cartService.validatePromoCode(data),
+  return useMutation<
+    ValidatePromocodeResponse,
+    AxiosError<ApiErrorResponse>,
+    { data: ValidatePromocodeRequest }
+  >({
+    mutationFn: ({ data }) => cartService.validatePromoCode(data),
     mutationKey: cartKeys.validatePromocode(),
     onSuccess: () => toast.success('Promocode validated successfully.'),
-    onError: () => toast.error('Failed to validate promocode.'),
   })
 }
 

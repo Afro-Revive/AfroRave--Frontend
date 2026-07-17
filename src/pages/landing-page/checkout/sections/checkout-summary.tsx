@@ -4,7 +4,9 @@ import { useCheckoutCart } from "@/hooks/use-cart";
 import { useGetEventTickets } from "@/hooks/use-event-mutations";
 import { useAfroStore, useCartStore } from "@/stores";
 import { Button } from "@/components/ui/button";
-import PromoCode from "@/pages/fans/account/components/promo-code";
+import PromoCode, {
+  type PromoDiscount,
+} from "@/pages/landing-page/_component/promo-code";
 import type { EventDetailData, PaginatedResponse, TicketData } from "@/types";
 import {
   formatEventDate,
@@ -13,7 +15,7 @@ import {
 } from "@/lib/helper-func";
 import { RenderEventImage } from "@/components/shared/render-event-flyer";
 import { useEffect, useState } from "react";
-import TotalAccordion from "@/pages/fans/account/components/totalPrice-accordion";
+import TotalAccordion from "@/pages/landing-page/_component/totalPrice-accordion";
 import { InitializePaymentResponse } from "@/types/cart";
 
 export default function CheckoutSummary({
@@ -29,6 +31,9 @@ export default function CheckoutSummary({
   const isAuthenticated = useAfroStore((state) => state.isAuthenticated);
   const { items: localItems, promoCodeId } = useCartStore();
   const { data: ticketsResponse } = useGetEventTickets(eventId ?? "");
+  const [promoDiscount, setPromoDiscount] = useState<PromoDiscount | null>(
+    null,
+  );
 
   const ticketInformation = ticketsResponse?.data as
     | PaginatedResponse<TicketData>
@@ -87,7 +92,7 @@ export default function CheckoutSummary({
   const { display, expired } = useCountdown(15 * 60);
 
   return (
-    <div className="max-w-3xl w-full flex flex-col gap-5 md:gap-10 pb-6">
+    <div className="max-w-3xl w-full flex flex-col overflow-auto gap-5 md:gap-10 pb-6">
       {isAuthenticated && (
         <p className="text-xs text-center font-input-mono text-white">
           {expired
@@ -152,9 +157,10 @@ export default function CheckoutSummary({
           cartItems={cartItems}
           totalPrice={totalPrice}
           totalQuantity={totalQuantity}
+          onApply={setPromoDiscount}
         />
 
-        <TotalAccordion totalPrice={totalPrice} />
+        <TotalAccordion totalPrice={totalPrice} discount={promoDiscount} />
 
         {isFanAccount && (
           <Button

@@ -138,37 +138,35 @@ export interface CheckoutResponseData {
   statusCode: number
 }
 
+export interface PromoValidationResult {
+  isValid: boolean
+  message: string
+  discountAmount: number
+  discountType: string
+  discountValue: number
+  promoCodeId: UUID
+  promoCodeDetails: {
+    tickets: { id: UUID }[]
+    isMinimumSpend: boolean
+    minimumSpend: number
+    isMinimumTicket: boolean
+    minimumTicket: number
+    note: string | null
+    isPrivate: boolean
+    isPartnership: boolean
+    partnerName: string
+    commisionType: string
+    commission: number
+  }
+}
+
 export interface ValidatePromocodeData {
   message: string
-  data: {
-    isValid: boolean
-    message: string
-    discountAmount: number
-    discountType: string
-    discountValue: number
-    promoCodeId: UUID
-    promoCodeDetails: {
-      tickets: [
-        {
-          id: UUID
-        },
-      ]
-      isMinimumSpend: boolean
-      minimumSpend: number
-      isMinimumTicket: boolean
-      minimumTicket: number
-      note: string
-      isPrivate: boolean
-      isPartnership: boolean
-      partnerName: string
-      commisionType: string
-      commission: number
-    }
-  }
+  data: PromoValidationResult
   cursor: string
   id: UUID
   status: boolean
   statusCode: number
 }
 
-export type ValidatePromocodeResponse = ApiResponse<ValidatePromocodeData>
+export type ValidatePromocodeResponse = ValidatePromocodeData
