@@ -112,6 +112,7 @@ export interface EventDetailData {
     totalTicket: number
     activePromoCodes: number
   }
+  isOnWatchlist?: boolean
 }
 
 export type EventDetailResponse = ApiResponse<EventDetailData>

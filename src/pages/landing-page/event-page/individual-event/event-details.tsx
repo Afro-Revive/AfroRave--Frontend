@@ -1,44 +1,62 @@
-import { EventLocation } from '@/pages/landing-page/event-page/event-location'
-import type { EventDetailData } from '@/types'
-import Cart from '../cart'
-import { SectionContainer } from './_components/section-container'
-import ContactSection from './sections/contact'
-import EventDescription from './sections/event-description'
-import EventDetailsSection from './sections/event-details'
-import TermsSection from './sections/terms'
-import TicketSection from './sections/tickets'
+import { EventLocation } from "@/pages/landing-page/event-page/event-location";
+import type { EventDetailData } from "@/types";
+import Cart from "../cart";
+import { SectionContainer } from "./_components/section-container";
+import ContactSection from "./sections/contact";
+import EventDescription from "./sections/event-description";
+import EventDetailsSection from "./sections/event-details";
+import TermsSection from "./sections/terms";
+import TicketSection from "./sections/tickets";
+import EventBookmarkButton from "./_components/event-bookmark-button";
+import { useAfroStore } from "@/stores";
 
-export default function EventDetails({ event, layout = 'default' }: IEventDetailsProp) {
+export default function EventDetails({
+  event,
+  layout = "default",
+}: IEventDetailsProp) {
+  const { isAuthenticated } = useAfroStore();
+  console.log("Event Details", event);
   return (
-    <section className='md:pb-16 w-full flex flex-col items-center'>
-      <div className='relative w-full flex flex-col'>
-        {event.eventDetails.desktopMedia?.background === '' ||
+    <section className="md:pb-16 w-full flex flex-col items-center">
+      <div className="relative w-full flex flex-col">
+        {event.eventDetails.desktopMedia?.background === "" ||
         event.eventDetails.desktopMedia === null ? (
-          <div className='flex items-center justify-center w-full min-h-[500px] xl:h-[720px]'>
-            <p className='text-3xl text-center font-semibold text-white'>{event.eventName}</p>
+          <div className="flex items-center justify-center w-full min-h-[500px] xl:h-[720px]">
+            <p className="text-3xl text-center font-semibold text-white">
+              {event.eventName}
+            </p>
           </div>
         ) : (
           <img
             src={event.eventDetails.desktopMedia.background}
             alt={event.eventName}
-            className='w-full min-h-[400px] xl:h-[720px]'
+            className="w-full min-h-[400px] xl:h-[720px]"
           />
         )}
 
-        {event.eventDetails.desktopMedia?.background !== '' && (
-          <div className='absolute inset-0 bg-gradient-to-t from-dark-gray via-dark-gray/10 to-transparent backdrop-blur-xs' />
+        {event.eventDetails.desktopMedia?.background !== "" && (
+          <div className="absolute inset-0 bg-gradient-to-t from-dark-gray via-dark-gray/10 to-transparent backdrop-blur-xs" />
         )}
       </div>
 
-      <div className='max-w-[1536px] w-full flex flex-col gap-[60px] md:gap-[120px] -mt-[200px] xl:-mt-[475px] z-10'>
+      <div className="max-w-[1536px] w-full flex flex-col gap-[60px] md:gap-[120px] -mt-[200px] xl:-mt-[475px] z-10">
         {/** Contains the event-image and event-name */}
-        <div className='flex flex-col gap-5 md:gap-0 md:items-end'>
+        <div className="flex flex-col gap-5 md:gap-0 md:items-end">
           <EventDetailsSection layout={layout} event={event} />
         </div>
 
+        {isAuthenticated && (
+          <div className="absolute top-20 right-2 md:top-28 md:right-[20px] z-10">
+            <EventBookmarkButton
+              isWatchlisted={event?.isOnWatchlist}
+              eventId={event.eventId}
+            />
+          </div>
+        )}
+
         <Cart event={event} />
 
-        {(layout === 'with-flyer' || layout === 'standard-carousel') && (
+        {(layout === "with-flyer" || layout === "standard-carousel") && (
           <TicketSection layout={layout} eventId={event.eventId} />
         )}
 
@@ -46,7 +64,9 @@ export default function EventDetails({ event, layout = 'default' }: IEventDetail
         <EventDescription event={event} />
 
         {/**Tickets */}
-        {layout === 'default' && <TicketSection layout={layout} eventId={event.eventId} />}
+        {layout === "default" && (
+          <TicketSection layout={layout} eventId={event.eventId} />
+        )}
 
         {/**Location */}
         <SectionContainer>
@@ -56,13 +76,13 @@ export default function EventDetails({ event, layout = 'default' }: IEventDetail
         {/**Contact */}
         <ContactSection event={event} />
 
-        <TermsSection /> 
+        <TermsSection />
       </div>
     </section>
-  )
+  );
 }
 
 interface IEventDetailsProp {
-  event: EventDetailData
-  layout?: 'default' | 'standard-carousel' | 'with-flyer'
+  event: EventDetailData;
+  layout?: "default" | "standard-carousel" | "with-flyer";
 }

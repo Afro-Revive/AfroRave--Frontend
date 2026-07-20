@@ -118,6 +118,25 @@ class EventService {
   }
 
   /**
+   * Save Event To Watchlist
+   */
+
+  async saveEventToWatchlist(eventId: string): Promise<ApiResponse<unknown>> {
+      console.log(eventId, "eventId");
+    const response = await api.post(`/api/Profile/user/Event/watchlist/save/`, {id:  eventId })
+    return response.data
+  }
+
+    /**
+   * Delete Event From Watchlist
+   */
+
+  async deleteEventFromWatchlist(eventId: string): Promise<ApiResponse<unknown>> {
+    const response = await api.post(`/api/Profile/user/Event/watchlist/remove/`, {id:  eventId })
+    return response.data
+  }
+
+  /**
    * Get a ticket by ID
    */
   async getTicket(ticketId: string): Promise<TicketResponse> {

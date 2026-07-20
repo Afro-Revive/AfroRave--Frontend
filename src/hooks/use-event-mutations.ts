@@ -314,6 +314,34 @@ export function useGetEvent(eventId: string) {
   })
 }
 
+export function useSaveEventToWatchlist(eventId: string) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: () => eventService.saveEventToWatchlist(eventId),
+    onSuccess: () => {
+      toast.success('Event saved to watchlist!')
+      queryClient.invalidateQueries({ queryKey: eventKeys.detail(eventId) })
+    },
+    onError: () => {
+      toast.error('Failed to save event to watchlist.')
+    },
+  })
+}
+
+export function useDeleteEventFromWatchlist(eventId: string) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: () => eventService.deleteEventFromWatchlist(eventId),
+    onSuccess: () => {
+      toast.success('Event removed from watchlist!')
+      queryClient.invalidateQueries({ queryKey: eventKeys.detail(eventId) })
+    },
+    onError: () => {
+      toast.error('Failed to remove event from watchlist.')
+    },
+  })
+}
+
 export function useGetEventByCustomUrl(customUrl:string){
   return useQuery({
     queryKey: eventKeys.detailUrl(customUrl),
