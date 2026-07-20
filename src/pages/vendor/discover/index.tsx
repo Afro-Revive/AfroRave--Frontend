@@ -52,26 +52,26 @@ export default function VendorDiscoverPage() {
     )
   }
 
-  if (completionPercentage < 100) {
-    return (
-      <section className='w-full h-full flex flex-col justify-start items-start px-[1px]'>
-        <div className='w-full h-14 flex items-center justify-between px-4 md:px-8 bg-white'>
-          <AddFilterBUtton />
-          <WishListBtn />
-        </div>
-        <div className='w-full h-[70vh] flex flex-col items-center justify-center gap-4 px-4 text-center'>
-          <p className='text-xl md:text-2xl font-bold font-sf-pro-display text-black'>Complete your profile to discover events</p>
-          <p className='text-sm text-gray-400 max-w-sm font-sf-pro-text'>You need a complete profile before you can browse and apply for event slots.</p>
-          <Link
-            to={getRoutePath('vendor_profile')}
-            className='mt-2 h-9 px-6 rounded-[6px] bg-deep-red text-white text-xs font-sf-pro-text font-semibold flex items-center justify-center hover:bg-deep-red/90 transition-colors'
-          >
-            Complete Profile
-          </Link>
-        </div>
-      </section>
-    )
-  }
+  // if (completionPercentage < 100) {
+  //   return (
+  //     <section className='w-full h-full flex flex-col justify-start items-start px-[1px]'>
+  //       <div className='w-full h-14 flex items-center justify-between px-4 md:px-8 bg-white'>
+  //         <AddFilterBUtton />
+  //         <WishListBtn />
+  //       </div>
+  //       <div className='w-full h-[70vh] flex flex-col items-center justify-center gap-4 px-4 text-center'>
+  //         <p className='text-xl md:text-2xl font-bold font-sf-pro-display text-black'>Complete your profile to discover events</p>
+  //         <p className='text-sm text-gray-400 max-w-sm font-sf-pro-text'>You need a complete profile before you can browse and apply for event slots.</p>
+  //         <Link
+  //           to={getRoutePath('vendor_profile')}
+  //           className='mt-2 h-9 px-6 rounded-[6px] bg-deep-red text-white text-xs font-sf-pro-text font-semibold flex items-center justify-center hover:bg-deep-red/90 transition-colors'
+  //         >
+  //           Complete Profile
+  //         </Link>
+  //       </div>
+  //     </section>
+  //   )
+  // }
 
   return (
     <section className='w-full h-full flex flex-col justify-start items-start px-[1px]'>
