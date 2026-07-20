@@ -65,10 +65,14 @@ export default function CompleteProfilePage() {
   async function onSubmit(values: PersonalDetailsValues) {
     if (!user) return;
     const dateOfBirth = `${values.birthday.year}-${values.birthday.month.padStart(2, "0")}-${values.birthday.day.padStart(2, "0")}`;
+    const isVendor = userAccountType === "Vendor";
     await completeProfileMutation.mutateAsync({
       token: token || "",
       telephone: `${values.number.country_code}${values.number.digits}`,
-      companyName: values.companyName,
+      category: values.category,
+      businessName: isVendor ? values.companyName : undefined,
+      companyName: isVendor ? undefined : values.companyName,
+      vendorType: isVendor ? values.category : undefined,
       website: values.companyWebsite,
       gender: values.gender,
       dateOfBirth,
@@ -172,10 +176,10 @@ export default function CompleteProfilePage() {
                   onValueChange={(value) => setValue("category", value)}
                   disabled={isSubmitting}
                 >
-                  <SelectTrigger className="w-full bg-[#1C1C1E] text-white border-0 h-11">
-                    <SelectValue placeholder="CATEGORY" />
+                  <SelectTrigger className="w-full border text-white items-center  h-14">
+                    <SelectValue placeholder="CATEGORY" className="placeholder:text-white" />
                   </SelectTrigger>
-                  <SelectContent className="z-[1000001]">
+                  <SelectContent className="z-[1000001] bg-white">
                     {VENDOR_CATEGORIES.map((cat) => (
                       <SelectItem key={cat.value} value={cat.value}>
                         {cat.label}
