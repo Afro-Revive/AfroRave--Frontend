@@ -5,7 +5,6 @@ import { useAfroStore } from "@/stores";
 import { cn } from "@/lib/utils";
 import type { User } from "@/types";
 import { ProfileSection } from "./components/profile-section";
-import BaseTable from "@/components/reusable/base-table";
 import { VendorEditProfileModal } from "./edit-profile-modal";
 import { ViewProfileModal } from "./view-profile-modal";
 

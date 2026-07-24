@@ -83,14 +83,14 @@ export function ViewProfileModal() {
                                 <div className="flex flex-col gap-1">
                                     <p className="text-gray-500 text-[11px] text-left font-normal">Portfolio</p>
                                     <div className="flex flex-col gap-0.5 items-start text-[13px] font-normal text-[#007AFF]">
-                                        {user?.portfolio ? (
+                                        {user?.profile.businessData?.portfolio?.webUrl ? (
                                             <a
-                                                href={user.portfolio.startsWith('http') ? user.portfolio : '#'}
-                                                target={user.portfolio.startsWith('http') ? "_blank" : undefined}
+                                                href={user.profile.businessData.portfolio.webUrl.startsWith('http') ? user.profile.businessData.portfolio.webUrl : '#'}
+                                                target={user.profile.businessData.portfolio.webUrl.startsWith('http') ? "_blank" : undefined}
                                                 rel="noopener noreferrer"
                                                 className="hover:underline block"
                                             >
-                                                {user.portfolio.startsWith('http') ? 'view link' : 'view file'}
+                                                {user.profile.businessData.portfolio.webUrl.startsWith('http') ? 'view link' : 'view file'}
                                             </a>
                                         ) : (
                                             <span className="text-gray-400">none added</span>
@@ -102,25 +102,25 @@ export function ViewProfileModal() {
                                 <div className="flex flex-col gap-1">
                                     <p className="text-gray-500 text-[11px] text-left font-normal">Socials</p>
                                     <div className="flex gap-3 items-center">
-                                        {user?.socialLinks && Object.values(user.socialLinks).some(l => !!l) ? (
+                                        {user?.profile.businessData?.socials && Object.values(user.profile.businessData.socials).some(l => !!l) ? (
                                             <>
-                                                {user.socialLinks.instagram && (
-                                                    <a href={user.socialLinks.instagram} target="_blank" rel="noopener noreferrer" className="hover:opacity-70 transition-opacity">
+                                                {user.profile.businessData.socials.instagram && (
+                                                    <a href={user.profile.businessData.socials.instagram} target="_blank" rel="noopener noreferrer" className="hover:opacity-70 transition-opacity">
                                                         <Instagram className="h-4 w-4 text-black" />
                                                     </a>
                                                 )}
-                                                {user.socialLinks.twitter && (
-                                                    <a href={user.socialLinks.twitter} target="_blank" rel="noopener noreferrer" className="hover:opacity-70 transition-opacity">
+                                                {user.profile.businessData.socials.x && (
+                                                    <a href={user.profile.businessData.socials.x} target="_blank" rel="noopener noreferrer" className="hover:opacity-70 transition-opacity">
                                                         <Twitter className="h-4 w-4 text-black" />
                                                     </a>
                                                 )}
-                                                {user.socialLinks.facebook && (
-                                                    <a href={user.socialLinks.facebook} target="_blank" rel="noopener noreferrer" className="hover:opacity-70 transition-opacity">
+                                                {user.profile.businessData.socials.facebook && (
+                                                    <a href={user.profile.businessData.socials.facebook} target="_blank" rel="noopener noreferrer" className="hover:opacity-70 transition-opacity">
                                                         <Facebook className="h-4 w-4 text-black" />
                                                     </a>
                                                 )}
-                                                {user.socialLinks.linkedin && (
-                                                    <a href={user.socialLinks.linkedin} target="_blank" rel="noopener noreferrer" className="hover:opacity-70 transition-opacity">
+                                                {user.profile.businessData.socials.linkedIn && (
+                                                    <a href={user.profile.businessData.socials.linkedIn} target="_blank" rel="noopener noreferrer" className="hover:opacity-70 transition-opacity">
                                                         <Linkedin className="h-4 w-4 text-black" />
                                                     </a>
                                                 )}
@@ -137,9 +137,9 @@ export function ViewProfileModal() {
                         <div className="flex flex-col gap-4 items-center w-full h-full">
                             <p className="text-[14px] text-gray-500 font-medium font-sf-pro-display text-center w-full">Gallery</p>
                             <div className="grid grid-cols-2 gap-1 w-full h-full">
-                                {user?.gallery && user.gallery.length > 0 ? (
-                                    user.gallery.map((img, i) => (
-                                        <div key={i} className="aspect-[3/4] bg-gray-100 overflow-hidden relative rounded-[4px]">
+                                {user?.profile.gallery && user.profile.gallery.length > 0 ? (
+                                    user.profile.gallery.map((img, i) => (
+                                        <div key={`gallery-${i}`} className="aspect-[3/4] bg-gray-100 overflow-hidden relative rounded-[4px]">
                                             <img src={img} className="object-cover w-full h-full hover:scale-105 transition-transform duration-500" alt={`Gallery ${i + 1}`} />
                                         </div>
                                     ))

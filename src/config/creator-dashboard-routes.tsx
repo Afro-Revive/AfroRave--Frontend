@@ -1,4 +1,5 @@
 import { OrganizerAuthGuard } from '@/components/auth/organizer-auth-guard'
+import { VendorAuthGuard } from '@/components/auth/vendor-auth-guard'
 import { LoadingFallback } from '@/components/loading-fallback'
 import { Suspense, lazy } from 'react'
 import type { RouteObject } from 'react-router-dom'
@@ -106,35 +107,35 @@ export const creator_dashboard_routes: RouteObject[] = [
     ),
   },
 
-  // Vendor routes (Vendor account type) - Temporarily using OrganizerAuthGuard
+  // Vendor routes (Vendor account type)
   {
     path: getRoutePath('revenue_vendor'),
     element: (
-      <OrganizerAuthGuard>
+      <VendorAuthGuard>
         <Suspense fallback={<LoadingFallback />}>
           <RevenueVendorPage />
         </Suspense>
-      </OrganizerAuthGuard>
+      </VendorAuthGuard>
     ),
   },
   {
     path: getRoutePath('revenue_vendor_slot', { slotId: ':slotId' }),
     element: (
-      <OrganizerAuthGuard>
+      <VendorAuthGuard>
         <Suspense fallback={<LoadingFallback />}>
           <IndividualSlotsPage />
         </Suspense>
-      </OrganizerAuthGuard>
+      </VendorAuthGuard>
     ),
   },
   {
     path: getRoutePath('service_vendor'),
     element: (
-      <OrganizerAuthGuard>
+      <VendorAuthGuard>
         <Suspense fallback={<LoadingFallback />}>
           <ServiceVendorPage />
         </Suspense>
-      </OrganizerAuthGuard>
+      </VendorAuthGuard>
     ),
   },
   {
@@ -142,21 +143,21 @@ export const creator_dashboard_routes: RouteObject[] = [
       serviceId: ':serviceId',
     }),
     element: (
-      <OrganizerAuthGuard>
+      <VendorAuthGuard>
         <Suspense fallback={<LoadingFallback />}>
           <IndividualServicePage />
         </Suspense>
-      </OrganizerAuthGuard>
+      </VendorAuthGuard>
     ),
   },
   {
     path: getRoutePath('seating_maps'),
     element: (
-      <OrganizerAuthGuard>
+      <VendorAuthGuard>
         <Suspense fallback={<LoadingFallback />}>
           <SeatingMapsPage />
         </Suspense>
-      </OrganizerAuthGuard>
+      </VendorAuthGuard>
     ),
   },
 ]

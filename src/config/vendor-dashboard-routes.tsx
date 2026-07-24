@@ -1,4 +1,5 @@
 import { LoadingFallback } from '@/components/loading-fallback'
+import { VendorAuthGuard } from '@/components/auth/vendor-auth-guard'
 import { Suspense, lazy } from 'react'
 import type { RouteObject } from 'react-router-dom'
 import { getRoutePath } from './get-route-path'
@@ -14,41 +15,51 @@ export const vendor_dashboard_routes: RouteObject[] = [
   {
     path: getRoutePath('vendor_profile'),
     element: (
-      <Suspense fallback={<LoadingFallback />}>
-        <ProfilePage />
-      </Suspense>
+      <VendorAuthGuard>
+        <Suspense fallback={<LoadingFallback />}>
+          <ProfilePage />
+        </Suspense>
+      </VendorAuthGuard>
     ),
   },
   {
     path: getRoutePath('vendor_discover'),
     element: (
-      <Suspense fallback={<LoadingFallback />}>
-        <DiscoverPage />
-      </Suspense>
+      <VendorAuthGuard>
+        <Suspense fallback={<LoadingFallback />}>
+          <DiscoverPage />
+        </Suspense>
+      </VendorAuthGuard>
     ),
   },
   {
     path: getRoutePath('vendor_wishlist'),
     element: (
-      <Suspense fallback={<LoadingFallback />}>
-        <WishlistPage />
-      </Suspense>
+      <VendorAuthGuard>
+        <Suspense fallback={<LoadingFallback />}>
+          <WishlistPage />
+        </Suspense>
+      </VendorAuthGuard>
     ),
   },
   {
     path: getRoutePath('vendor_event_details', { eventId: ':eventId' }),
     element: (
-      <Suspense fallback={<LoadingFallback />}>
-        <VendorEventDetailsPage />
-      </Suspense>
+      <VendorAuthGuard>
+        <Suspense fallback={<LoadingFallback />}>
+          <VendorEventDetailsPage />
+        </Suspense>
+      </VendorAuthGuard>
     ),
   },
   {
     path: getRoutePath('vendor_slots'),
     element: (
-      <Suspense fallback={<LoadingFallback />}>
-        <SlotsPage />
-      </Suspense>
+      <VendorAuthGuard>
+        <Suspense fallback={<LoadingFallback />}>
+          <SlotsPage />
+        </Suspense>
+      </VendorAuthGuard>
     ),
   }
 ]

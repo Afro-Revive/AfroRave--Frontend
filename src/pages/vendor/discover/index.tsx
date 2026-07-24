@@ -16,16 +16,16 @@ function useProfileCompletion() {
   if (!user) return 0
   let score = 0
   if (user.profile.firstName) score++
-  if (user.businessName || user.companyName) score++
-  if (user.telphone) score++
+  if (user.profile.businessName || user.profile.companyName) score++
+  if (user.profile.phoneNumber) score++
   if (user.email) score++
-  if (user.gender) score++
-  if (user.portfolio) score++
-  const hasSocials = user.socialLinks && Object.values(user.socialLinks).some(link => !!link)
+  if (user.profile.gender) score++
+  if (user.profile.businessData?.portfolio) score++
+  const hasSocials = user.profile.businessData?.socials && Object.values(user.profile.businessData.socials).some(link => !!link)
   if (hasSocials) score++
-  if (user.description) score++
-  if (user.profilePicture) score++
-  if (user.gallery && user.gallery.length > 0) score++
+  if (user.profile.description) score++
+  if (user.profile.businessData?.profilePicture) score++
+  // if (user.profile.businessData?.gallery && user.profile.businessData.gallery.length > 0) score++
   return (score / 10) * 100
 }
 

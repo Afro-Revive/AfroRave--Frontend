@@ -4,6 +4,7 @@ import { Suspense, lazy } from 'react'
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom'
 import { Toaster } from 'sonner'
 import { OrganizerAuthGuard } from './components/auth/organizer-auth-guard'
+import { VendorAuthGuard } from './components/auth/vendor-auth-guard'
 import { LoadingFallback } from './components/loading-fallback'
 import { creator_dashboard_routes } from './config/creator-dashboard-routes'
 import { getRoutePath } from './config/get-route-path'
@@ -77,9 +78,11 @@ function AppRoutes() {
       <Route
         path={getRoutePath('vendor_slot_details', { eventId: ':eventId' })}
         element={
-          <Suspense fallback={<LoadingFallback />}>
-            <SlotDetailsPage />
-          </Suspense>
+          <VendorAuthGuard>
+            <Suspense fallback={<LoadingFallback />}>
+              <SlotDetailsPage />
+            </Suspense>
+          </VendorAuthGuard>
         }
       />
 
