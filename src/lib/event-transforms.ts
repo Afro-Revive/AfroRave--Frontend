@@ -308,6 +308,8 @@ export function transformServiceToCreateRequest(
     category: formData.vendor.baseVendorDetails.category,
     description: formData.vendor.baseVendorDetails.description,
     eventId,
+    hideSocialLinks: false,
+    applicationDeadline: new Date().toISOString(),
     vendorDetails: {
       slotData: {
         slotName:
@@ -354,6 +356,7 @@ export function transformServiceToCreateRequest(
             : new Date().toISOString(),
       },
       contact: {
+        useDifferentContactDetails: formData.vendor.baseVendorDetails.useDifferentContactDetails || false,
         email: formData.vendor.baseVendorDetails?.email || '',
         phoneNumbers:
           formData.vendor.baseVendorDetails?.phone?.map(
@@ -377,11 +380,13 @@ export function transformSlotToCreateRequest(
   }
 
   // Convert form data to API format for each slot
-  return formData.slot.map((slot) => ({
+return formData.slot.map((slot) => ({
     vendorType: mapVendorType(slot.type),
     category: slot.category,
     description: slot.description,
     eventId,
+    hideSocialLinks: false,
+    applicationDeadline: new Date().toISOString(),
     vendorDetails: {
       slotData: {
         slotName: slot.name,
@@ -398,6 +403,7 @@ export function transformSlotToCreateRequest(
       contact: {
         email: formData.email,
         phoneNumbers: formData.phone.map((phone) => `${phone.countryCode}${phone.number}`),
+        useDifferentContactDetails: formData.useDifferentContactDetails || false,
       },
     },
   }))

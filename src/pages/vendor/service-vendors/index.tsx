@@ -7,7 +7,6 @@ import { useEventSelectorStore } from "@/stores";
 import CreateVendorSlot from "../component/create-vendor-slot-modal";
 import { VendorSlot } from "@/types/vendor";
 import { PaginatedResponse } from "@/types";
-import { MdStorefront } from "react-icons/md";
 
 export default function ServiceVendorPage() {
   const { selectedEventId } = useEventSelectorStore();
@@ -33,14 +32,17 @@ export default function ServiceVendorPage() {
 
       <div className="w-full h-full flex flex-col pt-10 pb-14 px-5">
         <div className="w-full h-full bg-white flex flex-col gap-2.5 rounded-[4px]">
-
           {serviceSlots.length > 0 ? (
             <div></div>
           ) : (
             <div className="w-full h-full flex flex-col justify-center items-center gap-3">
-              <MdStorefront size={40} color="#ae2323" />
+              <img
+                src="/public/assets/event/document.svg"
+                alt="Empty State"
+                className="w-12 h-12"
+              />
               <p className="text-light-red text-xl font-sf-pro-display">
-                No Service Slots Created
+                No Offers Created
               </p>
               <p className="text-soft-gray text-base font-sf-pro-display">
                 Create your first offer to start receiving applications

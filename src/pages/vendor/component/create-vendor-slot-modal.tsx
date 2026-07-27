@@ -21,7 +21,8 @@ import { useCreateVendor } from "@/hooks/use-event-mutations";
 import { useEventSelectorStore } from "@/stores";
 import {
   africanCountryCodes,
-  categoryOptions,
+  serviceVendorCategoryOptions,
+  revenueVendorCategoryOptions
 } from "@/pages/creators/add-event/constant";
 import type { CreateVendorRequest } from "@/types/event";
 import { PriceField } from "@/pages/creators/add-event/component/price-field";
@@ -101,6 +102,14 @@ export default function CreateVendorSlot({ type }: CreateVendorSlotProps) {
     const current = Number(form.getValues("slotNumber")) || 0;
     form.setValue("slotNumber", String(Math.max(current - 1, 0)));
   }
+
+  const category = useWatch({ control: form.control, name: "category" });
+  const categoryOptions = isRevenue
+    ? revenueVendorCategoryOptions
+    : serviceVendorCategoryOptions;
+  const selectedCategory = categoryOptions.find(
+    (option) => option.value === category
+  );
 
   const price = useWatch({ control: form.control, name: "price" });
   const minBudget = useWatch({ control: form.control, name: "minBudget" });
@@ -232,6 +241,11 @@ export default function CreateVendorSlot({ type }: CreateVendorSlotProps) {
                   triggerClassName="w-full text-black !bg-white px-3 rounded-[4px] border border-mid-dark-gray/50 text-sm font-sf-pro-display uppercase"
                 />
               </FormField>
+              {selectedCategory && (
+                <p className="text-xs normal-case leading-[130%] text-mid-dark-gray font-sf-pro-display -mt-3">
+                  {selectedCategory.description}
+                </p>
+              )}
 
               {isRevenue ? (
                 <p className="font-inter uppercase text-base font-medium text-system-black">

@@ -14,13 +14,15 @@ import {
   type UseFormReturn,
   type FieldValues,
   type FieldPathValue,
+  useWatch,
 } from 'react-hook-form'
 import { SelectField } from '../component/select-field'
 import { SkipBtn } from '../component/skip-btn'
 import { TabContainer } from '../component/tab-ctn'
 import {
   africanCountryCodes,
-  categoryOptions,
+  revenueVendorCategoryOptions,
+  serviceVendorCategoryOptions,
   vendorCheckboxData as checkboxData,
 } from '../constant'
 import { unifiedVendorSchema, type VendorSchema } from '../schemas/vendor-service-schema'
@@ -58,6 +60,19 @@ export default function VendorForm({
   const form = useForm<VendorSchema>({
     resolver: zodResolver(unifiedVendorSchema),
   })
+
+  const vendorType = useWatch({ control: form.control, name: 'vendor.type' })
+  const category = useWatch({
+    control: form.control,
+    name: 'vendor.baseVendorDetails.category',
+  })
+  const categoryOptions =
+    vendorType === 'revenue_vendor'
+      ? revenueVendorCategoryOptions
+      : serviceVendorCategoryOptions
+  const selectedCategory = categoryOptions.find(
+    (option) => option.value === category,
+  )
 
   const startTime = form.watch('vendor.startTime')
   const stopTime = form.watch('vendor.stopTime')
@@ -225,6 +240,11 @@ export default function VendorForm({
             triggerClassName='w-full uppercase bg-[#FAFAFA] border-[#E5E5E5]'
             data={categoryOptions}
           />
+          {selectedCategory && (
+            <p className='text-[13px] normal-case leading-[130%] text-mid-dark-gray font-sf-pro-display -mt-3'>
+              {selectedCategory.description}
+            </p>
+          )}
 
           <div className='flex flex-col gap-4'>
             <p className='text-xl font-sf-pro-text text-black leading-[100%]'>
