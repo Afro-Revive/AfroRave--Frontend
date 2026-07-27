@@ -283,6 +283,7 @@ export interface VendorServiceData {
 }
 
 export interface VendorContact {
+  useDifferentContactDetails?: boolean
   email: string | null
   phoneNumbers: string[] | null
 }
@@ -299,6 +300,8 @@ export interface CreateVendorRequest {
   description: string
   eventId: string
   vendorDetails: VendorDetails
+  hideSocialLinks: boolean
+  applicationDeadline: string
 }
 
 // Promo code creation interfaces

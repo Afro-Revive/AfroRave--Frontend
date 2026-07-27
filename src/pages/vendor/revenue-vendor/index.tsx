@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import VendorSelect from '@/components/shared/vendor-select'
 import { Upload } from 'lucide-react'
 import { AddFilterBUtton } from '@/pages/creators/standalone/components/add-filter-btn'
-import { DestructiveAddBtn } from '@/pages/creators/_components/destructive-add-btn'
+import CreateVendorSlot from '../component/create-vendor-slot-modal'
 import { cn } from '@/lib/utils'
 
 export default function RevenueVendorPage() {
@@ -20,7 +20,7 @@ export default function RevenueVendorPage() {
 
           <VendorSelect />
 
-          <DestructiveAddBtn name='Slot' />
+          <CreateVendorSlot type='Revenue' />
         </div>
       </div>
 

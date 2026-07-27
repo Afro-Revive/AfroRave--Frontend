@@ -74,7 +74,7 @@ const DialogContent = React.forwardRef<
             className={cn(
               "z-50 font-bold opacity-90 transition-opacity hover:opacity-100 focus:outline-none disabled:pointer-events-none",
               floatingCancel
-                ? "absolute top-4 right-4 md:top-6 md:right-6 p-2 bg-white/10 hover:bg-white/20 rounded-full backdrop-blur-sm text-white cursor-pointer"
+                ? "absolute top-4 right-4 md:top-6 md:right-6 p-2 text-black cursor-pointer"
                 : "w-full flex justify-end px-10 pt-6"
             )}
             onClick={(e) => e.stopPropagation()}
@@ -91,7 +91,7 @@ const DialogContent = React.forwardRef<
           onClick={(e) => e.stopPropagation()}
           style={{ WebkitTapHighlightColor: 'transparent' }}
         >
-          <X className="h-5 w-5 md:h-6 md:w-6 text-white font-bold" />
+          <X className="h-5 w-5 md:h-6 md:w-6 text-black font-bold" />
           <span className="sr-only">Close</span>
         </DialogPrimitive.Close>
       )}

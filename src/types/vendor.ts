@@ -23,6 +23,39 @@ export interface VendorCategory {
     label: string
 }
 
+export interface VendorSlotRequest{
+  vendorType: string,
+  category: string,
+  description: string,
+  eventId: string,
+  vendorDetails: {
+    slotData: {
+      slotName: string,
+      slotNumber: 0,
+      price: 0,
+      applicationDeadline: string
+    },
+    serviceData: {
+      serviceName: string,
+      hasBudgetRange: boolean,
+      minBudget: 0,
+      maxBudget: 0,
+      startTime: string,
+      stopTime: string,
+      startDate: string,
+      endDate: string,
+      applicationDeadline: string
+    },
+    contact: {
+      useDifferentContactDetails: boolean,
+      email: string,
+      phoneNumbers: string[]
+    },
+    hideSocialLinks: true,
+    applicationDeadline: string
+  }
+}
+
 export const VENDOR_CATEGORIES: VendorCategory[] = [
     { value: 'food_beverage', label: 'Food & Beverage' },
     { value: 'merchandise', label: 'Merchandise & Apparel' },

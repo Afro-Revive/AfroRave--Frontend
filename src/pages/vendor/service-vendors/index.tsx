@@ -4,7 +4,7 @@ import { VendorItem } from '../component/vendor-item'
 import { AddFilterBUtton } from '@/pages/creators/standalone/components/add-filter-btn'
 import { ExportButton } from '../component/export-btn'
 import VendorSelect from '@/components/shared/vendor-select'
-import { DestructiveAddBtn } from '@/pages/creators/_components/destructive-add-btn'
+import CreateVendorSlot from '../component/create-vendor-slot-modal'
 
 export default function ServiceVendorPage() {
   return (
@@ -15,7 +15,7 @@ export default function ServiceVendorPage() {
         <div className='flex items-center gap-2 md:gap-8'>
           <ExportButton />
           <VendorSelect />
-          <DestructiveAddBtn special name='Create Offer' />
+          <CreateVendorSlot type='Service' />
         </div>
       </div>
 

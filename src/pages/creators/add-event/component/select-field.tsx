@@ -12,6 +12,7 @@ export function SelectField<T extends FieldValues>({
   label,
   className,
   triggerClassName,
+  showMessage,
 }: {
   form: UseFormReturn<T>
   name: Path<T>
@@ -20,9 +21,16 @@ export function SelectField<T extends FieldValues>({
   label?: string
   className?: string
   triggerClassName?: string
+  showMessage?: boolean
 }) {
   return (
-    <FormField form={form} name={name} label={label} className={className}>
+    <FormField
+      form={form}
+      name={name}
+      label={label}
+      className={className}
+      showMessage={showMessage}
+    >
       {(field) => (
         <BaseSelect
           type='auth'
