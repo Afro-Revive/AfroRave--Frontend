@@ -1,3 +1,4 @@
+import { ApiResponse } from "./api"
 export interface VendorRegistration {
     firstName: string
     lastName: string
@@ -22,6 +23,49 @@ export interface VendorCategory {
     value: string
     label: string
 }
+
+
+// Vendor Slots Response for GET /api/Event/{eventId}/vendor-slots
+export interface VendorSlot {
+  vendorId: string
+  vendorType: 'Revenue' | 'Service'
+  category: string
+  vendorCategory: string
+  vendorName: string
+  description: string
+  contactEmail: string
+  contactPhone: string
+  eventId: string
+  eventName: string
+  vendorDetails: {
+    slotData: {
+      slotName: string
+      slotNumber: number
+      price: number
+      applicationDeadline: string
+    }
+    serviceData: {
+      serviceName: string
+      hasBudgetRange: boolean
+      minBudget: number
+      maxBudget: number
+      startTime: string
+      stopTime: string
+      startDate: string
+      endDate: string
+      applicationDeadline: string
+    }
+     contact: {
+      useDifferentContactDetails: boolean,
+      email: string,
+      phoneNumbers: string[]
+    },
+    hideSocialLinks: true,
+    applicationDeadline: string
+  }
+}
+
+export type VendorSlotsResponse = ApiResponse<VendorSlot[]>
 
 export interface VendorSlotRequest{
   vendorType: string,

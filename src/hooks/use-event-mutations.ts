@@ -404,3 +404,11 @@ export function useGetVendorAvailableEvents() {
     queryFn: () => vendorService.getAvailableEvents(),
   })
 }
+
+export function useGetAllVendorSlots(eventId: string) {
+  return useQuery({
+    queryKey: eventKeys.vendorSlots(eventId),
+    queryFn: () => vendorService.getAllVendorSlots(eventId),
+    enabled: !!eventId,
+  })
+}

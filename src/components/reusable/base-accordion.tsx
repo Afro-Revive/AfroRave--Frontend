@@ -14,6 +14,7 @@ export function BaseAccordion({
   children,
   isActive,
   icon,
+  triggerClassName,
 }: IBaseAccordion) {
   return (
     <Accordion type="single" collapsible>
@@ -24,28 +25,34 @@ export function BaseAccordion({
         })}
       >
         <AccordionTrigger
-          className={cn("hover:no-underline", {
-            "items-center justify-between h-[64px] px-6 [&>svg]:hidden":
-              style === "dashboard",
-          })}
+          className={cn(
+            "hover:no-underline",
+            {
+              "items-center justify-between h-[64px] px-6 [&>svg]:hidden":
+                style === "dashboard",
+            },
+            triggerClassName,
+          )}
         >
-          <div className="flex items-center gap-2.5">
+          <div className={cn("flex items-center", { "gap-2.5": icon })}>
             {/* Icon — turns red when active, gray when not */}
-            <span className={cn({
-              "text-deep-red": isActive && style === "dashboard",
-              "text-black/40": !isActive && style === "dashboard",
-            })}>
-              {icon}
-            </span>
+            {icon && (
+              <span className={cn({
+                "text-deep-red": isActive && style === "dashboard",
+                "text-system-black": !isActive && style === "dashboard",
+              })}>
+                {icon}
+              </span>
+            )}
             {/* Text — always black, dims slightly when inactive */}
             <p className={cn("font-['Inter'] uppercase", {
               "text-[14px] font-normal tracking-normal leading-none text-[#1E1E1E]": style === "dashboard",
-              "opacity-40": !isActive && style === "dashboard",
+              "": !isActive && style === "dashboard",
             })}>{trigger}</p>
           </div>
 
-          <div className="flex w-fit h-fit text-black/40">
-            <Plus color="currentColor" className="size-[13px]" />
+          <div className="flex w-fit h-fit text-system-black">
+            <Plus color="currentColor" className="size-[15px]" />
           </div>
         </AccordionTrigger>
         <AccordionContent className="flex flex-col p-0">
@@ -65,4 +72,5 @@ interface IBaseAccordion {
   children?: React.ReactNode;
   isActive?: boolean;
   icon?: React.ReactNode;
+  triggerClassName?: string;
 }

@@ -1,6 +1,5 @@
 import { useParams } from "react-router-dom";
 import { slots } from "@/data/slots";
-import { SearchData } from "../../component/search-data";
 import { IndividualVendorItem } from "../../component/individual-vendor-item";
 import { Button } from "@/components/ui/button";
 import { AddFilterBUtton } from "@/pages/creators/standalone/components/add-filter-btn";
@@ -33,9 +32,8 @@ export default function IndividualSlots() {
 
       <div className="w-full h-full flex flex-col pt-10 pb-14 px-5">
         <div className="w-full h-full bg-white flex flex-col gap-2.5 rounded-[4px]">
-          <SearchData />
 
-          <div className="w-full flex flex-col">
+          <div className="w-full h-full flex flex-col">
             {slot ? (
               <>
                 {slot.vendors.map((item) => (
@@ -43,9 +41,19 @@ export default function IndividualSlots() {
                 ))}
               </>
             ) : (
-              <p className="text-black w-full text-center opacity-60">
-                No Vendors Found!
-              </p>
+              <div className="w-full h-full flex flex-col items-center justify-center">
+                <img
+                  src="/public/assets/event/stopwatch.svg"
+                  alt="Empty State"
+                  className="w-12 h-12"
+                />
+                <p className="text-center text-[#00AD2E] text-xl font-sf-pro-display mt-4">
+                  Application Is Ongoing.
+                </p>
+                <p className="text-center font-sf-pro-display text-soft-gray text-base">
+                  No vendors have applied for this slot yet. You’ll see all incoming requests here.
+                </p>
+              </div>
             )}
           </div>
         </div>

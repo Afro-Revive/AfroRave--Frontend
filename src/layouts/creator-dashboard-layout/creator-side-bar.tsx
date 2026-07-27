@@ -7,8 +7,84 @@ import { ToolsIcon } from "@/components/icons/tools";
 
 import { CreatorSettingsModal } from "@/pages/creators/standalone/components/creator-settings-modal";
 import { Settings } from "lucide-react";
+import { useEventSelectorStore } from "@/stores";
+import { useGetAllVendorSlots } from "@/hooks/use-event-mutations";
+import type { PaginatedResponse } from "@/types";
+import type { VendorSlot } from "@/types/vendor";
 
 export default function CreatorSidebar() {
+  const { selectedEventId } = useEventSelectorStore();
+  const { data: slotsResponse } = useGetAllVendorSlots(selectedEventId ?? "");
+
+  const paginated = slotsResponse?.data as
+    | PaginatedResponse<VendorSlot[]>
+    | undefined;
+  const vendorSlots = (paginated?.items as VendorSlot[] | undefined) ?? [];
+
+  const revenueSlots = vendorSlots.filter(
+    (slot) => slot.vendorType === "Revenue"
+  );
+  const serviceSlots = vendorSlots.filter(
+    (slot) => slot.vendorType === "Service"
+  );
+
+  const creator_sidebar_links: ICreatorSidebarLinks[] = [
+    {
+      trigger: { icon: <CalendarIcon />, text: "EVENTS" },
+      links: [
+        { path: getRoutePath("standalone"), name: "STANDALONE" },
+        { path: getRoutePath("season"), name: "SEASON" },
+      ],
+    },
+    {
+      trigger: { icon: <ChartIcon />, text: "ANALYTICS" },
+      links: [
+        { path: getRoutePath("reports"), name: "REPORTS" },
+        { path: getRoutePath("charts"), name: "CHARTS" },
+        { path: getRoutePath("realtime"), name: "REALTIME" },
+      ],
+    },
+    {
+      trigger: { icon: <VendorIcon />, text: "VENDOR" },
+      links: [
+        {
+          path: getRoutePath("revenue_vendor"),
+          name: "REVENUE VENDOR",
+          subLinks: revenueSlots.length
+            ? revenueSlots.map((slot) => ({
+                path: getRoutePath("revenue_vendor_slot", {
+                  slotId: slot.vendorId,
+                }),
+                name: slot.vendorDetails.slotData.slotName,
+                category: slot.vendorCategory,
+              }))
+            : undefined,
+        },
+        {
+          path: getRoutePath("service_vendor"),
+          name: "SERVICE VENDOR",
+          subLinks: serviceSlots.length
+            ? serviceSlots.map((slot) => ({
+                path: getRoutePath("service_vendor_slot", {
+                  slotId: slot.vendorId,
+                }),
+                name: slot.vendorDetails.serviceData.serviceName,
+                category: slot.vendorCategory,
+              }))
+            : undefined,
+        },
+      ],
+    },
+    {
+      trigger: { icon: <ToolsIcon />, text: "TOOLS" },
+      links: [
+        { path: getRoutePath("access_control"), name: "ACCESS CONTROL" },
+        { path: getRoutePath("promo_codes"), name: "PROMO CODES" },
+        { path: getRoutePath("seating_maps"), name: "SEATING MAPS" },
+      ],
+    },
+  ];
+
   return (
     <BaseSideBar
       className="pt-24 sticky top-0"
@@ -29,40 +105,11 @@ export default function CreatorSidebar() {
   );
 }
 
-const creator_sidebar_links: ICreatorSidebarLinks[] = [
-  {
-    trigger: { icon: <CalendarIcon />, text: "EVENTS" },
-    links: [
-      { path: getRoutePath("standalone"), name: "STANDALONE" },
-      { path: getRoutePath("season"), name: "SEASON" },
-    ],
-  },
-  {
-    trigger: { icon: <ChartIcon />, text: "ANALYTICS" },
-    links: [
-      { path: getRoutePath("reports"), name: "REPORTS" },
-      { path: getRoutePath("charts"), name: "CHARTS" },
-      { path: getRoutePath("realtime"), name: "REALTIME" },
-    ],
-  },
-  {
-    trigger: { icon: <VendorIcon />, text: "VENDOR" },
-    links: [
-      { path: getRoutePath("revenue_vendor"), name: "REVENUE VENDOR" },
-      { path: getRoutePath("service_vendor"), name: "SERVICE VENDOR" },
-    ],
-  },
-  {
-    trigger: { icon: <ToolsIcon />, text: "TOOLS" },
-    links: [
-      { path: getRoutePath("access_control"), name: "ACCESS CONTROL" },
-      { path: getRoutePath("promo_codes"), name: "PROMO CODES" },
-      { path: getRoutePath("seating_maps"), name: "SEATING MAPS" },
-    ],
-  },
-];
-
 export interface ICreatorSidebarLinks {
   trigger: { icon: React.ReactNode; text: string };
-  links: { path: string; name: string }[];
+  links: {
+    path: string;
+    name: string;
+    subLinks?: { path: string; category: string; name: string }[];
+  }[];
 }

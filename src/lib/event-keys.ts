@@ -12,4 +12,5 @@ export const eventKeys = {
   promoCodes: (eventId: string) => [...eventKeys.detail(eventId), 'promocodes'] as const,
   vendors: (eventId: string) => [...eventKeys.detail(eventId), 'vendors'] as const,
   vendorAvailable: () => [...eventKeys.all, 'vendor', 'available'] as const,
+  vendorSlots: (eventId: string) => [...eventKeys.detail(eventId), 'vendor-slots'] as const,
 }
