@@ -1,6 +1,6 @@
 import type { VendorAvailableEventsResponse } from "@/types";
 import api from "./http.service";
-import { VendorSlotRequest, VendorSlotsResponse } from "@/types/vendor";
+import { VendorSlotApplicationsResponse, VendorSlotRequest, VendorSlotsResponse } from "@/types/vendor";
 
 // Vendor service class
 class VendorService {
@@ -31,6 +31,16 @@ class VendorService {
     const response = await api.post("/api/Event/vendor", data);
     return response.data;
   }
+
+  /**
+   * Get all vendor applications for a specific event
+   */
+
+  async getAllVendorApplications(eventId: string): Promise<VendorSlotApplicationsResponse> {
+    const response = await api.get(`/api/Event/${eventId}/vendor-applications`);
+    return response.data;
+  }
+
 }
 
 // Export service instance

@@ -1,22 +1,14 @@
 import { VendorItem } from "../component/vendor-item";
 import { AddFilterBUtton } from "@/pages/creators/standalone/components/add-filter-btn";
 import { ExportButton } from "../component/export-btn";
-import VendorSelect from "@/components/shared/vendor-select";
-import { useGetAllVendorSlots } from "@/hooks/use-event-mutations";
+import EventSelect from "@/components/shared/vendor-select";
+import { useVendorSlotsByType } from "@/hooks/use-vendor-mutation";
 import { useEventSelectorStore } from "@/stores";
 import CreateVendorSlot from "../component/create-vendor-slot-modal";
-import { VendorSlot } from "@/types/vendor";
-import { PaginatedResponse } from "@/types";
 
 export default function ServiceVendorPage() {
   const { selectedEventId } = useEventSelectorStore();
-  const { data: slotsResponse } = useGetAllVendorSlots(selectedEventId ?? "");
-  const slots = slotsResponse?.data as
-    | PaginatedResponse<VendorSlot[]>
-    | undefined;
-  const slotsData = slots?.items as VendorSlot[] | undefined;
-  const serviceSlots =
-    slotsData?.filter((slot) => slot.vendorType === "Service") || [];
+  const { serviceSlots } = useVendorSlotsByType(selectedEventId ?? "");
 
   return (
     <section className="w-full h-full flex flex-col items-center">
@@ -25,7 +17,7 @@ export default function ServiceVendorPage() {
 
         <div className="flex items-center gap-2 md:gap-8">
           <ExportButton />
-          <VendorSelect />
+          <EventSelect />
           <CreateVendorSlot type="Service" />
         </div>
       </div>

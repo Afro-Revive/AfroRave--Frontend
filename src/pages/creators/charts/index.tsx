@@ -4,7 +4,7 @@ import { AddFilterBUtton } from '@/pages/creators/standalone/components/add-filt
 import { Download } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import VendorSelect from '@/components/shared/vendor-select'
+import EventSelect from '@/components/shared/vendor-select'
 import { useEventSelectorStore } from '@/stores'
 import { useGetOrganizerEvents } from '@/hooks/use-event-mutations'
 import { EventData, PaginatedResponse } from '@/types'
@@ -96,7 +96,7 @@ function ChartHeader() {
           <span className='font-medium text-xs font-sf-pro-rounded text-black'>Download</span>
         </Button>
 
-        <VendorSelect />
+        <EventSelect />
       </div>
     </div>
   )

@@ -180,7 +180,7 @@ DESCRIBE WHAT THIS TICKET INCLUDES.`}
           variant='ghost'
           type='button'
           onClick={() => setOpenAdvancedOptions(!openAdvancedOptions)}
-          className='w-fit flex items-center gap-1 !px-1 text-charcoal'>
+          className='w-fit flex items-center gap-1 !px-1 text-charcoal hover:bg-transparent'>
           <ChevronDown width={28} height={17} />
           <span className='font-bold font-sf-pro-display leading-[100%] uppercase'>
             Advanced Options

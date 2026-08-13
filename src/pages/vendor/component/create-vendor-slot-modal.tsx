@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, useWatch } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { getRoutePath } from "@/config/get-route-path";
 import BaseModal from "@/components/reusable/base-modal";
 import { BaseSelect } from "@/components/reusable/base-select";
 import { FormBase } from "@/components/reusable/base-form";
@@ -46,6 +48,7 @@ export default function CreateVendorSlot({ type }: CreateVendorSlotProps) {
   const [open, setOpen] = useState(false);
   const { selectedEventId } = useEventSelectorStore();
   const createVendorMutation = useCreateVendor();
+  const navigate = useNavigate();
   const isRevenue = type === "Revenue";
   const label = isRevenue ? "Slot" : "Offer";
 
@@ -171,10 +174,20 @@ export default function CreateVendorSlot({ type }: CreateVendorSlotProps) {
         : "",
     };
 
-    console.log("Submitting vendor data:", data);
-
     createVendorMutation.mutate(data, {
-      onSuccess: () => handleClose(false),
+      onSuccess: (response) => {
+        handleClose(false);
+
+        const createdVendor = response.data as { vendorId?: string } | undefined;
+        if (createdVendor?.vendorId) {
+          navigate(
+            getRoutePath(
+              isRevenue ? "revenue_vendor_slot" : "service_vendor_slot",
+              { slotId: createdVendor.vendorId }
+            )
+          );
+        }
+      },
     });
   }
 

@@ -155,7 +155,7 @@ export default function PromoCodeForm({
   };
 
   return (
-    <div className="w-full flex flex-col gap-8">
+    <div className="w-full flex flex-col gap-6">
       <TabContainer<{ promoCodes: TPromoCodeSchema }>
         heading="CREATE PROMO CODES"
         description="CODE NAMES MUST BE UNIQUE PER EVENT"
@@ -165,7 +165,7 @@ export default function PromoCodeForm({
       >
         {createdPromoCodesData?.items &&
           createdPromoCodesData.items.length > 0 && (
-            <div className="w-full flex flex-col gap-3">
+            <div className="w-full flex flex-col gap-3 mb-6">
               {createdPromoCodesData.items.map((promoCode) => (
                 <CreatedPromoCard
                   key={promoCode.promoCode}
@@ -365,7 +365,7 @@ export function PromoCodeFormFields({
           {(field) => <BaseBooleanCheckbox data={checkboxData[1]} {...field} />}
         </FormField>
 
-        <div className="mb-5">
+        <div className="mb-2">
           <OnlyShowIf
             condition={
               form.getValues("promoCodes.conditions.spend.minimum") || false
@@ -381,7 +381,7 @@ export function PromoCodeFormFields({
           {(field) => <BaseBooleanCheckbox data={checkboxData[2]} {...field} />}
         </FormField>
 
-        <div className="mb-5">
+        <div className="mb-2">
           <OnlyShowIf
             condition={
               form.getValues("promoCodes.conditions.tickets.minimum") || false
@@ -536,6 +536,7 @@ function CreatedPromoCard({
   isDeleting,
   isUpdating,
 }: ICreatedPromoCode) {
+  console.log("Rendering CreatedPromoCard for promoCode:", promoCode);
   return (
     <div className="w-full flex flex-col">
       <div className="w-full border border-mid-dark-gray/30 px-4 py-3 shadow-sm rounded-lg bg-white flex items-center justify-between">
@@ -545,7 +546,7 @@ function CreatedPromoCard({
           </p>
           <div className="flex items-center gap-2 text-[10px] font-medium text-[#686868] font-sf-pro-display uppercase">
             <p>
-              {promoCode.discountType === "percentage"
+              {promoCode.discountType === "Percentage"
                 ? `${promoCode.discountValue}% OFF`
                 : `$${promoCode.discountValue} OFF`}
             </p>

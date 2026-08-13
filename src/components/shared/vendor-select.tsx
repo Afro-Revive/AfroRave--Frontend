@@ -12,11 +12,11 @@ import type { PaginatedResponse } from '@/types/api'
 import type { EventData } from '@/types'
 import { useEffect } from 'react'
 
-interface VendorSelectProps {
+interface EventSelectProps {
   className?: string
 }
 
-export default function VendorSelect({ className }: VendorSelectProps) {
+export default function EventSelect({ className }: EventSelectProps) {
   const { data: response, isPending } = useGetOrganizerEvents()
   const { selectedEventId, setSelectedEventId } = useEventSelectorStore()
 

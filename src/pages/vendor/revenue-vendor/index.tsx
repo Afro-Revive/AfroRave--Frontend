@@ -1,26 +1,17 @@
-import { useGetAllVendorSlots } from "@/hooks/use-event-mutations";
+import { useVendorSlotsByType } from "@/hooks/use-vendor-mutation";
 import { MdStorefront } from "react-icons/md";
 import { VendorItem } from "../component/vendor-item";
 import { Button } from "@/components/ui/button";
-import VendorSelect from "@/components/shared/vendor-select";
+import EventSelect from "@/components/shared/vendor-select";
 import { Upload } from "lucide-react";
 import { AddFilterBUtton } from "@/pages/creators/standalone/components/add-filter-btn";
 import CreateVendorSlot from "../component/create-vendor-slot-modal";
 import { cn } from "@/lib/utils";
 import { useEventSelectorStore } from "@/stores";
-import type { VendorSlot } from "@/types/vendor";
-import { PaginatedResponse } from "@/types";
 
 export default function RevenueVendorPage() {
   const { selectedEventId } = useEventSelectorStore();
-  const { data: slotsResponse } = useGetAllVendorSlots(selectedEventId ?? "");
-  const slots = slotsResponse?.data as
-    | PaginatedResponse<VendorSlot[]>
-    | undefined;
-  const slotsData = slots?.items as VendorSlot[] | undefined;
-  const revenueSlots =
-    slotsData?.filter((slot) => slot.vendorType === "Revenue") || [];
-  console.log("Revenue Vendor Slots:", revenueSlots); // Log the revenue slots for debugging
+  const { revenueSlots } = useVendorSlotsByType(selectedEventId ?? "");
 
   return (
     <section className="w-full h-full flex flex-col items-center">
@@ -31,7 +22,7 @@ export default function RevenueVendorPage() {
           <SectionMapBtn type="upload" />
           <SectionMapBtn type="edit" />
 
-          <VendorSelect />
+          <EventSelect />
 
           <CreateVendorSlot type="Revenue" />
         </div>

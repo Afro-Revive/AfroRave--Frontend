@@ -100,13 +100,13 @@ export default function EventDetailsTab({ setStep, setActiveTabState }: IEventDe
       className='max-w-[560px] w-full flex flex-col gap-8 space-y-0'
       form={form}
       onSubmit={onSubmit}>
-      <FakeDataGenerator
+      {/* <FakeDataGenerator
         type='eventDetails'
         onGenerate={form.reset}
         buttonText='🎲 Fill with sample data'
         variant='outline'
         className='mb-4'
-      />
+      /> */}
       <FormFieldWithCounter
         name='EVENT NAME'
         field_name='name'

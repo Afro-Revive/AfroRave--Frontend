@@ -108,7 +108,7 @@ export default function CreateTicketForm({
         form={form}
         onSubmit={handleSubmit}
         actionOnError={showError}>
-        {currentTicketType && (
+        {/* {currentTicketType && (
           <FakeDataGenerator
             type='tickets'
             onGenerate={handleFillSampleData}
@@ -116,10 +116,10 @@ export default function CreateTicketForm({
             variant='outline'
             className='mb-4'
           />
-        )}
+        )} */}
 
         <AnimatedShowIf condition={savedTickets.length > 0}>
-          <div className='w-full flex flex-col gap-3'>
+          <div className='w-full flex flex-col gap-3 mb-6'>
             {savedTickets.map((ticket: SavedTicket, idx: number) => (
               <CreatedTicketCard
                 key={`created-${ticket.ticketId}-${idx}`}

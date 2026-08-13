@@ -8,24 +8,12 @@ import { ToolsIcon } from "@/components/icons/tools";
 import { CreatorSettingsModal } from "@/pages/creators/standalone/components/creator-settings-modal";
 import { Settings } from "lucide-react";
 import { useEventSelectorStore } from "@/stores";
-import { useGetAllVendorSlots } from "@/hooks/use-event-mutations";
-import type { PaginatedResponse } from "@/types";
-import type { VendorSlot } from "@/types/vendor";
+import { useVendorSlotsByType } from "@/hooks/use-vendor-mutation";
 
 export default function CreatorSidebar() {
   const { selectedEventId } = useEventSelectorStore();
-  const { data: slotsResponse } = useGetAllVendorSlots(selectedEventId ?? "");
-
-  const paginated = slotsResponse?.data as
-    | PaginatedResponse<VendorSlot[]>
-    | undefined;
-  const vendorSlots = (paginated?.items as VendorSlot[] | undefined) ?? [];
-
-  const revenueSlots = vendorSlots.filter(
-    (slot) => slot.vendorType === "Revenue"
-  );
-  const serviceSlots = vendorSlots.filter(
-    (slot) => slot.vendorType === "Service"
+  const { revenueSlots, serviceSlots } = useVendorSlotsByType(
+    selectedEventId ?? ""
   );
 
   const creator_sidebar_links: ICreatorSidebarLinks[] = [

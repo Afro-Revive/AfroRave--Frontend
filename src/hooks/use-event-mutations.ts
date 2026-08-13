@@ -1,6 +1,5 @@
 import { eventKeys } from '@/lib/event-keys'
 import { eventService } from '@/services/event.service'
-import { vendorService } from '@/services/vendor.service'
 import type {
   CreateEventRequest,
   CreatePromoCodeRequest,
@@ -398,17 +397,4 @@ export function useGetTrendingEvents() {
   })
 }
 
-export function useGetVendorAvailableEvents() {
-  return useQuery({
-    queryKey: eventKeys.vendorAvailable(),
-    queryFn: () => vendorService.getAvailableEvents(),
-  })
-}
 
-export function useGetAllVendorSlots(eventId: string) {
-  return useQuery({
-    queryKey: eventKeys.vendorSlots(eventId),
-    queryFn: () => vendorService.getAllVendorSlots(eventId),
-    enabled: !!eventId,
-  })
-}

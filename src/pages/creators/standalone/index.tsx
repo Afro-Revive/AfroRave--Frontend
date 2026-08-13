@@ -1,7 +1,7 @@
 import { LoadingFallback } from '@/components/loading-fallback'
 import { BasePopover } from '@/components/reusable'
 import { DashboardCardSkeleton, DashboardCards } from '@/components/shared/dashboard-cards'
-import VendorSelect from '@/components/shared/vendor-select'
+import EventSelect from '@/components/shared/vendor-select'
 import { Button } from '@/components/ui/button'
 import { getRoutePath } from '@/config/get-route-path'
 import { useGetEvent, useGetOrganizerEvents } from '@/hooks/use-event-mutations'
@@ -93,7 +93,7 @@ function StandAloneHeader({
       <AddFilterBUtton activeFilter={activeFilter} onFilterChange={onFilterChange} />
 
       <div className='flex items-center gap-2 md:gap-4 lg:gap-8'>
-        <VendorSelect className='!w-fit sm:!w-[155px] md:!w-fit' />
+        <EventSelect className='!w-fit sm:!w-[155px] md:!w-fit' />
 
         <Button variant='destructive' className='h-9 px-3 rounded-[6px] gap-1.5' asChild>
           <Link to={getRoutePath('add_event')}>
