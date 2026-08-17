@@ -25,6 +25,7 @@ import VendorDashboardLayout from './layouts/vendor-dashboard-layout'
 
 const AddEventPage = lazy(() => import('./pages/creators/add-event'))
 const SlotDetailsPage = lazy(() => import('./pages/vendor/slots/slot-details'))
+const VendorEventDetailsPage = lazy(() => import('./pages/vendor/discover/event-details'))
 const CompleteProfilePage = lazy(() => import('./pages/fans/complete-profile'))
 const PaymentConfirmationPage = lazy(() => import('./pages/landing-page/payment-confirmation'))
 
@@ -81,6 +82,17 @@ function AppRoutes() {
           <VendorAuthGuard>
             <Suspense fallback={<LoadingFallback />}>
               <SlotDetailsPage />
+            </Suspense>
+          </VendorAuthGuard>
+        }
+      />
+
+      <Route
+        path={getRoutePath('vendor_event_details', { eventId: ':eventId' })}
+        element={
+          <VendorAuthGuard>
+            <Suspense fallback={<LoadingFallback />}>
+              <VendorEventDetailsPage />
             </Suspense>
           </VendorAuthGuard>
         }

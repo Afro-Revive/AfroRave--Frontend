@@ -7,8 +7,7 @@ import { Bookmark } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import WishListBtn from '../component/wishlist-button'
 import { useAfroStore } from '@/stores'
-import type { VendorAvailableEventData } from '@/types'
-
+import type { PaginatedResponse, VendorAvailableEventData } from '@/types'
 const SKELETON_IDS = ['1', '2', '3', '4', '5', '6']
 
 function useProfileCompletion() {
@@ -34,8 +33,9 @@ export default function VendorDiscoverPage() {
   const { data: response, isPending: isLoading } = useGetVendorAvailableEvents()
   console.log(response)
 
-  const events = response?.data as VendorAvailableEventData[] | undefined
-
+  const events = response?.data as PaginatedResponse<VendorAvailableEventData[]> | undefined
+  const availableEvents = events?.items as VendorAvailableEventData[] | undefined
+  console.log('availableEvents', availableEvents)
   if (isLoading) {  
     return (
       <section className='w-full h-full flex flex-col justify-start items-start px-[1px]'>
@@ -85,10 +85,9 @@ export default function VendorDiscoverPage() {
           Discover events near you!
         </h2>
 
-        {events && events.length > 0 ? (
+        {availableEvents && availableEvents.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
-            {events.map((event) => {
-              const availableSlots = (event.totalTicket || 0) - (event.ticketSold || 0)
+            {availableEvents.map((event) => {
               const isEnded = new Date(event.endDate) < new Date()
 
               return (
@@ -98,7 +97,7 @@ export default function VendorDiscoverPage() {
                   image={event.metadata.desktopMedia.flyer}
                   name={event.eventName}
                   startDate={event.startDate}
-                  availableSlots={availableSlots > 0 ? availableSlots : 0}
+                  availableSlots={event.availableSlot}
                   status={isEnded ? 'ended' : undefined}
                 />
               )
@@ -127,7 +126,6 @@ function DiscoverCard({ eventId, image, name, startDate, availableSlots, status 
         status={status}
         cardButtons={[
           { Icon: Bookmark, alt: 'Bookmark' },
-          { src: '/assets/dashboard/creator/ellipses.png', alt: 'Ellipses' },
         ]}
         cardInfo={[
           <p key="available_slots" className="font-sf-pro-rounded text-xs text-mid-dark-gray">

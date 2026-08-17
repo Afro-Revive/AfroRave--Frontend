@@ -8,7 +8,6 @@ import { getRoutePath } from './get-route-path'
 const ProfilePage = lazy(() => import('../pages/vendor/profile'))
 const DiscoverPage = lazy(() => import('../pages/vendor/discover'))
 const WishlistPage = lazy(() => import('../pages/vendor/wishlist'))
-const VendorEventDetailsPage = lazy(() => import('../pages/vendor/discover/event-details'))
 const SlotsPage = lazy(() => import('../pages/vendor/slots'))
 
 export const vendor_dashboard_routes: RouteObject[] = [
@@ -38,16 +37,6 @@ export const vendor_dashboard_routes: RouteObject[] = [
       <VendorAuthGuard>
         <Suspense fallback={<LoadingFallback />}>
           <WishlistPage />
-        </Suspense>
-      </VendorAuthGuard>
-    ),
-  },
-  {
-    path: getRoutePath('vendor_event_details', { eventId: ':eventId' }),
-    element: (
-      <VendorAuthGuard>
-        <Suspense fallback={<LoadingFallback />}>
-          <VendorEventDetailsPage />
         </Suspense>
       </VendorAuthGuard>
     ),

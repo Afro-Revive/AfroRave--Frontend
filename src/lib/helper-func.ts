@@ -83,6 +83,11 @@ export function capitalizeFirstLetter(str: string): string {
   return firstLetter + restOfString
 }
 
+export function stripUnderscores(str?: string): string {
+  if (!str) return ''
+  return str.replace(/_/g, ' ').replace(/\b\w/g, (match) => match.toUpperCase())
+}
+
 export function toDashCase(str: string): string {
   return (
     str

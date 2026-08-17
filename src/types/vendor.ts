@@ -1,3 +1,5 @@
+import { ApiResponse } from "./api"
+
 export interface VendorRegistration {
     firstName: string
     lastName: string
@@ -33,3 +35,47 @@ export const VENDOR_CATEGORIES: VendorCategory[] = [
     { value: 'technology', label: 'Technology & Electronics' },
     { value: 'other', label: 'Other' },
 ]
+
+// Vendor Slot Data for GET /api/Event/{eventId}/vendor-slots
+export interface VendorSlot {
+    vendorId: string
+    vendorType: string
+    category: string
+    vendorCategory: string
+    vendorName: string
+    description: string
+    contactEmail: string
+    contactPhone: string
+    eventId: string
+    eventName: string
+    status: string
+    vendorDetails: {
+        slotData: {
+            slotName: string
+            slotNumber: number
+            price: number
+            applicationDeadline: string
+        }
+        serviceData: {
+            serviceName: string
+            hasBudgetRange: boolean
+            minBudget: number
+            maxBudget: number
+            startTime: string
+            stopTime: string
+            startDate: string
+            endDate: string
+            applicationDeadline: string
+        }
+        contact: {
+            useDifferentContactDetails: boolean
+            email: string
+            phoneNumbers: string[]
+        }
+        hideSocialLinks: boolean
+        status: string
+        applicationDeadline: string
+    }
+}
+
+export type VendorAvailableEvents = ApiResponse<VendorSlot[]>

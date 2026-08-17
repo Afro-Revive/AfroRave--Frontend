@@ -363,6 +363,7 @@ export interface CreateThemeRequest {
 export interface VendorAvailableEventData {
   eventId: string
   eventName: string
+  availableSlot: number;
   venue: string
   category: string
   vendorType: string

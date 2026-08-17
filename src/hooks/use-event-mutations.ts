@@ -432,3 +432,13 @@ export function useGetVendorAvailableEvents() {
     queryFn: () => vendorService.getAvailableEvents(),
   })
 }
+
+export function useGetVendorSlots(eventId?: string) {
+  return useQuery({
+    queryKey: eventKeys.vendorSlots(eventId || ''),
+    queryFn: () => {
+      if (!eventId) throw new Error('Event ID is required')
+      return vendorService.getVendorSlots(eventId)
+    },
+    enabled: !!eventId,
+  })}
