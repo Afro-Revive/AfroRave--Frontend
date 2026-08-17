@@ -40,6 +40,13 @@ import { formatNaira } from "@/lib/format-price";
 const BUDGET_MAX = 1_000_000;
 const BUDGET_STEP = 5_000;
 
+function formatTime(
+  time: { hour?: string; minute?: string; period?: string } | undefined
+): string | null {
+  if (!time?.hour || !time.minute || !time.period) return null;
+  return `${time.hour}:${time.minute} ${time.period}`;
+}
+
 interface CreateVendorSlotProps {
   type: "Revenue" | "Service";
 }
@@ -152,15 +159,25 @@ export default function CreateVendorSlot({ type }: CreateVendorSlotProps) {
           slotNumber:
             isRevenue && values.slotNumber ? Number(values.slotNumber) : null,
           price: isRevenue && values.price ? Number(values.price) : null,
+          applicationDeadline: isRevenue && values.applicationDeadline
+            ? values.applicationDeadline
+            : null,
         },
         serviceData: {
           serviceName: isRevenue ? null : (values.serviceName ?? null),
+          hasBudgetRange: !isRevenue && !!(values.minBudget || values.maxBudget),
           minBudget:
             !isRevenue && values.minBudget ? Number(values.minBudget) : null,
           maxBudget:
             !isRevenue && values.maxBudget ? Number(values.maxBudget) : null,
+          startTime: isRevenue ? null : formatTime(values.startTime),
+          stopTime: isRevenue ? null : formatTime(values.stopTime),
           startDate: isRevenue ? null : values.startDate || null,
           endDate: isRevenue ? null : values.endDate || null,
+          applicationDeadline:
+            !isRevenue && values.applicationDeadline
+              ? values.applicationDeadline
+              : null,
         },
         contact: {
           useDifferentContactDetails: values.useDifferentContact || false,

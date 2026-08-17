@@ -77,28 +77,35 @@ export interface User {
   profile: {
     firstName: string
     lastName: string
+    gender?: string | null
+    state?: string | null
+    country?: string | null
+    phoneNumber?: string | null
+    businessName?: string | null
+    companyName?: string | null
+    description?: string | null
+    profilePicture?: string | null
+    vendorType?: string | null
+    category?: string | null
+    vendorCategory?: string | null
+    gallery?: string[] | null
+    businessData?: {
+      portfolio: {
+        webUrl?: string
+        fileUrl?: string
+      }
+      socials: {
+        facebook: string
+        instagram: string
+        x: string
+        linkedIn: string
+        tikTok: string
+        youTube: string
+        socialLink: string
+      }
+    } | null
   }
   messages: number
-  telphone?: string
-  gender?: string
-  dateOfBirth?: string
-  country?: string
-  state?: string
-  description?: string
-  profilePicture?: string
-  gallery?: string[]
-  businessName?: string
-  vendorType?: string
-  category?: string
-  website?: string
-  portfolio?: string
-  socialLinks?: {
-    instagram?: string
-    twitter?: string
-    facebook?: string
-    linkedin?: string
-  }
-  companyName?: string
   isEmailVerified?: boolean
   createdAt?: string
   updatedAt?: string

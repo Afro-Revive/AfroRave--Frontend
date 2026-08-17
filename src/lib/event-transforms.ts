@@ -1,6 +1,5 @@
 import type { unifiedTicketFormSchema } from '@/pages/creators/add-event/schemas/ticket-schema'
 import type { VendorSchema } from '@/pages/creators/add-event/schemas/vendor-service-schema'
-import type { slotSchema } from '@/pages/creators/add-event/schemas/vendor-slot-schema'
 import type { EditEventDetailsSchema } from '@/schema/edit-event-details'
 import type {
   CreateEventRequest,
@@ -308,8 +307,6 @@ export function transformServiceToCreateRequest(
     category: formData.vendor.baseVendorDetails.category,
     description: formData.vendor.baseVendorDetails.description,
     eventId,
-    hideSocialLinks: false,
-    applicationDeadline: new Date().toISOString(),
     vendorDetails: {
       slotData: {
         slotName:
@@ -324,12 +321,15 @@ export function transformServiceToCreateRequest(
           formData.vendor.type === 'revenue_vendor' && formData.vendor.price_per_slot
             ? Number(formData.vendor.price_per_slot)
             : 0,
+      applicationDeadline: formData.vendor.type === 'revenue_vendor' ? formData.vendor.baseVendorDetails.deadline : null,
+        
       },
       serviceData: {
         serviceName:
           formData.vendor.type === 'service_vendor' && formData.vendor.service_name
             ? formData.vendor.service_name
             : '',
+        hasBudgetRange: formData.vendor.type === 'service_vendor' && Number(formData?.vendor?.budget?.maxBudget) > 0,
         minBudget:
           formData.vendor.type === 'service_vendor' && formData.vendor.budget.minBudget
             ? Number(formData.vendor.budget.minBudget)
@@ -338,22 +338,23 @@ export function transformServiceToCreateRequest(
           formData.vendor.type === 'service_vendor' && formData.vendor.budget.maxBudget
             ? Number(formData.vendor.budget.maxBudget)
             : 0,
-        startDate:
-          formData.vendor.type === 'service_vendor' && formData.vendor.startTime
-            ? `${new Date().toISOString().split('T')[0]}T${convertTo24Hour(
+        startTime: formData.vendor.type === 'service_vendor' && formData.vendor.startTime
+            ? convertTo24Hour(
                 formData.vendor.startTime.hour,
                 formData.vendor.startTime.minute,
                 formData.vendor.startTime.period,
-              )}:00`
-            : new Date().toISOString(),
-        endDate:
-          formData.vendor.type === 'service_vendor' && formData.vendor.stopTime
-            ? `${new Date().toISOString().split('T')[0]}T${convertTo24Hour(
+              )
+            : '',
+        stopTime: formData.vendor.type === 'service_vendor' && formData.vendor.stopTime
+            ? convertTo24Hour(
                 formData.vendor.stopTime.hour,
                 formData.vendor.stopTime.minute,
                 formData.vendor.stopTime.period,
-              )}:00`
-            : new Date().toISOString(),
+              )
+            : '',
+        startDate: null,
+        endDate: null,
+        applicationDeadline: formData.vendor.type === 'service_vendor' ? formData.vendor.baseVendorDetails.deadline : null,
       },
       contact: {
         useDifferentContactDetails: formData.vendor.baseVendorDetails.useDifferentContactDetails || false,
@@ -364,49 +365,9 @@ export function transformServiceToCreateRequest(
           ) || [],
       },
     },
+    hideSocialLinks: !formData.vendor.baseVendorDetails.showSocialHandles,
+    applicationDeadline: formData.vendor.baseVendorDetails.deadline.toISOString(),
   }
-}
-
-/**
- * Transform form data from SlotForm to CreateVendorRequest format
- */
-export function transformSlotToCreateRequest(
-  formData: z.infer<typeof slotSchema>,
-  eventId: string,
-): CreateVendorRequest[] {
-  // Map vendor type from form string to API literal type
-  const mapVendorType = (type: string): 'Revenue' | 'Service' => {
-    return type === 'revenue_vendor' ? 'Revenue' : 'Service'
-  }
-
-  // Convert form data to API format for each slot
-return formData.slot.map((slot) => ({
-    vendorType: mapVendorType(slot.type),
-    category: slot.category,
-    description: slot.description,
-    eventId,
-    hideSocialLinks: false,
-    applicationDeadline: new Date().toISOString(),
-    vendorDetails: {
-      slotData: {
-        slotName: slot.name,
-        slotNumber: Number.parseInt(slot.slotAmount, 10),
-        price: Number.parseFloat(slot.pricePerSlot),
-      },
-      serviceData: {
-        serviceName: '', // Not applicable for slots
-        minBudget: 0,
-        maxBudget: 0,
-        startDate: new Date().toISOString(),
-        endDate: new Date().toISOString(),
-      },
-      contact: {
-        email: formData.email,
-        phoneNumbers: formData.phone.map((phone) => `${phone.countryCode}${phone.number}`),
-        useDifferentContactDetails: formData.useDifferentContactDetails || false,
-      },
-    },
-  }))
 }
 
 // /**

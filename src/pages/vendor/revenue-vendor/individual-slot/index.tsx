@@ -1,35 +1,58 @@
 import { useParams } from "react-router-dom";
 import { IndividualVendorItem } from "../../component/individual-vendor-item";
-import { useEventSelectorStore } from '@/stores'
-import { Button } from "@/components/ui/button";
-import { AddFilterBUtton } from "@/pages/creators/standalone/components/add-filter-btn";
+import { useEventSelectorStore } from "@/stores";
+import {
+  useGetVendorSlotById,
+  useGetAllVendorApplications,
+} from "@/hooks/use-vendor-mutation";
 import { BackButton } from "../../component/back-btn";
 import EventSelect from "@/components/shared/vendor-select";
-import { useVendorApplicationsByType} from "@/hooks/use-vendor-mutation";
+import CreateVendorSlot from "../../component/create-vendor-slot-modal";
+import EditVendorSlotModal from "../../component/edit-vendor-slot-modal";
+import { VendorSlot, VendorSlotApplication } from "@/types/vendor";
+import { PaginatedResponse } from "@/types";
+import { LoadingFallback } from "@/components/loading-fallback";
 
 export default function IndividualSlots() {
   const { slotId } = useParams();
+  const { data: slotData, isLoading: isSlotLoading } = useGetVendorSlotById(
+    slotId ?? "",
+  );
   const { selectedEventId } = useEventSelectorStore();
-  const { revenueApplications } = useVendorApplicationsByType(selectedEventId ?? "");
-  const slot = revenueApplications.find((item) => item.vendorId === slotId);
+  const { data: applicationsData, isLoading: isApplicationsLoading } =
+    useGetAllVendorApplications(selectedEventId ?? "");
+  const applications = applicationsData?.data as
+    | PaginatedResponse<VendorSlotApplication>
+    | undefined;
+  const revenueApplications = applications?.items ?? [];
+  const slot = slotData?.data as VendorSlot | undefined;
+  console.log(slot);
+  if (isSlotLoading || isApplicationsLoading) {
+    return <LoadingFallback />;
+  }
 
   return (
     <section className="w-full h-full flex flex-col items-center">
       <div className="w-full flex items-center justify-between bg-white h-14 px-8 border-l border-light-gray">
         <div className="flex items-center gap-4">
-          <div className="flex items-center gap-3">
-            <BackButton name={slot ? slot.vendorBusinessName : "Slot name"} />
-          </div>
+          {/* <div className="flex items-center gap-3">
+            <BackButton name={slot ? slot.vendorName : "Slot name"} />
+          </div> */}
           <p className="font-inter text-sm font-medium text-mid-dark-gray">
             Event:
           </p>
           <EventSelect />
         </div>
+        {/** For now hardcoding it but the application status should be dynamic
+        based on the slot status */}
+        <p className="font-inter text-sm font-semibold text-[#00AD2E]">
+          Application Ongoing
+        </p>
 
-        <div>
-
+        <div className="flex items-center gap-3">
+          <EditVendorSlotModal type="Revenue" slot={slot} />
+          <CreateVendorSlot type="Revenue" />
         </div>
-
         {/* 
         <div className="flex items-center gap-8">
           <Button
@@ -48,7 +71,7 @@ export default function IndividualSlots() {
           <div className="w-full h-full flex flex-col">
             {revenueApplications.length > 0 ? (
               <>
-                {/* {revenueApplications.map((item) => (
+                {/* {applicationsForSlot?.map((item) => (
                   <IndividualVendorItem key={item.vendorId} logoUrl={item.logoUrl}  />
                 ))} */}
               </>

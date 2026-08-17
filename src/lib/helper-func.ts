@@ -98,6 +98,11 @@ export function toDashCase(str: string): string {
   )
 }
 
+export function stripUnderscores(str?: string): string {
+  if (!str) return ''
+  return str.replace(/_/g, ' ')
+}
+
 // snake_case, kebab-case, camelCase, PascalCase, chunk, debounce, range
 
 export function getGreeting(): string {

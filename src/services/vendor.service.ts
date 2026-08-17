@@ -41,6 +41,14 @@ class VendorService {
     return response.data;
   }
 
+  /**
+   * Get a specific event's vendor slot by its ID
+   */
+  async getVendorSlotById(vendorId: string): Promise<VendorSlotsResponse> {
+    const response = await api.get(`/api/Event/vendor/${vendorId}`);
+    return response.data;
+  }
+
 }
 
 // Export service instance

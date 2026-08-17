@@ -141,27 +141,27 @@ export interface VendorSlotRequest {
   vendorDetails: {
     slotData: {
       slotName: string;
-      slotNumber: 0;
-      price: 0;
-      applicationDeadline: string;
+      slotNumber: number;
+      price: number;
+      applicationDeadline?: Date | null;
     };
     serviceData: {
       serviceName: string;
       hasBudgetRange: boolean;
-      minBudget: 0;
-      maxBudget: 0;
+      minBudget: number;
+      maxBudget: number;
       startTime: string;
       stopTime: string;
-      startDate: string;
-      endDate: string;
-      applicationDeadline: string;
+      startDate?: string;
+      endDate?: string;
+      applicationDeadline: Date | null;
     };
     contact: {
       useDifferentContactDetails: boolean;
       email: string;
       phoneNumbers: string[];
     };
-    hideSocialLinks: true;
+    hideSocialLinks: boolean;
     applicationDeadline: string;
   };
 }

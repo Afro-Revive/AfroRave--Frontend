@@ -14,6 +14,7 @@ import type { ICreatorSidebarLinks } from "@/layouts/creator-dashboard-layout/cr
 import { useLocation } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { stripUnderscores } from "@/lib/helper-func";
 
 function isPathActive(pathname: string, path: string) {
   return pathname === path || pathname.startsWith(`${path}/`);
@@ -183,7 +184,7 @@ function AccordionSidebarMenuItem({
                         {sub.name}
                         {sub.category && (
                           <span className="text-xs font-inter text-gray-500">
-                            {sub.category}
+                            {stripUnderscores(sub.category)}
                           </span>
                         )}
                       </div>

@@ -69,37 +69,34 @@ function ProfileSection({ user }: { user: User | null }) {
     let score = 0;
 
     if (user.profile.firstName) score++;
-    if (user.businessName || user.companyName) score++;
-    if (user.telphone) score++;
+    if (user.profile.businessName || user.profile.companyName) score++;
+    if (user.profile.phoneNumber) score++;
     if (user.email) score++;
-    if (user.gender) score++;
-    if (user.portfolio) score++;
+    if (user.profile.gender) score++;
+    if (user.profile.businessData?.portfolio.webUrl || user.profile.businessData?.portfolio.fileUrl) score++;
 
-    const hasSocials = user.socialLinks && Object.values(user.socialLinks).some(link => !!link);
+    const socials = user.profile.businessData?.socials;
+    const hasSocials = socials && Object.values(socials).some(link => !!link);
     if (hasSocials) score++;
 
-    if (user.description) score++;
-    if (user.profilePicture) score++;
-    if (user.gallery && user.gallery.length > 0) score++;
+    if (user.profile.description) score++;
+    if (user.profile.profilePicture) score++;
+    if (user.profile.gallery && user.profile.gallery.length > 0) score++;
 
     return (score / 10) * 100;
   };
 
   const completionPercentage = calculateCompletion();
-  const displayName = user?.businessName || user?.companyName || "Company Name";
+  const displayName = user?.profile.businessName || user?.profile.companyName || "Company Name";
 
   let completionText = "Let's Get Started!";
   if (completionPercentage >= 100) completionText = "Profile Complete!";
   else if (completionPercentage >= 80) completionText = "You're Almost Done!";
   else if (completionPercentage >= 40) completionText = "You're Getting There!";
 
-  // Check if socialLinks is a string (single URL) or object with multiple links
-  const isSocialLinksString = typeof user?.socialLinks === 'string';
-  const socialLinksObj = user?.socialLinks && !isSocialLinksString ? (user.socialLinks as any) : null;
-
-  const hasSocialLinks = isSocialLinksString
-    ? (user?.socialLinks && (user.socialLinks as string).trim() !== '')
-    : (socialLinksObj && Object.values(socialLinksObj).some((link: any) => link && link.trim() !== ''));
+  const portfolioUrl = user?.profile.businessData?.portfolio.webUrl || user?.profile.businessData?.portfolio.fileUrl;
+  const socialLinksObj = user?.profile.businessData?.socials;
+  const hasSocialLinks = socialLinksObj && Object.values(socialLinksObj).some(link => !!link && link.trim() !== '');
 
   return (
     <SectionContainer className="flex flex-col gap-5 relative border border-gray-100 shadow-sm h-full">
@@ -124,7 +121,7 @@ function ProfileSection({ user }: { user: User | null }) {
         <div className="flex items-start gap-4">
           <div className="size-[60px] md:size-[72px] rounded-full bg-black shrink-0 overflow-hidden border border-gray-200">
             <img
-              src={user?.profilePicture || "/assets/dashboard/store.png"}
+              src={user?.profile.profilePicture || "/assets/dashboard/store.png"}
               alt={displayName}
               className="w-full h-full object-cover p-3"
             />
@@ -140,7 +137,7 @@ function ProfileSection({ user }: { user: User | null }) {
               </span>
             </div>
 
-            <p className="text-[12px] md:text-[13px] text-[#828282]">{user?.vendorType || "Food & Drinks"}</p>
+            <p className="text-[12px] md:text-[13px] text-[#828282]">{user?.profile.vendorType || "Food & Drinks"}</p>
             <p className="text-[12px] md:text-[13px] text-[#828282] capitalize mb-2">
               {user?.profile.firstName} {user?.profile.lastName}
             </p>
@@ -156,7 +153,7 @@ function ProfileSection({ user }: { user: User | null }) {
         <div className="flex flex-col gap-4 mt-2">
           <div className="grid grid-cols-[90px_1fr] md:grid-cols-[110px_1fr] items-start text-[12px] md:text-[13px] font-sf-pro-display">
             <span className="text-[#4F4F4F]">Phone Number</span>
-            <span className="text-[#007AFF] truncate break-all">{user?.telphone || "+234 814 602 7405"}</span>
+            <span className="text-[#007AFF] truncate break-all">{user?.profile.phoneNumber || "+234 814 602 7405"}</span>
           </div>
 
           <div className="grid grid-cols-[90px_1fr] md:grid-cols-[110px_1fr] items-start text-[12px] md:text-[13px] font-sf-pro-display">
@@ -168,14 +165,14 @@ function ProfileSection({ user }: { user: User | null }) {
         <div className="flex flex-col gap-3 mt-1">
           <div className="grid grid-cols-[90px_1fr] md:grid-cols-[110px_1fr] items-center text-[12px] md:text-[13px] font-sf-pro-display">
             <span className="text-[#000000]">Portfolio</span>
-            {user?.portfolio ? (
+            {portfolioUrl ? (
               <a
-                href={user.portfolio.startsWith('http') ? user.portfolio : `https://${user.portfolio}`}
+                href={portfolioUrl.startsWith('http') ? portfolioUrl : `https://${portfolioUrl}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-[#007AFF] truncate break-all hover:underline text-[11px] md:text-[12px]"
               >
-                {user.portfolio}
+                {portfolioUrl}
               </a>
             ) : (
               <span className="text-[11px] md:text-[12px] text-[#828282]">No portfolio added</span>
@@ -186,55 +183,28 @@ function ProfileSection({ user }: { user: User | null }) {
             <span className="text-[#000000]">Socials</span>
             <div className="flex items-center gap-2.5 md:gap-3">
               {hasSocialLinks ? (
-                isSocialLinksString ? (
-                  // If socialLinks is a string (single URL), detect which platform
-                  <>
-                    {(user.socialLinks as string).includes('instagram') && (
-                      <a href={user.socialLinks as string} target="_blank" rel="noopener noreferrer" className="hover:opacity-70 transition-opacity">
-                        <Instagram size={16} className="text-black" strokeWidth={2} />
-                      </a>
-                    )}
-                    {(user.socialLinks as string).includes('twitter') && (
-                      <a href={user.socialLinks as string} target="_blank" rel="noopener noreferrer" className="hover:opacity-70 transition-opacity">
-                        <Twitter size={16} className="text-black" strokeWidth={2} fill="black" />
-                      </a>
-                    )}
-                    {(user.socialLinks as string).includes('facebook') && (
-                      <a href={user.socialLinks as string} target="_blank" rel="noopener noreferrer" className="hover:opacity-70 transition-opacity">
-                        <Facebook size={16} className="text-black" strokeWidth={2} />
-                      </a>
-                    )}
-                    {(user.socialLinks as string).includes('linkedin') && (
-                      <a href={user.socialLinks as string} target="_blank" rel="noopener noreferrer" className="hover:opacity-70 transition-opacity">
-                        <Linkedin size={16} className="text-black" strokeWidth={2} />
-                      </a>
-                    )}
-                  </>
-                ) : (
-                  // If socialLinks is an object with multiple platforms
-                  <>
-                    {socialLinksObj?.instagram && (
-                      <a href={socialLinksObj.instagram} target="_blank" rel="noopener noreferrer" className="hover:opacity-70 transition-opacity">
-                        <Instagram size={16} className="text-black" strokeWidth={2} />
-                      </a>
-                    )}
-                    {socialLinksObj?.twitter && (
-                      <a href={socialLinksObj.twitter} target="_blank" rel="noopener noreferrer" className="hover:opacity-70 transition-opacity">
-                        <Twitter size={16} className="text-black" strokeWidth={2} fill="black" />
-                      </a>
-                    )}
-                    {socialLinksObj?.facebook && (
-                      <a href={socialLinksObj.facebook} target="_blank" rel="noopener noreferrer" className="hover:opacity-70 transition-opacity">
-                        <Facebook size={16} className="text-black" strokeWidth={2} />
-                      </a>
-                    )}
-                    {socialLinksObj?.linkedin && (
-                      <a href={socialLinksObj.linkedin} target="_blank" rel="noopener noreferrer" className="hover:opacity-70 transition-opacity">
-                        <Linkedin size={16} className="text-black" strokeWidth={2} />
-                      </a>
-                    )}
-                  </>
-                )
+                <>
+                  {socialLinksObj?.instagram && (
+                    <a href={socialLinksObj.instagram} target="_blank" rel="noopener noreferrer" className="hover:opacity-70 transition-opacity">
+                      <Instagram size={16} className="text-black" strokeWidth={2} />
+                    </a>
+                  )}
+                  {socialLinksObj?.x && (
+                    <a href={socialLinksObj.x} target="_blank" rel="noopener noreferrer" className="hover:opacity-70 transition-opacity">
+                      <Twitter size={16} className="text-black" strokeWidth={2} fill="black" />
+                    </a>
+                  )}
+                  {socialLinksObj?.facebook && (
+                    <a href={socialLinksObj.facebook} target="_blank" rel="noopener noreferrer" className="hover:opacity-70 transition-opacity">
+                      <Facebook size={16} className="text-black" strokeWidth={2} />
+                    </a>
+                  )}
+                  {socialLinksObj?.linkedIn && (
+                    <a href={socialLinksObj.linkedIn} target="_blank" rel="noopener noreferrer" className="hover:opacity-70 transition-opacity">
+                      <Linkedin size={16} className="text-black" strokeWidth={2} />
+                    </a>
+                  )}
+                </>
               ) : (
                 <span className="text-[11px] md:text-[12px] text-[#828282]">No social links added</span>
               )}

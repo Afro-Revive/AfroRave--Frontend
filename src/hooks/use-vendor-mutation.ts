@@ -67,6 +67,14 @@ export function useVendorSlotsByType(eventId: string) {
   };
 }
 
+export function useGetVendorSlotById(vendorId: string) {
+  return useQuery({
+    queryKey: eventKeys.vendorSlotById(vendorId),
+    queryFn: () => vendorService.getVendorSlotById(vendorId),
+    enabled: !!vendorId,
+  });
+}
+
 export function useCreateVendorListing() {
   const queryClient = useQueryClient();
   return useMutation({

@@ -272,14 +272,19 @@ export interface VendorSlotData {
   slotName: string | null
   slotNumber: number | null
   price: number | null
+  applicationDeadline: Date | null
 }
 
 export interface VendorServiceData {
   serviceName: string | null
+  hasBudgetRange: boolean
   minBudget: number | null
   maxBudget: number | null
+  startTime: string | null
+  stopTime: string | null
   startDate: string | null
   endDate: string | null
+  applicationDeadline: Date | null
 }
 
 export interface VendorContact {

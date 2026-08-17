@@ -111,10 +111,14 @@ export function CreatorSettingsModal({ open, onOpenChange, customTrigger }: Crea
     // Profile form state — pre-filled from store, then overridden by API data
     const [firstName, setFirstName] = useState(user?.profile?.firstName || "")
     const [lastName, setLastName] = useState(user?.profile?.lastName || "")
-    const [gender, setGender] = useState(user?.gender || "")
-    const [companyName, setCompanyName] = useState(user?.companyName || "")
-    const [telphone, setTelphone] = useState(user?.telphone || "")
-    const [portfolioLink, setPortfolioLink] = useState(user?.website || user?.portfolio || "")
+    const [gender, setGender] = useState(user?.profile?.gender || "")
+    const [companyName, setCompanyName] = useState(user?.profile?.companyName || "")
+    const [telphone, setTelphone] = useState(user?.profile?.phoneNumber || "")
+    const [portfolioLink, setPortfolioLink] = useState(
+      user?.profile?.businessData?.portfolio?.webUrl ||
+        user?.profile?.businessData?.portfolio?.fileUrl ||
+        "",
+    )
     const [isPortfolioOpen, setIsPortfolioOpen] = useState(false)
 
     // Change password form state
