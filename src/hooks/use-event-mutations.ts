@@ -433,7 +433,7 @@ export function useGetVendorAvailableEvents() {
   })
 }
 
-export function useGetVendorSlots(eventId?: string) {
+export function useGetVendorSlots(eventId: string) {
   return useQuery({
     queryKey: eventKeys.vendorSlots(eventId || ''),
     queryFn: () => {
@@ -442,3 +442,10 @@ export function useGetVendorSlots(eventId?: string) {
     },
     enabled: !!eventId,
   })}
+
+export function useGetVendorApplications () {
+  return useQuery({
+    queryKey: eventKeys.vendorApplications() ,
+    queryFn: () => vendorService.getVendorApplications()
+  })
+}

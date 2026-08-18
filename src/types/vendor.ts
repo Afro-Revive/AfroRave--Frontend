@@ -78,4 +78,84 @@ export interface VendorSlot {
     }
 }
 
+export interface VendorApplications{
+    id: number
+    eventId: string
+    eventName: string
+    eventVenue: string
+    eventStartDate: string
+    eventVendorId: string
+    vendorType: string
+    category: string
+    description: string
+    vendorDetails: {
+         slotData: {
+            slotName: string
+            slotNumber: number
+            price: number
+            applicationDeadline: string
+        }
+         serviceData: {
+            serviceName: string
+            hasBudgetRange: boolean
+            minBudget: number
+            maxBudget: number
+            startTime: string
+            stopTime: string
+            startDate: string
+            endDate: string
+            applicationDeadline: string
+        }
+         contact: {
+            useDifferentContactDetails: boolean
+            email: string
+            phoneNumbers: string[]
+        }
+         hideSocialLinks: boolean
+        status: string
+        applicationDeadline: string
+    }
+    requestedSlots: number
+    status: string
+    message: string
+    createDate: string
+    updatedDate: string
+}
+
+export type VendorApplicationsResponse = ApiResponse<VendorApplications>
+
+export interface VendorApplicationRequest {
+    eventId: string
+    eventVendorId: string
+    requestedSlots: number
+    message: string
+    vendorType: string
+    category: string
+    description: string
+    vendorDetails: {
+         slotData: {
+            slotName: string
+            slotNumber: number
+            price: number
+            applicationDeadline: string
+        }
+        serviceData: {
+            serviceName: string
+            hasBudgetRange: boolean
+            minBudget: number
+            maxBudget: number
+            startTime: string
+            stopTime: string
+            startDate: string
+            endDate: string
+            applicationDeadline: string
+        }
+         contact: {
+            useDifferentContactDetails: boolean
+            email: string
+            phoneNumbers: string[]
+        }
+    }
+}
+
 export type VendorAvailableEvents = ApiResponse<VendorSlot[]>
