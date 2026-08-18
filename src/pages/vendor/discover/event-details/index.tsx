@@ -2,6 +2,9 @@ import { LoadingFallback } from "@/components/loading-fallback";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ChevronLeft, Info } from "lucide-react";
+import { SlotDescription } from "../../component/description-show-more";
+import RequestVendorSlotModal from "../../component/request-vendor-slot-modal";
+import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useGetEvent } from "@/hooks/use-event-mutations";
 import { cn } from "@/lib/utils";
@@ -22,6 +25,9 @@ export default function VendorEventDetailsPage() {
   const { data: eventResponse, isPending: isLoading } = useGetEvent(
     eventId || "",
   );
+  const app_percentage = import.meta.env.VITE_VENDOR_APPLICATIONS_PERCENTAGE;
+  const [openModal, setOpenModal] = useState(false)
+  const [selectedSlotId, setSelectedSlotId] = useState<string | null>(null)
   const { data: vendorSlotsResponse, isPending: isLoadingSlots } =
     useGetVendorSlots(eventId || "");
   const vendorSlots = vendorSlotsResponse?.data as
@@ -29,8 +35,22 @@ export default function VendorEventDetailsPage() {
     | undefined;
   const availableVendorSlots = vendorSlots?.items as VendorSlot[] | undefined;
   const event = eventResponse?.data as EventDetailData | undefined;
+  const selectedSlot = availableVendorSlots?.find(
+    (s) => s.vendorId === selectedSlotId,
+  );
 
-  if (isLoading) return <LoadingFallback />;
+  const revenuePrice = (price: number): string => {
+    let totalPrice = app_percentage * price
+    totalPrice += price
+    return formatNaira(totalPrice)
+  }
+
+  const handleSlotRequest = (slotId: string) => {
+    setSelectedSlotId(slotId)
+    setOpenModal(true)
+  }
+
+  if (isLoading && isLoadingSlots) return <LoadingFallback />;
 
   if (!event) {
     return (
@@ -82,7 +102,7 @@ export default function VendorEventDetailsPage() {
             </div>
 
             <div className="flex w-2/5 flex-col gap-2">
-              <h1 className="text-xl md:text-2xl text-black font-black font-sf-pro-display uppercase leading-tight">
+              <h1 className="text-xl md:text-3xl text-black font-black font-sf-pro-display uppercase leading-tight">
                 {event.eventName}
               </h1>
               <div className="flex flex-col text-sm md:text-base text-system-black font-sf-pro-display">
@@ -123,7 +143,7 @@ export default function VendorEventDetailsPage() {
         </div>
 
         {/* Right Column: Cards (Desktop) or swipeable row (Mobile) */}
-        <div className="md:w-[55%] w-full md:flex-1 md:min-w-0 flex flex-nowrap md:flex-wrap overflow-x-auto md:overflow-visible snap-x snap-mandatory md:snap-none scrollbar-none -mx-6 px-6 pb-2 md:mx-0 md:px-0 md:pb-0 md:content-start gap-4">
+        <div className="md:w-[55%] w-full md:flex-1 md:min-w-0 flex flex-nowrap md:flex-wrap overflow-x-auto md:overflow-x-visible md:overflow-y-auto md:max-h-[calc(100vh-140px)] snap-x snap-mandatory md:snap-none scrollbar-none -mx-6 px-6 pb-2 md:mx-0 md:px-0 md:pb-0 md:content-start gap-4">
           {isLoadingSlots ? (
             <Card className="w-full p-6 rounded-[20px] bg-white border-none shadow-xl h-48 animate-pulse" />
           ) : availableVendorSlots && availableVendorSlots.length > 0 ? (
@@ -137,7 +157,7 @@ export default function VendorEventDetailsPage() {
               return (
                 <Card
                   key={slot.vendorId}
-                  className="w-80 shrink-0 snap-center md:w-auto md:flex-1 md:min-w-65 md:max-w-80 md:shrink md:snap-align-none p-6 rounded-[20px] bg-white border-none shadow-sm flex flex-col gap-6"
+                  className="w-80 shrink-0 snap-center md:w-auto md:flex-1 md:min-w-65 md:max-w-80 md:shrink md:snap-align-none md:h-110 p-6 rounded-xl bg-white border-none shadow-sm flex flex-col gap-6"
                 >
                   <div className="flex flex-col items-center justify-center gap-2">
                     <div
@@ -165,7 +185,7 @@ export default function VendorEventDetailsPage() {
                       </span>
                       <span className="font-bold">
                         {isRevenue
-                          ? formatNaira(slot.vendorDetails.slotData.price)
+                          ? revenuePrice(slot.vendorDetails.slotData.price)
                           : slot.vendorDetails.serviceData.hasBudgetRange
                             ? `${formatNaira(slot.vendorDetails.serviceData.minBudget)} - ${formatNaira(slot.vendorDetails.serviceData.maxBudget)}`
                             : formatNaira(
@@ -173,6 +193,7 @@ export default function VendorEventDetailsPage() {
                               )}
                       </span>
                     </div>
+                    <SlotDescription description={slot.description} />
                     {isRevenue && (
                       <div className="flex justify-between items-center">
                         <span className="text-system-black">
@@ -210,6 +231,15 @@ export default function VendorEventDetailsPage() {
                       </div>
                     )}
                   </div>
+
+                  <Button
+                    variant={"secondary"}
+                    className="mt-auto font-sf-pro-text rounded-full uppercase text-xs"
+                    onClick={() => handleSlotRequest(slot.vendorId)}
+                    disabled={isEnded}
+                  >
+                    Request For {isRevenue ? "Slot" : "Offer"}
+                  </Button>
                 </Card>
               );
             })
@@ -219,7 +249,22 @@ export default function VendorEventDetailsPage() {
             </Card>
           )}
         </div>
+       
       </div>
+       <div className="py-8 px-5 flex justify-end">
+            <p className="font-sf-pro-display text-base text-black font-medium capitalize">
+                Contact Details arent shared until after payment has been approved
+            </p>
+        </div>
+
+      {selectedSlot && (
+        <RequestVendorSlotModal
+          isOpen={openModal}
+          onClose={() => setOpenModal(false)}
+          slot={selectedSlot}
+        />
+      )}
     </section>
   );
 }
+
