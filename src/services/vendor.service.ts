@@ -1,6 +1,6 @@
 import type { VendorAvailableEventsResponse } from '@/types'
 import api from './http.service'
-import { VendorApplicationsResponse, VendorAvailableEvents } from '@/types/vendor'
+import { VendorApplicationRequest, VendorApplicationsResponse, VendorAvailableEvents } from '@/types/vendor'
 
 // Vendor service class
 class VendorService {
@@ -37,7 +37,17 @@ class VendorService {
     const response = await api.get(`/api/Event/vendor/applications`)
     return response.data
   }
+
+  /**
+   * Apply for Event Vendor Slot
+   */
+
+  async applyVendorSlot (data: VendorApplicationRequest): Promise<void>{
+    const response = await api.post(`/api/Event/vendor/apply`, data)
+    return response.data
+  }
 }
+
 
 // Export service instance
 export const vendorService = new VendorService()

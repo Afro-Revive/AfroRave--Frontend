@@ -1,10 +1,7 @@
 import { CalendarIcon } from "@/components/icons/calendar";
-import { AddFilterBUtton } from "@/pages/creators/standalone/components/add-filter-btn";
-import { Link } from "react-router-dom";
 import { VendorSlotCardSkeleton } from "./components/vendor-slot-card-skeleton";
 import { VendorApplicationCard } from "./components/vendor-application-card";
 import { useGetVendorApplications } from "@/hooks/use-event-mutations";
-import { Bookmark } from "lucide-react";
 import { useWishlist } from "@/contexts/wishlist-context";
 import { PaginatedResponse } from "@/types";
 import { VendorApplications } from "@/types/vendor";

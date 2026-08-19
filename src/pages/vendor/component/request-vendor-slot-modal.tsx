@@ -3,7 +3,8 @@ import { Input } from "@/components/ui/input";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { useState } from "react";
 import { formatNaira } from "@/lib/format-price";
-import type { VendorSlot } from "@/types/vendor";
+import type { VendorApplicationRequest, VendorSlot } from "@/types/vendor";
+import { useApplyVendorSlot } from "@/hooks/use-event-mutations";
 import { cn } from "@/lib/utils";
 import { stripUnderscores } from "@/lib/helper-func";
 import { Button } from "@/components/ui/button";
@@ -20,6 +21,7 @@ export default function RequestVendorSlotModal({
   slot,
 }: RequestVendorSlotModalProps) {
   const app_percentage = import.meta.env.VITE_VENDOR_APPLICATIONS_PERCENTAGE;
+  const {mutate: applyVendorSlot} = useApplyVendorSlot()
   const isRevenue = slot.vendorType === "Revenue";
   const { slotData, serviceData } = slot.vendorDetails;
   const availableStalls = slotData?.slotNumber;
@@ -69,12 +71,41 @@ export default function RequestVendorSlotModal({
   }
 
   function handleSubmit() {
-    // No apply/request endpoint wired up yet — payload is ready for whenever it lands
-    console.log(
-      isRevenue
-        ? { vendorId: slot.vendorId, stallCount }
-        : { vendorId: slot.vendorId, price },
-    );
+    const payload: VendorApplicationRequest = {
+      eventId: slot.eventId,
+      eventVendorId: slot.vendorId,
+      requestedSlots: stallCount,
+      message: "",
+      vendorType: slot.vendorType,
+      category: slot.vendorCategory,
+      description: slot.description,
+      vendorDetails: {
+        slotData: {
+          slotName: slotData?.slotName ?? "",
+          slotNumber: stallCount,
+          price: slotData?.price ?? 0,
+          applicationDeadline: slotData?.applicationDeadline ?? "",
+        },
+        serviceData: {
+          serviceName: serviceData?.serviceName ?? "",
+          hasBudgetRange: serviceData?.hasBudgetRange ?? false,
+          minBudget: serviceData?.minBudget ?? 0,
+          maxBudget: serviceData?.maxBudget ?? 0,
+          startTime: serviceData?.startTime ?? "",
+          stopTime: serviceData?.stopTime ?? "",
+          startDate: serviceData?.startDate ?? "",
+          endDate: serviceData?.endDate ?? "",
+          applicationDeadline: serviceData?.applicationDeadline ?? "",
+        },
+        contact: {
+          useDifferentContactDetails: false,
+          email: slot.vendorDetails.contact.email ?? "",
+          phoneNumbers: slot.vendorDetails.contact.phoneNumbers ?? [],
+        }
+      }
+      
+    }
+    applyVendorSlot(payload)
     handleClose();
   }
 

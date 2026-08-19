@@ -8,6 +8,7 @@ import type {
   CreateTicketRequest,
   CreateVendorRequest,
 } from '@/types'
+import { VendorApplicationRequest } from '@/types/vendor'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 
@@ -447,5 +448,19 @@ export function useGetVendorApplications () {
   return useQuery({
     queryKey: eventKeys.vendorApplications() ,
     queryFn: () => vendorService.getVendorApplications()
+  })
+}
+
+export function useApplyVendorSlot () {
+   const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (data: VendorApplicationRequest) => vendorService.applyVendorSlot(data),
+    onSuccess: () => {
+      toast.success('Vendor application submitted successfully!')
+      queryClient.invalidateQueries({ queryKey: eventKeys.vendorApplications() })
+    },
+    onError: () => {
+      toast.error('Failed to submit vendor application.')
+    }
   })
 }
