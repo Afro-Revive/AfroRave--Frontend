@@ -8,32 +8,44 @@ import { VendorSlotCard } from "./vendor-slot-card";
 import { VendorSlotCardSkeleton } from "./vendor-slot-card-skeleton";
 
 interface VendorApplicationCardProps {
-  application: VendorApplications;
+  applications: VendorApplications[];
   isBookmarked: boolean;
   onBookmark: (e?: React.MouseEvent) => void;
 }
 
 export function VendorApplicationCard({
-  application,
+  applications,
   isBookmarked,
   onBookmark,
 }: VendorApplicationCardProps) {
-  const { data: eventResponse, isPending } = useGetEvent(application.eventId);
+
+  const primary = applications[0];
+  const { data: eventResponse, isPending } = useGetEvent(primary.eventId);
   const event = eventResponse?.data as EventDetailData | undefined;
 
   if (isPending) return <VendorSlotCardSkeleton />;
 
-  const isEnded = event ? new Date(event.eventDate.endDate) < new Date() : false;
-  const securedSlots = application.status === "Approved" ? application.requestedSlots : 0;
+  const isEnded = event
+    ? new Date(event.eventDate.endDate) < new Date()
+    : false;
+  const totalSlots = applications.reduce(
+    (sum, application) => sum + application.requestedSlots,
+    0,
+  );
+
+  // Calculate the total number of secured slots (applications with status "Approved")
+  const securedSlots = applications
+    .filter((application) => application.status === "Approved")
+    .reduce((sum, application) => sum + application.requestedSlots, 0);
 
   return (
-    <Link to={getRoutePath("vendor_slot_details", { eventId: application.eventId })}>
+    <Link to={getRoutePath("vendor_slot_details", { eventId: primary.eventId })}>
       <VendorSlotCard
         image={event?.eventDetails.desktopMedia?.flyer || "/placeholder.png"}
-        name={application.eventName}
+        name={primary.eventName}
         date={event ? formatEventDate(event.eventDate.startDate) : ""}
         securedSlots={securedSlots}
-        totalSlots={application.requestedSlots}
+        totalSlots={totalSlots}
         isEnded={isEnded}
         isBookmarked={isBookmarked}
         onBookmark={onBookmark}

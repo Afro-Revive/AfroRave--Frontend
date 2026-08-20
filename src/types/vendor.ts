@@ -127,7 +127,10 @@ export type VendorApplicationsResponse = ApiResponse<VendorApplications>
 export interface VendorApplicationRequest {
     eventId: string
     eventVendorId: string
+    vendorId: string
     requestedSlots: number
+    noOfRequestedSlots: number
+    priceOffer: number | null
     message: string
     vendorType: string
     category: string
@@ -155,6 +158,9 @@ export interface VendorApplicationRequest {
             email: string
             phoneNumbers: string[]
         }
+        hideSocialLinks: boolean
+        status: string
+        applicationDeadline: string
     }
 }
 

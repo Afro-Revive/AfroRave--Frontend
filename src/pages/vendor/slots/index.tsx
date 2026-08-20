@@ -8,12 +8,30 @@ import { VendorApplications } from "@/types/vendor";
 
 const SKELETON_COUNT = 8;
 
+// Group vendor applications by eventId
+// backend returns each individual application, but we want to group them by eventId for display purposes
+function groupApplicationsByEvent(applications: VendorApplications[]): VendorApplications[][] {
+  const groups = applications.reduce((acc, application) => {
+    const existing = acc.get(application.eventId);
+    if (existing) {
+      existing.push(application);
+    } else {
+      acc.set(application.eventId, [application]);
+    }
+    return acc;
+  }, new Map<string, VendorApplications[]>());
+
+  return Array.from(groups.values());
+}
+
 export default function VendorSlotPage() {
   const { data, isLoading } = useGetVendorApplications();
   const applications = data?.data as
     | PaginatedResponse<VendorApplications>
     | undefined;
   const vendorApplications = applications?.items;
+  const groupedApplications = vendorApplications ? groupApplicationsByEvent(vendorApplications) : [];
+  console.log("Grouped Applications:", groupedApplications);
   const { isBookmarked, toggleBookmark } = useWishlist();
 
   return (
@@ -31,22 +49,21 @@ export default function VendorSlotPage() {
       </div>
 
       <div className="w-full px-6 md:px-10 py-8">
-        {/* Responsive Grid: 1 col mobile, 2 col tablet, 3 col desktop, 4 col wide */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {isLoading ? (
             Array.from({ length: SKELETON_COUNT }).map((_, i) => (
               <VendorSlotCardSkeleton key={i} />
             ))
-          ) : vendorApplications && vendorApplications.length > 0 ? (
-            vendorApplications.map((application) => (
+          ) : groupedApplications.length > 0 ? (
+            groupedApplications.map((group) => (
               <VendorApplicationCard
-                key={application.id}
-                application={application}
-                isBookmarked={isBookmarked(application.eventId)}
+                key={group[0].eventId}
+                applications={group}
+                isBookmarked={isBookmarked(group[0].eventId)}
                 onBookmark={(e) => {
                   e?.preventDefault();
                   e?.stopPropagation();
-                  toggleBookmark(application.eventId);
+                  toggleBookmark(group[0].eventId);
                 }}
               />
             ))

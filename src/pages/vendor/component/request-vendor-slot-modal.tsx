@@ -1,7 +1,7 @@
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { formatNaira } from "@/lib/format-price";
 import type { VendorApplicationRequest, VendorSlot } from "@/types/vendor";
 import { useApplyVendorSlot } from "@/hooks/use-event-mutations";
@@ -32,9 +32,18 @@ export default function RequestVendorSlotModal({
   const [stallCount, setStallCount] = useState(1);
   const [price, setPrice] = useState(0);
 
+  // Resets stale state left over from a previously opened card whenever a
+  // different slot is passed in, without waiting an extra render for an effect.
+  const prevVendorIdRef = useRef(slot.vendorId);
+  if (prevVendorIdRef.current !== slot.vendorId) {
+    prevVendorIdRef.current = slot.vendorId;
+    setStallCount(1);
+    setPrice(0);
+  }
+
   function handleClose() {
     setStallCount(1);
-    setPrice(minBudget);
+    setPrice(0);
     onClose();
   }
 
@@ -75,6 +84,9 @@ export default function RequestVendorSlotModal({
       eventId: slot.eventId,
       eventVendorId: slot.vendorId,
       requestedSlots: stallCount,
+      noOfRequestedSlots: stallCount,
+      priceOffer: isRevenue ? null : price,
+      vendorId: slot.vendorId,
       message: "",
       vendorType: slot.vendorType,
       category: slot.vendorCategory,
@@ -101,7 +113,10 @@ export default function RequestVendorSlotModal({
           useDifferentContactDetails: false,
           email: slot.vendorDetails.contact.email ?? "",
           phoneNumbers: slot.vendorDetails.contact.phoneNumbers ?? [],
-        }
+        },
+        hideSocialLinks: slot.vendorDetails.hideSocialLinks ?? false,
+        status: slot.vendorDetails.status ?? "",
+        applicationDeadline: slot.vendorDetails.applicationDeadline ?? "",
       }
       
     }
@@ -197,6 +212,7 @@ export default function RequestVendorSlotModal({
                       type="number"
                       min={hasBudgetRange ? minBudget : 0}
                       max={hasBudgetRange ? maxBudget : undefined}
+                      value={price || ""}
                       onChange={handlePriceChange}
                       placeholder="Enter your price"
                       className="h-9 border-black/10 text-black"
@@ -225,6 +241,7 @@ export default function RequestVendorSlotModal({
             <Button
               type="button"
               variant={"secondary"}
+              disabled={isRevenue ? stallCount < 1 : price <= 0}
               onClick={handleSubmit}
               className="mt-auto font-sf-pro-text rounded-full uppercase text-xs"
             >

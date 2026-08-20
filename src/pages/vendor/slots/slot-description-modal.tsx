@@ -4,7 +4,7 @@ import {
     DialogContent,
     DialogClose,
 } from "@/components/ui/dialog"
-import { ChevronLeft, ChevronRight, X } from "lucide-react"
+import { X } from "lucide-react"
 import { useState } from "react"
 
 interface SlotDescriptionModalProps {
@@ -12,15 +12,14 @@ interface SlotDescriptionModalProps {
     onClose: () => void
     slotName: string
     price: string
-    eventName?: string // Added
+    description: string
+    eventName?: string
 }
 
-export function SlotDescriptionModal({ isOpen, onClose, slotName, price, eventName = "Blackmarket Flea" }: SlotDescriptionModalProps) {
+export function SlotDescriptionModal({ isOpen, onClose, slotName, price, description, eventName = "Blackmarket Flea" }: SlotDescriptionModalProps) {
+    console.log(price)
     const [quantity, setQuantity] = useState(1)
     const [view, setView] = useState<'description' | 'payment'>('description')
-
-    const increment = () => setQuantity(q => q + 1)
-    const decrement = () => setQuantity(q => (q > 1 ? q - 1 : 1))
 
     // Parse price to number
     const numericPrice = parseInt(price.replace(/[^0-9]/g, '')) || 0
@@ -59,19 +58,9 @@ export function SlotDescriptionModal({ isOpen, onClose, slotName, price, eventNa
                 {view === 'description' ? (
                     <>
                         <div className="flex-1 overflow-y-auto mb-6 pr-2">
-                            <h4 className="text-sm font-bold font-sf-pro-display text-[#1C1C1E] mb-2">Description</h4>
-                            <p className="text-sm font-sf-pro-text text-[#3A3A3C] leading-relaxed">
-                                We're looking for food vendors to serve a variety of delicious meals, snacks, or
-                                beverages to our attendees. This slot is ideal for mobile food trucks, grills, or
-                                packaged treats.
-                                <br />
-                                <br />
-                                What we're looking for:
-                                <br />
-                                • Quick-service or grab-and-go options
-                                <br />
-                                • Clean and appealing booth/truck setups...
-                            </p>
+                            <p className="text-sm text-gray-600 capitalize">
+                                {description}
+                                </p>
                         </div>
 
                         {/* Footer - Description View */}
@@ -79,15 +68,9 @@ export function SlotDescriptionModal({ isOpen, onClose, slotName, price, eventNa
                             {/* Quantity & Price */}
                             <div className="flex items-center gap-4">
                                 <div className="flex items-center gap-2">
-                                    <Button variant="ghost" size="icon" onClick={decrement} className="h-6 w-6 hover:bg-gray-100 rounded-full">
-                                        <ChevronLeft className="h-4 w-4 text-black" />
-                                    </Button>
                                     <span className="text-lg font-bold font-sf-pro-display text-black">x{quantity}</span>
-                                    <Button variant="ghost" size="icon" onClick={increment} className="h-6 w-6 hover:bg-gray-100 rounded-full">
-                                        <ChevronRight className="h-4 w-4 text-black" />
-                                    </Button>
                                 </div>
-                                <span className="text-lg font-medium font-sf-pro-display text-[#34C759]">₦{totalPrice}</span>
+                                <span className="text-lg font-medium font-sf-pro-display text-[#34C759]">{price}</span>
                             </div>
 
                             {/* Secure Slot Button */}
