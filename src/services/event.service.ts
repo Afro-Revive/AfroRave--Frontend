@@ -5,6 +5,7 @@ import type {
   CreateThemeRequest,
   CreateTicketRequest,
   CreateVendorRequest,
+  EventAnalyticsResponse,
   EventData,
   EventDetailResponse,
   EventPromoCodesResponse,
@@ -238,6 +239,14 @@ class EventService {
 
   async getEventByCustomUrl(customUrl: string): Promise<EventDetailResponse> {
     const response = await api.get(`/api/Event/url/${customUrl}`)
+    return response.data
+  }
+
+  /**
+   * Get event analytics using eventId
+   */
+  async getEventAnalytics(eventId: string): Promise<EventAnalyticsResponse> {
+    const response = await api.get(`/api/Analytics/organizer/dashboard/${eventId}`)
     return response.data
   }
 }

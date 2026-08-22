@@ -1,5 +1,8 @@
 import BaseAvatar from './base-avatar'
 import { BaseCarousel } from './base-carousel'
+import { BaseBarChart } from './charts/base-barchart'
+import { BaseLineChart } from './charts/base-linechart'
+import { BasePieChart } from './charts/base-piechart'
 import BaseDialog from './base-dialog'
 import BaseDropdown from './base-dropdown'
 import { FormBase, FormField, FormFooter } from './base-form'
@@ -21,5 +24,8 @@ export {
   BaseDropdown,
   BaseDialog,
   BaseAvatar,
+  BaseBarChart,
+  BaseLineChart,
+  BasePieChart,
   ComingSoon,
 }

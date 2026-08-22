@@ -27,8 +27,6 @@ export default function CreatorSidebar() {
     {
       trigger: { icon: <ChartIcon />, text: "ANALYTICS" },
       links: [
-        { path: getRoutePath("reports"), name: "REPORTS" },
-        { path: getRoutePath("charts"), name: "CHARTS" },
         { path: getRoutePath("realtime"), name: "REALTIME" },
       ],
     },

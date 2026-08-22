@@ -404,3 +404,28 @@ export interface VendorAvailableEventData {
 }
 
 export type VendorAvailableEventsResponse = ApiResponse<VendorAvailableEventData[]>
+
+
+export interface EventAnalyticsData {
+    totalRevenue: number
+    totalTicketsSold: number
+    totalAttendees: number
+    totalResales: number
+    promoCodesUsed: number
+    audienceInsights: {
+      ageGroups: {
+        ageRange: string
+        count: number
+      }[]
+      genders: {
+        gender: string
+        count: number
+      }[]
+      locations: {
+        location: string
+        count: number
+      }[]
+    }
+}
+
+export type EventAnalyticsResponse = ApiResponse<EventAnalyticsData>

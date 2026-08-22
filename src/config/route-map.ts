@@ -46,7 +46,6 @@ export const ROUTE_PATHS = {
   standalone: '/creators/standalone',
   season: '/creators/season',
   reports: '/creators/reports',
-  charts: '/creators/charts',
   realtime: '/creators/realtime',
   promo_codes: '/creators/promo-codes',
   edit_event: '/creators/edit/:eventId',
