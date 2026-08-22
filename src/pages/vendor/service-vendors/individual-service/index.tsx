@@ -14,19 +14,21 @@ import { LoadingFallback } from "@/components/loading-fallback";
 
 export default function IndividualServicePage() {
   const { serviceId } = useParams();
-  const { data: slotData, isLoading: isSlotLoading } = useGetVendorSlotById(serviceId ?? "");
-  const { selectedEventId } = useEventSelectorStore();
-  const { data: applicationsData, isLoading: isApplicationsLoading } = useGetAllVendorApplications(
-    selectedEventId ?? "",
+  const { data: slotData, isLoading: isSlotLoading } = useGetVendorSlotById(
+    serviceId ?? "",
   );
-  const applications = applicationsData?.data as PaginatedResponse<VendorSlotApplication> | undefined;
+  const { selectedEventId } = useEventSelectorStore();
+  // currently using the get all vendor applications hook
+  // this needs to change as the endpoint should be able to get all vendor applications for a specific slot
+  const { data: applicationsData, isLoading: isApplicationsLoading } =
+    useGetAllVendorApplications(selectedEventId ?? "");
+  const applications = applicationsData?.data as
+    | PaginatedResponse<VendorSlotApplication>
+    | undefined;
   const serviceApplications = applications?.items ?? [];
   const service = slotData?.data as VendorSlot | undefined;
-  console.log(service);
-  if(isSlotLoading || isApplicationsLoading) {
-    return(
-      <LoadingFallback />
-    )
+  if (isSlotLoading || isApplicationsLoading) {
+    return <LoadingFallback />;
   }
   return (
     <section className="w-full h-full flex flex-col items-center">
@@ -35,10 +37,10 @@ export default function IndividualServicePage() {
           {/* <BackButton
             name={service ? service.vendorName : "Slot name"}
           /> */}
-           <p className="font-inter text-sm font-medium text-mid-dark-gray">
-                      Event:
-                    </p>
-                    <EventSelect />
+          <p className="font-inter text-sm font-medium text-mid-dark-gray">
+            Event:
+          </p>
+          <EventSelect />
         </div>
 
         <div className="flex items-center gap-8">
@@ -54,9 +56,9 @@ export default function IndividualServicePage() {
           <div className="w-full h-full flex flex-col pt-10 pb-14 px-5">
             {serviceApplications.length > 0 ? (
               <>
-                {/* {serviceApplications?.items.map((item) => (
-                  <IndividualVendorItem key={item.id} {...item} />
-                ))} */}
+                {serviceApplications?.map((item) => (
+                  <IndividualVendorItem key={item.id} application={item} />
+                ))}
               </>
             ) : (
               <div className="w-full h-full flex flex-col items-center justify-center">

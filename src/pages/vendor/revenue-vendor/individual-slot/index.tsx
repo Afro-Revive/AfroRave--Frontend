@@ -5,7 +5,6 @@ import {
   useGetVendorSlotById,
   useGetAllVendorApplications,
 } from "@/hooks/use-vendor-mutation";
-import { BackButton } from "../../component/back-btn";
 import EventSelect from "@/components/shared/vendor-select";
 import CreateVendorSlot from "../../component/create-vendor-slot-modal";
 import EditVendorSlotModal from "../../component/edit-vendor-slot-modal";
@@ -19,6 +18,8 @@ export default function IndividualSlots() {
     slotId ?? "",
   );
   const { selectedEventId } = useEventSelectorStore();
+  // currently using the get all vendor applications hook
+  // this needs to change as the endpoint should be able to get all vendor applications for a specific slot
   const { data: applicationsData, isLoading: isApplicationsLoading } =
     useGetAllVendorApplications(selectedEventId ?? "");
   const applications = applicationsData?.data as
@@ -26,7 +27,6 @@ export default function IndividualSlots() {
     | undefined;
   const revenueApplications = applications?.items ?? [];
   const slot = slotData?.data as VendorSlot | undefined;
-  console.log(slot);
   if (isSlotLoading || isApplicationsLoading) {
     return <LoadingFallback />;
   }
@@ -71,9 +71,9 @@ export default function IndividualSlots() {
           <div className="w-full h-full flex flex-col">
             {revenueApplications.length > 0 ? (
               <>
-                {/* {applicationsForSlot?.map((item) => (
-                  <IndividualVendorItem key={item.vendorId} logoUrl={item.logoUrl}  />
-                ))} */}
+                {revenueApplications?.map((item) => (
+                  <IndividualVendorItem key={item.vendorId} application={item} />
+                ))}
               </>
             ) : (
               <div className="w-full h-full flex flex-col items-center justify-center">

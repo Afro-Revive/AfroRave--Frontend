@@ -4,7 +4,6 @@ import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Info, Plus } from "lucide-react";
-import type { IVendor } from "@/data/slots";
 
 export function VendorItem({
   id,
@@ -78,12 +77,12 @@ export function VendorItem({
 }
 
 interface IVendorItem {
-  id: number;
+  id: string;
   name: string;
   category: string;
   date: string;
   count?: string;
-  status: IVendor["status"];
+  status: string;
   type?: "revenue" | "service";
   children?: React.ReactNode;
 }

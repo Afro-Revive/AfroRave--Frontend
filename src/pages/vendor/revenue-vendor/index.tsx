@@ -1,6 +1,5 @@
 import { useVendorSlotsByType } from "@/hooks/use-vendor-mutation";
 import { MdStorefront } from "react-icons/md";
-import { VendorItem } from "../component/vendor-item";
 import { Button } from "@/components/ui/button";
 import EventSelect from "@/components/shared/vendor-select";
 import { Upload } from "lucide-react";
@@ -12,6 +11,7 @@ import { useEventSelectorStore } from "@/stores";
 export default function RevenueVendorPage() {
   const { selectedEventId } = useEventSelectorStore();
   const { revenueSlots } = useVendorSlotsByType(selectedEventId ?? "");
+  console.log("Revenue Slots:", revenueSlots); // Debugging line
 
   return (
     <section className="w-full h-full flex flex-col items-center">
