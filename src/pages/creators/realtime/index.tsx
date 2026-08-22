@@ -4,9 +4,8 @@ import { useState, useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import EventSelect from '@/components/shared/vendor-select'
 import { useEventSelectorStore } from '@/stores'
-import { useGetOrganizerEvents } from '@/hooks/use-event-mutations'
-import { EventData, PaginatedResponse } from '@/types'
 import { ExportButton } from '@/pages/vendor/component/export-btn'
+import { useGetEventAnalytics } from '@/hooks/use-event-mutations'
 
 const defaultTab = 'issued-net'
 
@@ -68,9 +67,8 @@ export default function RealtimePage() {
 
 function ChartHeader() {
   const { selectedEventId } = useEventSelectorStore()
-  const { data: response } = useGetOrganizerEvents()
-  const eventData = response?.data as PaginatedResponse<EventData> | undefined
-  const selectedEvent = eventData?.items.find((e) => e.eventId === selectedEventId)
+  const { data: analyticsData } = useGetEventAnalytics(selectedEventId ?? '')
+  console.log('analyticsData', analyticsData)
 
   return (
     <div className='w-full flex items-center justify-between bg-white h-14 px-8 border-l border-light-gray'>

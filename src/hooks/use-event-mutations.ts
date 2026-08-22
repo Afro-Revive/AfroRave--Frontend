@@ -397,4 +397,14 @@ export function useGetTrendingEvents() {
   })
 }
 
+export function useGetEventAnalytics(eventId?: string) {
+  return useQuery({
+    queryKey: eventKeys.analytics(eventId || ''),
+    queryFn: () => {
+      if (!eventId) throw new Error('Event ID is required')
+      return eventService.getEventAnalytics(eventId)
+    },
+    enabled: !!eventId,
+  })
+}
 
