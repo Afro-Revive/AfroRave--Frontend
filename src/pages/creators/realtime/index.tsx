@@ -1,17 +1,40 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Button } from '@/components/ui/button'
 import { useState, useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import EventSelect from '@/components/shared/vendor-select'
 import { useEventSelectorStore } from '@/stores'
 import { ExportButton } from '@/pages/vendor/component/export-btn'
 import { useGetEventAnalytics } from '@/hooks/use-event-mutations'
+import type { EventAnalyticsData } from '@/types'
+import type { IAnalyticsTabProps } from './components/analytics-state'
+import AttendeeListTab from './tabs/attendee-list-tab'
+import InsightsTab from './tabs/insights-tab'
+import OrdersTab from './tabs/orders-tab'
+import OverviewTab from './tabs/overview-tab'
+import PromoCodesTab from './tabs/promo-codes-tab'
+import VendorsTab from './tabs/vendors-tab'
 
-const defaultTab = 'issued-net'
+const defaultTab = 'overview'
 
 export default function RealtimePage() {
   const [activeTab, setActiveTab] = useState<string>(defaultTab)
   const [searchParams, setSearchParams] = useSearchParams()
+
+  const { selectedEventId } = useEventSelectorStore()
+  const {
+    data: response,
+    isLoading,
+    isError,
+  } = useGetEventAnalytics(selectedEventId ?? '')
+
+  const analytics = response?.data as EventAnalyticsData | undefined
+
+  const tabProps: IAnalyticsTabProps = {
+    data: analytics,
+    isLoading,
+    isError,
+    hasEvent: Boolean(selectedEventId),
+  }
 
   useEffect(() => {
     const tabParam = searchParams.get('tab')
@@ -51,34 +74,30 @@ export default function RealtimePage() {
           </div>
         ))}
       </TabsList>
-      {chartTabs.flatMap((section) =>
-        section.tabs.map((tab) => (
-          <TabsContent key={tab.value} value={tab.value}>
-            <div className='w-full h-full flex flex-col'>
-              <ChartHeader />
-              <div className='w-full h-full pt-10 pb-14 px-5'>{tab.element}</div>
-            </div>
-          </TabsContent>
-        )),
-      )}
+
+      <div className='w-full h-full flex flex-col'>
+        <ChartHeader />
+        <div className='w-full h-full pt-10 pb-14 px-5'>
+          {chartTabs.flatMap((section) =>
+            section.tabs.map((tab) => (
+              <TabsContent key={tab.value} value={tab.value}>
+                <tab.component {...tabProps} />
+              </TabsContent>
+            )),
+          )}
+        </div>
+      </div>
     </Tabs>
   )
 }
 
 function ChartHeader() {
-  const { selectedEventId } = useEventSelectorStore()
-  const { data: analyticsData } = useGetEventAnalytics(selectedEventId ?? '')
-  console.log('analyticsData', analyticsData)
-
   return (
     <div className='w-full flex items-center justify-between bg-white h-14 px-8 border-l border-light-gray'>
-      <div className='flex items-center gap-3'>
-      </div>
-      <div className='flex items-center gap-8'>
-        <Button variant='ghost' className='gap-1 py-0.5 px-1.5 hover:bg-black/10'>
-          <ExportButton  />
-        </Button>
+      <div className='flex items-center gap-3' />
 
+      <div className='flex items-center gap-8'>
+        <ExportButton />
         <EventSelect />
       </div>
     </div>
@@ -89,47 +108,21 @@ const chartTabs: IChartTabs[] = [
   {
     section: 'Event',
     tabs: [
-      {
-        value: 'Overview',
-        name: 'Overview',
-        element: <div className='w-full min-h-full bg-white rounded-[4px]' />,
-      },
-      {
-        value: 'Vendors',
-        name: 'Vendors',
-        element: <div className='w-full min-h-full bg-white rounded-[4px]' />,
-      },
+      { value: 'overview', name: 'Overview', component: OverviewTab },
+      { value: 'vendors', name: 'Vendors', component: VendorsTab },
     ],
   },
   {
     section: 'Tickets',
     tabs: [
-      {
-        value: 'Orders',
-        name: 'Orders',
-        element: <div className='w-full min-h-full bg-white rounded-[4px]' />,
-      },
-      {
-        value: 'Attendee-list',
-        name: 'Attendee List',
-        element: <div className='w-full min-h-full bg-white rounded-[4px]' />,
-      },
-      {
-        value: 'promo-codes',
-        name: 'Promo Codes',
-        element: <div className='w-full min-h-full bg-white rounded-[4px]' />,
-      },
+      { value: 'orders', name: 'Orders', component: OrdersTab },
+      { value: 'attendee-list', name: 'Attendee List', component: AttendeeListTab },
+      { value: 'promo-codes', name: 'Promo Codes', component: PromoCodesTab },
     ],
   },
   {
     section: 'Audience',
-    tabs: [
-      {
-        value: 'insights',
-        name: 'Insights',
-        element: <div className='w-full h-full bg-white rounded-[4px]' />,
-      },
-    ],
+    tabs: [{ value: 'insights', name: 'Insights', component: InsightsTab }],
   },
 ]
 
@@ -137,5 +130,9 @@ const chartTabValues = chartTabs.flatMap((section) => section.tabs.map((tab) => 
 
 interface IChartTabs {
   section: string
-  tabs: { value: string; name: string; element: React.ReactNode }[]
+  tabs: {
+    value: string
+    name: string
+    component: React.ComponentType<IAnalyticsTabProps>
+  }[]
 }

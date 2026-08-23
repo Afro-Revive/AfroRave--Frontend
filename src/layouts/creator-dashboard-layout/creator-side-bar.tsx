@@ -76,6 +76,7 @@ export default function CreatorSidebar() {
       className="pt-24 sticky top-0"
       sidebar_links={creator_sidebar_links}
       collapsibleOnMobile={true}
+      collapsibleOnDesktop={true}
       mobileFullscreen={true}
       footerItem={
         <CreatorSettingsModal

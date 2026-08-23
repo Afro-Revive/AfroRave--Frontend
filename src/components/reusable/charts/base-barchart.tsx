@@ -89,7 +89,7 @@ export interface IBaseBarChartProps {
   valueFormatter?: (value: number) => string
   /** Shows the value axis and its ticks */
   showValueAxis?: boolean
-  /** Shows the gridlines running across the value axis */
+  /** Shows the gridlines — defaults to on for columns, off for horizontal bars */
   showGrid?: boolean
   /** Shows the legend — defaults to true when there is more than one series */
   showLegend?: boolean
@@ -123,7 +123,7 @@ export function BaseBarChart({
   xTickFormatter,
   valueFormatter = defaultFormatter,
   showValueAxis = true,
-  showGrid = true,
+  showGrid,
   showLegend,
   maxBarSize = MAX_BAR_SIZE,
   emptyMessage = 'No data to display',
@@ -151,6 +151,8 @@ export function BaseBarChart({
   const withCard = card ?? Boolean(title || description || footer)
   const withLegend = showLegend ?? bars.length > 1
   const isHorizontal = orientation === 'horizontal'
+  // Horizontal bars sit on named rows, so gridlines cutting across them are noise.
+  const withGrid = showGrid ?? !isHorizontal
   const isEmpty = !data.length || !bars.length
 
   /** Round only the data end, and in a stack only the segment that owns it. */
@@ -190,7 +192,7 @@ export function BaseBarChart({
         data={data}
         layout={isHorizontal ? 'vertical' : 'horizontal'}
         margin={{ left: 12, right: 12 }}>
-        {showGrid && <CartesianGrid vertical={isHorizontal} horizontal={!isHorizontal} />}
+        {withGrid && <CartesianGrid vertical={isHorizontal} horizontal={!isHorizontal} />}
         {isHorizontal ? (
           <>
             {showValueAxis && <XAxis {...valueAxisProps} />}
@@ -206,6 +208,7 @@ export function BaseBarChart({
           cursor={false}
           content={
             <ChartTooltipContent
+            className='bg-white border-light-gray text-black shadow-md rounded-sm w-fit'
               hideLabel={bars.length === 1}
               formatter={(value) => valueFormatter(Number(value))}
             />

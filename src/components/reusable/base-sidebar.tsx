@@ -13,7 +13,12 @@ import { Link } from "react-router-dom";
 import type { ICreatorSidebarLinks } from "@/layouts/creator-dashboard-layout/creator-side-bar";
 import { useLocation } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  PanelLeftClose,
+  PanelLeftOpen,
+} from "lucide-react";
 import { stripUnderscores } from "@/lib/helper-func";
 
 function isPathActive(pathname: string, path: string) {
@@ -28,13 +33,17 @@ export function BaseSideBar({
   contentClassName,
   sidebar_links,
   collapsibleOnMobile = false,
+  collapsibleOnDesktop = false,
   mobileFullscreen = false,
   children,
   footerItem,
 }: IBaseSidebar) {
   const location = useLocation();
   const isMobile = useIsMobile();
-  const { openMobile, setOpenMobile } = useSidebar();
+  const { openMobile, setOpenMobile, open, toggleSidebar } = useSidebar();
+
+  // On desktop the sidebar slides away entirely; a floating button brings it back.
+  const isCollapsed = collapsibleOnDesktop && !open;
 
   const effectiveCollapsible =
     collapsibleOnMobile && isMobile ? "offcanvas" : collapsible;
@@ -96,26 +105,61 @@ export function BaseSideBar({
   }
 
   return (
-    <Sidebar
-      side={side}
-      variant={variant}
-      collapsible={effectiveCollapsible}
-      className={cn(
-        className,
-        "w-[320px] min-h-screen h-fit bg-white border-r-[0.5px] border-r-gray-200",
+    <>
+      {isCollapsed && (
+        <button
+          type="button"
+          onClick={toggleSidebar}
+          aria-label="Expand sidebar"
+          aria-expanded={false}
+          className="hidden md:flex fixed left-4 top-20 z-40 size-9 items-center justify-center rounded-full border border-light-gray bg-white text-black shadow-sm transition-colors hover:bg-deep-red/10 hover:text-deep-red"
+        >
+          <PanelLeftOpen className="size-[18px]" />
+        </button>
       )}
-    >
-      <SidebarContent className={cn(contentClassName, "flex flex-col h-full")}>
-        <SidebarGroup className="px-0 flex-1">
-          <SidebarGroupLabel className="sr-only">Application</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>{menuItems()}</SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
 
-        {footerItem && <div className="mt-auto w-full">{footerItem}</div>}
-      </SidebarContent>
-    </Sidebar>
+      <Sidebar
+        side={side}
+        variant={variant}
+        collapsible={effectiveCollapsible}
+        className={cn(
+          className,
+          "min-h-screen h-fit bg-white border-r-[0.5px] border-r-gray-200",
+          "transition-[width] duration-300 ease-in-out",
+          // `invisible` keeps the hidden links out of the tab order while collapsed
+          isCollapsed
+            ? "w-0 min-w-0 overflow-hidden border-r-0 invisible"
+            : "w-[320px] visible",
+        )}
+      >
+        <SidebarContent className={cn(contentClassName, "flex flex-col h-full")}>
+          {collapsibleOnDesktop && (
+            <div className="hidden md:flex justify-end px-4 pb-2">
+              <button
+                type="button"
+                onClick={toggleSidebar}
+                aria-label="Collapse sidebar"
+                aria-expanded={true}
+                className="flex size-9 items-center justify-center rounded-full text-black transition-colors hover:bg-deep-red/10 hover:text-deep-red"
+              >
+                <PanelLeftClose className="size-[18px]" />
+              </button>
+            </div>
+          )}
+
+          <SidebarGroup className="px-0 flex-1">
+            <SidebarGroupLabel className="sr-only">
+              Application
+            </SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>{menuItems()}</SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+
+          {footerItem && <div className="mt-auto w-full">{footerItem}</div>}
+        </SidebarContent>
+      </Sidebar>
+    </>
   );
 }
 
@@ -229,6 +273,8 @@ interface IBaseSidebar {
   contentClassName?: string;
   sidebar_links?: ICreatorSidebarLinks[];
   collapsibleOnMobile?: boolean;
+  /** Adds a toggle that slides the sidebar away on desktop */
+  collapsibleOnDesktop?: boolean;
   mobileFullscreen?: boolean;
   children?: React.ReactNode;
   footerItem?: React.ReactNode;
