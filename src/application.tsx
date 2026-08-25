@@ -37,7 +37,7 @@ const queryClient = new QueryClient({
   },
 })
 
-function AppRoutes() {
+export function AppRoutes() {
   useScrollToTop()
   useTokenRefresh()
 
