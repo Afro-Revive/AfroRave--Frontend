@@ -329,3 +329,18 @@ export function useForgotPassword() {
     },
   })
 }
+
+// Reset Password Hook — consumes the token from the emailed reset link
+export function useResetPassword() {
+  return useMutation({
+    mutationFn: (data: { email: string; token: string; newPassword: string }) =>
+      authService.resetPassword(data),
+    onSuccess: () => {
+      profileToasts.passwordChanged()
+    },
+    onError: (error: unknown) => {
+      const errorMessage = extractErrorMessage(error)
+      authToasts.loginError(errorMessage)
+    },
+  })
+}

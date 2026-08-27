@@ -95,7 +95,6 @@ export function AuthModal() {
             {showForgotPassword ? (
               <ForgotPasswordView
                 onBack={() => setShowForgotPassword(false)}
-                onDone={handleModalClose}
               />
             ) : (
               <>

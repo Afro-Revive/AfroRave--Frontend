@@ -25,6 +25,7 @@ import VendorDashboardLayout from './layouts/vendor-dashboard-layout'
 const AddEventPage = lazy(() => import('./pages/creators/add-event'))
 const SlotDetailsPage = lazy(() => import('./pages/vendor/slots/slot-details'))
 const CompleteProfilePage = lazy(() => import('./pages/fans/complete-profile'))
+const ResetPasswordPage = lazy(() => import('./pages/auth/reset-password'))
 const PaymentConfirmationPage = lazy(() => import('./pages/landing-page/payment-confirmation'))
 
 // Create a client
@@ -105,6 +106,15 @@ export function AppRoutes() {
         element={
           <Suspense fallback={<LoadingFallback />}>
             <CompleteProfilePage />
+          </Suspense>
+        }
+      />
+
+      <Route
+        path={getRoutePath('reset_password')}
+        element={
+          <Suspense fallback={<LoadingFallback />}>
+            <ResetPasswordPage />
           </Suspense>
         }
       />
