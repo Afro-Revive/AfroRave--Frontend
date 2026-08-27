@@ -40,8 +40,11 @@ export default defineConfig(({ mode }) => ({
           // Form handling
           'form-vendor': ['react-hook-form', '@hookform/resolvers', 'zod'],
           
-          // Utilities and styling
-          'utils-vendor': ['date-fns', 'clsx', 'tailwind-merge', 'class-variance-authority', 'tailwind-scrollbar', 'tw-animate-css'],
+          // Utilities and styling.
+          // NOTE: CSS-only packages (tw-animate-css, tailwind-scrollbar) must NOT be
+          // listed here — they are consumed via @import/@plugin in index.css, and
+          // naming them makes Rollup resolve them as JS entries, which they aren't.
+          'utils-vendor': ['date-fns', 'clsx', 'tailwind-merge', 'class-variance-authority'],
           
           // Icons and UI enhancements
           'icons-vendor': ['lucide-react', 'iconsax-react'],
