@@ -189,7 +189,11 @@ export function useLogin(options?: { onSuccess?: () => void }) {
           useCartStore.getState().setSyncing(true)
           try {
             await cartService.syncCart(
-              localItems.map(({ ticketId, quantity }) => ({ ticketId, quantity })),
+              localItems.map(({ ticketId, quantity, listingId }) =>
+                listingId
+                  ? { quantity, listingId, resellTicketId: ticketId }
+                  : { ticketId, quantity },
+              ),
             )
             await queryClient.invalidateQueries({ queryKey: cartKeys.lists() })
           } finally {
@@ -302,6 +306,35 @@ export function useChangePassword() {
   return useMutation({
     mutationFn: (data: { currentPassword: string; newPassword: string }) =>
       authService.changePassword(data),
+    onSuccess: () => {
+      profileToasts.passwordChanged()
+    },
+    onError: (error: unknown) => {
+      const errorMessage = extractErrorMessage(error)
+      authToasts.loginError(errorMessage)
+    },
+  })
+}
+
+// Forgot Password Hook
+export function useForgotPassword() {
+  return useMutation({
+    mutationFn: (data: { email: string }) => authService.forgetPassword(data),
+    onSuccess: () => {
+      profileToasts.forgotPasswordSuccess()
+    },
+    onError: (error: unknown) => {
+      const errorMessage = extractErrorMessage(error)
+      authToasts.loginError(errorMessage)
+    },
+  })
+}
+
+// Reset Password Hook — consumes the token from the emailed reset link
+export function useResetPassword() {
+  return useMutation({
+    mutationFn: (data: { email: string; token: string; newPassword: string }) =>
+      authService.resetPassword(data),
     onSuccess: () => {
       profileToasts.passwordChanged()
     },

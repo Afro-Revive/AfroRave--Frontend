@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { ChevronLeft, Clock } from "lucide-react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useGetEvent } from "@/hooks/use-event-mutations";
@@ -17,19 +18,27 @@ import {
   formatTimeLong,
   formatTimezone,
 } from "@/lib/helper-func";
-import { useUserActiveTickets } from "@/hooks/use-profile-mutations";
+import {
+  useUserActiveTickets,
+  useUserPastTickets,
+} from "@/hooks/use-profile-mutations";
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import OrderDetailsModal from "../components/order-details-modal";
 import TicketResaleModal from "@/pages/fans/my-tickets/tickets-resale/modals/ticket-resale";
 import TicketTransferModal from "@/pages/fans/my-tickets/tickets-transfer";
 
-type EnrichedPurchase = {
+type OrderLineItem = {
+  ticketId: string;
+  ticketName: string;
+  quantity: number;
+};
+
+type EnrichedOrder = {
   orderId: string;
   purchaseDate: string;
   quantity: number;
-  ticketName: string;
-  ticketId: string;
+  items: OrderLineItem[];
 };
 
 export default function IndividualActiveTicketsPage() {
@@ -43,33 +52,66 @@ export default function IndividualActiveTicketsPage() {
   const { data: eventResponse, isLoading: isLoadingEvent } = useGetEvent(
     eventId!,
   );
-  const { data: activeTicketResponse, isLoading: isLoadingTickets } =
+  const { data: activeTicketResponse, isLoading: isLoadingActiveTickets } =
     useUserActiveTickets();
+  const { data: pastTicketResponse, isLoading: isLoadingPastTickets } =
+    useUserPastTickets();
 
   const eventDetails = eventResponse?.data as EventDetailData | undefined;
   const activeTickets =
     (activeTicketResponse?.data as unknown as PaginatedResponse<UserTicketData>)
       ?.items ?? [];
+  const pastTickets =
+    (pastTicketResponse?.data as unknown as PaginatedResponse<UserTicketData>)
+      ?.items ?? [];
+
   const activeEvent = activeTickets.find((t) => t.eventId === eventId);
+  const pastEvent = pastTickets.find((t) => t.eventId === eventId);
+  // Fall back to the past ticket so ended events still render their details,
+  // just with the ticket actions disabled.
+  const ticketEvent = activeEvent ?? pastEvent;
+  const isPastEvent = !activeEvent && !!pastEvent;
+
   const ticketDetails: UserTicketTicketDetails[] =
-    activeEvent?.ticketDetails ?? [];
+    ticketEvent?.ticketDetails ?? [];
 
-  const allPurchaseHistory: EnrichedPurchase[] = ticketDetails.flatMap((t) =>
-    t.purchaseHistory.map((ph) => ({
-      ...ph,
-      ticketName: t.ticketName,
-      ticketId: t.ticketId,
-    })),
-  );
+    
+const ordersById = new Map<string, EnrichedOrder>();
+  for (const ticket of ticketDetails) {
+    for (const ph of ticket.purchaseHistory) {
+      const lineItem: OrderLineItem = {
+        ticketId: ticket.ticketId,
+        ticketName: ticket.ticketName,
+        quantity: ph.quantity,
+      };
 
-  const selectedOrder = allPurchaseHistory.find(
-    (ph) => ph.orderId === selectedOrderId,
-  );
+      const order = ordersById.get(ph.orderId);
+      if (!order) {
+        ordersById.set(ph.orderId, {
+          orderId: ph.orderId,
+          purchaseDate: ph.purchaseDate,
+          quantity: ph.quantity,
+          items: [lineItem],
+        });
+        continue;
+      }
 
-  const isLoading = isLoadingEvent || isLoadingTickets;
+      // Guard against the same ticket type appearing twice in one order.
+      if (order.items.some((i) => i.ticketId === lineItem.ticketId)) continue;
 
-  const eventStartDate = activeEvent?.eventStartDate ?? "";
-  const eventEndDate = activeEvent?.eventEndDate ?? "";
+      order.items.push(lineItem);
+      order.quantity += lineItem.quantity;
+    }
+  }
+  const orders = [...ordersById.values()];
+
+  const selectedOrder = orders.find((o) => o.orderId === selectedOrderId);
+
+  const isLoading =
+    isLoadingEvent || isLoadingActiveTickets || isLoadingPastTickets;
+
+  const eventStartDate = ticketEvent?.eventStartDate ?? "";
+  const eventEndDate = ticketEvent?.eventEndDate ?? "";
   const isEventMultiDay = eventStartDate !== eventEndDate;
   const eventDate = isEventMultiDay
     ? `${formatEventDate(eventStartDate)} - ${formatEventDate(eventEndDate)}`
@@ -95,22 +137,22 @@ export default function IndividualActiveTicketsPage() {
         <div className="flex flex-col md:flex-row gap-3 mb-10">
           <div className="w-fit h-fit relative">
             <img
-              src={activeEvent?.desktopMedia?.flyer}
-              alt={activeEvent?.eventName}
+              src={ticketEvent?.desktopMedia?.flyer}
+              alt={ticketEvent?.eventName}
               className="w-[200px] h-[256px] rounded-[10px]"
             />
             <span className="absolute w-6 h-[18px] top-1.5 right-1 bg-medium-gray/80 font-sf-pro-rounded text-[10px] text-center rounded-[10px]">
-              {allPurchaseHistory.length}
+              {orders.length}
             </span>
           </div>
 
           <div className="flex flex-col gap-3">
             <div className="flex flex-col gap-2 py-3 px-1">
               <p className="uppercase text-xl font-sf-pro-display font-bold">
-                {activeEvent?.eventName}
+                {ticketEvent?.eventName}
               </p>
               <p className="text-sm font-sf-pro-display">
-                {activeEvent?.eventVenue}
+                {ticketEvent?.eventVenue}
               </p>
               <p className="text-sm font-sf-pro-display">
                 {eventDate} at{" "}
@@ -119,9 +161,11 @@ export default function IndividualActiveTicketsPage() {
               </p>
             </div>
 
-            <p className="py-2 px-3 flex items-center gap-1 bg-mid-dark-gray/50 rounded-[10px] max-w-[132px] w-fit h-8 text-xs font-medium font-sf-pro-display">
+            <p className="py-2 px-3 flex items-center gap-1 bg-mid-dark-gray/50 rounded-[10px] w-fit h-8 text-xs font-medium font-sf-pro-display whitespace-nowrap">
               <Clock size={12} />
-              Starts in {daysUntilEvent(eventStartDate)} Days
+              {isPastEvent
+                ? `Ended ${formatEventDate(eventEndDate || eventStartDate)}`
+                : `Starts in ${daysUntilEvent(eventStartDate)} Days`}
             </p>
           </div>
         </div>
@@ -132,7 +176,7 @@ export default function IndividualActiveTicketsPage() {
           </p>
 
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
-            {allPurchaseHistory.map((item, index) => (
+            {orders.map((item, index) => (
               <OrderCard
                 key={item.orderId}
                 orderDate={formatShortDate(item.purchaseDate)}
@@ -156,6 +200,7 @@ export default function IndividualActiveTicketsPage() {
           onSell={() => setResaleOpen(true)}
           onTransfer={() => setTransferOpen(true)}
           onUpgrade={() => {}}
+          disabled={isPastEvent}
         />
 
         <AnimatePresence>
@@ -172,17 +217,17 @@ export default function IndividualActiveTicketsPage() {
                   Tickets
                 </p>
                 <div className="flex flex-wrap gap-3 mb-6">
-                  {Array.from({ length: selectedOrder.quantity }).map(
-                    (_, i) => (
+                  {selectedOrder.items.flatMap((line) =>
+                    Array.from({ length: line.quantity }).map((_, i) => (
                       <div
-                        key={i}
+                        key={`${line.ticketId}-${i}`}
                         className="w-fit rounded-md py-4 px-10 bg-secondary-white flex items-center text-left"
                       >
                         <p className="text-sm font-sf-pro-display capitalize text-black">
-                          {selectedOrder.ticketName}
+                          {line.ticketName}
                         </p>
                       </div>
-                    ),
+                    )),
                   )}
                 </div>
               </div>
@@ -217,9 +262,10 @@ export interface otherActionProps {
   onSell: () => void;
   onTransfer: () => void;
   onUpgrade: () => void;
+  disabled?: boolean;
 }
 
-function OtherActions({ onSell, onTransfer }: otherActionProps) {
+function OtherActions({ onSell, onTransfer, disabled = false }: otherActionProps) {
   const actions = [
     {
       icon: "/assets/dashboard/sell.png",
@@ -248,7 +294,12 @@ function OtherActions({ onSell, onTransfer }: otherActionProps) {
           key={item.name}
           type="button"
           onClick={item.action}
-          className="w-[172px] h-18 flex flex-col justify-between gap-1 p-2 bg-medium-gray rounded-[10px] text-left"
+          disabled={disabled}
+          title={disabled ? "This event has already ended" : undefined}
+          className={cn(
+            "w-[172px] h-18 flex flex-col justify-between gap-1 p-2 bg-medium-gray rounded-[10px] text-left",
+            disabled && "opacity-40 cursor-not-allowed",
+          )}
         >
           <img src={item.icon} alt={item.name} className="size-3" />
           <div className="flex flex-col gap-0.5">

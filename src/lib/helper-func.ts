@@ -147,6 +147,29 @@ export function truncate(str: string, maxLength: number): string {
   return `${str.slice(0, maxLength - 3)}...`
 }
 
+/**
+ * Mask the local part of an email, keeping its first `visible` characters and the
+ * whole domain, so the recipient can still tell which address it went to.
+ * 'iseoluwaariyibi@gmail.com' -> 'ise************@gmail.com'
+ * Anything too short to mask is hidden entirely rather than partly revealed.
+ */
+export function maskEmail(email?: string, visible = 3): string {
+  if (!email) {
+    return ''
+  }
+  const at = email.lastIndexOf('@')
+  if (at <= 0) {
+    // Not a well-formed address — mask all of it rather than guess at a domain.
+    return '*'.repeat(email.length)
+  }
+  const local = email.slice(0, at)
+  const domain = email.slice(at)
+  if (local.length <= visible) {
+    return `${'*'.repeat(local.length)}${domain}`
+  }
+  return `${local.slice(0, visible)}${'*'.repeat(local.length - visible)}${domain}`
+}
+
 export function formatEventTime(timeString: string): string {
   const [hourStr] = timeString.split(':')
   const hour = parseInt(hourStr, 10)

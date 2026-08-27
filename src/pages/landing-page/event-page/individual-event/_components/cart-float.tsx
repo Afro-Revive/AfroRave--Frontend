@@ -6,42 +6,44 @@ import {
   ChevronDown,
   LoaderCircle,
 } from "lucide-react";
-import type { PaginatedResponse, TicketData } from "@/types";
+import type { PurchasableTicket } from "@/types";
+import { indexByCartKey } from "@/lib/purchasable-tickets";
 import { formatNaira } from "@/lib/format-price";
 import { cn } from "@/lib/utils";
+import { useMemo } from "react";
 
 export function CartSummaryFloat({
-  eventTickets,
+  tickets,
   action,
   isLoading,
 }: {
-  eventTickets: PaginatedResponse<TicketData> | undefined;
+  tickets: PurchasableTicket[];
   action: () => void;
   isLoading: boolean;
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const localItems = useCartStore((state) => state.items);
+  const ticketsByKey = useMemo(() => indexByCartKey(tickets), [tickets]);
 
   const totalTickets = localItems.reduce((sum, item) => sum + item.quantity, 0);
-  const totalPrice = localItems.reduce((sum, item) => {
-    const ticket = eventTickets?.items.find(
-      (t) => t.ticketId === item.ticketId,
-    );
-    return sum + (ticket?.price ?? 0) * item.quantity;
-  }, 0);
 
   const selectedTickets = localItems
     .filter((item) => item.quantity > 0)
-    .map((item) => ({
-      ticketId: item.ticketId,
-      quantity: item.quantity,
-      name:
-        eventTickets?.items.find((t) => t.ticketId === item.ticketId)
-          ?.ticketName ?? "Ticket",
-      price:
-        eventTickets?.items.find((t) => t.ticketId === item.ticketId)?.price ??
-        0,
-    }));
+    .map((item) => {
+      const ticket = ticketsByKey.get(item.cartKey);
+      return {
+        cartKey: item.cartKey,
+        quantity: item.quantity,
+        name: ticket?.name ?? "Ticket",
+        price: ticket?.price ?? 0,
+        isResale: ticket?.source === "resale",
+      };
+    });
+
+  const totalPrice = selectedTickets.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0,
+  );
 
   return (
     <div className="fixed bottom-0 left-1/2 -translate-x-1/2 md:left-auto md:translate-x-0 md:right-0 z-[999999] w-80">
@@ -84,12 +86,17 @@ export function CartSummaryFloat({
             ) : (
               selectedTickets.map((item) => (
                 <li
-                  key={item.ticketId}
+                  key={item.cartKey}
                   className="flex items-center border border-soft-gray rounded-md justify-between px-5 py-3"
                 >
                   <div className="flex flex-col gap-0.5">
                     <p className="text-black capitalize text-sm font-inter">
                       {item.name}
+                      {item.isResale && (
+                        <span className="ml-2 text-[10px] uppercase tracking-wide text-black/50">
+                          resale
+                        </span>
+                      )}
                     </p>
                     <p className="text-black text-xs font-inter">
                       {formatNaira(item.price, { free: item.price === 0 })}

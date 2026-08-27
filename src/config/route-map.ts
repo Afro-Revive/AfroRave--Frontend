@@ -69,8 +69,9 @@ export const ROUTE_PATHS = {
   vendor_slot_details: '/vendor/slots/:eventId',
   vendor_slots: '/vendor/slots',
 
-  // Email-token routes
+  // Email-token routes — public, reached from a link in an email
   complete_profile: '/complete-profile',
+  reset_password: '/reset-password',
 } as const
 
 /**
@@ -154,4 +155,5 @@ export interface RouteParams {
 
   // Email-token routes
   complete_profile: never
+  reset_password: never
 }

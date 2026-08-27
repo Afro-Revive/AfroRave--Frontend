@@ -1,7 +1,13 @@
 import BaseModal from '@/components/reusable/base-modal'
 import { useClearCart, useSyncCartToServer } from '@/hooks/use-cart'
-import { useGetEventTickets } from '@/hooks/use-event-mutations'
-import type { EventDetailData, PaginatedResponse, TicketData } from '@/types'
+import { useGetEventResaleListings, useGetEventTickets } from '@/hooks/use-event-mutations'
+import type {
+  EventDetailData,
+  PaginatedResponse,
+  ResaleListingData,
+  TicketData,
+} from '@/types'
+import { toPurchasableResaleListings, toPurchasableTickets } from '@/lib/purchasable-tickets'
 import { useAfroStore, useCartStore } from '@/stores'
 import { useState } from 'react'
 import CheckoutPage from '../../checkout'
@@ -19,10 +25,16 @@ export default function Cart({ event }: CartProps) {
   const closeCart = useCartStore((state) => state.closeCart)
 
   const { data: ticketsResponse } = useGetEventTickets(event.eventId)
+  const { data: resaleListingsResponse } = useGetEventResaleListings(event.eventId)
   const { mutateAsync: syncCart, isPending: isSyncing } = useSyncCartToServer()
   const { mutate: clearCart } = useClearCart()
 
-  const ticketInformation = ticketsResponse?.data as PaginatedResponse<TicketData> | undefined
+  const tickets = toPurchasableTickets(
+    ticketsResponse?.data as PaginatedResponse<TicketData> | undefined,
+  )
+  const resaleListings = toPurchasableResaleListings(
+    resaleListingsResponse?.data as PaginatedResponse<ResaleListingData> | undefined,
+  )
 
   async function handleContinue() {
     if (isAuthenticated) {
@@ -53,7 +65,8 @@ export default function Cart({ event }: CartProps) {
           <CartContainer
             event={event}
             isLoading={isSyncing}
-            eventTickets={ticketInformation}
+            tickets={tickets}
+            resaleListings={resaleListings}
             action={handleContinue}
           />
         </div>

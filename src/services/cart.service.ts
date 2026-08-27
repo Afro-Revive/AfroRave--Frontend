@@ -2,11 +2,11 @@ import type {
   CheckoutRequest,
   CheckoutResponse,
   CheckoutResponseData,
-  CreateCartRequest,
   CreateCartResponse,
   GetAllCartResponse,
   GetCartResponse,
   InitializePaymentResponse,
+  UpdatedCreateCartRequest,
   ValidatePromocodeRequest,
   ValidatePromocodeResponse,
 } from '@/types/cart'
@@ -25,7 +25,7 @@ class CartServce {
   /**
    * Create cart
    */
-  async createCart(data: CreateCartRequest): Promise<CreateCartResponse> {
+  async createCart(data: UpdatedCreateCartRequest): Promise<CreateCartResponse> {
     const response = await api.post('/api/Cart', data)
     return response.data
   }
@@ -57,7 +57,7 @@ class CartServce {
     /**
    * Sync Local cart to server cart
    */
-  async syncCart(items: { ticketId: string; quantity: number }[]): Promise<ApiResponse<unknown>> {
+  async syncCart(items: UpdatedCreateCartRequest[]): Promise<ApiResponse<unknown>> {
     const response = await api.post('/api/cart/sync', { items })
     console.log('syncCart response', response.data)
     return response.data

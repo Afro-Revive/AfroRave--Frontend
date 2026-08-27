@@ -1,7 +1,7 @@
 import { cartService } from '@/services/cart.service'
 import type {
+  CartLineItem,
   CheckoutRequest,
-  CreateCartRequest,
   ValidatePromocodeRequest,
   ValidatePromocodeResponse,
 } from '@/types/cart'
@@ -23,7 +23,10 @@ export function useGetAllCart() {
 export function useCreateCart() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: async (data: CreateCartRequest) => {
+    // TODO:
+    // currently the server only accepts ticketId and quantity
+    // therefore the server only creates a cart line for the underlying ticket of a resale listing, not the listing itself
+    mutationFn: async (data: CartLineItem) => {
       useCartStore.getState().addItem(data)
     },
     onSuccess: () => {
@@ -37,8 +40,8 @@ export function useCreateCart() {
 export function useDeleteCart() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: async ({ cartId }: { cartId: string }) => {
-      useCartStore.getState().removeItem(cartId)
+    mutationFn: async ({ cartKey }: { cartKey: string }) => {
+      useCartStore.getState().removeItem(cartKey)
     },
     onSuccess: () => {
       toast.success('Cart item removed.')
@@ -58,8 +61,8 @@ export function useGetCart(cartId: string) {
 export function useUpdateCartQuantity() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: async ({ cartId, data }: { data: number; cartId: string }) => {
-      useCartStore.getState().updateQuantity(cartId, data)
+    mutationFn: async ({ cartKey, data }: { data: number; cartKey: string }) => {
+      useCartStore.getState().updateQuantity(cartKey, data)
     },
     onSuccess: () => {
       toast.success('Quantity updated.')
@@ -93,7 +96,14 @@ export function useSyncCartToServer() {
     mutationFn: async () => {
       const items = useCartStore.getState().items
       if (items.length === 0) return
-      await cartService.syncCart(items.map(({ ticketId, quantity }) => ({ ticketId, quantity })))
+      // A line is resale if it carries a listingId
+      await cartService.syncCart(
+        items.map(({ ticketId, quantity, listingId }) =>
+          listingId
+            ? { quantity, listingId, resellTicketId: ticketId }
+            : { ticketId, quantity },
+        ),
+      )
     },
     onError: () => toast.error('Failed to sync cart. Please try again.'),
   })

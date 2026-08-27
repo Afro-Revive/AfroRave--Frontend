@@ -1,20 +1,33 @@
 import { X } from "lucide-react";
 import { formatNaira } from "@/lib/format-price";
 import { useCheckoutCart } from "@/hooks/use-cart";
-import { useGetEventTickets } from "@/hooks/use-event-mutations";
+import {
+  useGetEventResaleListings,
+  useGetEventTickets,
+} from "@/hooks/use-event-mutations";
+import {
+  indexByCartKey,
+  toPurchasableResaleListings,
+  toPurchasableTickets,
+} from "@/lib/purchasable-tickets";
 import { useAfroStore, useCartStore } from "@/stores";
 import { Button } from "@/components/ui/button";
 import PromoCode, {
   type PromoDiscount,
 } from "@/pages/landing-page/_component/promo-code";
-import type { EventDetailData, PaginatedResponse, TicketData } from "@/types";
+import type {
+  EventDetailData,
+  PaginatedResponse,
+  ResaleListingData,
+  TicketData,
+} from "@/types";
 import {
   formatEventDate,
   formatTimeLong,
   formatTimezone,
 } from "@/lib/helper-func";
 import { RenderEventImage } from "@/components/shared/render-event-flyer";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import TotalAccordion from "@/pages/landing-page/_component/totalPrice-accordion";
 import { InitializePaymentResponse } from "@/types/cart";
 
@@ -27,29 +40,44 @@ export default function CheckoutSummary({
   isFanAccount?: boolean;
   eventId?: string;
 }) {
-
   const isAuthenticated = useAfroStore((state) => state.isAuthenticated);
   const { items: localItems, promoCodeId } = useCartStore();
   const { data: ticketsResponse } = useGetEventTickets(eventId ?? "");
+  const { data: resaleListingsResponse } = useGetEventResaleListings(
+    eventId ?? "",
+  );
   const [promoDiscount, setPromoDiscount] = useState<PromoDiscount | null>(
     null,
   );
 
-  const ticketInformation = ticketsResponse?.data as
-    | PaginatedResponse<TicketData>
-    | undefined;
+  const purchasables = useMemo(
+    () =>
+      // Index all purchasable tickets(resale and primary) by cartKey (ticketId for primary, listingId for resale)
+      indexByCartKey([
+        // Convert normal tickets response to cart-ready rows
+        ...toPurchasableTickets(
+          ticketsResponse?.data as PaginatedResponse<TicketData> | undefined,
+        ),
+        // Convert resale listings response to cart-ready rows
+        ...toPurchasableResaleListings(
+          resaleListingsResponse?.data as
+            | PaginatedResponse<ResaleListingData>
+            | undefined,
+        ),
+      ]),
+    [ticketsResponse, resaleListingsResponse],
+  );
 
   const cartItems = localItems.map((item) => {
-    const ticket = ticketInformation?.items.find(
-      (t) => t.ticketId === item.ticketId,
-    );
+    const ticket = purchasables.get(item.cartKey);
     return {
-      cartId: item.ticketId,
+      cartId: item.cartKey,
       ticketId: item.ticketId,
       eventId: eventId ?? "",
-      name: ticket?.ticketName ?? "Ticket",
+      name: ticket?.name ?? "Ticket",
       price: ticket?.price ?? 0,
       quantity: item.quantity,
+      resale: ticket?.source === "resale",
     };
   });
 
@@ -150,6 +178,7 @@ export default function CheckoutSummary({
             name={item.name}
             price={item.price}
             quantity={item.quantity}
+            resale={item.resale}
           />
         ))}
 
@@ -175,13 +204,18 @@ export default function CheckoutSummary({
   );
 }
 
-function CartTicket({ name, price, quantity }: InitialTickets) {
+function CartTicket({ name, price, quantity, resale }: InitialTickets) {
   return (
     <div className="w-full flex border rounded-lg bg-white text-black py-1 md:px-4 px-3 items-center justify-between">
       <div className="flex flex-col gap-1 ">
         <p className="font-sf-pro-display uppercase md:text-base leading-[100%]">
           {name}
         </p>
+        {resale && (
+          <span className="text-xs uppercase tracking-wide text-black/50">
+            resale
+          </span>
+        )}
         <div className="flex flex-col gap-0.5">
           <p className="text-xs md:text-sm font-sf-pro-display leading-[100%]">
             {formatNaira(price, { free: price === 0 })}
@@ -203,4 +237,5 @@ interface InitialTickets {
   name: string;
   price: number;
   quantity: number;
+  resale?: boolean;
 }

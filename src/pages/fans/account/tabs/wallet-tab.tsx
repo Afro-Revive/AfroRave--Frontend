@@ -17,33 +17,6 @@ interface PayoutItem {
     status: 'pending' | 'paid' | 'in-review'
 }
 
-// Mock data - replace with actual API call
-const mockPayoutHistory: PayoutItem[] = [
-    {
-        id: '1',
-        eventName: 'Afro Festival',
-        ticketType: 'VIP Access',
-        date: '10th Nov, 14:30',
-        amount: 40500,
-        status: 'pending',
-    },
-    {
-        id: '2',
-        eventName: 'Afro Festival',
-        ticketType: 'VIP Access',
-        date: '10th Nov, 14:30',
-        amount: 40500,
-        status: 'paid',
-    },
-    {
-        id: '3',
-        eventName: 'Afro Festival',
-        ticketType: 'VIP Access',
-        date: '10th Nov, 14:30',
-        amount: 40500,
-        status: 'in-review',
-    },
-]
 
 export default function WalletTab() {
     const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false)
@@ -51,6 +24,7 @@ export default function WalletTab() {
     const { data: walletDetailsResponse, isLoading } = useWalletDetails()
     const walletDetails = walletDetailsResponse?.data as WalletDetailsData | undefined
     const availableBalance = walletDetails?.balance
+    const payoutHistory: PayoutItem[] = []
 
     if(isLoading) {
         return <LoadingFallback className="mb-[160px] h-[250px]" />;
@@ -78,7 +52,7 @@ export default function WalletTab() {
                     </p>
                     <Button
                         onClick={() => setIsWithdrawModalOpen(true)}
-                        className='w-full h-12 bg-[#0066FF] hover:bg-[#0052CC] text-white font-sf-pro-display font-semibold rounded-lg transition-colors border-none'>
+                        className='w-full h-12 bg-white text-deep-red font-sf-pro-display rounded-lg transition-colors border-none'>
                         Withdraw Funds
                     </Button>
                 </div>
@@ -93,14 +67,27 @@ export default function WalletTab() {
                     </p>
 
                     {/* Payout Items */}
+                    {
+                        /**
+                         * There is no payout history data available, so it will be set as an empty array for now. Once the API is ready, we can replace this with the actual data.
+                         */
+                    }
                     <div className='w-full flex flex-col gap-3'>
-                        {mockPayoutHistory.map((item) => (
-                            <PayoutHistoryItem
-                                key={item.id}
-                                item={item}
-                                onClick={() => handleTransactionClick(item)}
-                            />
-                        ))}
+                        {
+                            payoutHistory.length === 0 ? (
+                                <p className='text-white/60 text-sm font-sf-pro-display'>
+                                    No payout history available.
+                                </p>
+                            ) : (
+                                payoutHistory.map((item) => (
+                                    <PayoutHistoryItem
+                                        key={item.id}
+                                        item={item}
+                                        onClick={() => handleTransactionClick(item)}
+                                    />
+                                ))
+                            )}
+                    
                     </div>
                 </div>
 
