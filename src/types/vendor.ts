@@ -36,6 +36,7 @@ export interface VendorSlot {
   contactPhone: string;
   eventId: string;
   eventName: string;
+  status: string;
   vendorDetails: {
     slotData: {
       slotName: string;

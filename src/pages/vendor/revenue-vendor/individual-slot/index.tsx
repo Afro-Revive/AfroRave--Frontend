@@ -43,11 +43,11 @@ export default function IndividualSlots() {
           </p>
           <EventSelect />
         </div>
-        {/** For now hardcoding it but the application status should be dynamic
-        based on the slot status */}
-        <p className="font-inter text-sm font-semibold text-[#00AD2E]">
-          Application Ongoing
-        </p>
+       {slot?.status === "Active" && (
+          <p className="font-inter text-sm font-semibold text-[#00AD2E]">
+            Application Ongoing
+          </p>
+        )}
 
         <div className="flex items-center gap-3">
           <EditVendorSlotModal type="Revenue" slot={slot} />

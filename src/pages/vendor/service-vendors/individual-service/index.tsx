@@ -40,10 +40,15 @@ export default function IndividualServicePage() {
           <p className="font-inter text-sm font-medium text-mid-dark-gray">
             Event:
           </p>
-          <EventSelect />
+          <EventSelect  />
         </div>
+        {service?.status === "Active" && (
+          <p className="font-inter text-sm font-semibold text-[#00AD2E]">
+            Application Ongoing
+          </p>
+        )}
 
-        <div className="flex items-center gap-8">
+        <div className="flex items-center gap-3">
           <EditVendorSlotModal type="Service" slot={service} />
           <CreateVendorSlot type="Service" />
         </div>

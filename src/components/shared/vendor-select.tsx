@@ -37,7 +37,7 @@ const eventData = response?.data as PaginatedResponse<EventData> | undefined
 
   if (isPending) {
     return (
-      <div className={cn('w-[180px] h-10 rounded-[6px] bg-black/30 animate-pulse', className)} />
+      <div className={cn('w-full h-10 rounded-[6px] bg-black/30 animate-pulse', className)} />
     )
   }
 
@@ -48,7 +48,7 @@ const eventData = response?.data as PaginatedResponse<EventData> | undefined
     >
       <SelectTrigger
         className={cn(
-          'text-xs text-white uppercase font-sf-pro-display font-semibold bg-black border-none outline-none shadow-none rounded-md px-3 [&>span]:text-white [&>span]:opacity-100 [&>span]:pb-0.5 [&_svg]:!text-white [&_svg]:!opacity-100 disabled:opacity-100 disabled:bg-black !w-[180px]',
+          'text-xs text-white uppercase font-sf-pro-display font-semibold bg-black border-none outline-none shadow-none rounded-md px-3 [&>span]:text-white [&>span]:opacity-100 [&>span]:pb-0.5 [&_svg]:!text-white [&_svg]:!opacity-100 disabled:opacity-100 disabled:bg-black w-full',
           className,
         )}
       >

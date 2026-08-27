@@ -6,6 +6,7 @@ import {
 } from "@/components/ui/accordion";
 import { cn } from "@/lib/utils";
 import { Plus } from "lucide-react";
+import { useEffect, useState } from "react";
 
 export function BaseAccordion({
   style,
@@ -16,8 +17,17 @@ export function BaseAccordion({
   icon,
   triggerClassName,
 }: IBaseAccordion) {
+  // Controlled so the section holding the current route opens itself — landing on a
+  // vendor slot should reveal that slot's name in the sidebar, not leave it collapsed.
+  // Still collapsible by hand, and only forced open when `isActive` flips on.
+  const [value, setValue] = useState(isActive ? "item-1" : "")
+
+  useEffect(() => {
+    if (isActive) setValue("item-1")
+  }, [isActive])
+
   return (
-    <Accordion type="single" collapsible>
+    <Accordion type="single" collapsible value={value} onValueChange={setValue}>
       <AccordionItem
         value="item-1"
         className={cn("flex flex-col w-full", {

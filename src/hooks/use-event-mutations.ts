@@ -216,10 +216,12 @@ export function useCreateVendor() {
 
   return useMutation({
     mutationFn: (data: CreateVendorRequest) => eventService.createVendor(data),
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       toast.success('Vendor created successfully!')
-      console.log('Vendor created successfully')
-      // Invalidate and refetch vendors list
+      // The sidebar and slot pages read vendorSlots(eventId); lists() does not
+      // prefix-match that key, so the new slot would never show up without this.
+      queryClient.invalidateQueries({ queryKey: eventKeys.vendorSlots(variables.eventId) })
+      queryClient.invalidateQueries({ queryKey: eventKeys.vendors(variables.eventId) })
       queryClient.invalidateQueries({ queryKey: eventKeys.lists() })
     },
     onError: (error) => {

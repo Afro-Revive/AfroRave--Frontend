@@ -1,9 +1,7 @@
 import { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, useWatch } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { getRoutePath } from "@/config/get-route-path";
 import BaseModal from "@/components/reusable/base-modal";
 import { BaseSelect } from "@/components/reusable/base-select";
 import { FormBase } from "@/components/reusable/base-form";
@@ -18,8 +16,8 @@ import {
 } from "@/pages/creators/add-event/component/quantity-buttons";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { DestructiveAddBtn } from "@/pages/creators/_components/destructive-add-btn";
-import { useCreateVendor } from "@/hooks/use-event-mutations";
+import { useUpdateVendor } from "@/hooks/use-event-mutations";
+import type { VendorSlot } from "@/types/vendor";
 import { useEventSelectorStore } from "@/stores";
 import {
   africanCountryCodes,
@@ -47,60 +45,122 @@ function formatTime(
   return `${time.hour}:${time.minute} ${time.period}`;
 }
 
-interface CreateVendorSlotProps {
-  type: "Revenue" | "Service";
+const EMPTY_FORM: FormValues = {
+  category: "",
+  description: "",
+  slotName: "",
+  slotNumber: "",
+  price: "",
+  totalPrice: "",
+  serviceName: "",
+  minBudget: "",
+  maxBudget: "",
+  startDate: "",
+  startTime: { hour: "9", minute: "30", period: "AM" },
+  stopTime: { hour: "5", minute: "30", period: "PM" },
+  endDate: "",
+  email: "",
+  phone: { countryCode: "+234", number: "" },
+  hideSocialLinks: false,
+  useDifferentContact: false,
+};
+
+/** Parse a stored time back into the form's parts. Accepts "5:30 PM" and "17:30". */
+function parseTime(value: string | undefined, fallback: FormValues["startTime"]) {
+  if (!value) return fallback;
+  const match = value.trim().match(/^(\d{1,2}):(\d{2})\s*(AM|PM)?$/i);
+  if (!match) return fallback;
+  const [, rawHour, minute, period] = match;
+  if (period) return { hour: rawHour, minute, period: period.toUpperCase() };
+  const hour24 = Number(rawHour);
+  return {
+    hour: String(hour24 % 12 || 12),
+    minute,
+    period: hour24 >= 12 ? "PM" : "AM",
+  };
 }
 
-export default function CreateVendorSlot({ type }: CreateVendorSlotProps) {
-  const [open, setOpen] = useState(false);
+/** Split "+2348012345678" back into its country code and the rest. */
+function parsePhone(phoneNumbers: string[] | undefined) {
+  const raw = phoneNumbers?.[0];
+  if (!raw) return EMPTY_FORM.phone;
+  const match = africanCountryCodes
+    .map((option) => option.value)
+    .filter((code) => raw.startsWith(code))
+    // Longest prefix wins so a shorter code cannot shadow "+234".
+    .sort((a, b) => b.length - a.length)[0];
+  return match
+    ? { countryCode: match, number: raw.slice(match.length) }
+    : { countryCode: "+234", number: raw };
+}
+
+/** Map an existing slot back onto the form so it can be edited in place. */
+function slotToFormValues(slot: VendorSlot, isRevenue: boolean): FormValues {
+  const { slotData, serviceData, contact } = slot.vendorDetails;
+  const deadline =
+    slot.vendorDetails.applicationDeadline ??
+    (isRevenue ? slotData?.applicationDeadline : serviceData?.applicationDeadline);
+
+  return {
+    ...EMPTY_FORM,
+    category: slot.vendorCategory || slot.category || "",
+    description: slot.description ?? "",
+    slotName: slotData?.slotName ?? "",
+    slotNumber: slotData?.slotNumber != null ? String(slotData.slotNumber) : "",
+    price: slotData?.price != null ? String(slotData.price) : "",
+    totalPrice:
+      slotData?.price != null && slotData?.slotNumber != null
+        ? String(slotData.price * slotData.slotNumber)
+        : "",
+    serviceName: serviceData?.serviceName ?? "",
+    minBudget: serviceData?.minBudget != null ? String(serviceData.minBudget) : "",
+    maxBudget: serviceData?.maxBudget != null ? String(serviceData.maxBudget) : "",
+    startDate: serviceData?.startDate ?? "",
+    endDate: serviceData?.endDate ?? "",
+    startTime: parseTime(serviceData?.startTime, EMPTY_FORM.startTime),
+    stopTime: parseTime(serviceData?.stopTime, EMPTY_FORM.stopTime),
+    applicationDeadline: deadline ? new Date(deadline) : undefined,
+    email: contact?.email ?? "",
+    phone: parsePhone(contact?.phoneNumbers),
+    hideSocialLinks: slot.vendorDetails.hideSocialLinks ?? false,
+    useDifferentContact: contact?.useDifferentContactDetails ?? false,
+  };
+}
+
+interface EditVendorSlotFormProps {
+  type: "Revenue" | "Service";
+  slot: VendorSlot;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
+
+export default function EditVendorSlotForm({
+  type,
+  slot,
+  open,
+  onOpenChange,
+}: EditVendorSlotFormProps) {
   const { selectedEventId } = useEventSelectorStore();
-  const createVendorMutation = useCreateVendor();
-  const navigate = useNavigate();
+  const updateVendorMutation = useUpdateVendor();
   const isRevenue = type === "Revenue";
   const label = isRevenue ? "Slot" : "Offer";
 
   const form = useForm<FormValues>({
     resolver: zodResolver(buildSchema(type)),
-    defaultValues: {
-      category: "",
-      description: "",
-      slotName: "",
-      slotNumber: "",
-      price: "",
-      totalPrice: "",
-      serviceName: "",
-      minBudget: "",
-      maxBudget: "",
-      startDate: "",
-      startTime: {
-        hour: "9",
-        minute: "30",
-        period: "AM",
-      },
-      stopTime: {
-        hour: "5",
-        minute: "30",
-        period: "PM",
-      },
-      endDate: "",
-      email: "",
-      phone: {
-        countryCode: "+234",
-        number: "",
-      },
-      hideSocialLinks: false,
-      useDifferentContact: false,
-    },
+    defaultValues: slotToFormValues(slot, isRevenue),
   });
+
+  // defaultValues only apply on mount, and the slot arrives from a query — refill
+  // on open so an edit never shows a stale or blank record.
+  useEffect(() => {
+    if (open) form.reset(slotToFormValues(slot, isRevenue));
+  }, [open, slot, isRevenue, form]);
 
   const [formError, setFormError] = useState<string | null>(null);
 
   function handleClose(nextOpen: boolean) {
-    setOpen(nextOpen);
-    if (!nextOpen) {
-      form.reset();
-      setFormError(null);
-    }
+    onOpenChange(nextOpen);
+    if (!nextOpen) setFormError(null);
   }
 
   function increaseSlotNumber() {
@@ -143,7 +203,10 @@ export default function CreateVendorSlot({ type }: CreateVendorSlotProps) {
   function onSubmit(values: FormValues) {
     setFormError(null);
 
-    if (!selectedEventId) {
+    // Editing keeps the slot on its own event, falling back to the picker only
+    // if the slot somehow has none.
+    const eventId = slot.eventId || selectedEventId;
+    if (!eventId) {
       toast.error("Select an event first.");
       return;
     }
@@ -152,7 +215,7 @@ export default function CreateVendorSlot({ type }: CreateVendorSlotProps) {
       vendorType: type,
       category: values.category,
       description: values.description,
-      eventId: selectedEventId,
+      eventId,
       vendorDetails: {
         slotData: {
           slotName: isRevenue ? (values.slotName ?? null) : null,
@@ -188,42 +251,21 @@ export default function CreateVendorSlot({ type }: CreateVendorSlotProps) {
         },
       },
       hideSocialLinks: values.hideSocialLinks || false,
+      status: slot.status,
       applicationDeadline: values.applicationDeadline
         ? values.applicationDeadline.toISOString()
         : "",
     };
 
-    createVendorMutation.mutate(data, {
-      onSuccess: (response) => {
-        handleClose(false);
-
-        // The create response has not settled on one shape — accept either the
-        // vendor object directly or a nested one, rather than silently not navigating.
-        const payload = response.data as
-          | { vendorId?: string; data?: { vendorId?: string } }
-          | undefined;
-        const vendorId = payload?.vendorId ?? payload?.data?.vendorId;
-
-        navigate(
-          vendorId
-            ? getRoutePath(
-                isRevenue ? "revenue_vendor_slot" : "service_vendor_slot",
-                { slotId: vendorId },
-              )
-            : // No id came back — land on the list, where the new slot still shows.
-              getRoutePath(isRevenue ? "revenue_vendor" : "service_vendor"),
-        );
-      },
-    });
+    // Editing stays on the page the user is already looking at — no navigation.
+    updateVendorMutation.mutate(
+      { vendorId: slot.vendorId, data },
+      { onSuccess: () => handleClose(false) },
+    );
   }
 
   return (
     <>
-      <DestructiveAddBtn
-        name={isRevenue ? "Create Slot" : "Create Offer"}
-        special
-        onClick={() => setOpen(true)}
-      />
       <div className="flex flex-col max-w-[560px] ">
         <BaseModal
           open={open}
@@ -235,11 +277,11 @@ export default function CreateVendorSlot({ type }: CreateVendorSlotProps) {
           <div className="max-h-[80vh] overflow-y-auto px-4 md:px-8">
             <div className="flex flex-col gap-1 py-10">
               <p className="font-black font-sf-pro-display text-black md:text-2xl text-xl uppercase">
-                Add Vendors
+                Edit {label}
               </p>
               <p className="font-sf-pro-display text-sm text-system-black ">
-                Open your event to marketplace sellers and reach out for
-                professional event services.
+                Update this listing's details. Vendors who already applied keep
+                their applications.
               </p>
             </div>
 
@@ -548,16 +590,16 @@ export default function CreateVendorSlot({ type }: CreateVendorSlotProps) {
                   onClick={() => handleClose(false)}
                   className="w-1/2 font-sf-pro-text font-semibold rounded-full uppercase text-xs"
                 >
-                  Save Draft
+                  Cancel
                 </Button>
                 <Button
                   type="submit"
-                  disabled={createVendorMutation.isPending}
+                  disabled={updateVendorMutation.isPending}
                   className="w-1/2 h-8 px-6 rounded-full text-xs font-semibold font-sf-pro-text uppercase text-white bg-black hover:bg-black/90 disabled:opacity-50"
                 >
-                  {createVendorMutation.isPending
-                    ? `Creating ${label}...`
-                    : `Create ${label}`}
+                  {updateVendorMutation.isPending
+                    ? `Saving ${label}...`
+                    : `Save ${label}`}
                 </Button>
               </div>
             </FormBase>

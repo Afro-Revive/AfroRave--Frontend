@@ -306,6 +306,7 @@ export interface CreateVendorRequest {
   eventId: string
   vendorDetails: VendorDetails
   hideSocialLinks: boolean
+  status: string
   applicationDeadline: string
 }
 

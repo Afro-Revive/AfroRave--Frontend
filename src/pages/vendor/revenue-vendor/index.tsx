@@ -19,8 +19,8 @@ export default function RevenueVendorPage() {
         <AddFilterBUtton />
 
         <div className="flex items-center gap-2 md:gap-8">
-          <SectionMapBtn type="upload" />
-          <SectionMapBtn type="edit" />
+          {/* <SectionMapBtn type="upload" />
+          <SectionMapBtn type="edit" /> */}
 
           <EventSelect />
 

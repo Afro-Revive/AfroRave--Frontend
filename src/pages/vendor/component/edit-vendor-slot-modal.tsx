@@ -10,6 +10,8 @@ import { MdOutlineMailOutline } from "react-icons/md";
 import { CiPhone } from "react-icons/ci";
 import { daysUntilEvent, stripUnderscores } from "@/lib/helper-func";
 import { formatNaira } from "@/lib/format-price";
+import { cn } from "@/lib/utils";
+import EditVendorSlotForm from "./edit-vendor-slot-form-modal";
 
 interface EditVendorSlotModalProps {
   type: "Revenue" | "Service";
@@ -22,6 +24,8 @@ export default function EditVendorSlotModal({
 }: EditVendorSlotModalProps) {
   const [open, setOpen] = useState(false);
   const [viewMore, setViewMore] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
   const label = type === "Revenue" ? "Slot" : "Offer";
   const { user } = useAfroStore();
   const slotData = slot?.vendorDetails?.slotData;
@@ -69,7 +73,7 @@ export default function EditVendorSlotModal({
       >
         <div className="max-h-[80vh] overflow-y-auto py-6">
           <div className="flex flex-col items-center justify-center gap-3 mb-5">
-            <p className="font-inter text-xl font-black text-system-black">
+            <p className="font-inter text-xl font-black text-system-black uppercase">
               {slot?.vendorName}
             </p>
             {/**
@@ -83,7 +87,17 @@ export default function EditVendorSlotModal({
           </div>
 
           <div className="flex flex-col gap-4 bg-[#d9d9d9] px-8">
-            <div className="flex flex-col text-white bg-[#ACACAC] rounded-xl px-3 py-4 gap-2 mt-8">
+            <div className="relative flex flex-col text-white bg-[#ACACAC] rounded-xl px-3 py-4 gap-2 mt-8">
+              {slot && (
+                <button
+                  type="button"
+                  aria-label={`Edit ${label.toLowerCase()} details`}
+                  onClick={() => setEditOpen(true)}
+                  className="absolute top-3 right-3 text-white/80 hover:text-white transition-colors"
+                >
+                  <SquarePen className="w-4 h-4" />
+                </button>
+              )}
               <p className="font-inter font-bold text-xl">{slot?.vendorName}</p>
               <p className="font-inter text-sm">
                 {stripUnderscores(slot?.category)}
@@ -182,10 +196,41 @@ export default function EditVendorSlotModal({
                 </tbody>
               </table>
             </div>
+
+            {/* TODO: not wired to the API — there is no vendor status endpoint yet,
+                so this only toggles locally and does not persist. */}
+            <div className="pb-8">
+              <Button
+                type="button"
+                onClick={() => setIsPaused((prev) => !prev)}
+                className={cn(
+                  "w-full h-10 rounded-4xl font-inter text-xs uppercase",
+                  isPaused
+                    ? "bg-[#00AD2E] text-white hover:bg-[#00AD2E]/90"
+                    : "bg-[#FF9500] text-black hover:bg-[#FF9500]/90",
+                )}
+              >
+                {isPaused ? "Resume Application" : "Pause Application"}
+              </Button>
+              <p className="mt-2 text-center font-inter text-[11px] text-mid-dark-gray">
+                {isPaused
+                  ? "Vendors cannot apply to this slot while applications are paused."
+                  : "Pausing stops new applications. Existing ones are unaffected."}
+              </p>
+            </div>
           </div>
 
         </div>
       </BaseModal>
+
+      {slot && (
+        <EditVendorSlotForm
+          type={type}
+          slot={slot}
+          open={editOpen}
+          onOpenChange={setEditOpen}
+        />
+      )}
     </>
   );
 }
