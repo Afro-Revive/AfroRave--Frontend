@@ -23,6 +23,18 @@ export interface CreateCartRequest {
   quantity: number
 }
 
+/**
+ * A line in the local cart. Keyed by `cartKey` rather than `ticketId` because two
+ * sellers can list the same ticket type on the resale market — keying by ticketId
+ * would merge those listings into one line at the wrong price.
+ */
+export interface CartLineItem extends CreateCartRequest {
+  /** Matches `PurchasableTicket.cartKey`: ticketId for primary, listing id for resale. */
+  cartKey: string
+  /** Set only on resale lines. */
+  listingId?: string
+}
+
 export interface CreateCartResponse {
   message: string
   data: {

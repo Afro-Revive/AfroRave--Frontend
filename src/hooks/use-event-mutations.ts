@@ -426,6 +426,16 @@ export function useGetTrendingEvents() {
   })
 }
 
+export function useGetEventResaleListings(eventId?: string) {
+  return useQuery({
+    queryKey: eventKeys.resaleListings(eventId || ''),
+    queryFn: () => {
+      if (!eventId) throw new Error('Event ID is required')
+      return eventService.getEventResaleListings(eventId)
+    }
+  })
+}
+
 export function useGetVendorAvailableEvents() {
   return useQuery({
     queryKey: eventKeys.vendorAvailable(),

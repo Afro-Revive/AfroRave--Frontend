@@ -359,6 +359,39 @@ export interface CreateThemeRequest {
   eventId: string
 }
 
+// Event Resale Listings 
+export interface ResaleListingData {
+  id: string
+  ticketId: string
+  ticketName: string
+  price: number
+  quantity: number
+  sellersUserId: string
+  sellerName: string
+  status: 'Active' | 'Sold' | 'Cancelled'
+  createdDate: string
+}
+
+export type ResaleListingsResponse = ApiResponse<ResaleListingData[]>
+
+/**
+ * Normalized view-model for anything a fan can add to their cart, so UI does not
+ * have to branch on whether a row came from primary sale or the resale market.
+ */
+export interface PurchasableTicket {
+  /** Stable identity for cart lookups: the ticketId for primary, the listing id for resale. */
+  cartKey: string
+  ticketId: string
+  /** Only set for resale rows — the specific listing being bought. */
+  listingId?: string
+  name: string
+  price: number
+  available: number
+  /** Fine print under the price. */
+  caption: string
+  source: 'primary' | 'resale'
+}
+
 // Vendor Available Events
 export interface VendorAvailableEventData {
   eventId: string

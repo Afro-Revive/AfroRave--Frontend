@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Plus, Minus, LoaderCircle, type LucideIcon } from "lucide-react";
 import { formatNaira } from "@/lib/format-price";
-import type { EventDetailData, PaginatedResponse, TicketData } from "@/types";
+import type { EventDetailData, PurchasableTicket } from "@/types";
 import { RenderEventImage } from "@/components/shared/render-event-flyer";
 import { useCreateCart, useUpdateCartQuantity } from "@/hooks/use-cart";
 import { CartSummaryFloat } from "../individual-event/_components/cart-float";
@@ -11,14 +11,28 @@ import {
   formatTimeLong,
   formatTimezone,
 } from "@/lib/helper-func";
-import { BlockName } from "../_components/block-name";
+import { TicketTab } from "../_components/ticket-tab";
+import { useMemo, useState } from "react";
 
 export default function CartContainer({
   event,
   action,
   isLoading = false,
-  eventTickets,
+  tickets,
+  resaleListings,
 }: CartContainerProps) {
+  const [isSales, setIsSales] = useState(false);
+
+  const hasResale = resaleListings.length > 0;
+  const showResale = isSales && hasResale;
+
+
+  // use memo to combine tickets and resaleListings into a single array for the CartSummaryFloat component
+  const allTickets = useMemo(
+    () => [...tickets, ...resaleListings],
+    [tickets, resaleListings],
+  );
+
   const isEventMultiDay = event.eventDate.startDate !== event.eventDate.endDate;
   const eventDate = isEventMultiDay
     ? `${formatEventDate(event.eventDate.startDate)} - ${formatEventDate(
@@ -62,26 +76,30 @@ export default function CartContainer({
         </div>
 
         <div className="flex items-center gap-5 mt-4">
-          <BlockName name="tickets" />
-
-          {/* <p className='font-sf-pro-display text-xl font-extrabold text-white/60'>SALE</p> */}
+          <TicketTab
+            name="tickets"
+            isActive={!showResale}
+            action={() => setIsSales(false)}
+          />
+          {hasResale && (
+            <TicketTab
+              name="resale"
+              isActive={showResale}
+              action={() => setIsSales(true)}
+            />
+          )}
         </div>
 
         <ul className="w-full grid sm:grid-cols-2 gap-x-5 gap-y-7">
-          {eventTickets?.items.map((ticket) => (
-            <CartTicketCard
-              key={ticket.ticketId}
-              ticketId={ticket.ticketId}
-              name={ticket.ticketName}
-              price={ticket.price}
-            />
+          {(showResale ? resaleListings : tickets).map((ticket) => (
+            <CartTicketCard key={ticket.cartKey} ticket={ticket} />
           ))}
         </ul>
 
       </div>
 
       <CartSummaryFloat
-        eventTickets={eventTickets}
+        tickets={allTickets}
         action={action}
         isLoading={isLoading}
       />
@@ -89,28 +107,39 @@ export default function CartContainer({
   );
 }
 
-function CartTicketCard({ ticketId, name, price }: ICartTicketCard) {
+function CartTicketCard({ ticket }: ICartTicketCard) {
+  const { cartKey, ticketId, listingId, name, price, caption, available, source } =
+    ticket;
   const localItems = useCartStore((state) => state.items);
   const ticketCount =
-    localItems.find((i) => i.ticketId === ticketId)?.quantity ?? 0;
+    localItems.find((i) => i.cartKey === cartKey)?.quantity ?? 0;
+  const isSoldOut = available <= 0;
+  const atLimit = ticketCount >= available;
 
   const createCartMutation = useCreateCart();
   const updateQuantityMutation = useUpdateCartQuantity();
 
   function createCart() {
-    createCartMutation.mutate({ ticketId, quantity: 1 });
+    createCartMutation.mutate({ cartKey, ticketId, listingId, quantity: 1 });
   }
 
   function updateCart(quantity: number) {
-    updateQuantityMutation.mutate({ data: quantity, cartId: ticketId });
+    updateQuantityMutation.mutate({ data: quantity, cartKey });
   }
 
   return (
     <li className="flex items-center justify-between h-fit rounded-md bg-gunmetal-gray pl-5 pr-2 py-2.5 text-xl font-sf-pro-display text-white">
       <div className="flex flex-col gap-1 font-sf-pro-display font-normal">
-        <p className="md:text-base text-sm capitalize">{name}</p>
+        <p className="md:text-base text-sm capitalize">
+          {name}
+          {source === "resale" && (
+            <span className="ml-2 text-[10px] uppercase tracking-wide text-white/50">
+              resale
+            </span>
+          )}
+        </p>
         <p className="md:text-sm text-xs">{formatNaira(price, { free: price === 0 })}</p>
-        <p className="md:text-xs text-[10px] text-[#ACACAC]">(includes fees)</p>
+        <p className="md:text-xs text-[10px] text-[#ACACAC]">{caption}</p>
       </div>
 
       <div className="flex items-center md:gap-2 px-1 md:px-3 rounded-full h-12 bg-light-green">
@@ -133,6 +162,7 @@ function CartTicketCard({ ticketId, name, price }: ICartTicketCard) {
             ticketCount > 0 ? updateCart(ticketCount + 1) : createCart()
           }
           Icon={Plus}
+          disabled={isSoldOut || atLimit}
           isLoading={
             createCartMutation.isPending || updateQuantityMutation.isPending
           }
@@ -142,10 +172,15 @@ function CartTicketCard({ ticketId, name, price }: ICartTicketCard) {
   );
 }
 
-function TicketButton({ action, Icon, isLoading = false }: ITicketButton) {
+function TicketButton({
+  action,
+  Icon,
+  isLoading = false,
+  disabled = false,
+}: ITicketButton) {
   return (
     <Button
-      disabled={isLoading}
+      disabled={isLoading || disabled}
       variant="ghost"
       className="p-1 w-fit h-fit hover:bg-black/10"
       onClick={action}
@@ -164,17 +199,17 @@ interface CartContainerProps {
   event: EventDetailData;
   action: () => void;
   isLoading?: boolean;
-  eventTickets: PaginatedResponse<TicketData> | undefined;
+  tickets: PurchasableTicket[];
+  resaleListings: PurchasableTicket[];
 }
 
 interface ICartTicketCard {
-  ticketId: string;
-  name: string;
-  price: number;
+  ticket: PurchasableTicket;
 }
 
 interface ITicketButton {
   action: () => void;
   Icon: LucideIcon;
   isLoading?: boolean;
+  disabled?: boolean;
 }

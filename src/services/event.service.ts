@@ -12,6 +12,7 @@ import type {
   EventVendorsResponse,
   EventsResponse,
   PromoCodeResponseWithDetails,
+  ResaleListingsResponse,
   ThemeResponse,
   TicketResponse,
   TrendingEventsResponse,
@@ -257,6 +258,15 @@ class EventService {
 
   async getEventByCustomUrl(customUrl: string): Promise<EventDetailResponse> {
     const response = await api.get(`/api/Event/url/${customUrl}`)
+    return response.data
+  }
+
+  /**
+   * Get active event Resale Listings
+   */
+
+  async getEventResaleListings(eventId?: string): Promise<ResaleListingsResponse>{
+    const response = await api.get(`/api/Profile/user/ticket/resale/?${eventId}`)
     return response.data
   }
 }

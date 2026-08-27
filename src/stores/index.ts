@@ -1,6 +1,6 @@
 import type { CreateEventRequest } from '@/types'
 import type { User } from '@/types/auth'
-import { CreateCartRequest } from '@/types/cart'
+import { CartLineItem } from '@/types/cart'
 import { decodeTokenExpiry, isTokenExpired } from '@/lib/token'
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
@@ -161,14 +161,14 @@ export const useEventSelectorStore = create<EventSelectorState>()((set) => ({
 
 
 interface CartState {
-  items: CreateCartRequest[]
+  items: CartLineItem[]
   isSyncingCart: boolean
   promoCodeId: string | null
   setPromoCodeId: (id: string | null) => void
   isCartOpen: boolean
-  addItem: (item: CreateCartRequest) => void
-  removeItem: (ticketId: string) => void
-  updateQuantity: (ticketId: string, quantity: number) => void
+  addItem: (item: CartLineItem) => void
+  removeItem: (cartKey: string) => void
+  updateQuantity: (cartKey: string, quantity: number) => void
   clearLocal: () => void
   setSyncing: (value: boolean) => void
   openCart: () => void
@@ -185,11 +185,11 @@ export const useCartStore = create<CartState>()(
       setPromoCodeId: (id) => set({ promoCodeId: id }),
       addItem: (item) =>
         set((state) => {
-          const existing = state.items.find((i) => i.ticketId === item.ticketId)
+          const existing = state.items.find((i) => i.cartKey === item.cartKey)
           if (existing) {
             return {
               items: state.items.map((i) =>
-                i.ticketId === item.ticketId
+                i.cartKey === item.cartKey
                   ? { ...i, quantity: i.quantity + item.quantity }
                   : i,
               ),
@@ -197,14 +197,14 @@ export const useCartStore = create<CartState>()(
           }
           return { items: [...state.items, item] }
         }),
-      removeItem: (ticketId) =>
-        set((state) => ({ items: state.items.filter((i) => i.ticketId !== ticketId) })),
-      updateQuantity: (ticketId, quantity) =>
+      removeItem: (cartKey) =>
+        set((state) => ({ items: state.items.filter((i) => i.cartKey !== cartKey) })),
+      updateQuantity: (cartKey, quantity) =>
         set((state) => ({
           items:
             quantity <= 0
-              ? state.items.filter((i) => i.ticketId !== ticketId)
-              : state.items.map((i) => (i.ticketId === ticketId ? { ...i, quantity } : i)),
+              ? state.items.filter((i) => i.cartKey !== cartKey)
+              : state.items.map((i) => (i.cartKey === cartKey ? { ...i, quantity } : i)),
         })),
       clearLocal: () => set({ items: [] }),
       setSyncing: (value) => set({ isSyncingCart: value }),
@@ -214,6 +214,7 @@ export const useCartStore = create<CartState>()(
     {
       name: 'afro-cart',
       partialize: (state) => ({ items: state.items }),
+      version: 1,
     },
   ),
 )
