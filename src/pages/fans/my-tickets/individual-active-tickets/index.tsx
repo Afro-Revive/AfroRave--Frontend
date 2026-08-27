@@ -28,12 +28,17 @@ import OrderDetailsModal from "../components/order-details-modal";
 import TicketResaleModal from "@/pages/fans/my-tickets/tickets-resale/modals/ticket-resale";
 import TicketTransferModal from "@/pages/fans/my-tickets/tickets-transfer";
 
-type EnrichedPurchase = {
+type OrderLineItem = {
+  ticketId: string;
+  ticketName: string;
+  quantity: number;
+};
+
+type EnrichedOrder = {
   orderId: string;
   purchaseDate: string;
   quantity: number;
-  ticketName: string;
-  ticketId: string;
+  items: OrderLineItem[];
 };
 
 export default function IndividualActiveTicketsPage() {
@@ -70,17 +75,37 @@ export default function IndividualActiveTicketsPage() {
   const ticketDetails: UserTicketTicketDetails[] =
     ticketEvent?.ticketDetails ?? [];
 
-  const allPurchaseHistory: EnrichedPurchase[] = ticketDetails.flatMap((t) =>
-    t.purchaseHistory.map((ph) => ({
-      ...ph,
-      ticketName: t.ticketName,
-      ticketId: t.ticketId,
-    })),
-  );
+    
+const ordersById = new Map<string, EnrichedOrder>();
+  for (const ticket of ticketDetails) {
+    for (const ph of ticket.purchaseHistory) {
+      const lineItem: OrderLineItem = {
+        ticketId: ticket.ticketId,
+        ticketName: ticket.ticketName,
+        quantity: ph.quantity,
+      };
 
-  const selectedOrder = allPurchaseHistory.find(
-    (ph) => ph.orderId === selectedOrderId,
-  );
+      const order = ordersById.get(ph.orderId);
+      if (!order) {
+        ordersById.set(ph.orderId, {
+          orderId: ph.orderId,
+          purchaseDate: ph.purchaseDate,
+          quantity: ph.quantity,
+          items: [lineItem],
+        });
+        continue;
+      }
+
+      // Guard against the same ticket type appearing twice in one order.
+      if (order.items.some((i) => i.ticketId === lineItem.ticketId)) continue;
+
+      order.items.push(lineItem);
+      order.quantity += lineItem.quantity;
+    }
+  }
+  const orders = [...ordersById.values()];
+
+  const selectedOrder = orders.find((o) => o.orderId === selectedOrderId);
 
   const isLoading =
     isLoadingEvent || isLoadingActiveTickets || isLoadingPastTickets;
@@ -117,7 +142,7 @@ export default function IndividualActiveTicketsPage() {
               className="w-[200px] h-[256px] rounded-[10px]"
             />
             <span className="absolute w-6 h-[18px] top-1.5 right-1 bg-medium-gray/80 font-sf-pro-rounded text-[10px] text-center rounded-[10px]">
-              {allPurchaseHistory.length}
+              {orders.length}
             </span>
           </div>
 
@@ -151,7 +176,7 @@ export default function IndividualActiveTicketsPage() {
           </p>
 
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
-            {allPurchaseHistory.map((item, index) => (
+            {orders.map((item, index) => (
               <OrderCard
                 key={item.orderId}
                 orderDate={formatShortDate(item.purchaseDate)}
@@ -192,17 +217,17 @@ export default function IndividualActiveTicketsPage() {
                   Tickets
                 </p>
                 <div className="flex flex-wrap gap-3 mb-6">
-                  {Array.from({ length: selectedOrder.quantity }).map(
-                    (_, i) => (
+                  {selectedOrder.items.flatMap((line) =>
+                    Array.from({ length: line.quantity }).map((_, i) => (
                       <div
-                        key={i}
+                        key={`${line.ticketId}-${i}`}
                         className="w-fit rounded-md py-4 px-10 bg-secondary-white flex items-center text-left"
                       >
                         <p className="text-sm font-sf-pro-display capitalize text-black">
-                          {selectedOrder.ticketName}
+                          {line.ticketName}
                         </p>
                       </div>
-                    ),
+                    )),
                   )}
                 </div>
               </div>

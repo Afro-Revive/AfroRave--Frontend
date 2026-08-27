@@ -1,7 +1,6 @@
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Switch } from '@/components/ui/switch'
 
 export default function SettingsPage() {
     return (
@@ -9,24 +8,6 @@ export default function SettingsPage() {
             <h1 className="text-2xl font-bold text-white mb-6">Settings</h1>
 
             <div className='w-full max-w-[550px] flex flex-col gap-8 pb-[100px]'>
-                {/* Notifications Section */}
-                <div className='flex flex-col gap-4 p-6 bg-white/5 rounded-lg border border-white/10'>
-                    <h2 className='text-lg font-semibold text-white'>Notifications</h2>
-                    <div className='flex items-center justify-between'>
-                        <div className='flex flex-col gap-1'>
-                            <Label className='text-white'>Email Notifications</Label>
-                            <p className='text-xs text-white/60'>Receive updates about your tickets and events</p>
-                        </div>
-                        <Switch />
-                    </div>
-                    <div className='flex items-center justify-between'>
-                        <div className='flex flex-col gap-1'>
-                            <Label className='text-white'>SMS Notifications</Label>
-                            <p className='text-xs text-white/60'>Get text alerts for important updates</p>
-                        </div>
-                        <Switch />
-                    </div>
-                </div>
 
                 {/* Security Section */}
                 <div className='flex flex-col gap-4 p-6 bg-white/5 rounded-lg border border-white/10'>

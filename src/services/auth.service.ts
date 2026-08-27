@@ -47,6 +47,14 @@ class AuthService {
     console.log(data)
     return api.post<AuthResponse>('/api/Auth/complete-profile', data)
   }
+
+  static forgetPassword(data: { email: string }) {
+    return api.post<{ message: string }>('/api/Auth/forgot-password', data)
+  }
+
+  static resetPassword(data: {email: string; token: string; newPassword: string }) {
+    return api.post<{ message: string }>('/api/Auth/reset-password', data)
+  }
 }
 
 const authService = AuthService

@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { Mail, CheckCircle2, ArrowLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { useForgotPassword } from '@/hooks'
 import { cn } from '@/lib/utils'
 
 interface ForgotPasswordViewProps {
@@ -13,6 +14,7 @@ interface ForgotPasswordViewProps {
 type Step = 'email' | 'success'
 
 export function ForgotPasswordView({ onBack, onDone }: ForgotPasswordViewProps) {
+  const {mutateAsync} = useForgotPassword()
   const [step, setStep] = useState<Step>('email')
   const [email, setEmail] = useState('')
   const [emailError, setEmailError] = useState('')
@@ -32,17 +34,24 @@ export function ForgotPasswordView({ onBack, onDone }: ForgotPasswordViewProps) 
     }
     setEmailError('')
     setIsLoading(true)
-    // TODO: wire to backend reset password API
-    setTimeout(() => {
+    mutateAsync({ email }).then(() => {
       setIsLoading(false)
       setStep('success')
-    }, 1200)
+    }).catch(() => {
+      setIsLoading(false)
+      setEmailError('Failed to send reset link. Please try again.')
+    })
   }
 
   function handleResend() {
     setIsLoading(true)
-    // TODO: wire to backend resend API
-    setTimeout(() => setIsLoading(false), 1200)
+     mutateAsync({ email }).then(() => {
+      setIsLoading(false)
+      setStep('success')
+    }).catch(() => {
+      setIsLoading(false)
+      setEmailError('Failed to send reset link. Please try again.')
+    })
   }
 
   return (
@@ -105,7 +114,7 @@ export function ForgotPasswordView({ onBack, onDone }: ForgotPasswordViewProps) 
               <Button
                 type='submit'
                 disabled={isLoading}
-                className='w-full h-[50px] text-xl font-semibold font-sf-pro-text'>
+                className='w-full py-5 text-base font-semibold font-sf-pro-text'>
                 {isLoading ? (
                   <span className='flex items-center gap-2'>
                     <motion.span
@@ -157,7 +166,7 @@ export function ForgotPasswordView({ onBack, onDone }: ForgotPasswordViewProps) 
 
             <Button
               onClick={onDone}
-              className='w-full h-[50px] text-xl font-semibold font-sf-pro-text'>
+              className='w-full py-5 text-base font-semibold font-sf-pro-text'>
               Done
             </Button>
 

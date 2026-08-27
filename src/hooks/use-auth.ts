@@ -311,3 +311,17 @@ export function useChangePassword() {
     },
   })
 }
+
+// Forgot Password Hook
+export function useForgotPassword() {
+  return useMutation({
+    mutationFn: (data: { email: string }) => authService.forgetPassword(data),
+    onSuccess: () => {
+      profileToasts.forgotPasswordSuccess()
+    },
+    onError: (error: unknown) => {
+      const errorMessage = extractErrorMessage(error)
+      authToasts.loginError(errorMessage)
+    },
+  })
+}
