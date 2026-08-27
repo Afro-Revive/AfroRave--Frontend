@@ -35,6 +35,13 @@ export interface CartLineItem extends CreateCartRequest {
   listingId?: string
 }
 
+/**
+ * Wire format for creating a cart line on the server. The server needs to know the underlying ticketId of a resale listing, so we send that as `resellTicketId`.
+ */
+export type UpdatedCreateCartRequest =
+  | { ticketId: string; quantity: number }
+  | { quantity: number; listingId: string; resellTicketId: string }
+
 export interface CreateCartResponse {
   message: string
   data: {

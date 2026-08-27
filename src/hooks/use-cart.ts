@@ -96,10 +96,14 @@ export function useSyncCartToServer() {
     mutationFn: async () => {
       const items = useCartStore.getState().items
       if (items.length === 0) return
-      // NOTE: the sync endpoint only accepts ticketId, so a resale line syncs as its
-      // underlying ticket and loses the listing (and its price). Needs listingId support
-      // server-side before resale checkout is correct.
-      await cartService.syncCart(items.map(({ ticketId, quantity }) => ({ ticketId, quantity })))
+      // A line is resale if it carries a listingId
+      await cartService.syncCart(
+        items.map(({ ticketId, quantity, listingId }) =>
+          listingId
+            ? { quantity, listingId, resellTicketId: ticketId }
+            : { ticketId, quantity },
+        ),
+      )
     },
     onError: () => toast.error('Failed to sync cart. Please try again.'),
   })

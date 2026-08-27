@@ -189,7 +189,11 @@ export function useLogin(options?: { onSuccess?: () => void }) {
           useCartStore.getState().setSyncing(true)
           try {
             await cartService.syncCart(
-              localItems.map(({ ticketId, quantity }) => ({ ticketId, quantity })),
+              localItems.map(({ ticketId, quantity, listingId }) =>
+                listingId
+                  ? { quantity, listingId, resellTicketId: ticketId }
+                  : { ticketId, quantity },
+              ),
             )
             await queryClient.invalidateQueries({ queryKey: cartKeys.lists() })
           } finally {
