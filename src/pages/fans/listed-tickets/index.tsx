@@ -66,7 +66,7 @@ function ListedTickets({
   price,
   quantity,
   date,
-  status,
+  status = "active",
 }: ListedTicketsProps) {
   return (
     <div className="w-full flex items-center justify-between py-4 border-b border-white/5 font-sf-pro-display text-white hover:bg-white/5 transition-colors cursor-pointer rounded-lg px-2 -mx-2">
