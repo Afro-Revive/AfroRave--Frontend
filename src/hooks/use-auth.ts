@@ -57,6 +57,20 @@ function extractErrorMessage(error: unknown): string {
   return 'An unexpected error occurred'
 }
 
+/**
+ * Landing route for an account type.
+ */
+function dashboardPathFor(accountType?: string): string {
+  switch (accountType) {
+    case 'Vendor':
+      return getRoutePath('vendor_profile')
+    case 'Organizer':
+      return getRoutePath('standalone')
+    default:
+      return getRoutePath('account')
+  }
+}
+
 // Query keys for authentication
 export const authKeys = {
   all: ['auth'] as const,
@@ -207,21 +221,7 @@ export function useLogin(options?: { onSuccess?: () => void }) {
         if (options?.onSuccess) {
           options.onSuccess()
         } else {
-          // Redirect based on account type
-          const accountType = data.data.userData.accountType
-          switch (accountType) {
-            case 'User':
-              navigate(getRoutePath('account'))
-              break
-            case 'Vendor':
-              navigate(getRoutePath('vendor_profile'))
-              break
-            case 'Organizer':
-              navigate(getRoutePath('standalone'))
-              break
-            default:
-              navigate(getRoutePath('account'))
-          }
+          navigate(dashboardPathFor(data.data.userData.accountType))
         }
       }
 
@@ -287,7 +287,7 @@ export function useCompleteProfile() {
 
       queryClient.invalidateQueries({ queryKey: authKeys.user() })
       profileToasts.profileCompleted()
-      navigate(getRoutePath('account'))
+      navigate(dashboardPathFor(data.data.userData?.accountType))
     },
     onError: (error: unknown) => {
       const errorMessage = extractErrorMessage(error)
