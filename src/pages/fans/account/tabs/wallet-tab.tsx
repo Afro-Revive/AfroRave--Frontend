@@ -52,7 +52,7 @@ export default function WalletTab() {
                     </p>
                     <Button
                         onClick={() => setIsWithdrawModalOpen(true)}
-                        className='w-full h-12 bg-[#0066FF] hover:bg-[#0052CC] text-white font-sf-pro-display font-semibold rounded-lg transition-colors border-none'>
+                        className='w-full h-12 bg-white text-deep-red font-sf-pro-display rounded-lg transition-colors border-none'>
                         Withdraw Funds
                     </Button>
                 </div>
