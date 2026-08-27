@@ -182,7 +182,9 @@ export default function CreateVendorSlot({ type }: CreateVendorSlotProps) {
         contact: {
           useDifferentContactDetails: values.useDifferentContact || false,
           email: values.email || null,
-          phoneNumbers: values.phone?.number ? [values.phone.number] : null,
+          phoneNumbers: values.phone?.number
+            ? [`${values.phone.countryCode ?? ""}${values.phone.number}`]
+            : null,
         },
       },
       hideSocialLinks: values.hideSocialLinks || false,

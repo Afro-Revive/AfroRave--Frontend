@@ -247,6 +247,33 @@ export function formatShortDate(dateString: string): string {
   }
 }
 
+/**
+ * Bucket a timestamp into an inbox section header — the API sends timestamps,
+ * the inbox groups them under relative headings.
+ * '2026-08-26T09:00:00' -> 'Yesterday'
+ */
+export function relativeDateGroup(dateString: string): string {
+  try {
+    const days = differenceInCalendarDays(new Date(), parseISO(dateString))
+    if (days <= 0) return 'Today'
+    if (days === 1) return 'Yesterday'
+    if (days <= 7) return '7 Days Ago'
+    if (days <= 30) return '30 Days Ago'
+    return 'Older'
+  } catch {
+    return 'Older'
+  }
+}
+
+/** Compact date for list rows: '2026-08-26T09:00:00' -> 'Aug 26'. */
+export function formatMonthDay(dateString: string): string {
+  try {
+    return format(parseISO(dateString), 'MMM d')
+  } catch {
+    return dateString
+  }
+}
+
 export function monthNumberToName(month: number | string): string {
   return new Date(2000, Number(month) - 1, 1).toLocaleString('en-US', { month: 'short' }).toLowerCase()
 }

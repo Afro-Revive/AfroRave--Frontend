@@ -10,14 +10,19 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useOrganizerNotifications } from "@/hooks/use-profile-mutations"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ChevronLeft, ChevronRight, Eye, EyeOff, LogOut, X } from "lucide-react"
-import { useEffect, useState } from "react"
+import { useGetNigerianBanks } from "@/hooks/use-payments"
+import { useEffect, useMemo, useState } from "react"
+import { formatMonthDay, relativeDateGroup } from "@/lib/helper-func"
 import { useAfroStore } from "@/stores"
 import { useLogout, useChangePassword } from '@/hooks/use-auth'
-import { useOrganizerProfile, useUpdateOrganizerProfile } from '@/hooks/use-profile-mutations'
+import { useMarkNotificationAsRead, useOrganizerProfile, useUpdateOrganizerProfile } from '@/hooks/use-profile-mutations'
 import { formToasts } from '@/lib/toast'
-import { OrganizerProfileData } from "@/types/profile"
+import { NotificationData, OrganizerProfileData } from "@/types/profile"
+import type { PaginatedResponse } from "@/types/api"
+import { NigerianBanksResponse } from "@/types/payments"
 
 interface CreatorSettingsModalProps {
     open?: boolean
@@ -26,69 +31,6 @@ interface CreatorSettingsModalProps {
     customTrigger?: React.ReactNode
 }
 
-// Mock inbox notifications — replace with real API data when available
-const mockNotifications = [
-    {
-        id: '1',
-        eventName: 'Urban Rise Festival V...',
-        message: "You've Been Accepted As A Vendor Fo...",
-        date: 'June 12',
-        read: false,
-        group: 'Yesterday',
-        image: '/assets/event/sample-event.png',
-    },
-    {
-        id: '2',
-        eventName: 'Urban Rise Festival V...',
-        message: "You've Been Accepted As A Vendor Fo...",
-        date: 'June 12',
-        read: false,
-        group: 'Yesterday',
-        image: '/assets/event/sample-event.png',
-    },
-    {
-        id: '3',
-        eventName: 'Urban Rise Festival V...',
-        message: "You've Been Accepted As A Vendor Fo...",
-        date: 'June 12',
-        read: false,
-        group: 'Yesterday',
-        image: '/assets/event/sample-event.png',
-    },
-    {
-        id: '4',
-        eventName: 'Urban Rise Festival V...',
-        message: "You've Been Accepted As A Vendor Fo...",
-        date: 'June 12',
-        read: true,
-        group: '7 Days Ago',
-        image: '/assets/event/sample-event.png',
-    },
-    {
-        id: '5',
-        eventName: 'Urban Rise Festival V...',
-        message: "You've Been Accepted As A Vendor Fo...",
-        date: 'June 12',
-        read: true,
-        group: '7 Days Ago',
-        image: '/assets/event/sample-event.png',
-    },
-    {
-        id: '6',
-        eventName: 'Urban Rise Festival V...',
-        message: "You've Been Accepted As A Vendor Fo...",
-        date: 'June 12',
-        read: true,
-        group: '7 Days Ago',
-        image: '/assets/event/sample-event.png',
-    },
-]
-
-const NIGERIAN_BANKS = [
-    'Access Bank', 'First Bank', 'GTBank', 'Zenith Bank', 'UBA',
-    'Stanbic IBTC', 'FCMB', 'Fidelity Bank', 'Sterling Bank', 'Union Bank',
-    'Ecobank', 'Polaris Bank', 'Keystone Bank', 'Wema Bank', 'Heritage Bank',
-]
 
 export function CreatorSettingsModal({ open, onOpenChange, customTrigger }: CreatorSettingsModalProps) {
     const { user } = useAfroStore()
@@ -101,9 +43,28 @@ export function CreatorSettingsModal({ open, onOpenChange, customTrigger }: Crea
     const [showBankDetails, setShowBankDetails] = useState(false)
     const [showChangePassword, setShowChangePassword] = useState(false)
 
+    // Bank details
+    const {mutate: fetchBanks, data: banksData } = useGetNigerianBanks()
+    const NIGERIAN_BANKS = banksData?.data as NigerianBanksResponse[] | undefined || []
+
     // Inbox
     const [inboxFilter, setInboxFilter] = useState<'all' | 'unread'>('all')
-    const [notifications, setNotifications] = useState(mockNotifications)
+    const { data: notificationsData } = useOrganizerNotifications()
+    const markAsReadMutation = useMarkNotificationAsRead()
+    const [locallyRead, setLocallyRead] = useState<string[]>([])
+
+    // Memoize notifications with viewed status (local or remote) and group.
+    const notifications = useMemo(() => {
+        const payload = notificationsData?.data
+        const items = Array.isArray(payload)
+            ? (payload as NotificationData[])
+            : ((payload as PaginatedResponse<NotificationData> | undefined)?.items ?? [])
+        return items.map((n) => ({
+            ...n,
+            viewed: n.viewed || locallyRead.includes(n.id),
+            group: relativeDateGroup(n.createdDate),
+        }))
+    }, [notificationsData, locallyRead])
 
     // Account
     const [orderNotification, setOrderNotification] = useState<'daily' | 'weekly' | 'disabled'>('disabled')
@@ -137,17 +98,21 @@ export function CreatorSettingsModal({ open, onOpenChange, customTrigger }: Crea
             if (p.contactPhone) setTelphone(p.contactPhone)
             if (p.website) setPortfolioLink(p.website)
         }
-    }, [profileData])
+        fetchBanks()
+    }, [profileData, fetchBanks])
 
-    const unreadCount = notifications.filter(n => !n.read).length
+    const unreadCount = notifications.filter(n => !n.viewed).length
     const visibleNotifications = inboxFilter === 'unread'
-        ? notifications.filter(n => !n.read)
+        ? notifications.filter(n => !n.viewed)
         : notifications
 
     const groups = Array.from(new Set(visibleNotifications.map(n => n.group)))
 
     const handleMarkAllRead = () => {
-        setNotifications(prev => prev.map(n => ({ ...n, read: true })))
+        const unread = notifications.filter(n => !n.viewed)
+        // Clear the dots straight away, then persist each one.
+        setLocallyRead(prev => [...prev, ...unread.map(n => n.id)])
+        unread.forEach(n => markAsReadMutation.mutate(n.id))
     }
 
     const handleLogout = () => {
@@ -319,9 +284,11 @@ export function CreatorSettingsModal({ open, onOpenChange, customTrigger }: Crea
                                 <SelectTrigger className="w-full border-gray-200 text-gray-400 font-normal h-[42px] text-[13px] rounded-[6px] focus:ring-1 focus:ring-gray-400 mb-3">
                                     <SelectValue placeholder="Bank Name" />
                                 </SelectTrigger>
-                                <SelectContent>
+                                <SelectContent className="bg-white">
                                     {NIGERIAN_BANKS.map(bank => (
-                                        <SelectItem key={bank} value={bank.toLowerCase().replace(/\s/g, '-')}>{bank}</SelectItem>
+                                        <SelectItem key={bank.code} value={bank.code}>
+                                            {bank.name}
+                                        </SelectItem>
                                     ))}
                                 </SelectContent>
                             </Select>
@@ -502,7 +469,7 @@ export function CreatorSettingsModal({ open, onOpenChange, customTrigger }: Crea
                             <div className="flex-1 overflow-y-auto">
                                 {groups.length === 0 ? (
                                     <div className="flex items-center justify-center h-full">
-                                        <p className="text-[13px] text-gray-400 font-sf-pro-display">No notifications</p>
+                                        <p className="text-[13px] text-gray-400 font-sf-pro-display py-6 uppercase">No notifications</p>
                                     </div>
                                 ) : (
                                     groups.map(group => (
@@ -518,25 +485,24 @@ export function CreatorSettingsModal({ open, onOpenChange, customTrigger }: Crea
                                                         className="flex items-start gap-3 px-5 py-3 border-b border-gray-50 hover:bg-gray-50 transition-colors cursor-pointer">
                                                         <div className="w-10 h-10 rounded-full overflow-hidden shrink-0 bg-gray-200">
                                                             <img
-                                                                src={notification.image}
-                                                                alt={notification.eventName}
+                                                                src="/assets/dashboard/store.png"
+                                                                alt=""
                                                                 className="w-full h-full object-cover"
-                                                                onError={(e) => {
-                                                                    (e.target as HTMLImageElement).src = '/assets/dashboard/store.png'
-                                                                }}
                                                             />
                                                         </div>
                                                         <div className="flex-1 min-w-0">
                                                             <p className="text-[13px] font-medium text-black font-sf-pro-display truncate">
-                                                                {notification.eventName}
+                                                                {notification.subject}
                                                             </p>
                                                             <p className="text-[12px] text-gray-500 font-sf-pro-display truncate">
                                                                 {notification.message}
                                                             </p>
                                                         </div>
                                                         <div className="flex items-center gap-1.5 shrink-0">
-                                                            <p className="text-[11px] text-gray-400 font-sf-pro-display">{notification.date}</p>
-                                                            {!notification.read && (
+                                                            <p className="text-[11px] text-gray-400 font-sf-pro-display">
+                                                                {formatMonthDay(notification.createdDate)}
+                                                            </p>
+                                                            {!notification.viewed && (
                                                                 <span className="w-2 h-2 rounded-full bg-deep-red shrink-0" />
                                                             )}
                                                         </div>

@@ -5,7 +5,7 @@ import {
   useGetEventTickets,
   useUpdateTicket,
 } from '@/hooks/use-event-mutations'
-import { FakeDataGenerator } from '@/lib/fake-data-generator'
+// import { FakeDataGenerator } from '@/lib/fake-data-generator'
 import { cn } from '@/lib/utils'
 import { useEventStore } from '@/stores'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -18,13 +18,11 @@ import {
   unifiedTicketFormSchema,
   type UnifiedTicketForm as TForm,
 } from '../../schemas/ticket-schema'
-import { ConfirmationMailForm } from './confirmation-mail-form'
 import {
   type SavedTicket,
   type TicketType,
   addTicket,
   createTicket,
-  fillCurrentFormWithSampleData,
   handleCancelEdit,
   handleDeleteTicket,
   handleEditTicket,
@@ -96,7 +94,7 @@ export default function CreateTicketForm({
   const handleCancelEditWrapper = () =>
     handleCancelEdit(form, setEditingTicketId, setCurrentTicketType)
 
-  const handleFillSampleData = () => fillCurrentFormWithSampleData(currentTicketType, form)
+  // const handleFillSampleData = () => fillCurrentFormWithSampleData(currentTicketType, form)
 
   const handleSubmit = () => onSubmit(eventId, handleFormChange)
 
@@ -161,7 +159,7 @@ export default function CreateTicketForm({
 
       </TabContainer>
 
-      <ConfirmationMailForm />
+      {/* <ConfirmationMailForm /> */}
 
       <ContinueButton
         disabled={savedTickets.length === 0}

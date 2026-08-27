@@ -129,4 +129,16 @@ export interface WithdrawFundsRequest {
   accountName: string
 }
 
+export interface NotificationData {
+  id: string
+  subject: string
+  message: string
+  viewed: boolean
+  createdDate: string
+}
+
+// ApiResponse already wraps the payload (and may paginate it) — the element type
+// goes in, not an array of them.
+export type NotificationResponse = ApiResponse<NotificationData>
+
 export type OrganizerProfileResponse = ApiResponse<OrganizerProfileData>

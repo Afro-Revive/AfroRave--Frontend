@@ -147,7 +147,6 @@ export default function EventDetailsTab({ setStep, setActiveTabState }: IEventDe
         {(field) => (
           <Input
             placeholder='Enter event venue.'
-            className='uppercase'
             {...field}
             value={field.value == null ? '' : String(field.value)}
           />

@@ -52,7 +52,7 @@ import { AnimatedShowIf } from "../../component/animated-show-if";
 import { ActionPopover } from "../../component/action-popover";
 import { useDeletePromoCode } from "@/hooks/use-event-mutations";
 import { AddButton } from "../../component/add-btn";
-import { FakeDataGenerator } from "@/lib/fake-data-generator";
+// import { FakeDataGenerator } from "@/lib/fake-data-generator";
 
 export default function PromoCodeForm({
   handleFormChange,
@@ -131,28 +131,28 @@ export default function PromoCodeForm({
 
   const handleSubmit = () => onSubmit(handleFormChange);
 
-  const handleFillSampleData = (data: any) => {
-    if (!data) return;
+  // const handleFillSampleData = (data: any) => {
+  //   if (!data) return;
 
-    form.setValue("promoCodes.code", data.code);
-    form.setValue("promoCodes.discount", data.discount);
-    form.setValue("promoCodes.usageLimit", data.usageLimit);
-    form.setValue("promoCodes.onePerCustomer", data.onePerCustomer);
+  //   form.setValue("promoCodes.code", data.code);
+  //   form.setValue("promoCodes.discount", data.discount);
+  //   form.setValue("promoCodes.usageLimit", data.usageLimit);
+  //   form.setValue("promoCodes.onePerCustomer", data.onePerCustomer);
 
-    // Set dates
-    form.setValue("promoCodes.startDate", data.startDate);
-    form.setValue("promoCodes.endDate", data.endDate);
+  //   // Set dates
+  //   form.setValue("promoCodes.startDate", data.startDate);
+  //   form.setValue("promoCodes.endDate", data.endDate);
 
-    form.setValue("promoCodes.conditions", data.conditions);
-    form.setValue(
-      "promoCodes.tickets",
-      (data.tickets || []) as { id: string }[],
-    );
-    form.setValue("promoCodes.notes", data.notes);
+  //   form.setValue("promoCodes.conditions", data.conditions);
+  //   form.setValue(
+  //     "promoCodes.tickets",
+  //     (data.tickets || []) as { id: string }[],
+  //   );
+  //   form.setValue("promoCodes.notes", data.notes);
 
-    // Partnership data
-    form.setValue("promoCodes.partnership", data.partnership);
-  };
+  //   // Partnership data
+  //   form.setValue("promoCodes.partnership", data.partnership);
+  // };
 
   return (
     <div className="w-full flex flex-col gap-6">
@@ -184,13 +184,13 @@ export default function PromoCodeForm({
         {/* Only show form when there's a promo code to create/edit */}
         <AnimatedShowIf condition={currentPromoCode}>
           <div className="w-full flex flex-col gap-8">
-            <FakeDataGenerator
+            {/* <FakeDataGenerator
               type="promoCodes"
               onGenerate={handleFillSampleData}
               buttonText="🎲 Fill with sample data"
               variant="outline"
               className="mb-2 self-end"
-            />
+            /> */}
             <PromoCodeFormFields
               form={form}
               eventTickets={eventTicketsData?.items || []}
@@ -224,6 +224,7 @@ export default function PromoCodeForm({
         <Button
           type="button"
           variant="destructive"
+          disabled={currentPromoCode}
           onClick={() => handleFormChange("upgrades")}
           className="w-full md:w-[240px] h-10 rounded-[8px] text-xs font-sf-pro-text uppercase"
         >

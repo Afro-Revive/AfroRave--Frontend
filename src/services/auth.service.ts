@@ -35,8 +35,9 @@ class AuthService {
     return api.post<{ message: string }>('/auth/logout')
   }
 
+  // Organizer change password
   static changePassword(data: { currentPassword: string; newPassword: string }) {
-    return api.post<{ message: string }>('/api/Auth/change-password', data)
+    return api.patch<{ message: string }>('/api/Profile/vendor/change-password', data)
   }
 
   static refreshToken(data: { accessToken: string; refreshToken: string }) {

@@ -1,5 +1,5 @@
 import type { EventDetailData } from '@/types'
-import { ConfirmationMailForm } from '../../add-event/ticket-forms/create/confirmation-mail-form'
+// import { ConfirmationMailForm } from '../../add-event/ticket-forms/create/confirmation-mail-form'
 import { TabChildrenContainer } from '../component/edit-tab-children-container'
 import { BaseBooleanCheckbox } from '@/components/reusable/base-boolean-checkbox'
 import { useNavigate } from 'react-router-dom'
@@ -16,7 +16,7 @@ export default function ConfimationMailTab({ setActiveTab, event }: IConfirmatio
       onChange={setActiveTab}
       buttonText={`${event.eventName}'s theme`}>
       <div className='flex flex-col gap-8 py-24'>
-        <ConfirmationMailForm />
+        {/* <ConfirmationMailForm /> */}
 
         <BaseBooleanCheckbox
           data={{
