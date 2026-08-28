@@ -14,6 +14,7 @@ export interface UsersResaleTickets{
     sellersUserId: string;
     sellerName: string;
     createdDate: string;
+    status: string;
 }
 
 export interface VerifyTransferRecipient {

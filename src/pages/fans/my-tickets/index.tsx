@@ -46,7 +46,7 @@ export default function MyTicketsPage() {
   ]
 
   return (
-    <section className='w-full flex flex-col items-center'>
+    <section className='w-full flex flex-col items-center px-10'>
       <BaseAnimatedTab
         activeTab={activeTab}
         setActiveTab={setActiveTabState}

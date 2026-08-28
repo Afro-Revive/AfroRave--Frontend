@@ -24,6 +24,13 @@ export default function ListedTicketPage() {
   return (
     <div className="w-full flex-1 flex flex-col items-center pt-8 pb-[100px] px-4 md:px-0">
       <div className="w-full max-w-[550px] flex flex-col gap-6">
+                      <div className="w-full flex items-center gap-3 py-3 px-4 rounded-lg border border-white/10 bg-transparent font-sf-pro-display text-white transition-colors focus-within:border-white/20">
+                <Search className="w-4 h-4 text-white/40" />
+                <Input
+                  placeholder="Search"
+                  className="p-0 h-auto bg-transparent border-none placeholder:text-white/40 text-sm focus-visible:ring-0 focus-visible:ring-offset-0"
+                />
+              </div>
         {/* List */}
         <div className="flex flex-col gap-0">
           {listedTickets?.items.length === 0 && (
@@ -39,19 +46,14 @@ export default function ListedTicketPage() {
           )}
           {listedTickets?.items.map((item) => (
             <div>
-              <div className="w-full flex items-center gap-3 py-3 px-4 rounded-lg border border-white/10 bg-transparent font-sf-pro-display text-white transition-colors focus-within:border-white/20">
-                <Search className="w-4 h-4 text-white/40" />
-                <Input
-                  placeholder="Search"
-                  className="p-0 h-auto bg-transparent border-none placeholder:text-white/40 text-sm focus-visible:ring-0 focus-visible:ring-offset-0"
-                />
-              </div>
+
               <ListedTickets
                 key={item.ticketId}
                 date={item.createdDate}
                 price={item.price}
                 quantity={item.quantity}
                 ticketName={item.ticketName}
+                status={item.status}
               />
             </div>
           ))}
@@ -66,7 +68,7 @@ function ListedTickets({
   price,
   quantity,
   date,
-  status = "active",
+  status,
 }: ListedTicketsProps) {
   return (
     <div className="w-full flex items-center justify-between py-4 border-b border-white/5 font-sf-pro-display text-white hover:bg-white/5 transition-colors cursor-pointer rounded-lg px-2 -mx-2">
@@ -90,9 +92,9 @@ function ListedTickets({
             "capitalize font-normal px-2 py-0.5 text-[10px] tracking-wide",
             {
               "bg-[#34C759]/20 text-[#34C759] hover:bg-[#34C759]/30":
-                status === "sold",
+                status === "Sold",
               "bg-[#FF9500]/20 text-[#FF9500] hover:bg-[#FF9500]/30":
-                status === "active",
+                status === "Active",
             },
           )}
         >
@@ -108,5 +110,5 @@ export interface ListedTicketsProps {
   price: number;
   quantity: number;
   date: string;
-  status?: string;
+  status: string;
 }
