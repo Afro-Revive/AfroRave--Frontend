@@ -27,7 +27,6 @@ function ExpiredTickets({ data }: { data: UserTicketData[] }) {
           event_name={item.eventName}
           image={item.desktopMedia?.flyer}
           quantity={item.ticketDetails.reduce((sum, t) => sum + t.totalQuantity, 0)}
-          ticketName={item.ticketDetails[0]?.ticketName ?? ''}
         />
       ))}
     </div>
