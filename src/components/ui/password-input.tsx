@@ -13,6 +13,8 @@ interface PasswordInputProps {
   disabled?: boolean;
   onError?: boolean;
   className?: string;
+  /** Colour/size of the reveal toggle. Defaults to black, for light backgrounds. */
+  iconClassName?: string;
 }
 
 function PasswordInput({
@@ -22,6 +24,7 @@ function PasswordInput({
   disabled,
   onError,
   className,
+  iconClassName,
 }: PasswordInputProps) {
   const [isVisible, setIsVisible] = useState(false);
 
@@ -42,7 +45,10 @@ function PasswordInput({
         type="button"
         variant="ghost"
         size="icon"
-        className="absolute right-0 top-0 h-full rounded-full hover:text-primary/75 hover:bg-transparent text-black"
+        className={cn(
+          "absolute right-0 top-0 h-full rounded-full hover:text-primary/75 hover:bg-transparent text-black",
+          iconClassName,
+        )}
         onClick={toggleVisibility}
       >
         {isVisible ? (

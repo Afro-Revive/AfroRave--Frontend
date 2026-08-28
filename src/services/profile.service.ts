@@ -89,7 +89,14 @@ class ProfileService {
     const response = await api.patch('/api/profile/organizer', data)
     return response.data
   }
-}
 
+  /**
+   * Change Account Password
+   */
+  async changePassword(data: { currentPassword: string; newPassword: string; confirmNewPassword: string }): Promise<void> {
+    const response = await api.patch('/api/Profile/change-password', data)
+    return response.data
+  }
+}
 // Export service instance
 export const profileService = new ProfileService()

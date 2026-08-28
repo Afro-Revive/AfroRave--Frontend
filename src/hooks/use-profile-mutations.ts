@@ -121,3 +121,21 @@ export function useUpdateOrganizerProfile() {
     },
   })
 }
+
+
+export function useChangePassword() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (data: { currentPassword: string; newPassword: string; confirmNewPassword: string }) =>
+      profileService.changePassword(data),
+    onSuccess: () => {
+      toast.success('Password changed successfully!')
+      queryClient.invalidateQueries({ queryKey: ['user-profile'] })
+    },
+    onError: (error) => {
+      toast.error('Failed to change password. Please try again.')
+      console.error('Change password error:', error)
+    },
+  })
+}
