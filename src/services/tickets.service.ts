@@ -42,6 +42,22 @@ class TicketService {
         return response.data;
     }
 
+    /**
+     * Remove Resale Listing
+     */
+    async cancelResaleListing (id: string): Promise<void> {
+        const response = await api.post(`/api/Profile/user/ticket/resale/cancel`, { id });
+        return response.data;
+    }
+
+    /**
+     * Edit Resale Listing Price
+     */
+    async editResaleListingPrice(resellTicketId: string, price: number, newPrice: number): Promise<void> {
+        const response = await api.patch(`/api/Profile/user/ticket/resale/price`, { resellTicketId, price, newPrice });
+        return response.data;
+    }
+
 }
 
 export const ticketService = new TicketService();

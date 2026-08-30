@@ -37,6 +37,8 @@ interface DialogContentProps
   cancelOnOverlay?: boolean;
   overlayClassName?: string;
   slideFromBottom?: boolean;
+  /** Overrides the close button's own classes — position, background, colour. */
+  cancelClassName?: string;
 }
 
 const DialogContent = React.forwardRef<
@@ -52,6 +54,7 @@ const DialogContent = React.forwardRef<
       floatingCancel,
       cancelOnOverlay,
       slideFromBottom,
+      cancelClassName,
       ...props
     },
     ref
@@ -75,7 +78,9 @@ const DialogContent = React.forwardRef<
               "z-50 font-bold opacity-90 transition-opacity hover:opacity-100 focus:outline-none disabled:pointer-events-none",
               floatingCancel
                 ? "absolute top-4 right-4 md:top-6 md:right-6 p-2 bg-white/10 hover:bg-white/20 rounded-full backdrop-blur-sm text-white cursor-pointer"
-                : "w-full flex justify-end px-10 pt-6"
+                : "w-full flex justify-end px-10 pt-6",
+              // Last so callers can override the position and background above.
+              cancelClassName
             )}
             onClick={(e) => e.stopPropagation()}
           >
