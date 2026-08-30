@@ -49,6 +49,14 @@ class VendorService {
     return response.data;
   }
 
+  /**
+   * Get organizer vendor listings for a specific event
+   */
+  async getOrganizerVendorListings(eventVendorId: string): Promise<VendorSlotApplicationsResponse> {
+    const response = await api.get(`/api/Event/vendor-slot/${eventVendorId}/applications`);
+    return response.data;
+  }
+
 }
 
 // Export service instance

@@ -126,6 +126,9 @@ export interface VendorSlotApplication {
     applicationDeadline: string;
   };
   requestedSlots: number;
+  noOfRequestedStalls: number;
+  priceOffer: number;
+  proposedPrice: number;
   status: "Pending" | "Approved" | "Rejected";
   message: string;
   createdAt: string;

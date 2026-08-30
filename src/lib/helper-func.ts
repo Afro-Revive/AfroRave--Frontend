@@ -145,6 +145,18 @@ export function formatJoinedDate(dateString: string): string {
   }
 }
 
+/** Initials for an avatar fallback: 'Lagos Food Co' -> 'LF'. */
+export function initialsFrom(name?: string, fallback = 'V'): string {
+  return (
+    (name ?? '')
+      .split(' ')
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((word) => word[0]?.toUpperCase() ?? '')
+      .join('') || fallback
+  )
+}
+
 export function truncate(str: string, maxLength: number): string {
   if (str.length <= maxLength) {
     return str

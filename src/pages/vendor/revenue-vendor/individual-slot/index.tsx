@@ -1,15 +1,13 @@
 import { useParams } from "react-router-dom";
 import { IndividualVendorItem } from "../../component/individual-vendor-item";
-import { useEventSelectorStore } from "@/stores";
 import {
   useGetVendorSlotById,
-  useGetAllVendorApplications,
+  useVendorApplicationsSlotsByType,
 } from "@/hooks/use-vendor-mutation";
 import EventSelect from "@/components/shared/vendor-select";
 import CreateVendorSlot from "../../component/create-vendor-slot-modal";
 import EditVendorSlotModal from "../../component/edit-vendor-slot-modal";
-import { VendorSlot, VendorSlotApplication } from "@/types/vendor";
-import { PaginatedResponse } from "@/types";
+import { VendorSlot } from "@/types/vendor";
 import { LoadingFallback } from "@/components/loading-fallback";
 
 export default function IndividualSlots() {
@@ -17,20 +15,15 @@ export default function IndividualSlots() {
   const { data: slotData, isLoading: isSlotLoading } = useGetVendorSlotById(
     slotId ?? "",
   );
-  const { selectedEventId } = useEventSelectorStore();
-  // currently using the get all vendor applications hook
-  // this needs to change as the endpoint should be able to get all vendor applications for a specific slot
-  const { data: applicationsData, isLoading: isApplicationsLoading } =
-    useGetAllVendorApplications(selectedEventId ?? "");
-  const applications = applicationsData?.data as
-    | PaginatedResponse<VendorSlotApplication>
-    | undefined;
-  const revenueApplications = applications?.items ?? [];
+  // Scoped to this slot by the API, so no client-side filtering by event is needed.
+  const { revenueSlots: revenueApplications, isLoading: isApplicationsLoading } =
+    useVendorApplicationsSlotsByType(slotId ?? "");
   const slot = slotData?.data as VendorSlot | undefined;
   if (isSlotLoading || isApplicationsLoading) {
     return <LoadingFallback />;
   }
-
+  
+  console.log("Revenue Applications:", revenueApplications); // Log the revenue applications for debugging --- IGNORE ---
   return (
     <section className="w-full h-full flex flex-col items-center">
       <div className="w-full flex items-center justify-between bg-white h-14 px-8 border-l border-light-gray">

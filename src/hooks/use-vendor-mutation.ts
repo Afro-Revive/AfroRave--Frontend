@@ -89,3 +89,29 @@ export function useCreateVendorListing() {
   });
 }
 
+export function useGetOrganizerVendorListings(eventVendorId: string) {
+  return useQuery({
+    queryKey: eventKeys.organizerVendorListings(eventVendorId),
+    queryFn: () => vendorService.getOrganizerVendorListings(eventVendorId),
+    enabled: !!eventVendorId,
+  })
+}
+
+/**
+ * Fetches all vendor slots applications for an event once, then splits them into Revenue and Service slots
+ */
+export function useVendorApplicationsSlotsByType(eventVendorId: string) {
+  const query = useGetOrganizerVendorListings(eventVendorId);
+
+  const paginated = query.data?.data as
+    | PaginatedResponse<VendorSlotApplication[]>
+    | undefined;
+  const slots = (paginated?.items as VendorSlotApplication[] | undefined) ?? [];
+
+  return {
+    ...query,
+    slots,
+    revenueSlots: slots.filter((slot) => slot.vendorType === "Revenue"),
+    serviceSlots: slots.filter((slot) => slot.vendorType === "Service"),
+  };
+}
