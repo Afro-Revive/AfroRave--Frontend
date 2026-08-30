@@ -42,6 +42,14 @@ class TicketService {
         return response.data;
     }
 
+    /**
+     * Remove Resale Listing
+     */
+    async cancelResaleListing (id: string): Promise<void> {
+        const response = await api.post(`/api/Profile/user/ticket/resale/cancel`, { id });
+        return response.data;
+    }
+
 }
 
 export const ticketService = new TicketService();
