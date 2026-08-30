@@ -15,12 +15,14 @@ import { Link } from "react-router-dom";
 import { getRoutePath } from "@/config/get-route-path";
 
 export default function ListedTicketPage() {
-  // The listing being reviewed, or null when the modal is closed.
-  const [reviewing, setReviewing] = useState<UsersResaleTickets | null>(null);
+  // Hold the reviewId so it can be passed to the modal
+  const [reviewingId, setReviewingId] = useState<string | null>(null);
   const { data, isLoading } = useGetUsersResaleTickets();
   const listedTickets = data?.data as
     | PaginatedResponse<UsersResaleTickets>
     | undefined;
+  const reviewing =
+    listedTickets?.items.find((item) => item.id === reviewingId) ?? null;
   if (isLoading) {
     return <LoadingFallback className="mb-[160px] h-[250px]" />;
   }
@@ -51,7 +53,7 @@ export default function ListedTicketPage() {
             <ListedTickets
               key={item.id}
               listing={item}
-              onReview={() => setReviewing(item)}
+              onReview={() => setReviewingId(item.id)}
             />
           ))}
         </div>
@@ -61,7 +63,7 @@ export default function ListedTicketPage() {
         <ReviewListingModal
           listing={reviewing}
           open={reviewing !== null}
-          onOpenChange={(next) => !next && setReviewing(null)}
+          onOpenChange={(next) => !next && setReviewingId(null)}
         />
       )}
     </div>

@@ -4,7 +4,10 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { formatNaira } from "@/lib/format-price";
-import { useCancelResaleListing } from "@/hooks/use-tickets-mutations";
+import {
+  useCancelResaleListing,
+  useEditResaleListingPrice,
+} from "@/hooks/use-tickets-mutations";
 import type { UsersResaleTickets } from "@/types/ticket";
 
 interface ReviewListingModalProps {
@@ -18,8 +21,10 @@ export default function ReviewListingModal({
   open,
   onOpenChange,
 }: ReviewListingModalProps) {
-
-  const cancelResaleListingMutation = useCancelResaleListing();
+  const { mutate: editResaleListingPriceMutation, isPending } =
+    useEditResaleListingPrice();
+  const { mutate: cancelResaleListingMutation, isPending: isCanceling } =
+    useCancelResaleListing();
   const [isEditingPrice, setIsEditingPrice] = useState(false);
   const [draftPrice, setDraftPrice] = useState(String(listing.price));
 
@@ -32,15 +37,17 @@ export default function ReviewListingModal({
     }
   }, [open, listing.price]);
 
-  const parsedDraft = Number(draftPrice.replace(/,/g, ""));
-  const isDraftValid = Number.isFinite(parsedDraft) && parsedDraft > 0;
+  const parsedDraftPrice = Number(draftPrice.replace(/,/g, ""));
+  const isDraftValid =
+    Number.isFinite(parsedDraftPrice) && parsedDraftPrice > 0;
 
   // Same fee basis the resale flow prices against, so the payout shown here
   // matches what the seller agreed to when they listed.
   const serviceFeeRate =
     Number(import.meta.env.VITE_TICKET_RESALE_PERCENTAGE) || 0;
   // While editing, the whole breakdown previews the draft price.
-  const price = isEditingPrice && isDraftValid ? parsedDraft : listing.price;
+  const price =
+    isEditingPrice && isDraftValid ? parsedDraftPrice : listing.price;
   const subtotal = price * listing.quantity;
   const serviceFee = subtotal * serviceFeeRate;
   const payout = subtotal - serviceFee;
@@ -54,12 +61,27 @@ export default function ReviewListingModal({
   }
 
   const cancelListing = (id: string) => {
-    cancelResaleListingMutation.mutate(id, {
+    cancelResaleListingMutation(id, {
       onSuccess: () => {
         onOpenChange(false);
       },
     });
-  }
+  };
+
+  const savePrice = (
+    resellTicketId: string,
+    price: number,
+    newPrice: number,
+  ) => {
+    editResaleListingPriceMutation(
+      { resellTicketId, price, newPrice },
+      {
+        onSuccess: () => {
+          setIsEditingPrice(false);
+        },
+      },
+    );
+  };
 
   return (
     <BaseModal
@@ -151,8 +173,6 @@ export default function ReviewListingModal({
           </p>
         )}
 
-        {/* TODO: neither action is wired to the API — there is no update-price
-            or remove-listing endpoint yet, so both only update local state. */}
         {isActive && isEditingPrice && (
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-3">
@@ -166,11 +186,13 @@ export default function ReviewListingModal({
               </Button>
               <Button
                 type="button"
-                disabled={!isDraftValid || parsedDraft === listing.price}
-                onClick={() => setIsEditingPrice(false)}
+                disabled={!isDraftValid || parsedDraftPrice === listing.price}
+                onClick={() =>
+                  savePrice(listing.id, listing.price, parsedDraftPrice)
+                }
                 className="flex-1 h-10 rounded-lg font-inter text-xs uppercase font-semibold bg-white text-black hover:bg-white/90 disabled:opacity-40"
               >
-                Save Price
+                {isPending ? "Saving..." : "Save Price"}
               </Button>
             </div>
             {!isDraftValid && draftPrice.length > 0 && (
@@ -189,7 +211,9 @@ export default function ReviewListingModal({
               onClick={() => cancelListing(listing.id)}
               className="w-full h-10 rounded-lg bg-white text-black hover:bg-white/70 hover:text-black font-inter text-xs uppercase font-semibold"
             >
-              Remove Listing
+             {
+              isCanceling ? "Removing..." : "Remove Listing"
+             }
             </Button>
             <p className="text-center text-[11px] leading-relaxed text-white/40">
               Removing takes the ticket off the resale market and returns it to

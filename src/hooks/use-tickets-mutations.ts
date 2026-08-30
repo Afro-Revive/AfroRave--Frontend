@@ -98,3 +98,27 @@ export function useCancelResaleListing() {
         }
     })
 }
+
+/**
+ * Edit Resale Listing Price
+ */
+
+export function useEditResaleListingPrice() {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationKey: ['edit-resale-listing-price'],
+        mutationFn: (
+            { resellTicketId, price, newPrice }: 
+            { resellTicketId: string, price: number, newPrice: number }) => 
+            ticketService.editResaleListingPrice(resellTicketId, price, newPrice),
+        onSuccess: () => {
+            toast.success('Resale listing price updated successfully.');
+            RESALE_AFFECTED_KEYS.forEach((queryKey) =>
+                queryClient.invalidateQueries({ queryKey }),
+            );
+        },
+        onError: () => {
+            toast.error('Failed to update resale listing price. Please try again.');
+        }
+    })
+}
