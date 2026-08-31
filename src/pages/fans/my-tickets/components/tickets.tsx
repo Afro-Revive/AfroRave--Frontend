@@ -6,7 +6,7 @@ export function Tickets({ id, image, event_name, quantity }: ITickets) {
   return (
     <Link
       to={getRoutePath('active_tickets', { eventId: id })}
-      className='w-[200px] h-[306px] flex flex-col gap-3 rounded-[5px]'>
+      className='md:w-[200px] w-fit h-[306px] flex flex-col gap-3 rounded-[5px]'>
       <div className='w-fit h-fit relative'>
         <RenderEventImage
           image={image}

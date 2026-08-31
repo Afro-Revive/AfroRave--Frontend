@@ -27,7 +27,7 @@ export default function ActiveTicketsTab({
 
 function ActiveTickets({ data }: { data: UserTicketData[] }) {
   return (
-    <div className='grid w-full h-screen grid-cols-2 md:grid-cols-4 lg:grid-cols-6 '>
+    <div className='grid w-full gap-4 h-screen grid-cols-2 md:grid-cols-4 lg:grid-cols-6 '>
       {data.map((item) => (
         <Tickets
           key={item.eventId}

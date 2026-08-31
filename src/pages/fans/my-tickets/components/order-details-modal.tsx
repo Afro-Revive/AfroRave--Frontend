@@ -30,6 +30,7 @@ export default function OrderDetailsModal({
   }, [isOpen, orderId, fetchOrderDetails]);
 
   const receipt = orderResponse?.data as OrderReceiptDetailsData | undefined;
+  console.log("receipt", receipt);
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -84,7 +85,21 @@ export default function OrderDetailsModal({
                   value={receipt.paymentMethod}
                   capitalize
                 />
-                <Row label="SUBTOTAL" value={formatNaira(receipt.cost)} />
+                {
+                  receipt.promoCode && (
+                      <Row
+                        label="PROMO CODE USED"
+                        value={receipt.promoCode}
+                        capitalize
+                      />
+                  )
+                }
+                <Row label="SUBTOTAL" value={formatNaira(receipt.subtotal ?? receipt.cost)} />
+                {
+                  receipt.discount !== 0 && (
+                    <Row label="DISCOUNT" value={`- ${formatNaira(receipt.discount ?? 0)}`} />
+                  )
+                }
                 <Row label="FEES & TAXES" value={formatNaira(receipt.tax)} />
                 <Row label="TOTAL" value={formatNaira(receipt.totalPaid)} />
               </div>

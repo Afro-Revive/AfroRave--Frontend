@@ -124,7 +124,7 @@ const ordersById = new Map<string, EnrichedOrder>();
   }
 
   return (
-    <section className="w-full flex flex-col items-center justify-center gap-[42px] md:mt-10 mt-4 ">
+    <section className="w-full flex flex-col items-center justify-center md:gap-[42px] gap-4 md:mt-10 mt-4 ">
       <Button
         onClick={() => navigate(-1)}
         variant="ghost"
