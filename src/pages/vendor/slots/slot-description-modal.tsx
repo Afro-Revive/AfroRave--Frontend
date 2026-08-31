@@ -6,6 +6,7 @@ import {
 } from "@/components/ui/dialog"
 import { X } from "lucide-react"
 import { useState } from "react"
+import { usePayAndSecureVendorSlot } from "@/hooks/use-event-mutations"
 
 interface SlotDescriptionModalProps {
     isOpen: boolean
@@ -13,17 +14,31 @@ interface SlotDescriptionModalProps {
     slotName: string
     price: string
     description: string
+    applicationId: number
+    quantity: number
     eventName?: string
 }
 
-export function SlotDescriptionModal({ isOpen, onClose, slotName, price, description, eventName = "Blackmarket Flea" }: SlotDescriptionModalProps) {
-    console.log(price)
-    const [quantity, setQuantity] = useState(1)
+export function SlotDescriptionModal({ isOpen, onClose, slotName, price, description, eventName, applicationId, quantity }: SlotDescriptionModalProps) {
     const [view, setView] = useState<'description' | 'payment'>('description')
 
     // Parse price to number
     const numericPrice = parseInt(price.replace(/[^0-9]/g, '')) || 0
     const totalPrice = (numericPrice * quantity).toLocaleString()
+
+    const { mutate: payAndSecureVendorSlot } = usePayAndSecureVendorSlot()
+
+    const handleCheckout = (applicationId:number) => {
+        payAndSecureVendorSlot({ applicationId, paymentMethod: 'paystack-checkout' }, {
+            onSuccess: () => {
+                resetView()
+            },
+            onError: (error) => {
+                console.error('Error securing slot:', error)
+            }
+        })
+
+    }
 
     const handleSecureSlot = () => {
         setView('payment')
@@ -31,7 +46,6 @@ export function SlotDescriptionModal({ isOpen, onClose, slotName, price, descrip
 
     const resetView = () => {
         setView('description')
-        setQuantity(1)
         onClose()
     }
 
@@ -96,6 +110,7 @@ export function SlotDescriptionModal({ isOpen, onClose, slotName, price, descrip
                         <div className="flex justify-center mt-auto pb-2 w-full px-6">
                             <Button
                                 className="bg-deep-red hover:bg-deep-red/80 text-white rounded-lg h-10 font-medium font-sf-pro-display shadow-sm w-full"
+                                onClick={() => handleCheckout(applicationId)}
                             >
                                 Checkout
                             </Button>

@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge"
 import { useAfroStore } from "@/stores"
 
 export function ViewProfileModal() {
+    // TODO: Fetch user profile data from the store or API
     const { user } = useAfroStore()
     return (
         <Dialog>

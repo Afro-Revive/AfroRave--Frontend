@@ -259,6 +259,14 @@ class EventService {
     const response = await api.get(`/api/Event/url/${customUrl}`)
     return response.data
   }
+
+  /**
+   * Pay & Secure Vendor Slot
+   */
+  async payAndSecureVendorSlot(applicationId: number, paymentMethod: string, reference?: string): Promise<ApiResponse<unknown>> {
+    const response = await api.post(`/api/Event/vendor/slot/pay`, { applicationId, paymentMethod, reference })
+    return response.data
+  }
 }
 
 // Export service instance

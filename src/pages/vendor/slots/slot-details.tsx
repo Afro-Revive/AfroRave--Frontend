@@ -20,19 +20,21 @@ function getSlotName(application: VendorApplications): string {
     )
 }
 
+/** Statuses with nothing left to review — those rows are inert. */
+const NON_REVIEWABLE_STATUSES = ['rejected', 'secured']
+
+function canReviewApplication(application: VendorApplications): boolean {
+    return !NON_REVIEWABLE_STATUSES.includes(application.status?.toLowerCase() ?? '')
+}
+
 function getSlotPriceLabel(application: VendorApplications): string {
-    const isRevenue = application.vendorType === "Revenue"
-    if (isRevenue) {
-        return `${formatNaira(application.vendorDetails.slotData?.price ?? 0)} Per Slot`
+    if (application.vendorType === "Revenue") {
+        // What the vendor is committing to: price per slot × slots requested.
+        const pricePerSlot = application.vendorDetails.slotData?.price ?? 0
+        return formatNaira(pricePerSlot * (application.requestedSlots ?? 0))
     }
-    const serviceData = application.vendorDetails.serviceData
-    if (serviceData?.hasBudgetRange) {
-        return `${formatNaira(serviceData.minBudget)}  -  ${formatNaira(serviceData.maxBudget)}`
-    }
-    // for a service vendor it should return the price offered by the vendor
-    // if no price is offered it should return 0
-    // currently the backend does not return the price offered by the vendor for service vendors, so we will just return 0 for now
-    return `${formatNaira(0)} Budget`
+    // Service vendors quote their own price.
+    return formatNaira(application.proposedPrice ?? 0)
 }
 
 export default function VendorSlotDetailsPage() {
@@ -44,6 +46,7 @@ export default function VendorSlotDetailsPage() {
     const vendorApplications = applications?.items as VendorApplications[] | undefined
     // Vendor application returns for all vendors
     // Filter the applications for the specific eventId
+    console.log('vendorApplications', vendorApplications)
     const eventApplications = vendorApplications?.filter(app => app.eventId === eventId) || []
     const eventName = eventApplications[0]?.eventName
     const [searchQuery, setSearchQuery] = useState('')
@@ -94,18 +97,18 @@ export default function VendorSlotDetailsPage() {
                     <div className="flex-1 overflow-y-auto">
                         {filteredApplications.length > 0 ? (
                             filteredApplications.map((slot) => {
-                                // A rejected application has nothing to review, so its row
-                                // does not open the description modal or look clickable.
-                                const isRejected = slot.status?.toLowerCase() === 'rejected'
+                                // Settled applications do not open the description modal,
+                                // so their rows should not look clickable either.
+                                const canReview = canReviewApplication(slot)
                                 return (
                                     <div
                                         key={slot.id}
-                                        onClick={isRejected ? undefined : () => setSelectedSlot(slot)}
+                                        onClick={canReview ? () => setSelectedSlot(slot) : undefined}
                                         className={cn(
                                             "flex items-center justify-between p-4 md:p-5 border-b border-gray-50 last:border-none transition-colors group gap-3",
-                                            isRejected
-                                                ? "cursor-default"
-                                                : "cursor-pointer hover:bg-gray-50/50",
+                                            canReview
+                                                ? "cursor-pointer hover:bg-gray-50/50"
+                                                : "cursor-default",
                                         )}
                                     >
                                         {/* Name & Type */}
@@ -160,14 +163,16 @@ export default function VendorSlotDetailsPage() {
                 </div>
             </div>
 
-            {selectedSlot && selectedSlot.status?.toLowerCase() !== 'rejected' && (
+            {selectedSlot && canReviewApplication(selectedSlot) && (
                 <SlotDescriptionModal
                     isOpen={!!selectedSlot}
                     onClose={() => setSelectedSlot(null)}
                     slotName={getSlotName(selectedSlot)}
                     description={selectedSlot.description}
                     price={getSlotPriceLabel(selectedSlot)}
+                    quantity={selectedSlot.requestedSlots}
                     eventName={eventName}
+                    applicationId={selectedSlot.id}
                 />
             )}
         </section>

@@ -33,9 +33,9 @@ export function VendorApplicationCard({
     0,
   );
 
-  // Calculate the total number of secured slots (applications with status "Approved")
+  // Calculate the total number of secured slots (applications with status "Secured")
   const securedSlots = applications
-    .filter((application) => application.status === "Approved")
+    .filter((application) => application.status === "Secured")
     .reduce((sum, application) => sum + application.requestedSlots, 0);
 
   return (

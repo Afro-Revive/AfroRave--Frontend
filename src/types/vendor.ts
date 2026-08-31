@@ -116,9 +116,12 @@ export interface VendorApplications{
         applicationDeadline: string
     }
     requestedSlots: number
+    noOfRequestedStalls: number
+    priceOffer: number
+    proposedPrice: number
     status: string
     message: string
-    createDate: string
+    createdDate: string
     updatedDate: string
 }
 

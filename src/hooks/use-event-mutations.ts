@@ -464,3 +464,17 @@ export function useApplyVendorSlot () {
     }
   })
 }
+
+export function usePayAndSecureVendorSlot () {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ applicationId, paymentMethod, reference }: { applicationId: number; paymentMethod: string; reference?: string }) => eventService.payAndSecureVendorSlot(applicationId, paymentMethod, reference),
+    onSuccess: () => {
+      toast.success('Vendor slot secured successfully!')
+      queryClient.invalidateQueries({ queryKey: eventKeys.vendorApplications() })
+    },
+    onError: () => {
+      toast.error('Failed to secure vendor slot.')
+    }
+  })
+}
