@@ -34,6 +34,7 @@ import { TicketForm } from './ticket-form'
 import { TicketModal } from './ticket-modal'
 import { ActionPopover } from '../../component/action-popover'
 import { ContinueButton } from '../../component/continue-button'
+import { Ticket2 } from 'iconsax-react'
 
 export default function CreateTicketForm({
   handleFormChange,
@@ -101,7 +102,7 @@ export default function CreateTicketForm({
   return (
     <div className='w-full flex flex-col gap-8'>
       <TabContainer<TForm>
-        heading='CREATE TICKETS'
+        heading='TICKETS'
         className='max-w-[560px] w-full flex flex-col'
         form={form}
         onSubmit={handleSubmit}
@@ -176,12 +177,22 @@ function CreatedTicketCard({
   isUpdating,
   isDeleting,
 }: ICreatedTicketCard) {
+  console.log('ticket', ticket)
   return (
     <div className='w-full flex flex-col'>
       <div className='w-full flex items-center justify-between border border-mid-dark-gray/30 px-3 py-[11px] shadow-[0px_2px_10px_2px_#0000001A] rounded-[5px]'>
+      <div className='flex flex-row gap-1 items-center'>
+        {
+          /**
+           * Change ticket icon 
+           */
+        }
+        <Ticket2 size={20} color='#00AD2E' variant='Bold' />
         <p className='uppercase text-sm font-normal font-sf-pro-text leading-[100%] text-charcoal'>
           {ticket.ticketName}
         </p>
+      </div>
+     
         <div className='flex items-center gap-3'>
           <CustomBadge text={ticket.ticketType.replace('_', ' ')} />
           {ticket.invite_only && <CustomBadge type='invite-only' />}

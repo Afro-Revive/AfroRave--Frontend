@@ -230,7 +230,7 @@ export default function EventDetailsTab({ setStep, setActiveTabState }: IEventDe
           label='SELECT TIME ZONE'
           data={africanTimezones}
           placeholder='Select a time zone.'
-          triggerClassName='w-full'
+          triggerClassName='w-full bg-[#1E1E1E]/50'
         />
 
         <OnlyShowIf condition={eventType === 'season'}>

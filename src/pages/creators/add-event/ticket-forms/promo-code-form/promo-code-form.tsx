@@ -246,14 +246,6 @@ export function PromoCodeFormFields({
 }: IPromoCodeFormFields) {
   return (
     <>
-      <div className="flex flex-col gap-1 py-4">
-        <p className="font-black font-sf-pro-display text-black md:text-2xl text-xl uppercase">
-          CREATE PROMO CODES
-        </p>
-        <p className="font-sf-pro-display text-sm text-mid-dark-gray/50 uppercase">
-          Code names must be unique per event
-        </p>
-      </div>
       <div className="flex flex-col gap-5 mb-5">
         <FormFieldWithCounter
           name="promo code"

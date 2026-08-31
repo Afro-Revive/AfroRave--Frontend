@@ -359,7 +359,7 @@ export default function EditVendorSlotForm({
                   <FormField
                     form={form}
                     name="slotNumber"
-                    label="NUMBER OF SLOTS"
+                    label="NUMBER OF STALLS"
                     showMessage
                   >
                     {(field) => (
@@ -381,7 +381,7 @@ export default function EditVendorSlotForm({
                     <PriceField
                       form={form}
                       name="price"
-                      label="PRICE PER SLOT"
+                      label="PRICE PER STALL"
                       className="w-full"
                       description="There will be a 10% fee added to your slot price"
                       showMessage

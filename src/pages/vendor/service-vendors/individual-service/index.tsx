@@ -62,7 +62,7 @@ export default function IndividualServicePage() {
                   className="w-12 h-12"
                 />
                 <p className="text-center text-[#00AD2E] text-xl font-sf-pro-display mt-4">
-                  Application Is Ongoing.
+                  Application Is Ongoing...
                 </p>
                 <p className="text-center font-sf-pro-display text-soft-gray text-base">
                   No vendors have applied for this slot yet. You’ll see all

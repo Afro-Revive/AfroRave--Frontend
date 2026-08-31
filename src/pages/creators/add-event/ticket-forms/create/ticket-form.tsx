@@ -39,7 +39,7 @@ export function TicketForm({
           {(field) => (
             <Input
               placeholder='Enter name'
-              className='uppercase border-mid-dark-gray/50'
+              className='border-mid-dark-gray/50'
               {...field}
               value={field.value == null ? '' : String(field.value)}
             />

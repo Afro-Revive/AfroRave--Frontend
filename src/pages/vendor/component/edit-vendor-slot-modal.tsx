@@ -155,7 +155,7 @@ export default function EditVendorSlotModal({
                 <tbody>
                   <tr className="border-b border-[#E0E0E0]">
                     <td className="py-2 text-mid-dark-gray">
-                      {type === "Revenue" ? "Price per Slot" : "Budget"}
+                      {type === "Revenue" ? "Price per Stall" : "Budget"}
                     </td>
                     <td className="py-2 text-right font-semibold">
                       {type === "Revenue"

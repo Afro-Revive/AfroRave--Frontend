@@ -297,7 +297,7 @@ export default function VendorForm({
                   <PriceField
                     form={form}
                     name='vendor.price_per_slot'
-                    label='PRICE PER SLOT'
+                    label='PRICE PER STALL'
                     className='bg-[#FAFAFA] border-[#E5E5E5]'
                   />
                   <p className='text-[10px] font-sf-pro-text leading-[100%] text-medium-gray'>
@@ -519,7 +519,7 @@ function AmountForm<T extends FieldValues>({ form, name }: IVendorFields<T>) {
   }
 
   return (
-    <FormField form={form} name={name} label='NUMBER OF SLOTS'>
+    <FormField form={form} name={name} label='NUMBER OF STALLS'>
       {(field) => (
         <div className='flex h-10 w-full border rounded-[4px]'>
           <Input type='number' {...field} />

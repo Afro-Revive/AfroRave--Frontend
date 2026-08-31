@@ -18,6 +18,7 @@ export function IndividualVendorItem({
     application.vendorProfilePicture ||
     application.vendorBusinessData?.profilePicture;
 
+  // add a chevron icon to the right of the item to indicate that it is clickable and will open a modal with more details about the vendor
   return (
     <>
       <div
@@ -53,7 +54,8 @@ export function IndividualVendorItem({
               {
                 "text-deep-red": status === "Rejected",
                 "text-orange-peel": status === "Pending",
-                "text-[#00AD2E]": status === "Acquired",
+                "text-[#020A2E]": status === "Acquired",
+                "text-[#00AD2E]": status === "Secured",
               }
             )}
           >

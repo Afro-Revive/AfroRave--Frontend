@@ -18,6 +18,7 @@ export default function PublishTab({
 }: {
   setStep: (step: number) => void
 }) {
+  // redesign this tab to look like the figma file
   useEffect(() => setStep(5), [setStep])
 
   const { eventId } = useEventStore()
@@ -47,6 +48,8 @@ export default function PublishTab({
       return
     }
 
+    // The publish mutation should set the active event to the published event
+    // and navigate to the standalone event page for that event.
     await publishEventMutation.mutateAsync(eventId, {
       onSuccess: () => {
         navigate(getRoutePath('standalone'))
@@ -62,6 +65,11 @@ export default function PublishTab({
             <div className='flex flex-col gap-0.5'>
               <div className='flex items-center gap-2'>
                 <p className='text-2xl font-black leading-[100%] uppercase tracking-tight'>{event?.eventName}</p>
+                {
+                  /**
+                   * not wired, should take them back to event details tab to edit event name
+                   */
+                }
                 <div className='p-1.5 rounded-full hover:bg-black/5 cursor-pointer transition-colors'>
                   <Pencil size={14} className='text-charcoal/60' />
                 </div>
