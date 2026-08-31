@@ -1,16 +1,11 @@
 import { account_links } from "@/components/constants";
 import { UserMenuButton } from "@/components/reusable/user-menu-button";
-import { Menu } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import { useAfroStore } from "@/stores";
 import { Link, useLocation } from "react-router-dom";
 import { NavLogo } from "../root-layout/header/nav-logo";
 
-interface AccountHeaderProps {
-  onMenuToggle: () => void
-}
-
-export default function AccountHeader({ onMenuToggle }: AccountHeaderProps) {
+export default function AccountHeader() {
   const { user } = useAfroStore();
 
   return (
@@ -19,12 +14,12 @@ export default function AccountHeader({ onMenuToggle }: AccountHeaderProps) {
 
         {/* Left: Logo and Menu Trigger */}
         <div className="flex items-center gap-4">
-          <button
+          {/* <button
             onClick={onMenuToggle}
             className="md:hidden text-white p-1 hover:bg-white/10 rounded-md transition-colors"
           >
             <Menu className="w-6 h-6" />
-          </button>
+          </button> */}
           <div className="w-[120px] md:w-[140px]">
             <NavLogo />
           </div>

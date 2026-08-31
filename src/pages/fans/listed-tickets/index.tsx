@@ -19,7 +19,7 @@ export default function ListedTicketPage() {
     | undefined;
 
   if (isLoading) {
-    <LoadingFallback className="mb-[160px] h-[250px]" />;
+    return(<LoadingFallback className="mb-[160px] h-[250px]" />);
   }
   return (
     <div className="w-full flex-1 flex flex-col items-center pt-8 pb-[100px] px-4 md:px-0">
