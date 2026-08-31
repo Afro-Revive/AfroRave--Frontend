@@ -68,7 +68,7 @@ export interface VendorSlot {
 export type VendorSlotsResponse = ApiResponse<VendorSlot[]>;
 
 export interface VendorSlotApplication {
-  id: string;
+  id: number;
   eventId: string;
   eventName: string;
   vendorId: string;
@@ -129,7 +129,7 @@ export interface VendorSlotApplication {
   noOfRequestedStalls: number;
   priceOffer: number;
   proposedPrice: number;
-  status: "Pending" | "Approved" | "Rejected";
+  status: "Pending" | "Acquired" | "Rejected";
   message: string;
   createdAt: string;
   updatedAt: string;

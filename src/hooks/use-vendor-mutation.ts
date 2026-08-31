@@ -115,3 +115,46 @@ export function useVendorApplicationsSlotsByType(eventVendorId: string) {
     serviceSlots: slots.filter((slot) => slot.vendorType === "Service"),
   };
 }
+
+
+interface VendorApplicationDecision {
+  applicationId: number;
+  reason?: string;
+}
+
+// Vendor application lists query key for invalidation after accept/reject mutation
+const vendorApplicationListsKey = [...eventKeys.all, "vendor", "slot"] as const;
+
+/**
+ * Accept Vendor Application
+ */
+
+export function useAcceptVendorApplication() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ applicationId, reason }: VendorApplicationDecision) =>
+      vendorService.acceptVendorListings(applicationId, reason),
+    onSuccess: () => {
+      toast.success("Vendor application accepted successfully.");
+      queryClient.invalidateQueries({ queryKey: vendorApplicationListsKey });
+    },
+    onError: () => toast.error("Failed to accept vendor application."),
+  });
+}
+
+/**
+ * Reject Vendor Application
+ */
+
+export function useRejectVendorApplication() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ applicationId, reason }: VendorApplicationDecision) =>
+      vendorService.rejectVendorListings(applicationId, reason),
+    onSuccess: () => {
+      toast.success("Vendor application rejected successfully.");
+      queryClient.invalidateQueries({ queryKey: vendorApplicationListsKey });
+    },
+    onError: () => toast.error("Failed to reject vendor application."),
+  });
+}

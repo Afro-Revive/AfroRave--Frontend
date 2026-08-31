@@ -53,6 +53,7 @@ export function IndividualVendorItem({
               {
                 "text-deep-red": status === "Rejected",
                 "text-orange-peel": status === "Pending",
+                "text-[#00AD2E]": status === "Acquired",
               }
             )}
           >

@@ -57,6 +57,22 @@ class VendorService {
     return response.data;
   }
 
+  /**
+   * Accept Vendor Application
+   */
+  async acceptVendorListings (applicationId: number, reason?: string): Promise<void> {
+    const response = await api.post (`/api/Event/vendor/accept`, { applicationId, reason })
+    return response.data
+  }
+
+  /**
+   * Reject Vendor Application
+   */
+  async rejectVendorListings(applicationId: number, reason?: string): Promise<void> {
+    const response = await api.post(`/api/Event/vendor/reject`, { applicationId, reason })
+    return response.data
+  }
+
 }
 
 // Export service instance

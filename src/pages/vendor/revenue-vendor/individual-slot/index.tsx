@@ -15,15 +15,12 @@ export default function IndividualSlots() {
   const { data: slotData, isLoading: isSlotLoading } = useGetVendorSlotById(
     slotId ?? "",
   );
-  // Scoped to this slot by the API, so no client-side filtering by event is needed.
   const { revenueSlots: revenueApplications, isLoading: isApplicationsLoading } =
     useVendorApplicationsSlotsByType(slotId ?? "");
   const slot = slotData?.data as VendorSlot | undefined;
   if (isSlotLoading || isApplicationsLoading) {
     return <LoadingFallback />;
   }
-  
-  console.log("Revenue Applications:", revenueApplications); // Log the revenue applications for debugging --- IGNORE ---
   return (
     <section className="w-full h-full flex flex-col items-center">
       <div className="w-full flex items-center justify-between bg-white h-14 px-8 border-l border-light-gray">

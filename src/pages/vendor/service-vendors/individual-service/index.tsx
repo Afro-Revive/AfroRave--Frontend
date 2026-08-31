@@ -2,14 +2,12 @@ import { useParams } from "react-router-dom";
 import { IndividualVendorItem } from "../../component/individual-vendor-item";
 import {
   useGetVendorSlotById,
-  useGetAllVendorApplications,
+  useVendorApplicationsSlotsByType,
 } from "@/hooks/use-vendor-mutation";
 import EventSelect from "@/components/shared/vendor-select";
-import { useEventSelectorStore } from "@/stores";
 import CreateVendorSlot from "../../component/create-vendor-slot-modal";
 import EditVendorSlotModal from "../../component/edit-vendor-slot-modal";
-import { VendorSlotApplication, VendorSlot } from "@/types/vendor";
-import { PaginatedResponse } from "@/types";
+import { VendorSlot } from "@/types/vendor";
 import { LoadingFallback } from "@/components/loading-fallback";
 
 export default function IndividualServicePage() {
@@ -17,15 +15,8 @@ export default function IndividualServicePage() {
   const { data: slotData, isLoading: isSlotLoading } = useGetVendorSlotById(
     serviceId ?? "",
   );
-  const { selectedEventId } = useEventSelectorStore();
-  // currently using the get all vendor applications hook
-  // this needs to change as the endpoint should be able to get all vendor applications for a specific slot
-  const { data: applicationsData, isLoading: isApplicationsLoading } =
-    useGetAllVendorApplications(selectedEventId ?? "");
-  const applications = applicationsData?.data as
-    | PaginatedResponse<VendorSlotApplication>
-    | undefined;
-  const serviceApplications = applications?.items ?? [];
+  const { serviceSlots: serviceApplications, isLoading: isApplicationsLoading } =
+    useVendorApplicationsSlotsByType(serviceId ?? "");
   const service = slotData?.data as VendorSlot | undefined;
   if (isSlotLoading || isApplicationsLoading) {
     return <LoadingFallback />;
@@ -33,14 +24,14 @@ export default function IndividualServicePage() {
   return (
     <section className="w-full h-full flex flex-col items-center">
       <div className="w-full flex items-center justify-between bg-white h-14 px-8 border-l border-light-gray">
-        <div className="flex items-center gap-3">
-          {/* <BackButton
-            name={service ? service.vendorName : "Slot name"}
-          /> */}
+        <div className="flex items-center gap-4">
+          {/* <div className="flex items-center gap-3">
+            <BackButton name={service ? service.vendorName : "Slot name"} />
+          </div> */}
           <p className="font-inter text-sm font-medium text-mid-dark-gray">
             Event:
           </p>
-          <EventSelect  />
+          <EventSelect />
         </div>
         {service?.status === "Active" && (
           <p className="font-inter text-sm font-semibold text-[#00AD2E]">
@@ -56,9 +47,7 @@ export default function IndividualServicePage() {
 
       <div className="w-full h-full flex flex-col pt-10 pb-14 px-5">
         <div className="w-full h-full bg-white flex flex-col gap-2.5 rounded-[4px]">
-          {/* <SearchData /> */}
-
-          <div className="w-full h-full flex flex-col pt-10 pb-14 px-5">
+          <div className="w-full h-full flex flex-col">
             {serviceApplications.length > 0 ? (
               <>
                 {serviceApplications?.map((item) => (

@@ -4,6 +4,28 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## Organizer vendor management (`organizers` branch)
+
+Feature-level summary of the organizer work on this branch. The entries further
+down carry the file-by-file detail.
+
+### Added
+- **Vendor slots and offers.** Organizers can create, edit and manage Revenue vendor slots and Service vendor offers for an event, each with its own category, pricing, application deadline and contact details.
+- **Individual slot and offer pages.** Every slot and offer has its own page listing the vendors who applied to it, with an empty state while applications are open.
+- **Slot details view.** A read-only modal summarising a slot — status, deadline, contact details, description, and an overview of price, total slots, confirmed vendors and pending requests.
+- **Vendor application review.** A profile modal opened from an applicant row, showing the vendor's picture, description, contact details and a gallery viewer. Organizers can accept or reject an application from here; the applicant list and slot refresh on the decision, and an already-decided application shows its outcome instead of the actions.
+- **Slots in the sidebar.** The creator sidebar lists an event's Revenue and Service slots as nested links, so organizers can jump straight to a slot.
+
+### Changed
+- **Vendor categories split by type.** Revenue and Service vendors now have separate category lists, each showing a description of the category as it is selected.
+- **Applications are fetched per slot.** Slot pages request only their own applications rather than every application on the event.
+- **Organizer settings inbox uses real data.** Notifications come from the API instead of mock entries, and the remaining fake-data generators were removed.
+
+### Fixed
+- A newly created slot now appears in the sidebar and slot list immediately, instead of after a refresh.
+- Mobile layout issues across event creation, event editing and the navbar.
+- Promo code UI issues in the event wizard.
+
 ### Fixed
 - **`User` type didn't match the real API shape** (`src/types/auth.ts`): Nearly every profile-ish field (`gender`, `state`, `country`, `phoneNumber`, `businessName`, `companyName`, `description`, `profilePicture`, `vendorType`, `category`, `vendorCategory`, `gallery`, `businessData` with `portfolio`/`socials`) was declared flat on `User`, but the real logged-in user object nests all of it under `user.profile`. Rewrote the interface to match, folding the old top-level `portfolio`/`website`/`socialLinks` fields into `profile.businessData.portfolio`/`.socials` (renaming `twitter`→`x` and `linkedin`→`linkedIn` to match the real payload). Cascade-fixed every consumer this broke: `layouts/vendor-dashboard-layout/index.tsx` (dev mock-auth injection), `pages/creators/standalone/components/creator-settings-modal.tsx`, `pages/vendor/discover/index.tsx` (`useProfileCompletion`), `pages/vendor/profile/edit-profile-modal.tsx`, `pages/vendor/profile/index.tsx`, and `pages/vendor/profile/view-profile-modal.tsx` — the latter two also had a dead `isSocialLinksString`/`socialLinksObj` branch left over from when `socialLinks` could allegedly be a bare string; removed it since `businessData.socials` is always a fixed-shape object now.
 - **"View More" toggle in `EditVendorSlotModal` never became "View Less"** (`src/pages/vendor/component/edit-vendor-slot-modal.tsx`): The description clamp toggle's label was hardcoded to "View More" regardless of `viewMore` state, and rendered even when there was no description to expand. Now swaps to "View Less" when expanded and only renders when `slot?.description` is present; also cleaned up malformed JSX whitespace around the `onClick` handler.
