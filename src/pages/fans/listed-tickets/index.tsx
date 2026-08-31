@@ -1,4 +1,6 @@
+import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
+import ReviewListingModal from "./review-listing-modal";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { useGetUsersResaleTickets } from "@/hooks/use-tickets-mutations";
@@ -13,13 +15,16 @@ import { Link } from "react-router-dom";
 import { getRoutePath } from "@/config/get-route-path";
 
 export default function ListedTicketPage() {
+  // Hold the reviewId so it can be passed to the modal
+  const [reviewingId, setReviewingId] = useState<string | null>(null);
   const { data, isLoading } = useGetUsersResaleTickets();
   const listedTickets = data?.data as
     | PaginatedResponse<UsersResaleTickets>
     | undefined;
-
+  const reviewing =
+    listedTickets?.items.find((item) => item.id === reviewingId) ?? null;
   if (isLoading) {
-    return(<LoadingFallback className="mb-[160px] h-[250px]" />);
+    return <LoadingFallback className="mb-[160px] h-[250px]" />;
   }
   return (
     <div className="w-full flex-1 flex flex-col items-center pt-8 pb-[100px] px-4 md:px-0">
@@ -45,33 +50,41 @@ export default function ListedTicketPage() {
               </div>
           )}
           {listedTickets?.items.map((item) => (
-            <div>
-
-              <ListedTickets
-                key={item.ticketId}
-                date={item.createdDate}
-                price={item.price}
-                quantity={item.quantity}
-                ticketName={item.ticketName}
-                status={item.status}
-              />
-            </div>
+            <ListedTickets
+              key={item.id}
+              listing={item}
+              onReview={() => setReviewingId(item.id)}
+            />
           ))}
         </div>
       </div>
+
+      {reviewing && (
+        <ReviewListingModal
+          listing={reviewing}
+          open={reviewing !== null}
+          onOpenChange={(next) => !next && setReviewingId(null)}
+        />
+      )}
     </div>
   );
 }
 
-function ListedTickets({
-  ticketName,
-  price,
-  quantity,
-  date,
-  status,
-}: ListedTicketsProps) {
+function ListedTickets({ listing, onReview }: ListedTicketsProps) {
+  const { ticketName, price, quantity, createdDate: date, status } = listing;
   return (
-    <div className="w-full flex items-center justify-between py-4 border-b border-white/5 font-sf-pro-display text-white hover:bg-white/5 transition-colors cursor-pointer rounded-lg px-2 -mx-2">
+    <div
+      role="button"
+      tabIndex={0}
+      onClick={onReview}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          onReview();
+        }
+      }}
+      className="w-full flex items-center justify-between py-4 border-b border-white/5 font-sf-pro-display text-white hover:bg-white/5 transition-colors cursor-pointer rounded-lg px-2 -mx-2"
+    >
       <div className="flex flex-col gap-1">
         <p className="text-sm font-medium">{ticketName}</p>
         <div className="flex items-center gap-2">
@@ -106,9 +119,6 @@ function ListedTickets({
 }
 
 export interface ListedTicketsProps {
-  ticketName: string;
-  price: number;
-  quantity: number;
-  date: string;
-  status: string;
+  listing: UsersResaleTickets;
+  onReview: () => void;
 }

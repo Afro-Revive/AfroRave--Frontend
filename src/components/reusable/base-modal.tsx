@@ -26,6 +26,8 @@ interface CustomModalProps {
   children: ReactNode
   className?: string
   titleClassName?: string
+  /** Overrides the close button's own classes — position, background, colour. */
+  cancelClassName?: string
   open?: boolean
   onClose?: (open: boolean) => void
   size?: keyof typeof sizeClasses
@@ -59,6 +61,7 @@ function BaseModal({
   onClose,
   size = 'small',
   titleClassName,
+  cancelClassName,
   removeCancel = false,
   floatingCancel = false,
   hasFooter = false,
@@ -106,6 +109,7 @@ function BaseModal({
         overlayClassName={overlayClassName}
         noCancel={removeCancel}
         floatingCancel={floatingCancel}
+        cancelClassName={cancelClassName}
         slideFromBottom={slideFromBottom}
         onClick={(e) => e.stopPropagation()}
         onInteractOutside={(e) => {
