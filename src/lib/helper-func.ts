@@ -145,6 +145,23 @@ export function formatJoinedDate(dateString: string): string {
   }
 }
 
+/** Green used for an acquired/approved vendor application. */
+export const ACQUIRED_STATUS_COLOR = 'text-[#00AD2E]'
+
+/**
+ * The API calls an accepted application "Approved"; the UI shows "Acquired".
+ * Display-only — never compare against this, compare against the API value.
+ */
+export function vendorStatusLabel(status?: string): string {
+  return status?.toLowerCase() === 'approved' ? 'Acquired' : (status ?? '')
+}
+
+/** True for either the API value or the label, so callers can pass whichever they hold. */
+export function isAcquiredStatus(status?: string): boolean {
+  const value = status?.toLowerCase()
+  return value === 'approved' || value === 'acquired'
+}
+
 export function truncate(str: string, maxLength: number): string {
   if (str.length <= maxLength) {
     return str
@@ -251,6 +268,33 @@ export function monthNumberToName(month: number | string): string {
   return new Date(2000, Number(month) - 1, 1).toLocaleString('en-US', { month: 'short' }).toLowerCase()
 }
 
+
+/**
+ * Bucket a timestamp into an inbox section header — the API sends timestamps,
+ * inboxes group them under relative headings.
+ * '2026-08-30T09:00:00' -> 'Yesterday'
+ */
+export function relativeDateGroup(dateString: string): string {
+  try {
+    const days = differenceInCalendarDays(new Date(), parseISO(dateString))
+    if (days <= 0) return 'Today'
+    if (days === 1) return 'Yesterday'
+    if (days <= 7) return '7 Days Ago'
+    if (days <= 30) return '30 Days Ago'
+    return 'Older'
+  } catch {
+    return 'Older'
+  }
+}
+
+/** Compact date for list rows: '2026-08-26T09:00:00' -> 'Aug 26'. */
+export function formatMonthDay(dateString: string): string {
+  try {
+    return format(parseISO(dateString), 'MMM d')
+  } catch {
+    return dateString
+  }
+}
 
 export function daysUntilEvent(startDate: string): number {
   return differenceInCalendarDays(parseISO(startDate), new Date())

@@ -6,6 +6,7 @@ import type {
   VendorProfileResponse,
   WalletDetailsResponse,
   WithdrawFundsRequest,
+  NotificationResponse,
 } from '@/types'
 import api from './http.service'
 
@@ -87,6 +88,22 @@ class ProfileService {
     website: string
   }>): Promise<OrganizerProfileResponse> {
     const response = await api.patch('/api/profile/organizer', data)
+    return response.data
+  }
+
+  /**
+   * Get Vendor Notifications
+   */
+  async getVendorNotifications(): Promise<NotificationResponse> {
+    const response = await api.get('/api/profile/vendor/notifications')
+    return response.data
+  }
+
+  /**
+   * Mark Vendor Notifications as Read
+   */
+  async markVendorNotificationsAsRead(notificationId: number): Promise<void> {
+    const response = await api.patch(`/api/profile/vendor/notifications/${notificationId}/read`)
     return response.data
   }
 }

@@ -121,3 +121,31 @@ export function useUpdateOrganizerProfile() {
     },
   })
 }
+
+/**
+ * Hook for fetching vendor notifications
+ */
+export function useVendorNotifications() {
+  return useQuery({
+    queryKey: ['vendor-notifications'],
+    queryFn: () => profileService.getVendorNotifications(),
+  })
+}
+
+/**
+ * Hook for marking vendor notifications as read
+ */
+export function useMarkVendorNotificationsAsRead() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (notificationId: number) => profileService.markVendorNotificationsAsRead(notificationId),
+    onSuccess: () => {
+      toast.success('Notifications marked as read successfully!')
+      queryClient.invalidateQueries({ queryKey: ['vendor-notifications'] })
+    },
+    onError: (error) => {
+      toast.error('Failed to mark notifications as read. Please try again.')
+      console.error('Mark notifications as read error:', error)
+    },
+  })
+}

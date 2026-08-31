@@ -5,7 +5,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { useGetVendorApplications } from '@/hooks/use-event-mutations'
 import { cn } from '@/lib/utils'
 import { formatNaira } from '@/lib/format-price'
-import { stripUnderscores } from '@/lib/helper-func'
+import { ACQUIRED_STATUS_COLOR, stripUnderscores, vendorStatusLabel } from '@/lib/helper-func'
 import { SlotDescriptionModal } from './slot-description-modal'
 import VendorDashboardHeader from '@/layouts/vendor-dashboard-layout/sections/header'
 import { useState } from 'react'
@@ -42,6 +42,8 @@ export default function VendorSlotDetailsPage() {
     const { data, isLoading } = useGetVendorApplications()
     const applications = data?.data as PaginatedResponse<VendorApplications> | undefined
     const vendorApplications = applications?.items as VendorApplications[] | undefined
+    // Vendor application returns for all vendors
+    // Filter the applications for the specific eventId
     const eventApplications = vendorApplications?.filter(app => app.eventId === eventId) || []
     const eventName = eventApplications[0]?.eventName
     const [searchQuery, setSearchQuery] = useState('')
@@ -92,11 +94,19 @@ export default function VendorSlotDetailsPage() {
                     <div className="flex-1 overflow-y-auto">
                         {filteredApplications.length > 0 ? (
                             filteredApplications.map((slot) => {
+                                // A rejected application has nothing to review, so its row
+                                // does not open the description modal or look clickable.
+                                const isRejected = slot.status?.toLowerCase() === 'rejected'
                                 return (
                                     <div
                                         key={slot.id}
-                                        onClick={() => setSelectedSlot(slot)}
-                                        className="flex items-center justify-between p-4 md:p-5 border-b border-gray-50 last:border-none cursor-pointer hover:bg-gray-50/50 transition-colors group gap-3"
+                                        onClick={isRejected ? undefined : () => setSelectedSlot(slot)}
+                                        className={cn(
+                                            "flex items-center justify-between p-4 md:p-5 border-b border-gray-50 last:border-none transition-colors group gap-3",
+                                            isRejected
+                                                ? "cursor-default"
+                                                : "cursor-pointer hover:bg-gray-50/50",
+                                        )}
                                     >
                                         {/* Name & Type */}
                                         <div className="flex flex-col gap-1 min-w-0 flex-1">
@@ -150,7 +160,7 @@ export default function VendorSlotDetailsPage() {
                 </div>
             </div>
 
-            {selectedSlot && (
+            {selectedSlot && selectedSlot.status?.toLowerCase() !== 'rejected' && (
                 <SlotDescriptionModal
                     isOpen={!!selectedSlot}
                     onClose={() => setSelectedSlot(null)}
@@ -166,9 +176,11 @@ export default function VendorSlotDetailsPage() {
 
 function StatusBadge({ status, className }: { status: string, className?: string }) {
     const getStatusColor = (s: string) => {
+        // Cases must be lowercase to match the switch subject.
         switch (s.toLowerCase()) {
             case 'pending': return 'text-[#FF9500]' // Orange
-            case 'approved': return 'text-[#34C759]' // Green
+            case 'approved':
+            case 'acquired': return ACQUIRED_STATUS_COLOR // Green
             case 'rejected': return 'text-deep-red'
             default: return 'text-[#8E8E93]'
         }
@@ -176,7 +188,7 @@ function StatusBadge({ status, className }: { status: string, className?: string
 
     return (
         <span className={cn("text-[13px] font-sf-pro-display font-medium whitespace-nowrap", getStatusColor(status), className)}>
-            {status}
+            {vendorStatusLabel(status)}
         </span>
     )
 }

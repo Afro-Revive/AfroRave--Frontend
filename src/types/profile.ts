@@ -129,4 +129,14 @@ export interface WithdrawFundsRequest {
   accountName: string
 }
 
+export interface NotificationData {
+  id: number
+  subject: string
+  message: string
+  viewed: boolean
+  createdDate: string
+}
+
+export type NotificationResponse = ApiResponse<NotificationData>
+
 export type OrganizerProfileResponse = ApiResponse<OrganizerProfileData>

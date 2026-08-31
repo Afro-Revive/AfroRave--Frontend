@@ -12,13 +12,58 @@ import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ChevronRight, Upload, Instagram, X, Twitter, Facebook, Linkedin } from "lucide-react"
-import { useState, useRef } from "react"
+import { useState, useRef, useMemo } from "react"
 import { useAfroStore } from "@/stores"
+import {
+    useVendorNotifications,
+    useMarkVendorNotificationsAsRead,
+} from "@/hooks/use-profile-mutations"
+import { formatMonthDay, relativeDateGroup } from "@/lib/helper-func"
+import type { NotificationData } from "@/types/profile"
+import type { PaginatedResponse } from "@/types/api"
 
 
 export function VendorEditProfileModal({ customTrigger }: { customTrigger?: React.ReactNode }) {
     const { user } = useAfroStore()
     const [selectedMessage, setSelectedMessage] = useState<number | null>(null)
+    const [inboxFilter, setInboxFilter] = useState<'all' | 'unread'>('all')
+
+    const { data: notificationsData } = useVendorNotifications()
+    const markAsReadMutation = useMarkVendorNotificationsAsRead()
+    // Ids marked read in this session, so the dot clears before the refetch lands.
+    const [locallyRead, setLocallyRead] = useState<number[]>([])
+
+    const notifications = useMemo(() => {
+        const payload = notificationsData?.data
+        const items = Array.isArray(payload)
+            ? (payload as NotificationData[])
+            : ((payload as PaginatedResponse<NotificationData> | undefined)?.items ?? [])
+        return items.map((notification) => ({
+            ...notification,
+            viewed: notification.viewed || locallyRead.includes(notification.id),
+            group: relativeDateGroup(notification.createdDate),
+        }))
+    }, [notificationsData, locallyRead])
+
+    const unreadCount = notifications.filter((n) => !n.viewed).length
+    const visibleNotifications =
+        inboxFilter === 'unread' ? notifications.filter((n) => !n.viewed) : notifications
+    const groups = Array.from(new Set(visibleNotifications.map((n) => n.group)))
+    const openedMessage = notifications.find((n) => n.id === selectedMessage) ?? null
+
+    function openMessage(notification: (typeof notifications)[number]) {
+        setSelectedMessage(notification.id)
+        if (!notification.viewed) {
+            setLocallyRead((prev) => [...prev, notification.id])
+            markAsReadMutation.mutate(notification.id)
+        }
+    }
+
+    function handleMarkAllRead() {
+        const unread = notifications.filter((n) => !n.viewed)
+        setLocallyRead((prev) => [...prev, ...unread.map((n) => n.id)])
+        unread.forEach((n) => markAsReadMutation.mutate(n.id))
+    }
     const [portfolioFile, setPortfolioFile] = useState<File | null>(null)
     const [portfolioLink, setPortfolioLink] = useState(user?.profile.businessData?.portfolio || "")
     const [isPortfolioOpen, setIsPortfolioOpen] = useState(false)
@@ -219,58 +264,65 @@ export function VendorEditProfileModal({ customTrigger }: { customTrigger?: Reac
                             <>
                                 <div className="flex items-center justify-between col-span-full border-b border-gray-100 pb-3 px-4 md:px-6">
                                     <div className="flex gap-2">
-                                        <Button className="h-7 rounded-full bg-black text-white text-xs px-4">All</Button>
-                                        <Button variant="ghost" className="h-7 rounded-full text-black hover:bg-gray-100 text-xs px-4 bg-gray-100">Unread (4)</Button>
+                                        <Button
+                                            onClick={() => setInboxFilter('all')}
+                                            className={inboxFilter === 'all'
+                                                ? "h-7 rounded-full bg-black text-white text-xs px-4"
+                                                : "h-7 rounded-full text-black hover:bg-gray-100 text-xs px-4 bg-gray-100"}
+                                        >
+                                            All
+                                        </Button>
+                                        <Button
+                                            onClick={() => setInboxFilter('unread')}
+                                            className={inboxFilter === 'unread'
+                                                ? "h-7 rounded-full bg-black text-white text-xs px-4"
+                                                : "h-7 rounded-full text-black hover:bg-gray-100 text-xs px-4 bg-gray-100"}
+                                        >
+                                            {unreadCount > 0 ? `Unread (${unreadCount})` : 'Unread'}
+                                        </Button>
                                     </div>
-                                    <button className="text-[10px] text-deep-red hover:underline">Mark all as read</button>
+                                    {unreadCount > 0 && (
+                                        <button onClick={handleMarkAllRead} className="text-[10px] text-deep-red hover:underline">
+                                            Mark all as read
+                                        </button>
+                                    )}
                                 </div>
 
                                 <div className="flex flex-col w-full h-full overflow-y-auto mt-2 px-4 md:px-6 py-2 gap-6">
-                                    <div className="flex flex-col gap-3">
-                                        <p className="text-gray-400 text-xs sticky top-0 bg-white py-1 z-10">Yesterday</p>
-                                        {[1, 2, 3].map((_, i) => (
-                                            <div
-                                                key={i}
-                                                onClick={() => setSelectedMessage(i)}
-                                                className="flex items-center gap-3 border-b border-gray-50 pb-3 last:border-0 cursor-pointer hover:bg-gray-50 transition-colors rounded-lg p-2 -mx-2"
-                                            >
-                                                <div className="size-10 rounded-full bg-black flex-shrink-0 overflow-hidden border border-gray-100">
-                                                    <img src="/assets/dashboard/store.png" alt="Icon" className="w-full h-full object-cover" />
-                                                </div>
-                                                <div className="flex flex-col flex-1 gap-0.5">
-                                                    <div className="flex justify-between items-center w-full">
-                                                        <p className="font-semibold text-sm text-black truncate max-w-[140px] sm:max-w-[200px]">Urban Rise Festival Vol 3</p>
-                                                        <div className="flex items-center gap-2">
-                                                            <span className="text-gray-400 text-[10px] md:text-xs">June 12</span>
-                                                            <div className="size-2 rounded-full bg-deep-red shrink-0" />
+                                    {groups.length === 0 ? (
+                                        <div className="flex items-center justify-center h-full">
+                                            <p className="text-gray-400 text-sm">No notifications</p>
+                                        </div>
+                                    ) : (
+                                        groups.map((group) => (
+                                            <div key={group} className="flex flex-col gap-3">
+                                                <p className="text-gray-400 text-xs sticky top-0 bg-white py-1 z-10">{group}</p>
+                                                {visibleNotifications
+                                                    .filter((notification) => notification.group === group)
+                                                    .map((notification) => (
+                                                        <div
+                                                            key={notification.id}
+                                                            onClick={() => openMessage(notification)}
+                                                            className="flex items-center gap-3 border-b border-gray-50 pb-3 last:border-0 cursor-pointer hover:bg-gray-50 transition-colors rounded-lg p-2 -mx-2"
+                                                        >
+                                                            <div className="size-10 rounded-full bg-black flex-shrink-0 overflow-hidden border border-gray-100">
+                                                                <img src="/assets/dashboard/store.png" alt="" className="w-full h-full object-cover" />
+                                                            </div>
+                                                            <div className="flex flex-col flex-1 gap-0.5 min-w-0">
+                                                                <div className="flex justify-between items-center w-full gap-2">
+                                                                    <p className="font-semibold text-sm text-black truncate max-w-[140px] sm:max-w-[200px]">{notification.subject}</p>
+                                                                    <div className="flex items-center gap-2 shrink-0">
+                                                                        <span className="text-gray-400 text-[10px] md:text-xs">{formatMonthDay(notification.createdDate)}</span>
+                                                                        {!notification.viewed && <div className="size-2 rounded-full bg-deep-red shrink-0" />}
+                                                                    </div>
+                                                                </div>
+                                                                <p className="text-xs text-gray-500 truncate w-full">{notification.message}</p>
+                                                            </div>
                                                         </div>
-                                                    </div>
-                                                    <p className="text-xs text-gray-500 truncate w-full">You've Been Accepted As...</p>
-                                                </div>
+                                                    ))}
                                             </div>
-                                        ))}
-                                    </div>
-
-                                    <div className="flex flex-col gap-3">
-                                        <p className="text-gray-400 text-xs sticky top-0 bg-white py-1 z-10">7 Days Ago</p>
-                                        {[4, 5, 6].map((_, i) => (
-                                            <div key={i} className="flex items-center gap-3 border-b border-gray-50 pb-3 last:border-0 cursor-pointer hover:bg-gray-50 transition-colors rounded-lg p-2 -mx-2">
-                                                <div className="size-10 rounded-full bg-black flex-shrink-0 overflow-hidden border border-gray-100">
-                                                    <img src="/assets/dashboard/store.png" alt="Icon" className="w-full h-full object-cover" />
-                                                </div>
-                                                <div className="flex flex-col flex-1 gap-0.5">
-                                                    <div className="flex justify-between items-center w-full">
-                                                        <p className="font-semibold text-sm text-black truncate max-w-[140px] sm:max-w-[200px]">Urban Rise Festival Vol 3</p>
-                                                        <div className="flex items-center gap-2">
-                                                            <span className="text-gray-400 text-[10px] md:text-xs">June 12</span>
-                                                            <div className="size-2 rounded-full bg-deep-red shrink-0" />
-                                                        </div>
-                                                    </div>
-                                                    <p className="text-xs text-gray-500 truncate w-full">You've Been Accepted As...</p>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
+                                        ))
+                                    )}
                                 </div>
                             </>
                         ) : (
@@ -283,7 +335,7 @@ export function VendorEditProfileModal({ customTrigger }: { customTrigger?: Reac
                                         <div className="size-6 rounded-full bg-black overflow-hidden border border-gray-200">
                                             <img src="/assets/dashboard/store.png" alt="Icon" className="w-full h-full object-cover" />
                                         </div>
-                                        <span className="font-semibold text-sm text-black truncate max-w-[200px]">Urban Rise Festival Vol 3</span>
+                                        <span className="font-semibold text-sm text-black truncate max-w-[200px]">{openedMessage?.subject}</span>
                                     </div>
                                 </div>
 
@@ -291,20 +343,18 @@ export function VendorEditProfileModal({ customTrigger }: { customTrigger?: Reac
                                     <div className="border border-blue-500 rounded-lg p-4 flex flex-col gap-2 relative overflow-hidden bg-blue-50/10">
                                         <div className="flex items-start gap-3 md:gap-4 z-10 relative">
                                             <div className="size-10 md:size-12 rounded-full bg-black flex-shrink-0 overflow-hidden border-2 border-white shadow-sm">
-                                                <img src="/assets/dashboard/store.png" alt="Icon" className="w-full h-full object-cover" />
+                                                <img src="/assets/dashboard/store.png" alt="" className="w-full h-full object-cover" />
                                             </div>
                                             <div className="flex flex-col gap-1">
-                                                <p className="font-bold text-sm text-black">Urban Rise Festival Vol 3</p>
+                                                <p className="font-bold text-sm text-black">{openedMessage?.subject}</p>
                                                 <p className="text-xs leading-relaxed text-gray-600">
-                                                    You've been accepted as a vendor for Lagos Street Jam.
-                                                    Lock in your spot by completing the payment.
+                                                    {openedMessage?.message}
+                                                </p>
+                                                <p className="text-[10px] text-gray-400">
+                                                    {openedMessage && formatMonthDay(openedMessage.createdDate)}
                                                 </p>
                                             </div>
                                         </div>
-
-                                        <Button className="w-full bg-deep-red hover:bg-deep-red/80 text-white font-semibold text-xs md:text-sm h-9 md:h-10 mt-3 shadow-sm rounded-md transition-all">
-                                            Secure Slot
-                                        </Button>
                                     </div>
                                 </div>
                             </div>

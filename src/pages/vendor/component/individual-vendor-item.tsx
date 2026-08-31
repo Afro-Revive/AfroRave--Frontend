@@ -1,6 +1,11 @@
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { Info } from "lucide-react";
+import {
+  ACQUIRED_STATUS_COLOR,
+  isAcquiredStatus,
+  vendorStatusLabel,
+} from "@/lib/helper-func";
 import type { IVendor } from "@/data/slots";
 
 export function IndividualVendorItem({
@@ -43,10 +48,11 @@ export function IndividualVendorItem({
               "text-deep-red": status === "Rejected",
               "text-orange-peel": status === "Pending",
               "text-tech-blue": status === "Requested",
+              [ACQUIRED_STATUS_COLOR]: isAcquiredStatus(status),
             }
           )}
         >
-          {status}
+          {vendorStatusLabel(status)}
         </Badge>
         <Info size={20} color="#000000" />
       </div>
