@@ -19,12 +19,15 @@ import type {
   TicketData,
 } from "@/types";
 import {
+  isResaleOnlyCart,
   toPurchasableResaleListings,
   toPurchasableTickets,
 } from "@/lib/purchasable-tickets";
 
 export default function TicketSection({ eventId, layout }: ITicketProps) {
-  const [isSales, setIsSales] = useState(false);
+  const [isSales, setIsSales] = useState(() =>
+    isResaleOnlyCart(useCartStore.getState().items),
+  );
   const { data: ticketResponse, isPending: isLoading } =
     useGetEventTickets(eventId);
   const { data: resaleListingsResponse, isPending: isResaleListingsLoading } =
@@ -33,6 +36,7 @@ export default function TicketSection({ eventId, layout }: ITicketProps) {
   const tickets = toPurchasableTickets(
     ticketResponse?.data as PaginatedResponse<TicketData> | undefined,
   );
+
   const resaleListings = toPurchasableResaleListings(
     resaleListingsResponse?.data as
       | PaginatedResponse<ResaleListingData>

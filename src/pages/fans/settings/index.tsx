@@ -7,6 +7,7 @@ import { useChangePassword } from "@/hooks/use-profile-mutations";
 import { useLogout } from "@/hooks/use-auth";
 import { ChangePasswordSchema, type ChangePasswordValues } from "./zod-schema";
 import { RiLogoutBoxLine } from "react-icons/ri";
+import AccountSidebar from "@/layouts/user-dashboard-layout/sidebar";
 
 const passwordFieldClass =
   "bg-transparent border-white py-5 rounded-sm text-white placeholder:text-white/40";
@@ -37,7 +38,9 @@ export default function SettingsPage() {
 
   return (
     <div className="w-full flex-1 flex flex-col items-center px-4 md:px-0 pt-8">
-      <div className="w-full max-w-[550px] flex flex-col gap-8 pb-[100px] pt-12">
+      <AccountSidebar />
+      {/* The sidebar is fixed at 280px on md+, so the content clears it. */}
+      <div className="w-full max-w-[550px] md:ml-[280px] flex flex-col gap-8 pb-[100px] pt-12">
         {/* Security Section */}
         <div className="flex flex-col gap-4 ">
           <h2 className="text-xl font-extrabold font-inter text-white">

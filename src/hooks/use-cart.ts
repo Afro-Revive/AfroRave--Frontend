@@ -129,6 +129,9 @@ export function useProcessCheckout() {
     mutationKey: cartKeys.processCheckout(),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: cartKeys.lists() })
+      // Invalidate user tickets queries to refresh the user's ticket list after checkout
+      queryClient.invalidateQueries({queryKey: ['user-active-tickets']})
+      queryClient.invalidateQueries({queryKey: ['user-past-tickets']})
     },
     onError: () => toast.error('Failed to process checkout.'),
   })

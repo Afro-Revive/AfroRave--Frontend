@@ -266,7 +266,7 @@ class EventService {
    */
 
   async getEventResaleListings(eventId?: string): Promise<ResaleListingsResponse>{
-    const response = await api.get(`/api/Profile/user/ticket/resale/?${eventId}`)
+    const response = await api.get(`/api/Profile/user/ticket/resale/?eventId=${eventId}`)
     return response.data
   }
 }

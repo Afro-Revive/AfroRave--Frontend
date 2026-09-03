@@ -6,6 +6,7 @@ import { RenderEventImage } from "@/components/shared/render-event-flyer";
 import { useCreateCart, useUpdateCartQuantity } from "@/hooks/use-cart";
 import { CartSummaryFloat } from "../individual-event/_components/cart-float";
 import { useCartStore } from "@/stores";
+import { isResaleOnlyCart } from "@/lib/purchasable-tickets";
 import {
   formatEventDate,
   formatTimeLong,
@@ -21,16 +22,22 @@ export default function CartContainer({
   tickets,
   resaleListings,
 }: CartContainerProps) {
-  const [isSales, setIsSales] = useState(false);
+  // The cart mounts when opened, so this picks the tab matching what is in it.
+  const [isSales, setIsSales] = useState(() =>
+    isResaleOnlyCart(useCartStore.getState().items),
+  );
 
-  const hasResale = resaleListings.length > 0;
+  const eventResaleListings = resaleListings.filter(
+    (listing) => listing.ticketId.startsWith(event.eventId),
+  );
+  const hasResale = eventResaleListings.length > 0;
   const showResale = isSales && hasResale;
 
 
   // use memo to combine tickets and resaleListings into a single array for the CartSummaryFloat component
   const allTickets = useMemo(
-    () => [...tickets, ...resaleListings],
-    [tickets, resaleListings],
+    () => [...tickets, ...eventResaleListings],
+    [tickets, eventResaleListings],
   );
 
   const isEventMultiDay = event.eventDate.startDate !== event.eventDate.endDate;
