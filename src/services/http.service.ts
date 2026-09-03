@@ -47,7 +47,8 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    // If no token exists in the store no need to clear auth state, just return the error
+    if (error.response?.status === 401 && useAfroStore.getState().token) {
       useAfroStore.getState().clearAuth()
     }
     return Promise.reject(error)

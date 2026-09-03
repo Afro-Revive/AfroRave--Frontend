@@ -45,6 +45,7 @@ export default function CheckoutSummary({
   const { data: ticketsResponse } = useGetEventTickets(eventId ?? "");
   const { data: resaleListingsResponse } = useGetEventResaleListings(
     eventId ?? "",
+    isAuthenticated,
   );
   const [promoDiscount, setPromoDiscount] = useState<PromoDiscount | null>(
     null,
@@ -80,6 +81,8 @@ export default function CheckoutSummary({
       resale: ticket?.source === "resale",
     };
   });
+
+  console.log("cartItems", cartItems);
 
   const totalPrice = cartItems.reduce(
     (sum, item) => sum + item.price * item.quantity,

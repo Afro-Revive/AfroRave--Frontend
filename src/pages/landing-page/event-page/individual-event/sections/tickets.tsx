@@ -11,7 +11,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { useCreateCart, useUpdateCartQuantity } from "@/hooks/use-cart";
 
-import { useCartStore } from "@/stores";
+import { useAfroStore, useCartStore } from "@/stores";
 import type {
   PaginatedResponse,
   PurchasableTicket,
@@ -25,13 +25,14 @@ import {
 } from "@/lib/purchasable-tickets";
 
 export default function TicketSection({ eventId, layout }: ITicketProps) {
+  const isAuthenticated = useAfroStore((state) => state.isAuthenticated);
   const [isSales, setIsSales] = useState(() =>
     isResaleOnlyCart(useCartStore.getState().items),
   );
   const { data: ticketResponse, isPending: isLoading } =
     useGetEventTickets(eventId);
   const { data: resaleListingsResponse, isPending: isResaleListingsLoading } =
-    useGetEventResaleListings(eventId);
+    useGetEventResaleListings(eventId, isAuthenticated);
 
   const tickets = toPurchasableTickets(
     ticketResponse?.data as PaginatedResponse<TicketData> | undefined,
