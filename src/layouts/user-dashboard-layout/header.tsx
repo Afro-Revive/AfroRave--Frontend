@@ -7,7 +7,6 @@ import { NavLogo } from "../root-layout/header/nav-logo";
 
 export default function AccountHeader() {
   const { user } = useAfroStore();
-
   return (
     <header className="w-full fixed top-0 left-0 z-50 bg-[#1A1A1A]">
       <nav className="w-full px-4 md:px-10 h-[80px] flex items-center justify-between">

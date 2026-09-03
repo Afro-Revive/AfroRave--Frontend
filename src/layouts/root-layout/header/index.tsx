@@ -1,13 +1,11 @@
-import { account_links } from '@/components/constants'
 import { CreatorMenuButton } from '@/components/reusable/creator-menu-button'
 import { UserMenuButton } from '@/components/reusable/user-menu-button'
 import LoginButton from '@/layouts/components/login-button'
 import NavSheet from '@/layouts/components/nav-sheet'
 import { useScroll } from '@/lib/useScroll'
-import { cn } from '@/lib/utils'
 import { useAfroStore } from '@/stores'
 import { Search } from 'lucide-react'
-import { NavLink, useLocation } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 import { NavLogo } from './nav-logo'
 import { useState, useEffect } from 'react'
 
@@ -18,11 +16,8 @@ export default function Header() {
   const { user, isAuthenticated, isCreator, isFan, isVendor } = useAfroStore()
   const location = useLocation()
   const isLandingPage = location.pathname === '/'
-  const isFansPage = location.pathname === '/fans'
   const [isSearchOpen, setIsSearchOpen] = useState(false)
 
-  // Show minimal header (no nav links) on home and fans pages
-  const showMinimalHeader = isLandingPage || isFansPage
 
   return (
     <header className='w-full fixed top-0 flex justify-center z-50 h-[90px]'>
@@ -47,7 +42,6 @@ export default function Header() {
 
             {isAuthenticated && isFan && (
               <>
-                {!showMinimalHeader && <NavigationLinks />}
                 <UserMenuButton user={user} />
               </>
             )}
@@ -73,27 +67,6 @@ export default function Header() {
         onClose={() => setIsSearchOpen(false)}
       />
     </header>
-  )
-}
-
-function NavigationLinks() {
-  return (
-    <div className='hidden md:flex items-center gap-14'>
-      {account_links.map((item) => (
-        <NavLink
-          key={item.name}
-          to={item.link}
-          className={({ isActive }) =>
-            cn('flex items-center gap-2 border-b-2 transition-all pb-1', {
-              'opacity-100 border-deep-red': isActive,
-              'opacity-60 border-transparent hover:border-deep-red': !isActive,
-            })
-          }>
-          <img src={item.icon} alt={item.name} className='size-[19px]' />
-          <span className='text-base font-input-mono'>{item.name}</span>
-        </NavLink>
-      ))}
-    </div>
   )
 }
 

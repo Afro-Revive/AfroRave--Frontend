@@ -197,7 +197,7 @@ export default function CheckoutSummary({
         {isFanAccount && (
           <Button
             onClick={handleCheckout}
-            className="bg-white font-sf-pro-display text-black hover:bg-white/90"
+            className="bg-white uppercase font-sf-pro-display text-black hover:bg-white/90"
           >
            {isPending ? "Processing..." : "CHECKOUT"}
           </Button>
