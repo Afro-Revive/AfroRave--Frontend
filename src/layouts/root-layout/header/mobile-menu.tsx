@@ -16,19 +16,19 @@ export default function MobileMenu({ onClose }: MobileMenuProps) {
   const { isAuthenticated } = useAfroStore()
 
   return (
-    <div className='flex flex-col h-full z-[10] overflow-y-auto scrollbar-none'>
+    <div className='flex flex-col h-full z-[10] overflow-y-auto scrollbar-none px-6'>
       {isAuthenticated ? <AccountLinks onClose={onClose} /> : <AuthButtons />}
 
       {isAuthenticated && <LogOutButton />}
 
       <Separator
-        className={cn('bg-white/20 mb-12', {
+        className={cn('bg-white/20 mb-6', {
           'mt-[19px]': isAuthenticated,
           'mt-16': !isAuthenticated,
         })}
       />
 
-      <div className='flex flex-col gap-4 py-6'>
+      <div className='flex flex-col gap-4'>
         {menuLinks.map((link) => (
           <Link
             key={link.name}
@@ -40,7 +40,7 @@ export default function MobileMenu({ onClose }: MobileMenuProps) {
         ))}
       </div>
 
-      <div className='mt-auto py-6'>
+      <div className=' py-6'>
         <Separator className='bg-white/20 mb-6' />
         <div className='flex items-center gap-4 justify-end'>
           {socials.map((social) => (
@@ -62,7 +62,7 @@ function AuthButtons() {
   const { openAuthModal } = useAuth()
 
   return (
-    <div className='flex flex-col gap-4 py-6 px-8'>
+    <div className='flex flex-col gap-4 py-6'>
       <Button
         className='w-full h-12 bg-white text-black hover:bg-white/90'
         onClick={() => openAuthModal('login', 'guest')}>
@@ -86,7 +86,7 @@ function AccountLinks({ onClose }: { onClose: () => void }) {
           key={item.name}
           to={item.link}
           onClick={onClose}
-          className='max-w-[calc(100%-39px)] w-full py-4 pl-[22px] pr-[11px] bg-charcoal rounded-[8px] flex items-center justify-between'>
+          className='w-full py-4 pl-[22px] pr-[11px] bg-charcoal rounded-[8px] flex items-center justify-between'>
           <div className='flex items-center gap-[5px]'>
             <img src={item.icon} alt={item.name} width={19} height={19} />
             <p className='font-input-mono text-[15px]'>{item.name}</p>
