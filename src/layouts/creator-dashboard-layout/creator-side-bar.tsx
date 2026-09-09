@@ -21,7 +21,6 @@ export default function CreatorSidebar() {
       trigger: { icon: <CalendarIcon />, text: "EVENTS" },
       links: [
         { path: getRoutePath("standalone"), name: "STANDALONE" },
-        { path: getRoutePath("season"), name: "SEASON" },
       ],
     },
     {

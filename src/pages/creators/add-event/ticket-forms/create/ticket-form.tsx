@@ -34,6 +34,7 @@ export function TicketForm({
           name='TICKET NAME'
           field_name='ticket.ticketName'
           form={form}
+          showMessage
           className='font-normal'
           maxLength={65}>
           {(field) => (
@@ -79,6 +80,7 @@ export function TicketForm({
         <SelectField
           form={form}
           name='ticket.salesType'
+          showMessage
           label='SALES TYPE'
           data={salesTypeItems}
           placeholder='CHOOSE YOUR SALES CHANNEL'
@@ -95,6 +97,7 @@ export function TicketForm({
             name='ticket.quantity.availability'
             label='QUANTITY'
             className='max-w-fit'
+            showMessage
             data={availability}
             placeholder='Select availability.'
           />
@@ -119,7 +122,7 @@ export function TicketForm({
         </div>
 
         <div className='w-full mb-2'>
-          <PriceField form={form} name='ticket.price' ticketTypeName='ticket.type' />
+          <PriceField form={form} name='ticket.price' ticketTypeName='ticket.type' showMessage />
         </div>
       </div>
 
@@ -129,6 +132,7 @@ export function TicketForm({
         label='PURCHASE LIMIT'
         className='w-full'
         data={purchaseLimitOptions}
+        showMessage
         placeholder='SELECT'
         triggerClassName='w-full'
       />
@@ -140,6 +144,7 @@ export function TicketForm({
           label='GROUP SIZE'
           className='w-full'
           data={groupSizeOptions}
+          showMessage
           placeholder='SELECT'
           triggerClassName='w-full'
         />
@@ -150,6 +155,7 @@ export function TicketForm({
           form={form}
           name='ticket.days_valid'
           label='DAYS VALID'
+          showMessage
           className='w-full'
           data={daysValidOptions}
           placeholder='SELECT'
@@ -160,8 +166,9 @@ export function TicketForm({
       <FormFieldWithCounter
         name='Description'
         field_name='ticket.description'
+        showMessage
         form={form}
-        maxLength={450}>
+        maxLength={2000}>
         {(field) => (
           <Textarea
             placeholder={`KEEP DESCRIPTIONS SHORT BUT EXCITING.

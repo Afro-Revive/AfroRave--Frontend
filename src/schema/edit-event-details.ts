@@ -9,7 +9,7 @@ export const EditEventDetailsSchema = z.object({
   }),
   category: z.string().min(3, { message: 'Provide a valid category.' }),
   venue: z.string().min(3, { message: 'Provide a venue.' }),
-  description: z.string().max(950, { message: 'Description must not exceed 950 characters.' }),
+  description: z.string().max(2000, { message: 'Description must not exceed 2000 characters.' }),
   terms_refund_policy: z.string().max(250, { message: 'Terms must not exceed 250 characters.' }).optional(),
   custom_url: z.string().min(3, { message: 'URL too short.' }),
   time_zone: z.string({ required_error: 'Select a time zone.' }),

@@ -168,7 +168,7 @@ export function FormField<T extends FieldValues>({
                 {description}
               </FormDescription>
             )}
-            {showMessage && <FormMessage className='text-end' />}
+            {showMessage && <FormMessage className='text-end normal-case' />}
           </FormItem>
         )
       }}

@@ -72,7 +72,7 @@ export default function ThemeTab({ event, setActiveTab }: IThemeTab) {
               <RadioGroup
                 value={field.value as string}
                 onValueChange={field.onChange}
-                className='flex items-center justify-center flex-wrap gap-10'>
+                className='flex items-center justify-center flex-row gap-10'>
                 {theme.map((item) => (
                   <div key={item.name} className='w-fit flex flex-col'>
                     <RadioGroupItem value={item.name} id={item.name} className='sr-only' />
@@ -112,7 +112,7 @@ function FileUploadField({ form, name, type, upload }: IFileUploadField) {
   }
 
   return (
-    <div className={type === 'flyer' ? 'w-[162px]' : 'w-full'}>
+    <div className={type === 'flyer' ? 'w-fit' : 'w-1/2'}>
       <FileInputWithPreview
         onChange={handleFileChange}
         type={type}
@@ -147,14 +147,14 @@ function FileInputWithPreview({ onChange, type, className, value }: IFileInputWi
     <div
       className={cn(
         'relative flex flex-col items-center justify-center rounded-[10px]',
-        { 'w-[162px] h-[216px]': type === 'flyer', 'w-full h-[200px]': type === 'background' },
+        { 'w-[162px] h-fit': type === 'flyer', 'w-full h-[200px]': type === 'background' },
         className,
       )}>
       <OnlyShowIf condition={file !== null}>
         <Button
           onClick={resetFile}
           className='absolute top-2 right-4 !h-fit !p-1 bg-transparent shadow-none hover:bg-black/20 z-50'>
-          <X color='#000' />
+          <X color='#000000' />
         </Button>
       </OnlyShowIf>
       <Input
@@ -183,7 +183,7 @@ function ThemePreviewCards({ name, src, isChecked }: IThemeProps & { isChecked: 
     <Label
       htmlFor={name}
       className={cn(
-        'flex flex-col p-5 gap-3 rounded-[8px] w-full md:!w-[400px] !h-[252px] bg-medium-gray border-2',
+        'flex flex-col p-5 gap-3 rounded-[8px] w-full md:w-fit !h-[252px] bg-medium-gray border-2',
         {
           'border-deep-red': isChecked,
           'border-transparent': !isChecked,

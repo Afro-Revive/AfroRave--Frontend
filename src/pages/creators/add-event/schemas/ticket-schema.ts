@@ -45,7 +45,7 @@ const ticketBaseFields = z.object({
   description: z
     .string()
     .min(10, { message: 'Description too short.' })
-    .max(450, { message: 'Description too long.' }),
+    .max(2000, { message: 'Description too long.' }),
 })
 
 const singleTicketObject = ticketBaseFields.extend({

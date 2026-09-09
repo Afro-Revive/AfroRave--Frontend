@@ -164,7 +164,7 @@ function EventDetailsForm({ form, onSubmit, setEventType, eventType }: IEventDet
         )}
       </FormField>
 
-      <FormFieldWithCounter name='DESCRIPTION' field_name='description' form={form} maxLength={950}>
+      <FormFieldWithCounter name='DESCRIPTION' field_name='description' form={form} maxLength={2000}>
         {(field) => (
           <Textarea
             placeholder='Enter event description.'

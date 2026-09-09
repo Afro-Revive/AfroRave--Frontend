@@ -6,8 +6,8 @@ import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { useCreateEvent } from '@/hooks/use-event-mutations'
 import { OnlyShowIf } from '@/lib/environment'
+import { toDashCase } from '@/lib/helper-func'
 import { transformEventDetailsToCreateRequest } from '@/lib/event-transforms'
-import { FakeDataGenerator } from '@/lib/fake-data-generator'
 import { frequencyOptions } from '@/pages/creators/add-event/constant'
 import { africanTimezones, ageRatings, eventCategories } from '@/pages/creators/edit-event/constant'
 import { EditEventDetailsSchema, type EventDetailsSchema } from '@/schema/edit-event-details'
@@ -79,6 +79,14 @@ export default function EventDetailsTab({ setStep, setActiveTabState }: IEventDe
       form.setValue('occurrence', 1)
     }
   }, [eventType, form])
+
+  // The custom URL is derived from the event name 
+  const eventName = form.watch('name')
+  useEffect(() => {
+    form.setValue('custom_url', toDashCase(eventName ?? ''), {
+      shouldValidate: true,
+    })
+  }, [eventName, form])
 
   async function onSubmit(values: EventDetailsSchema) {
     const eventData = transformEventDetailsToCreateRequest(values)
@@ -153,7 +161,7 @@ export default function EventDetailsTab({ setStep, setActiveTabState }: IEventDe
         )}
       </FormField>
 
-      <FormFieldWithCounter name='DESCRIPTION' field_name='description' form={form} maxLength={950}>
+      <FormFieldWithCounter name='DESCRIPTION' field_name='description' form={form} maxLength={2000}>
         {(field) => (
           <Textarea
             placeholder='Enter event description.'
@@ -186,8 +194,10 @@ export default function EventDetailsTab({ setStep, setActiveTabState }: IEventDe
         text='afrorevive/events/'>
         {(field) => (
           <Input
-            placeholder='Enter custom URL.'
-            className='border-none h-9 text-xs'
+            readOnly
+            tabIndex={-1}
+            placeholder='Generated from the event name.'
+            className='border-none h-9 text-xs cursor-default text-mid-dark-gray focus-visible:ring-0'
             {...field}
             value={field.value == null ? '' : String(field.value)}
           />
