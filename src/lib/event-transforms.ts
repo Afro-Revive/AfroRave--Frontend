@@ -70,7 +70,6 @@ export function transformEventDetailsToCreateRequest(
       timezone: timezoneOffset, // Use UTC offset instead of timezone name
       startDate: formatDate(formData.start_date.date),
       endDate: formatDate(formData.end_date.date),
-      frequency: formData.frequency || 'Weekly',
       startTime: convertTo24Hour(
         formData.start_date.hour,
         formData.start_date.minute,
@@ -81,7 +80,6 @@ export function transformEventDetailsToCreateRequest(
         formData.end_date.minute,
         formData.end_date.period,
       ),
-      occurance: formData.occurrence || 0,
     },
     eventDetails: {
       termsOfRefund: '', // This field is not in the form, can be added later
@@ -130,12 +128,7 @@ export function transformCreateRequestToEventDetails(
     venue: eventData.venue,
     description: eventData.description,
     custom_url: eventData.customUrl,
-    event_type:
-      eventData.eventDate.frequency === 'Weekly' && (eventData.eventDate.occurance || 0) > 1
-        ? 'season'
-        : 'standalone',
-    frequency: eventData.eventDate.frequency,
-    occurrence: eventData.eventDate.occurance,
+    event_type: 'standalone',
     time_zone: eventData.eventDate.timezone,
     start_date: {
       date: new Date(eventData.eventDate.startDate),

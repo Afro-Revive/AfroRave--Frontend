@@ -2,23 +2,19 @@ import { CustomFormField as FormField, CustomInput as Input } from '@/components
 import { DateForm } from '@/components/shared/date-form'
 import { FormFieldWithAbsoluteText } from '@/components/shared/field-with-absolute-text'
 import { FormFieldWithCounter } from '@/components/shared/field-with-counter'
-import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { useCreateEvent } from '@/hooks/use-event-mutations'
-import { OnlyShowIf } from '@/lib/environment'
 import { toDashCase } from '@/lib/helper-func'
 import { transformEventDetailsToCreateRequest } from '@/lib/event-transforms'
-import { frequencyOptions } from '@/pages/creators/add-event/constant'
 import { africanTimezones, ageRatings, eventCategories } from '@/pages/creators/edit-event/constant'
 import { EditEventDetailsSchema, type EventDetailsSchema } from '@/schema/edit-event-details'
 import { useEventStore } from '@/stores'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { SelectField } from '../component/select-field'
 import { ContinueButton } from '../component/continue-button'
 import { TabContainer } from '../component/tab-ctn'
-import { cn } from '@/lib/utils'
 
 interface IEventDetailsTab {
   setStep: (step: number) => void
@@ -26,8 +22,6 @@ interface IEventDetailsTab {
 }
 
 export default function EventDetailsTab({ setStep, setActiveTabState }: IEventDetailsTab) {
-  const [eventType, setEventType] = useState<'standalone' | 'season'>('standalone')
-
   const { setEventId, setEventData } = useEventStore()
 
   const createEventMutation = useCreateEvent()
@@ -42,7 +36,6 @@ export default function EventDetailsTab({ setStep, setActiveTabState }: IEventDe
       description: '',
       terms_refund_policy: '',
       event_type: 'standalone',
-      occurrence: 1,
       start_date: {
         date: new Date(),
         hour: '12',
@@ -65,20 +58,9 @@ export default function EventDetailsTab({ setStep, setActiveTabState }: IEventDe
     },
   })
 
-  // Update form values when event type changes
   useEffect(() => {
     setStep(1)
-
-    form.setValue('event_type', eventType)
-
-    if (eventType === 'standalone') {
-      form.setValue('frequency', undefined)
-      form.setValue('occurrence', undefined)
-    } else {
-      form.setValue('frequency', 'Weekly')
-      form.setValue('occurrence', 1)
-    }
-  }, [eventType, form])
+  }, [setStep])
 
   // The custom URL is derived from the event name 
   const eventName = form.watch('name')
@@ -210,28 +192,6 @@ export default function EventDetailsTab({ setStep, setActiveTabState }: IEventDe
           <p className='font-sf-pro-text text-xs font-light text-black'>
             Select the date of your event
           </p>
-          <div className='flex gap-2'>
-            {[
-              { name: 'Standalone', action: () => setEventType('standalone') },
-              { name: 'Season', action: () => setEventType('season') },
-            ].map((item) => {
-              const isActive = eventType === item.name.toLocaleLowerCase()
-
-              return (
-                <Button
-                  key={item.name}
-                  variant={eventType === item.name.toLocaleLowerCase() ? 'destructive' : 'default'}
-                  type='button'
-                  onClick={item.action}
-                  className={cn('w-[146px] h-10 rounded-[4px] text-sm font-sf-pro-text', {
-                    'opacity-70 bg-[#ACACAC] text-charcoal hover:bg-[#ACACAC] hover:opacity-80':
-                      !isActive,
-                  })}>
-                  {item.name}
-                </Button>
-              )
-            })}
-          </div>
         </div>
 
         <SelectField
@@ -243,35 +203,6 @@ export default function EventDetailsTab({ setStep, setActiveTabState }: IEventDe
           triggerClassName='w-full bg-[#1E1E1E]/50'
         />
 
-        <OnlyShowIf condition={eventType === 'season'}>
-          <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
-            <SelectField
-              form={form}
-              name='frequency'
-              label='Frequency'
-              data={frequencyOptions}
-              placeholder='Select frequency.'
-              triggerClassName='w-full'
-            />
-
-            <FormField form={form} name='occurrence' label='Occurrence'>
-              {(field) => (
-                <Input
-                  type='number'
-                  max={365}
-                  min={1}
-                  placeholder='Enter number of occurrences.'
-                  className='h-9'
-                  {...field}
-                  value={
-                    field.value === undefined || field.value === null ? '' : String(field.value)
-                  }
-                  onChange={field.onChange}
-                />
-              )}
-            </FormField>
-          </div>
-        </OnlyShowIf>
       </div>
 
       <div className='grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-5'>

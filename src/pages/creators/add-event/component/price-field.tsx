@@ -25,7 +25,7 @@ export function PriceField<T extends FieldValues>({
   className,
   readOnly = false,
   description,
-  showMessage = false,
+  showMessage,
 }: IPriceField<T>) {
   const ticketType = useWatch({
     control: form.control,

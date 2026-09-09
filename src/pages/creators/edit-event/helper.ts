@@ -42,7 +42,7 @@ export function getAfricanTimezoneByOffset(offset: string) {
   return africanTimezones.find((tz) => getOffset(tz.value) === offset) || undefined
 }
 
-export function transformEventToSchema(event: EventDetailData, eventType: 'standalone' | 'season') {
+export function transformEventToSchema(event: EventDetailData) {
   const eventDate = event.eventDate
 
   return {
@@ -52,9 +52,7 @@ export function transformEventToSchema(event: EventDetailData, eventType: 'stand
     custom_url: event.customUrl,
     venue: event.venue,
     description: event.description,
-    event_type: eventType,
-    frequency: eventDate.frequency as 'Daily' | 'Weekly' | 'Monthly',
-    occurrence: eventDate.occurance,
+    event_type: 'standalone' as const,
     time_zone: getAfricanTimezoneByOffset(eventDate.timezone)?.value,
     start_date: {
       date: new Date(eventDate.startDate),

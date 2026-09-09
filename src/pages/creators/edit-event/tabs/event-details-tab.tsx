@@ -4,17 +4,14 @@ import { FormFieldWithAbsoluteText } from '@/components/shared/field-with-absolu
 import { FormFieldWithCounter } from '@/components/shared/field-with-counter'
 import { FormBase } from '@/components/reusable'
 import { BaseSelect } from '@/components/reusable'
-import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { useUpdateEvent, usePublishEvent } from '@/hooks/use-event-mutations'
-import { OnlyShowIf } from '@/lib/environment'
 import { EditEventDetailsSchema, type EventDetailsSchema } from '@/schema/edit-event-details'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useForm, type UseFormReturn } from 'react-hook-form'
 import { getRoutePath } from '@/config/get-route-path'
-import { africanTimezones, ageRatings, eventCategories, frequencyOptions } from '../constant'
+import { africanTimezones, ageRatings, eventCategories } from '../constant'
 import type { EventDetailData } from '@/types'
 import { transformEventToSchema } from '../helper'
 import { SelectField } from '../../add-event/component/select-field'
@@ -23,14 +20,7 @@ import { TabChildrenContainer } from '../component/edit-tab-children-container'
 
 export default function EventDetailsTab({ event, setActiveTab, handleBackClick }: IEventDetailsTab) {
   const navigate = useNavigate()
-  const eventDate = event.eventDate
   const eventId = event.eventId
-
-  const [eventType, setEventType] = useState<'standalone' | 'season'>(
-    eventDate.occurance === 0 || eventDate.occurance === null || eventDate.frequency === ''
-      ? 'standalone'
-      : 'season',
-  )
 
   const updateEventMutation = useUpdateEvent()
   const publishEventMutation = usePublishEvent()
@@ -40,23 +30,12 @@ export default function EventDetailsTab({ event, setActiveTab, handleBackClick }
 
   const form = useForm<EventDetailsSchema>({
     resolver: zodResolver(EditEventDetailsSchema),
-    defaultValues: transformEventToSchema(event, eventType),
+    defaultValues: transformEventToSchema(event),
   })
 
   console.log(event) // Log the form values for debugging
 
   // const { isDirty } = form.formState
-
-  useEffect(() => {
-    form.setValue('event_type', eventType)
-    if (eventType === 'standalone') {
-      form.setValue('frequency', undefined)
-      form.setValue('occurrence', undefined)
-    } else {
-      form.setValue('frequency', 'Weekly')
-      form.setValue('occurrence', 1)
-    }
-  }, [eventType, form])
 
   function onSubmit(values: EventDetailsSchema) {
     const eventData = transformEventDetailsToCreateRequest(values)
@@ -97,19 +76,14 @@ export default function EventDetailsTab({ event, setActiveTab, handleBackClick }
             Event Details
           </p>
 
-          <EventDetailsForm
-            form={form}
-            onSubmit={onSubmit}
-            setEventType={setEventType}
-            eventType={eventType}
-          />
+          <EventDetailsForm form={form} onSubmit={onSubmit} />
         </div>
       </div>
     </TabChildrenContainer>
   )
 }
 
-function EventDetailsForm({ form, onSubmit, setEventType, eventType }: IEventDetailsForm) {
+function EventDetailsForm({ form, onSubmit }: IEventDetailsForm) {
   const selectClassname =
     'w-full text-black !bg-white px-3 py-2 rounded-[4px] border border-mid-dark-gray/50 text-sm font-sf-pro-display'
 
@@ -196,22 +170,6 @@ function EventDetailsForm({ form, onSubmit, setEventType, eventType }: IEventDet
           <p className='font-sf-pro-text text-xs font-light text-black'>
             Select all the dates of your event
           </p>
-          <div className='flex gap-2'>
-            <Button
-              variant={eventType === 'standalone' ? 'destructive' : 'outline'}
-              type='button'
-              onClick={() => setEventType('standalone')}
-              className='w-[160px] h-10 rounded-4px text-sm font-sf-pro-text'>
-              Standalone
-            </Button>
-            <Button
-              variant={eventType === 'season' ? 'destructive' : 'outline'}
-              type='button'
-              onClick={() => setEventType('season')}
-              className='w-[160px] h-10 rounded-4px text-sm font-sf-pro-text'>
-              Season
-            </Button>
-          </div>
         </div>
 
         <FormField form={form} name='time_zone' label='Timezone'>
@@ -227,40 +185,6 @@ function EventDetailsForm({ form, onSubmit, setEventType, eventType }: IEventDet
           )}
         </FormField>
 
-        <OnlyShowIf condition={eventType === 'season'}>
-          <div className='grid grid-cols-2 gap-4'>
-            <FormField form={form} name='frequency' label='Frequency'>
-              {(field) => (
-                <BaseSelect
-                  type='auth'
-                  items={frequencyOptions}
-                  placeholder='Select frequency.'
-                  triggerClassName={selectClassname}
-                  value={field.value as string}
-                  onChange={field.onChange}
-                />
-              )}
-            </FormField>
-
-            <FormField form={form} name='occurrence' label='Occurrence'>
-              {(field) => (
-                <Input
-                  type='number'
-                  placeholder='Enter number of occurrences.'
-                  className='bg-transparent'
-                  {...field}
-                  value={field.value == null ? '' : String(field.value)}
-                  onChange={(e) => {
-                    const value = Number.parseInt(e.target.value, 10)
-                    if (value >= 1 && value <= 365) {
-                      field.onChange(value)
-                    }
-                  }}
-                />
-              )}
-            </FormField>
-          </div>
-        </OnlyShowIf>
       </div>
 
       <div className='grid grid-cols-2 md:gap-4'>
@@ -355,6 +279,4 @@ interface IEventDetailsTab {
 interface IEventDetailsForm {
   form: UseFormReturn<EventDetailsSchema>
   onSubmit: (data: EventDetailsSchema) => void
-  setEventType: (type: 'season' | 'standalone') => void
-  eventType: 'standalone' | 'season'
 }

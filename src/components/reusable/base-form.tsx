@@ -84,7 +84,7 @@ export interface FormFieldProps<T extends FieldValues> {
   label?: string
   /** Field description text */
   description?: string
-  /** Whether to show validation messages */
+  /** Whether to show validation messages. On by default — pass `false` to suppress. */
   showMessage?: boolean
   /** Whether to show error styling */
   showError?: boolean
@@ -106,7 +106,7 @@ export function FormField<T extends FieldValues>({
   name,
   label = '',
   description = '',
-  showMessage = false,
+  showMessage = true,
   showError = false,
   children,
   form,

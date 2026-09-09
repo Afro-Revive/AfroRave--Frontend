@@ -23,10 +23,8 @@ export interface EventDate {
   timezone: string
   startDate: string
   endDate: string
-  frequency: 'Daily' | 'Weekly' | 'Monthly' | undefined
   startTime: string
   endTime: string
-  occurance: number | undefined
 }
 
 export interface CreateEventRequest {
