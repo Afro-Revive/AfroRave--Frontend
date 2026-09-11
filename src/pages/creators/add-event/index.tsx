@@ -12,7 +12,6 @@ import EventDetailsTab from './tabs/event-details-tab'
 import PublishTab from './tabs/publish-tab'
 import ThemeTab from './tabs/theme-tab'
 import TicketsTab from './tabs/tickets-tab'
-import VendorTab from './tabs/vendor-tab'
 import { OnlyShowIf } from '@/lib/environment'
 import { ApplyPromoCodePopover } from './component/apply-promo-popover'
 
@@ -22,7 +21,6 @@ export default function AddEventPage() {
   const [heading, setHeading] = useState<string>('')
   const [description, setDescription] = useState<string>('')
   const [step, setStep] = useState<number>()
-  const [themeBtnVisibility, setThemeBtnVisibility] = useState<boolean>(false)
   const [showError, setShowError] = useState(false)
 
   const { user } = useAfroStore()
@@ -39,7 +37,6 @@ export default function AddEventPage() {
       tabParam === 'event-details' ||
       tabParam === 'tickets' ||
       tabParam === 'theme' ||
-      tabParam === 'vendor' ||
       tabParam === 'publish'
     ) {
       setActiveTab(tabParam)
@@ -48,12 +45,6 @@ export default function AddEventPage() {
       setActiveTab('event-details')
       setSearchParams({ tab: 'event-details' })
       RenderHeadline('event-details', setHeading, setDescription, null)
-    }
-
-    if (tabParam === 'theme' && formParam === 'banner') {
-      setThemeBtnVisibility(false)
-    } else {
-      setThemeBtnVisibility(false)
     }
   }, [searchParams, setSearchParams])
 
@@ -98,11 +89,6 @@ export default function AddEventPage() {
       element: <ThemeTab setStep={setStep} setActiveTabState={setActiveTabState} />,
     },
     {
-      value: 'vendor',
-      name: 'Vendor',
-      element: <VendorTab setStep={setStep} setActiveTabState={setActiveTabState} />,
-    },
-    {
       value: 'publish',
       name: 'Publish',
       element: <PublishTab setStep={setStep} />,
@@ -135,8 +121,6 @@ export default function AddEventPage() {
             <TabNav
               handleBackClick={handleBackClick}
               activeTab={activeTab}
-              themeBtnVisibility={themeBtnVisibility}
-              setActiveTabState={setActiveTabState}
               navigate={navigate}
               formParam={searchParams.get('form')}
             />
@@ -154,10 +138,6 @@ export default function AddEventPage() {
                 </OnlyShowIf>
 
                 <OnlyShowIf condition={activeTab === 'theme' && false}>
-                  <MoreTabDetails type='theme' />
-                </OnlyShowIf>
-
-                <OnlyShowIf condition={activeTab === 'vendor'}>
                   <MoreTabDetails type='theme' />
                 </OnlyShowIf>
 
@@ -203,14 +183,7 @@ function CustomTabTriggers({
   )
 }
 
-function TabNav({
-  activeTab,
-  handleBackClick,
-  themeBtnVisibility,
-  setActiveTabState,
-  navigate,
-  formParam,
-}: ITabNav) {
+function TabNav({ activeTab, handleBackClick, navigate, formParam }: ITabNav) {
   return (
     <div className='w-full h-fit flex items-center justify-between py-3 px-5 md:px-8 md:py-4'>
       <Button
@@ -223,9 +196,6 @@ function TabNav({
       <div className='flex gap-3'>
         {activeTab === 'tickets' && formParam === 'promocode' && <ApplyPromoCodePopover />}
 
-        {themeBtnVisibility && (
-          <NavBtn name={activeTab} action={() => setActiveTabState('vendor')} />
-        )}
 
 
 
@@ -237,16 +207,6 @@ function TabNav({
         </Button>
       </div>
     </div>
-  )
-}
-
-function NavBtn({ name, action }: { name: string; action: () => void }) {
-  return (
-    <Button
-      onClick={action}
-      className='h-10 w-[120px] text-xs font-sf-pro-text font-black rounded-[5px] bg-white text-deep-red hover:bg-black/10 uppercase'>
-      {name}
-    </Button>
   )
 }
 
@@ -297,12 +257,6 @@ function RenderHeadline(
     return
   }
 
-  if (activeTab === 'vendor') {
-    setHeading('Bring Your Event Together!')
-    setDescription('Match with trusted vendors who bring your vision to life')
-    return
-  }
-
   if (activeTab === 'publish') {
     setHeading("Let's Go Live!")
     setDescription(
@@ -319,8 +273,6 @@ function RenderHeadline(
 interface ITabNav {
   activeTab: string
   handleBackClick: () => void
-  themeBtnVisibility: boolean
-  setActiveTabState: (incomingTab: string) => void
   navigate: (path: string) => void
   formParam?: string | null
 }

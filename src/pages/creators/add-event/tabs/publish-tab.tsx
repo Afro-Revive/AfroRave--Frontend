@@ -19,7 +19,7 @@ export default function PublishTab({
   setStep: (step: number) => void
 }) {
   // redesign this tab to look like the figma file
-  useEffect(() => setStep(5), [setStep])
+  useEffect(() => setStep(4), [setStep])
 
   const { eventId } = useEventStore()
 

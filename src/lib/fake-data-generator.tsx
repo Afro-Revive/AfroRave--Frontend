@@ -1,7 +1,5 @@
 import { Button } from '@/components/ui/button'
 import type { unifiedTicketFormSchema } from '@/pages/creators/add-event/schemas/ticket-schema'
-import type { VendorSchema } from '@/pages/creators/add-event/schemas/vendor-service-schema'
-import type { slotSchema } from '@/pages/creators/add-event/schemas/vendor-slot-schema'
 import type { EditEventDetailsSchema } from '@/schema/edit-event-details'
 import type { ProfileSchema } from '@/schema/profile-shema'
 import type { TPromoCodeSchema } from '@/pages/creators/add-event/schemas/promo-code-schema'
@@ -61,22 +59,6 @@ const africanTimezones = [
   'Africa/Khartoum',
 ]
 
-const vendorTypes = ['service_vendor', 'product_vendor', 'food_vendor']
-const vendorCategories = [
-  'dj_mc',
-  'photography',
-  'catering',
-  'decorations',
-  'security',
-  'transportation',
-  'lighting',
-  'sound',
-  'makeup',
-  'fashion',
-  'jewelry',
-  'art',
-  'crafts',
-]
 
 /**
  * Generates a phone number in E.164 format for supported countries
@@ -229,88 +211,7 @@ const fakeDataGenerators = {
     }
   },
 
-  vendorSlots: (): z.infer<typeof slotSchema> => ({
-    slot: Array.from({ length: faker.number.int({ min: 1, max: 3 }) }, () => ({
-      type: faker.helpers.arrayElement(vendorTypes),
-      category: faker.helpers.arrayElement(vendorCategories),
-      name: faker.helpers.arrayElement([
-        'Premium DJ Booth',
-        'Photography Station',
-        'Catering Corner',
-        'Decoration Zone',
-        'Security Post',
-        'Transport Hub',
-        'Lighting Setup',
-        'Sound System',
-        'Makeup Station',
-        'Fashion Display',
-      ]),
-      slotAmount: faker.number.int({ min: 1, max: 10 }).toString(),
-      pricePerSlot: faker.number.int({ min: 5000, max: 50000 }).toString(),
-      description: faker.lorem.paragraph(),
-    })),
-    useDifferentContactDetails: faker.datatype.boolean(),
-    email: faker.internet.email(),
-    phone: Array.from({ length: faker.number.int({ min: 1, max: 2 }) }, () => ({
-      countryCode: faker.helpers.arrayElement(['+234', '+254', '+27', '+20', '+233']),
-      number: faker.number.int({ min: 7000000000, max: 9999999999 }).toString(),
-    })),
-    showSocialHandles: faker.datatype.boolean(),
-  }),
 
-  vendorServices: (): VendorSchema => {
-    const vendorType = faker.helpers.arrayElement(['revenue_vendor', 'service_vendor'] as const)
-
-    const baseDetails = {
-      type: vendorType,
-      category: faker.helpers.arrayElement(vendorCategories),
-      description: faker.lorem.paragraph(),
-      deadline: generateFutureDate(30),
-      useDifferentContactDetails: faker.datatype.boolean(),
-      email: faker.internet.email(),
-      phone: Array.from({ length: faker.number.int({ min: 1, max: 2 }) }, () => ({
-        countryCode: faker.helpers.arrayElement(['+234', '+254', '+27', '+20', '+233']),
-        number: faker.number.int({ min: 7000000000, max: 9999999999 }).toString(),
-      })),
-      showSocialHandles: faker.datatype.boolean(),
-    }
-
-    return {
-      vendor:
-        vendorType === 'revenue_vendor'
-          ? {
-            baseVendorDetails: baseDetails,
-            type: 'revenue_vendor' as const,
-            number_of_slots: faker.number.int({ min: 1, max: 10 }).toString(),
-            price_per_slot: faker.number.int({ min: 1000, max: 50000 }).toString(),
-            slot_name: faker.helpers.arrayElement([
-              'VIP Booth',
-              'Standard Booth',
-              'Food Stall',
-              'Merchandise Stand',
-              'Photo Booth',
-            ]),
-          }
-          : {
-            baseVendorDetails: baseDetails,
-            type: 'service_vendor' as const,
-            service_name: faker.helpers.arrayElement([
-              'Professional DJ Services',
-              'Event Photography',
-              'Catering Services',
-              'Event Decoration',
-              'Security Services',
-            ]),
-            budget: {
-              range: faker.datatype.boolean(),
-              minBudget: faker.number.int({ min: 5000, max: 50000 }).toString(),
-              maxBudget: faker.number.int({ min: 50000, max: 200000 }).toString(),
-            },
-            startTime: generateTime(),
-            stopTime: generateTime(),
-          },
-    }
-  },
 
   profile: (): z.infer<typeof ProfileSchema> => ({
     first_name: faker.person.firstName(),
@@ -436,6 +337,4 @@ export function FakeDataGenerator<T extends FakeDataType>({
 // Export individual generators for direct use
 export const generateFakeEventDetails = fakeDataGenerators.eventDetails
 export const generateFakeTickets = fakeDataGenerators.tickets
-export const generateFakeVendorSlots = fakeDataGenerators.vendorSlots
-export const generateFakeVendorServices = fakeDataGenerators.vendorServices
 export const generateFakeProfile = fakeDataGenerators.profile

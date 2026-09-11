@@ -1,11 +1,9 @@
 import type { unifiedTicketFormSchema } from '@/pages/creators/add-event/schemas/ticket-schema'
-import type { VendorSchema } from '@/pages/creators/add-event/schemas/vendor-service-schema'
 import type { EditEventDetailsSchema } from '@/schema/edit-event-details'
 import type {
   CreateEventRequest,
   CreateThemeRequest,
   CreateTicketRequest,
-  CreateVendorRequest,
 } from '@/types'
 import type { z } from 'zod'
 import type { ThemeAndBannerSchema } from '@/pages/creators/add-event/schemas/theme-schema'
@@ -274,94 +272,6 @@ export function transformThemeToCreateRequest(
   }
 }
 
-/**
- * Transform form data from ServiceForm to CreateVendorRequest format
- */
-export function transformServiceToCreateRequest(
-  formData: VendorSchema,
-  eventId: string,
-): CreateVendorRequest {
-  // Convert time format from 12-hour to 24-hour
-  const convertTo24Hour = (hour: string, minute: string, period: 'AM' | 'PM'): string => {
-    let hour24 = Number.parseInt(hour, 10)
-    if (period === 'PM' && hour24 !== 12) hour24 += 12
-    if (period === 'AM' && hour24 === 12) hour24 = 0
-    return `${hour24.toString().padStart(2, '0')}:${minute}`
-  }
-
-  // Map vendor type from form string to API literal type
-  const mapVendorType = (type: string): 'Revenue' | 'Service' => {
-    return type === 'revenue_vendor' ? 'Revenue' : 'Service'
-  }
-
-  // Convert form data to API format for each service
-  return {
-    vendorType: mapVendorType(formData.vendor.type),
-    category: formData.vendor.baseVendorDetails.category,
-    description: formData.vendor.baseVendorDetails.description,
-    eventId,
-    vendorDetails: {
-      slotData: {
-        slotName:
-          formData.vendor.type === 'revenue_vendor' && formData.vendor.slot_name
-            ? formData.vendor.slot_name
-            : '',
-        slotNumber:
-          formData.vendor.type === 'revenue_vendor' && formData.vendor.number_of_slots
-            ? Number(formData.vendor.number_of_slots)
-            : 0,
-        price:
-          formData.vendor.type === 'revenue_vendor' && formData.vendor.price_per_slot
-            ? Number(formData.vendor.price_per_slot)
-            : 0,
-      applicationDeadline: formData.vendor.type === 'revenue_vendor' ? formData.vendor.baseVendorDetails.deadline : null,
-        
-      },
-      serviceData: {
-        serviceName:
-          formData.vendor.type === 'service_vendor' && formData.vendor.service_name
-            ? formData.vendor.service_name
-            : '',
-        hasBudgetRange: formData.vendor.type === 'service_vendor' && Number(formData?.vendor?.budget?.maxBudget) > 0,
-        minBudget:
-          formData.vendor.type === 'service_vendor' && formData.vendor.budget.minBudget
-            ? Number(formData.vendor.budget.minBudget)
-            : 0,
-        maxBudget:
-          formData.vendor.type === 'service_vendor' && formData.vendor.budget.maxBudget
-            ? Number(formData.vendor.budget.maxBudget)
-            : 0,
-        startTime: formData.vendor.type === 'service_vendor' && formData.vendor.startTime
-            ? convertTo24Hour(
-                formData.vendor.startTime.hour,
-                formData.vendor.startTime.minute,
-                formData.vendor.startTime.period,
-              )
-            : '',
-        stopTime: formData.vendor.type === 'service_vendor' && formData.vendor.stopTime
-            ? convertTo24Hour(
-                formData.vendor.stopTime.hour,
-                formData.vendor.stopTime.minute,
-                formData.vendor.stopTime.period,
-              )
-            : '',
-        startDate: null,
-        endDate: null,
-        applicationDeadline: formData.vendor.type === 'service_vendor' ? formData.vendor.baseVendorDetails.deadline : null,
-      },
-      contact: {
-        useDifferentContactDetails: formData.vendor.baseVendorDetails.useDifferentContactDetails || false,
-        email: formData.vendor.baseVendorDetails?.email || '',
-        phoneNumbers:
-          formData.vendor.baseVendorDetails?.phone?.map(
-            (phone) => `${phone.countryCode}${phone.number}`,
-          ) || [],
-      },
-    },
-    hideSocialLinks: !formData.vendor.baseVendorDetails.showSocialHandles,
-    applicationDeadline: formData.vendor.baseVendorDetails.deadline.toISOString(),
-  }
-}
 
 // /**
 //  * Transform form data from PromoCodeForm to CreatePromoCodeRequest format
