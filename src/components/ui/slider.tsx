@@ -1,7 +1,16 @@
-import * as React from "react";
+import { useState, useMemo } from "react";
 import * as SliderPrimitive from "@radix-ui/react-slider";
 
 import { cn } from "@/lib/utils";
+
+type SliderProps = React.ComponentProps<typeof SliderPrimitive.Root> & {
+  /** Render an editable number input under each thumb */
+  showInputs?: boolean;
+  /** How a committed value is displayed while the input is not focused. */
+  formatInputValue?: (value: number) => string;
+  /** Extra classes for each input. */
+  inputClassName?: string;
+};
 
 function Slider({
   className,
@@ -9,9 +18,14 @@ function Slider({
   value,
   min = 0,
   max = 100,
+  step = 1,
+  showInputs = false,
+  formatInputValue,
+  inputClassName,
+  onValueChange,
   ...props
-}: React.ComponentProps<typeof SliderPrimitive.Root>) {
-  const values = React.useMemo(
+}: SliderProps) {
+  const values = useMemo(
     () =>
       Array.isArray(value)
         ? value
@@ -21,16 +35,58 @@ function Slider({
     [value, defaultValue, min, max],
   );
 
-  return (
+  // While an input is focused it holds raw keystrokes, so a half-typed number
+  // ("50" on the way to "500000") is never reformatted under the cursor.
+  const [drafts, setDrafts] = useState<(string | null)[]>([]);
+
+  function commit(index: number, next: number) {
+    const clamped = Math.min(Math.max(next, Number(min)), Number(max));
+    const updated = values.map((current, i) => (i === index ? clamped : current));
+
+    // Keep the thumbs ordered — typing a min above the max would otherwise
+    // hand Radix an out-of-order array.
+    if (index > 0 && updated[index] < updated[index - 1]) {
+      updated[index] = updated[index - 1];
+    }
+    if (index < updated.length - 1 && updated[index] > updated[index + 1]) {
+      updated[index] = updated[index + 1];
+    }
+
+    onValueChange?.(updated);
+  }
+
+  function handleInputChange(index: number, raw: string) {
+    const digits = raw.replace(/[^\d]/g, "");
+    setDrafts((prev) => {
+      const next = [...prev];
+      next[index] = digits;
+      return next;
+    });
+    if (digits !== "") commit(index, Number(digits));
+  }
+
+  function handleBlur(index: number) {
+    setDrafts((prev) => {
+      const next = [...prev];
+      next[index] = null;
+      return next;
+    });
+    // An input left empty falls back to the bound value rather than NaN.
+    if (drafts[index] === "") commit(index, Number(min));
+  }
+
+  const slider = (
     <SliderPrimitive.Root
       data-slot="slider"
       defaultValue={defaultValue}
       value={value}
       min={min}
       max={max}
+      step={step}
+      onValueChange={onValueChange}
       className={cn(
         "relative flex w-full touch-none items-center select-none data-[disabled]:opacity-50 data-[orientation=vertical]:h-full data-[orientation=vertical]:min-h-44 data-[orientation=vertical]:w-auto data-[orientation=vertical]:flex-col",
-        className,
+        showInputs ? undefined : className,
       )}
       {...props}
     >
@@ -51,6 +107,45 @@ function Slider({
         />
       ))}
     </SliderPrimitive.Root>
+  );
+
+  if (!showInputs) return slider;
+
+  return (
+    <div className={cn("flex flex-col gap-3", className)}>
+      {slider}
+
+      <div className="flex items-center justify-between gap-3">
+        {values.map((current, index) => {
+          const draft = drafts[index];
+          return (
+            <input
+              key={index}
+              type="text"
+              inputMode="numeric"
+              value={
+                draft ??
+                (formatInputValue ? formatInputValue(current) : String(current))
+              }
+              onChange={(event) => handleInputChange(index, event.target.value)}
+              onFocus={(event) => {
+                setDrafts((prev) => {
+                  const next = [...prev];
+                  next[index] = String(current);
+                  return next;
+                });
+                event.target.select();
+              }}
+              onBlur={() => handleBlur(index)}
+              className={cn(
+                "w-full border border-mid-gray px-3 py-2 text-center text-xs font-sf-pro-display text-system-black bg-transparent focus:outline-none focus:border-system-black transition-colors",
+                inputClassName,
+              )}
+            />
+          );
+        })}
+      </div>
+    </div>
   );
 }
 

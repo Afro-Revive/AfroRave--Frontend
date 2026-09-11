@@ -428,11 +428,9 @@ export default function EditVendorSlotForm({
                       max={BUDGET_MAX}
                       step={BUDGET_STEP}
                       minStepsBetweenThumbs={1}
+                      showInputs
+                      formatInputValue={(amount) => formatNaira(amount)}
                     />
-                    <div className="flex items-center mt-2 justify-between text-xs font-sf-pro-display text-mid-dark-gray">
-                      <span className="border border-mid-gray px-10 py-2">{formatNaira(budgetRange[0])}</span>
-                      <span className="border border-mid-gray px-10 py-2">{formatNaira(budgetRange[1])}</span>
-                    </div>
                   </div>
                 </>
               )}
