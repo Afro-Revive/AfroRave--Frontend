@@ -25,6 +25,8 @@ export interface EventDate {
   endDate: string
   startTime: string
   endTime: string
+  /** Required by the API. Always 'Once' now that season events are gone. */
+  frequency: 'Once'
 }
 
 export interface CreateEventRequest {
@@ -34,6 +36,7 @@ export interface CreateEventRequest {
   venue: string
   description: string
   customUrl: string
+  posterUrl: string
   eventDate: EventDate
   eventDetails: EventDetails
 }

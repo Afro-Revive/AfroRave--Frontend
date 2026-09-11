@@ -12,6 +12,7 @@ import { useEventStore } from '@/stores'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
+import { PosterUploadField } from '../component/poster-upload-field'
 import { SelectField } from '../component/select-field'
 import { ContinueButton } from '../component/continue-button'
 import { TabContainer } from '../component/tab-ctn'
@@ -35,6 +36,7 @@ export default function EventDetailsTab({ setStep, setActiveTabState }: IEventDe
       venue: '',
       description: '',
       terms_refund_policy: '',
+      poster_url: '',
       event_type: 'standalone',
       start_date: {
         date: new Date(),
@@ -112,6 +114,8 @@ export default function EventDetailsTab({ setStep, setActiveTabState }: IEventDe
           />
         )}
       </FormFieldWithCounter>
+
+      <PosterUploadField form={form} name='poster_url' />
 
       <div className='grid grid-cols-1 sm:grid-cols-2 gap-8'>
         <SelectField

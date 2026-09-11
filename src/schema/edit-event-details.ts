@@ -12,6 +12,7 @@ export const EditEventDetailsSchema = z.object({
   description: z.string().max(2000, { message: 'Description must not exceed 2000 characters.' }),
   terms_refund_policy: z.string().max(250, { message: 'Terms must not exceed 250 characters.' }).optional(),
   custom_url: z.string().min(3, { message: 'URL too short.' }),
+  poster_url: z.string().min(1, { message: 'Add an event poster.' }),
   time_zone: z.string({ required_error: 'Select a time zone.' }),
   event_type: z.enum(['standalone', 'season'], { required_error: 'Select event type.' }),
   frequency: z.enum(['Daily', 'Weekly', 'Monthly']).optional(),

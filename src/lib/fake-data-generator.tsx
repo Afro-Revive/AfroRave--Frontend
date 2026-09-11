@@ -130,6 +130,7 @@ const fakeDataGenerators = {
       'Khartoum International Hall',
     ]),
     description: faker.lorem.paragraphs(2, '\n\n'),
+    poster_url: faker.image.urlPicsumPhotos({ width: 550, height: 770 }),
     custom_url: faker.helpers.arrayElement([
       'afrobeats-festival-2024',
       'tech-summit-2024',

@@ -64,6 +64,7 @@ export function transformEventDetailsToCreateRequest(
     venue: formData.venue,
     description: formData.description,
     customUrl: formData.custom_url,
+    posterUrl: formData.poster_url,
     eventDate: {
       timezone: timezoneOffset, // Use UTC offset instead of timezone name
       startDate: formatDate(formData.start_date.date),
@@ -78,6 +79,8 @@ export function transformEventDetailsToCreateRequest(
         formData.end_date.minute,
         formData.end_date.period,
       ),
+      // Compulsory server-side; every event is a one-off since season was dropped.
+      frequency: 'Once',
     },
     eventDetails: {
       termsOfRefund: '', // This field is not in the form, can be added later
@@ -126,6 +129,7 @@ export function transformCreateRequestToEventDetails(
     venue: eventData.venue,
     description: eventData.description,
     custom_url: eventData.customUrl,
+    poster_url: eventData.posterUrl,
     event_type: 'standalone',
     time_zone: eventData.eventDate.timezone,
     start_date: {
