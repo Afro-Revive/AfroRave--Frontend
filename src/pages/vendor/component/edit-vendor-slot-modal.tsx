@@ -45,7 +45,7 @@ export default function EditVendorSlotModal({
     (application) => application.eventVendorId === slot?.vendorId,
   );
   const confirmedVendors = slotApplications.filter(
-    (application) => application.status === "Approved",
+    (application) => application.status === "Acquired",
   ).length;
   const pendingRequests = slotApplications.filter(
     (application) => application.status === "Pending",
@@ -68,11 +68,10 @@ export default function EditVendorSlotModal({
         onClose={setOpen}
         size="small"
         floatingCancel
-        title={`Edit Vendor ${label}`}
         className="sm:max-w-[640px]"
       >
-        <div className="max-h-[80vh] overflow-y-auto py-6">
-          <div className="flex flex-col items-center justify-center gap-3 mb-5">
+        <div className="max-h-[80vh] overflow-y-auto">
+          <div className="sticky top-0 z-20 flex flex-col items-center justify-center gap-3  py-5 bg-white/80 backdrop-blur-md">
             <p className="font-inter text-xl font-black text-system-black uppercase">
               {slot?.vendorName}
             </p>
@@ -199,7 +198,7 @@ export default function EditVendorSlotModal({
 
             {/* TODO: not wired to the API — there is no vendor status endpoint yet,
                 so this only toggles locally and does not persist. */}
-            <div className="pb-8">
+            <div className="sticky bottom-0 z-20 -mx-8 px-8 pt-4 pb-6 bg-[#d9d9d9]/80 backdrop-blur-md">
               <Button
                 type="button"
                 onClick={() => setIsPaused((prev) => !prev)}
