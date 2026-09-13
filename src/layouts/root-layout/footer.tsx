@@ -10,7 +10,7 @@ import {
 export default function Footer() {
   return (
     <footer className="w-full flex flex-col items-center md:gap-6 px-8 md:px-[60px] pb-3 md:pb-5 bg-primary font-sf-pro-rounded">
-      <div className=" w-full flex flex-col gap-1 pb-3 md:gap-5 md:px-[2rem]">
+      <div className=" w-full flex flex-col gap-1 pb-3 md:gap-5 ">
         <img
           src="/assets/landing-page/AR.png"
           alt="AR"
@@ -26,21 +26,62 @@ export default function Footer() {
         orientation="horizontal"
         className="w-full bg-[#686868] max-md:mt-7"
       />
+      
+      <div className="w-full flex flex-col md:flex-row md:items-start md:justify-between md:gap-10 ">
+        <div className="flex flex-col gap-2">
+          <Socials className="self-start justify-start max-md:py-3 w-fit" />
 
-      <div className="w-full flex justify-between md:gap-[120px] md:px-[2rem] md:justify-start md:pr-[160px]">
-        {footer_links.map((footer_link) => (
-          <FooterLinkBlock
-            key={footer_link.title}
-            {...footer_link}
-            className="max-md:py-4"
-          />
-        ))}
+          <p className="text-white font-bold font-inter-tight text-sm mx-1">
+            Get The Afrorevive App
+          </p>
+
+          <div className="flex items-center gap-3 mx-1">
+            {app_store_links.map((store) => (
+              <a
+                key={store.alt}
+                href={store.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={store.alt}
+                className="transition-opacity hover:opacity-80"
+              >
+                <img
+                  src={store.src}
+                  alt={store.alt}
+                  className="h-9 md:h-10 w-auto object-contain"
+                />
+              </a>
+            ))}
+          </div>
+        </div>
+
+        <div className="flex justify-between md:gap-[120px] max-md:w-full">
+          {footer_links.map((footer_link) => (
+            <FooterLinkBlock
+              key={footer_link.title}
+              {...footer_link}
+              className="max-md:py-4"
+            />
+          ))}
+        </div>
       </div>
-
-      <Socials className="justify-end pr-8 max-md:py-3 md:px-[2rem]" />
     </footer>
   );
 }
+
+// TODO: point these at the real store listings once the apps are published.
+const app_store_links: { href: string; src: string; alt: string }[] = [
+  {
+    href: "#",
+    src: "/assets/landing-page/apple-store.png",
+    alt: "Download on the App Store",
+  },
+  {
+    href: "#",
+    src: "/assets/landing-page/google-play.png",
+    alt: "Get it on Google Play",
+  },
+];
 
 const footer_links: IFooterLinks[] = [
   {

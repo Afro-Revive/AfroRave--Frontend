@@ -12,7 +12,7 @@ export function FooterLinks({
 }) {
   return (
     <div
-      className={cn("w-full flex gap-2.5 font-sf-pro-rounded h-5", className)}
+      className={cn("w-full flex gap-2.5 font-inter-tight font-light text-sm h-5", className)}
     >
       <IndividualLinks
         to={getRoutePath("privacy_policy")}

@@ -85,7 +85,7 @@ function EventCard({
 
         <p className='font-inter-tight text-sm text-white leading-snug'>
           {formatEventDate(event_date)}
-          {showLocation && event_location ? ` at ${event_location}.` : ''}
+          {showLocation && event_location ? ` at ${event_location }.` : ''}
         </p>
         <span className='mt-2 w-fit hidden group-hover:inline-flex items-center gap-6 rounded-md bg-white px-4 py-2 font-input-mono text-xs uppercase tracking-wide text-deep-red transition-colors'>
           Get Tickets

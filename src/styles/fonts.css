@@ -260,8 +260,6 @@
   font-display: swap;
 }
 
-
-/** Inter Tight — variable, loaded but not yet applied to any token. */
 @font-face {
   font-family: "inter-tight";
   src: url("/fonts/inter-tight/InterTight-VariableFont_wght.ttf") format("truetype");
