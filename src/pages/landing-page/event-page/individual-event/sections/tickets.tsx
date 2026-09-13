@@ -92,20 +92,28 @@ export default function TicketSection({ eventId, layout }: ITicketProps) {
 }
 
 function TicketCard({ ticket, layout }: ITicketCard) {
-  const { cartKey, ticketId, listingId, name, price, caption, available } =
+  const { cartKey, ticketId, listingId, name, price, caption, available, purchaseLimit } =
     ticket;
   const localItems = useCartStore((state) => state.items);
 
   const ticketCount =
     localItems.find((i) => i.cartKey === cartKey)?.quantity ?? 0;
   const isSoldOut = available <= 0;
-  const atLimit = ticketCount >= available;
+  // Whichever runs out first: stock on hand, or what one buyer is allowed.
+  const maxPerBuyer = Math.min(available, purchaseLimit || available);
+  const atLimit = ticketCount >= maxPerBuyer;
 
   const createCartMutation = useCreateCart();
   const updateQuantityMutation = useUpdateCartQuantity();
 
   function createCart() {
-    createCartMutation.mutate({ cartKey, ticketId, listingId, quantity: 1 });
+    createCartMutation.mutate({
+      cartKey,
+      ticketId,
+      listingId,
+      quantity: 1,
+      purchaseLimit: maxPerBuyer,
+    });
     useCartStore.getState().openCart();
   }
 

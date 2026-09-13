@@ -115,19 +115,27 @@ export default function CartContainer({
 }
 
 function CartTicketCard({ ticket }: ICartTicketCard) {
-  const { cartKey, ticketId, listingId, name, price, caption, available, source } =
+  const { cartKey, ticketId, listingId, name, price, caption, available, source, purchaseLimit } =
     ticket;
   const localItems = useCartStore((state) => state.items);
   const ticketCount =
     localItems.find((i) => i.cartKey === cartKey)?.quantity ?? 0;
   const isSoldOut = available <= 0;
-  const atLimit = ticketCount >= available;
+  // Whichever runs out first: stock on hand, or what one buyer is allowed.
+  const maxPerBuyer = Math.min(available, purchaseLimit || available);
+  const atLimit = ticketCount >= maxPerBuyer;
 
   const createCartMutation = useCreateCart();
   const updateQuantityMutation = useUpdateCartQuantity();
 
   function createCart() {
-    createCartMutation.mutate({ cartKey, ticketId, listingId, quantity: 1 });
+    createCartMutation.mutate({
+      cartKey,
+      ticketId,
+      listingId,
+      quantity: 1,
+      purchaseLimit: maxPerBuyer,
+    });
   }
 
   function updateCart(quantity: number) {

@@ -16,8 +16,9 @@ export function toPurchasableTickets(
     cartKey: ticket.ticketId,
     ticketId: ticket.ticketId,
     name: ticket.ticketName,
-    price: ticket.price,
+    price: ticket.salesPrice,
     available: ticket.availableQuantity,
+    purchaseLimit: ticket.purchaseLimit,
     caption: PRIMARY_CAPTION,
     source: 'primary',
   }))
@@ -39,6 +40,8 @@ export function toPurchasableResaleListings(
       name: listing.ticketName,
       price: listing.price,
       available: listing.quantity,
+      // A listing has no separate per-buyer cap — the whole listing is the cap.
+      purchaseLimit: listing.quantity,
       caption: `${listing.quantity} available · sold by ${listing.sellerName}`,
       source: 'resale',
     }))

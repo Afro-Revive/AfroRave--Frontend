@@ -33,6 +33,8 @@ export interface CartLineItem extends CreateCartRequest {
   cartKey: string
   /** Set only on resale lines. */
   listingId?: string
+  /** Max this buyer may hold of this line. Omitted means uncapped. */
+  purchaseLimit?: number
 }
 
 /**
