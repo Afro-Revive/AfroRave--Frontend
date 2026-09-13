@@ -261,6 +261,23 @@
 }
 
 
+/** Inter Tight — variable, loaded but not yet applied to any token. */
+@font-face {
+  font-family: "inter-tight";
+  src: url("/fonts/inter-tight/InterTight-VariableFont_wght.ttf") format("truetype");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "inter-tight";
+  src: url("/fonts/inter-tight/InterTight-Italic-VariableFont_wght.ttf") format("truetype");
+  font-weight: 100 900;
+  font-style: italic;
+  font-display: swap;
+}
+
 /** Phospahte Inline */
 @font-face {
   font-family: "PhosphateInline";

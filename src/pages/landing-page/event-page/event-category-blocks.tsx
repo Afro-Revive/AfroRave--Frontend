@@ -95,6 +95,7 @@ export default function EventCategoryBlocks() {
       setSearchParams(new URLSearchParams())
     }
   }
+  console.log(trendingEvents)
 
   return (
     <section className='w-full flex flex-col gap-10 md:gap-20 mt-[120px] md:mt-36 pb-16 px-3 md:px-8 lg:px-0 min-h-[calc(100vh-300px)]'>
@@ -102,7 +103,7 @@ export default function EventCategoryBlocks() {
         <CategoryBlock
           name='Trending'
           data={trendingEvents?.items ?? []}
-          showLocation={false}
+          showLocation={true}
           isLoading={isLoadingTrending}
           layout='start'
         />
