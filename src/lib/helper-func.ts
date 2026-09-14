@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { format, parseISO, differenceInCalendarDays } from 'date-fns'
+import type { UserTicketTicketDetails } from '@/types'
 
 function generateRandomString(length = 10) {
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
@@ -272,4 +273,13 @@ export function monthNumberToName(month: number | string): string {
 
 export function daysUntilEvent(startDate: string): number {
   return differenceInCalendarDays(parseISO(startDate), new Date())
+}
+
+/** Tickets a user actually bought for an event, summed across every ticket type and order. */
+export function totalTicketsPurchased(ticketDetails: UserTicketTicketDetails[]): number {
+  return ticketDetails.reduce(
+    (total, ticket) =>
+      total + ticket.purchaseHistory.reduce((sum, purchase) => sum + purchase.quantity, 0),
+    0
+  )
 }

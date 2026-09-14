@@ -26,20 +26,22 @@ export function BaseAnimatedTab({
         'flex-col items-center gap-[132px]': isListed,
       })}>
       <TabsList
+        // The highlight is the white pill itself, so it has to share the trigger's radius.
+        highlightClassName={cn({ 'rounded-4xl bg-white border-transparent shadow-none': isListed })}
         className={cn('h-fit relative', {
-          'w-full md:w-fit lg:w-[175px] xl:w-[366px] hidden md:flex flex-row max-md:gap-7 md:flex-col bg-transparent mb-10 justify-start overflow-scroll scrollbar-none':
+          'w-full md:w-fit lg:w-[175px] xl:w-[366px] hidden md:flex flex-row max-md:gap-7 md:flex-col  mb-10 justify-start overflow-scroll scrollbar-none':
             isAccount,
-          'flex w-fit px-1 py-1.5 rounded-[8px] bg-deep-red': isListed,
+          'flex w-fit px-4 py-3 rounded-full bg-gunmetal-gray': isListed,
         })}>
         {tabs.map(({ name, value, image }) => (
           <TabsTrigger
             key={value}
             value={value}
-            className={cn('font-input-mono transition-all duration-300', {
-              'w-fit md:w-full flex items-center justify-start gap-[7px] text-[15px] uppercase rounded-none tracking-[4%] py-7 data-[state=active]:bg-transparent data-[state=active]:shadow-none group font-sf-pro-display font-normal':
+            className={cn('font-inter-tight transition-all duration-300', {
+              'w-fit md:w-full flex items-center justify-start gap-[7px] text-sm font-semibold uppercase rounded-none tracking-[4%] py-7 data-[state=active]:bg-transparent data-[state=active]:shadow-none group font-inter-tight':
                 isAccount,
               'md:border-y md:border-y-white/40 md:py-7': value === 'payout',
-              'w-[116px] h-9 text-[13px] rounded-[8px] bg-transparent text-white data-[state=active]:bg-white data-[state=active]:text-pure-black':
+              'w-full px-10 h-9 text-[13px] rounded-4xl bg-transparent text-white data-[state=active]:text-deep-red':
                 isListed,
             })}>
             {image && isAccount && (
