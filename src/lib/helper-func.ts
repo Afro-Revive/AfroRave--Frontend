@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { format, parseISO, differenceInCalendarDays } from 'date-fns'
-import type { UserTicketTicketDetails } from '@/types'
+import type { EventDetailData, UserTicketTicketDetails } from '@/types'
 
 function generateRandomString(length = 10) {
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
@@ -282,4 +282,58 @@ export function totalTicketsPurchased(ticketDetails: UserTicketTicketDetails[]):
       total + ticket.purchaseHistory.reduce((sum, purchase) => sum + purchase.quantity, 0),
     0
   )
+}
+
+export type EventSocials = EventDetailData['eventDetails']['socials']
+export type EventSocialPlatform = keyof EventSocials
+
+export interface EventSocialLink {
+  platform: EventSocialPlatform
+  alt: string
+  url: string
+}
+
+const SOCIAL_BASE_URLS: Record<EventSocialPlatform, string> = {
+  instagram: 'https://instagram.com/',
+  x: 'https://x.com/',
+  tiktok: 'https://tiktok.com/@',
+  facebook: 'https://facebook.com/',
+}
+
+const SOCIAL_LABELS: Record<EventSocialPlatform, string> = {
+  instagram: 'Instagram',
+  x: 'X',
+  tiktok: 'TikTok',
+  facebook: 'Facebook',
+}
+
+/**
+ * Organizers save either a full profile URL or a bare handle. Without this a bare
+ * handle becomes a relative link that navigates inside our own app.
+ */
+export function toAbsoluteUrl(value: string, baseUrl: string): string {
+  const handle = value.trim()
+  if (/^https?:\/\//i.test(handle)) return handle
+  return `${baseUrl}${handle.replace(/^@/, '')}`
+}
+
+/**
+ * The platforms an event actually filled in, as ready-to-use links. Callers supply
+ * their own icons — only the data is shared.
+ */
+export function getEventSocialLinks(socials?: Partial<EventSocials>): EventSocialLink[] {
+  const platforms = Object.keys(SOCIAL_BASE_URLS) as EventSocialPlatform[]
+
+  return platforms.flatMap((platform) => {
+    const value = socials?.[platform]?.trim()
+    if (!value) return []
+
+    return [
+      {
+        platform,
+        alt: SOCIAL_LABELS[platform],
+        url: toAbsoluteUrl(value, SOCIAL_BASE_URLS[platform]),
+      },
+    ]
+  })
 }

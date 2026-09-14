@@ -28,7 +28,7 @@ export default function ActiveTicketsTab({
 
 function ActiveTickets({ data }: { data: UserTicketData[] }) {
   return (
-    <div className='w-full flex flex-wrap gap-7 mb-[100px]'>
+    <div className='w-full min-w-0 flex gap-7 mb-[100px] max-md:overflow-x-auto max-md:scrollbar-none md:flex-wrap'>
       {data.map((item) => (
         <Tickets
           key={item.eventId}

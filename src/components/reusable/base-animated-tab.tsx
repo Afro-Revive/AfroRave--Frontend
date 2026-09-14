@@ -66,7 +66,10 @@ export function BaseAnimatedTab({
         {CustomElement}
       </TabsList>
 
-      <TabsContents className='w-full flex justify-center'>
+      {/* No `flex` here: TabsContents is the clipping viewport for a sliding track.
+          Making it a flex container gives the track min-width:auto, sizing it to every
+          pane at once and overflowing the page. The inner div does the centring. */}
+      <TabsContents className='w-full min-w-0'>
         {tabs.map(({ value, element }) => (
           <TabsContent key={value} value={value} className='w-full'>
             <div className='w-full h-fit flex justify-center'>{element}</div>

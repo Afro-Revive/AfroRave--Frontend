@@ -11,7 +11,9 @@ export default function UserDashboardLayout() {
         <AccountHeader/>
         {/* <MobileSidebar isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} /> */}
         <div className="flex flex-1 pt-[80px]">
-          <main className='flex-1 flex flex-col'>
+          {/* min-w-0: without it this flex item cannot shrink below its content,
+              so any wide child scrolls the whole page sideways. */}
+          <main className='flex-1 min-w-0 flex flex-col'>
             <Outlet />
             <AccountFooter />
           </main>

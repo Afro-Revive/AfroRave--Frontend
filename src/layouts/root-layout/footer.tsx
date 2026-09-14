@@ -70,7 +70,7 @@ export default function Footer() {
 }
 
 // TODO: point these at the real store listings once the apps are published.
-const app_store_links: { href: string; src: string; alt: string }[] = [
+export const app_store_links: { href: string; src: string; alt: string }[] = [
   {
     href: "#",
     src: "/assets/landing-page/apple-store.png",

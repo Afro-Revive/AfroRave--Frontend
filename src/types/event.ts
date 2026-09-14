@@ -97,10 +97,10 @@ export interface EventDetailData {
     termsOfRefund: string
     eventContact: { email: string; website: string }
     socials: {
-      instagram: 'string'
-      x: 'string'
-      tiktok: 'string'
-      facebook: 'string'
+      instagram: string
+      x: string
+      tiktok: string
+      facebook: string
     }
 
     desktopMedia: { flyer: string; background: string } | null

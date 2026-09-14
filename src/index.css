@@ -123,6 +123,7 @@
   --color-orange-peel: #ff9500;
   --color-gunmetal-gray: #3d3d3d;
   --color-light-green: #34c759;
+  --color-green: #00AD2E;
   --font-weight-semilight: 250;
   --color-light-silver: #c8c8c8;
   --color-secondary-white: #f8f8f8;
@@ -137,6 +138,7 @@
   --font-bungee-inline: "Bungee Inline", "sans-serif";
   --font-inter: "Inter", "sans-serif";
   --font-inter-tight: "inter-tight", "Inter", "sans-serif";
+  --font-work-sans: "work-sans", "sans-serif";
 }
 
 .dark {

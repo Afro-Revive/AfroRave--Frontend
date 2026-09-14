@@ -28,7 +28,7 @@ export default function PastTicketsTab({
 
 function PastTickets({ data }: { data: UserTicketData[] }) {
   return (
-    <div className='flex flex-wrap items-center justify-center gap-7 px-5 md:px-[50px] lg:px-[100px] mb-[100px]'>
+    <div className='w-full min-w-0 flex items-center gap-7 px-5 md:px-[50px] lg:px-[100px] mb-[100px] max-md:overflow-x-auto max-md:scrollbar-none md:flex-wrap md:justify-center'>
       {data.map((item) => (
         <Tickets
           key={item.eventId}

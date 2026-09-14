@@ -70,6 +70,8 @@ export interface UserTicketTicketDetails {
   ticketName: string
   price: number
   totalQuantity: number
+  ticketType?: 'Single' | 'Group' | 'MultiDay'
+  groupSize?: number
   purchaseHistory: {
     orderId: string
     purchaseDate: string
