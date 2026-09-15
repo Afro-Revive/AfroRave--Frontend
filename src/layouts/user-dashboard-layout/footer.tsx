@@ -6,7 +6,7 @@ import { getRoutePath } from "@/config/get-route-path";
 
 export default function AccountFooter() {
   return (
-    <footer className="w-full bg-transparent">
+    <footer className="w-full bg-transparent md:mt-20 mt-8">
       <div className="max-w-7xl mx-auto px-6 md:px-8 flex flex-col gap-4 items-center">
         <Link to={getRoutePath("home")}>
           <img

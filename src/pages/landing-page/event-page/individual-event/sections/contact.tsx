@@ -7,6 +7,9 @@ import {
   type EventSocials,
   type EventSocialPlatform,
 } from '@/lib/helper-func'
+import { IoLogoInstagram } from 'react-icons/io5'
+import { FaXTwitter, FaTiktok, FaFacebookF } from 'react-icons/fa6'
+import type { IconType } from 'react-icons'
 
 export default function ContactSection({ event }: { event: EventDetailData }) {
   return (
@@ -36,12 +39,11 @@ export default function ContactSection({ event }: { event: EventDetailData }) {
   )
 }
 
-// No Facebook asset ships yet, so it falls back to the YouTube mark.
-const SOCIAL_ICON_NAMES: Record<EventSocialPlatform, string> = {
-  instagram: 'insta',
-  x: 'X',
-  tiktok: 'tiktok',
-  facebook: 'yt',
+const SOCIAL_ICONS: Record<EventSocialPlatform, IconType> = {
+  instagram: IoLogoInstagram,
+  x: FaXTwitter,
+  tiktok: FaTiktok,
+  facebook: FaFacebookF,
 }
 
 function SocialMediaLinks({ socials }: { socials: Partial<EventSocials> }) {
@@ -49,15 +51,21 @@ function SocialMediaLinks({ socials }: { socials: Partial<EventSocials> }) {
 
   return (
     <div className='flex items-center gap-5'>
-      {links.map(({ platform, alt, url }) => (
-        <Link key={platform} to={url} target='_blank' rel='noopener noreferrer'>
-          <img
-            src={`/assets/landing-page/${SOCIAL_ICON_NAMES[platform]}.png`}
-            alt={alt}
-            className='w-[18px] h-auto'
-          />
-        </Link>
-      ))}
+      {links.map(({ platform, alt, url }) => {
+        const Icon = SOCIAL_ICONS[platform]
+
+        return (
+          <Link
+            key={platform}
+            to={url}
+            target='_blank'
+            rel='noopener noreferrer'
+            aria-label={alt}
+            className='text-white hover:opacity-80 transition-opacity'>
+            <Icon className='w-[18px] h-[18px]' />
+          </Link>
+        )
+      })}
     </div>
   )
 }

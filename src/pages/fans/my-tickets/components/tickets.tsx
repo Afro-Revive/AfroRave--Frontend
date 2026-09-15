@@ -32,7 +32,7 @@ export function Tickets({ id, image, event_name, ticketQuantity, event_date, eve
           {formatEventDate(event_date)}
           { event_location ? ` at ${event_location }.` : ''}
         </p>
-        <span className=' w-fit items-center gap-6 rounded-2xl bg-white px-4 py-2 text-xs font-inter-tight uppercase tracking-wide text-black transition-colors'>
+        <span className=' w-fit items-center gap-6 rounded-2xl bg-white px-2 py-1.5 text-[10px] font-inter-tight uppercase tracking-wide text-black transition-colors'>
           {ticketQuantity} Tickets
         </span>
       </div>

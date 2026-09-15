@@ -116,7 +116,7 @@ function PayoutHistoryItem({ listing }: PayoutHistoryItemProps) {
     <div
       role="button"
       tabIndex={0}
-      className="w-full flex items-center justify-between py-4 border border-mid-dark-gray/50 font-sf-pro-display text-white hover:bg-white/5 transition-colors rounded-lg px-2 -mx-2"
+      className="w-full flex items-center justify-between py-4 border border-mid-dark-gray/50 font-sf-pro-display text-white transition-colors rounded-lg px-2 -mx-2"
     >
       <div className="flex flex-col gap-1">
         {/** Ticket name will be replaced with the actual event name */}

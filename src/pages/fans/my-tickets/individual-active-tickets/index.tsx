@@ -268,7 +268,7 @@ export default function IndividualActiveTicketsPage() {
           </div>
 
           {/* order-last on mobile; back under the card at md via explicit grid placement. */}
-          <div className="order-last md:order-none md:col-start-1 md:row-start-2 flex flex-col gap-4 md:py-4 py-2 md:px-10">
+          <div className="order-last md:order-none md:col-start-1 md:row-start-2 flex flex-col gap-4 md:py-4 py-2 md:px-6">
             <p className="font-inter-tight font-bold md:text-xl text-lg">
               Contact event Organizers
             </p>
@@ -381,7 +381,7 @@ function OtherActions({
     },
     {
       icon: "/assets/resell/transfer_icon.svg",
-      name: "TRANSFER",
+      name: "Transfer",
       description: "Send tickets and items to anyone",
       action: onTransfer,
     },

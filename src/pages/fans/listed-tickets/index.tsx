@@ -102,9 +102,9 @@ function ListedTickets({ listing, onReview }: ListedTicketsProps) {
       className="w-full flex items-center justify-between py-4 border-b border-white/5 font-inter-tight text-white hover:bg-white/5 transition-colors cursor-pointer rounded-lg px-2 -mx-2"
     >
       <div className="flex flex-col gap-1">
-        <p className="md:text-base text-sm font-medium">{eventName}</p>
+        <p className=" text-base font-medium">{eventName}</p>
         <div className="flex items-center gap-2">
-          <p className="text-sm font-medium">{ticketName}</p>{" "}
+          <p className="text-xs font-medium">{ticketName}</p>{" "}
           <p className="text-xs">x{quantity}</p>
         </div>
 
