@@ -139,3 +139,10 @@ export function useChangePassword() {
     },
   })
 }
+
+export function usePayoutHistory() {
+  return useQuery({
+    queryKey: ['payout-history'],
+    queryFn: () => profileService.getPayoutHistory(),
+  })
+}

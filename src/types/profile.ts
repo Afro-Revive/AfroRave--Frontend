@@ -131,4 +131,25 @@ export interface WithdrawFundsRequest {
   accountName: string
 }
 
+export interface PayoutHistoryData {
+  id: string
+  amount: number
+  transactionType: string
+  status: string
+  description: string
+  reference: string
+  accountNumber: string
+  bankCode: string
+  accountName: string
+  quantity: number
+  currency: string
+  createdDate: string
+  ticketName: string
+  eventName: string
+  eventId: string
+  ticketId: string
+}
+
+export type PayoutHistoryResponse = ApiResponse<PayoutHistoryData>
+
 export type OrganizerProfileResponse = ApiResponse<OrganizerProfileData>
