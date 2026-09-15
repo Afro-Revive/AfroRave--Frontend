@@ -5,7 +5,8 @@
 .fan-account-page-container {
     width: 100%;
     min-height: 100vh;
-    background-color: #1A1A1A;
+    /* Transparent so the layout's radial backdrop shows through. */
+    background-color: transparent;
     display: flex;
     flex-direction: column;
 }

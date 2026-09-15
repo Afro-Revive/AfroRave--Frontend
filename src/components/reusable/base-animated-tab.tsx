@@ -23,7 +23,7 @@ export function BaseAnimatedTab({
       onValueChange={setActiveTab}
       className={cn('w-full md:w-fit flex', {
         'flex-col md:flex-row justify-center gap-10 md:gap-[100px] xl:gap-[307px]': isAccount,
-        'flex-col items-center gap-[132px]': isListed,
+        'flex-col items-center gap-16': isListed,
       })}>
       <TabsList
         // The highlight is the white pill itself, so it has to share the trigger's radius.

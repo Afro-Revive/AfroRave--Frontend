@@ -1,4 +1,6 @@
 import { Separator } from "@/components/ui/separator";
+import { cn } from "@/lib/utils";
+import { useFansRadialBackground } from "@/hooks/use-fans-radial-background";
 import { getRoutePath } from "@/config/get-route-path";
 import { FooterLinks } from "../components/footer-links";
 import { Socials } from "../components/socials";
@@ -8,8 +10,17 @@ import {
 } from "../components/footer-links-block";
 
 export default function Footer() {
+  const hasRadialBackground = useFansRadialBackground();
+
   return (
-    <footer className="w-full flex flex-col items-center md:gap-6 px-8 md:px-[60px] pb-3 md:pb-5 bg-primary font-sf-pro-rounded">
+    <footer
+      className={cn(
+        "w-full flex flex-col items-center md:gap-6 px-8 md:px-[60px] pb-3 md:pb-5 font-sf-pro-rounded",
+        // Transparent so the layout's radial shows through; the excluded event
+        // pages keep the flat footer they had.
+        hasRadialBackground ? "bg-transparent" : "bg-primary",
+      )}
+    >
       <div className=" w-full flex flex-col gap-1 pb-3 md:gap-5 ">
         <img
           src="/assets/landing-page/AR.png"

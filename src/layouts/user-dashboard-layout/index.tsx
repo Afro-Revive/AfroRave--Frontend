@@ -7,7 +7,7 @@ export default function UserDashboardLayout() {
 
   return (
     <AuthProvider>
-      <div className='min-h-screen bg-[#1A1A1A] flex flex-col'>
+      <div className='min-h-screen bg-fans-radial flex flex-col'>
         <AccountHeader/>
         {/* <MobileSidebar isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} /> */}
         <div className="flex flex-1 pt-[80px]">
