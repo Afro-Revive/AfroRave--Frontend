@@ -7,6 +7,8 @@ export interface TicketResaleRequest {
 
 export interface UsersResaleTickets{
     id: string;
+    eventId: string;
+    eventName: string;
     ticketId: string;
     ticketName: string;
     price: number;

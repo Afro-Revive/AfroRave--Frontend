@@ -21,6 +21,7 @@ export default function ListedTicketPage() {
   const listedTickets = data?.data as
     | PaginatedResponse<UsersResaleTickets>
     | undefined;
+  console.log("listedTickets", listedTickets);
   const reviewing =
     listedTickets?.items.find((item) => item.id === reviewingId) ?? null;
   if (isLoading) {
@@ -73,7 +74,20 @@ export default function ListedTicketPage() {
 }
 
 function ListedTickets({ listing, onReview }: ListedTicketsProps) {
-  const { ticketName, price, quantity, createdDate: date, status } = listing;
+  const {
+    ticketName,
+    price,
+    quantity,
+    createdDate: date,
+    status,
+    eventName,
+  } = listing;
+  console.log(price);
+  const subtotal = price * quantity;
+  const serviceFeeRate =
+    Number(import.meta.env.VITE_TICKET_RESALE_PERCENTAGE) || 0;
+  const serviceFee = subtotal * serviceFeeRate;
+  const payoutPrice = subtotal - serviceFee;
   return (
     <div
       role="button"
@@ -85,30 +99,34 @@ function ListedTickets({ listing, onReview }: ListedTicketsProps) {
           onReview();
         }
       }}
-      className="w-full flex items-center justify-between py-4 border-b border-white/5 font-sf-pro-display text-white hover:bg-white/5 transition-colors cursor-pointer rounded-lg px-2 -mx-2"
+      className="w-full flex items-center justify-between py-4 border-b border-white/5 font-inter-tight text-white hover:bg-white/5 transition-colors cursor-pointer rounded-lg px-2 -mx-2"
     >
       <div className="flex flex-col gap-1">
-        <p className="text-sm font-medium">{ticketName}</p>
+        <p className="md:text-base text-sm font-medium">{eventName}</p>
         <div className="flex items-center gap-2">
-          <p className="text-xs">x {quantity}</p>
-          <p className="text-xs text-white uppercase tracking-wide">
-            {formatNaira(price)}
+          <p className="text-sm font-medium">{ticketName}</p>{" "}
+          <p className="text-xs">x{quantity}</p>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <p className="text-xs text-[#ACACAC] font-medium  tracking-wide">
+            Payout: <span className="text-tech-blue"> {formatNaira(payoutPrice)}</span>
           </p>
         </div>
       </div>
 
       <div className="flex items-center gap-4">
-        <p className="text-xs text-white/40 hidden md:block">
+        <p className="text-xs text-white hidden md:block">
           {formatShortDate(date)}
         </p>
 
         <Badge
           className={cn(
-            "capitalize font-normal px-2 py-0.5 text-[10px] tracking-wide",
+            "capitalize font-normal bg-transparent  text-[10px] tracking-wide",
             {
-              "bg-[#34C759]/20 text-[#34C759] hover:bg-[#34C759]/30":
+              "text-green":
                 status === "Sold",
-              "bg-[#FF9500]/20 text-[#FF9500] hover:bg-[#FF9500]/30":
+              " text-[#FF9500]":
                 status === "Active",
             },
           )}
