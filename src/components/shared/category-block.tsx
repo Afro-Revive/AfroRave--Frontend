@@ -28,7 +28,7 @@ export function CategoryBlock({
           className={cn({
             'flex gap-5 overflow-x-scroll scrollbar-none w-full': display === 'flex',
             flex: display === 'flex' && homePage,
-            'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-8 justify-center':
+            'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 justify-center':
               display === 'grid',
           })}>
           {filteredData?.map((item) => (
@@ -69,7 +69,7 @@ function EventCard({
   return (
     <Link
       to={getRoutePath('individual_event', { eventId: customUrl })}
-      className='group relative flex flex-col justify-end overflow-hidden rounded-2xl border border-white/10 aspect-[5/7] w-55 md:w-60 lg:w-62.25'>
+      className='group relative flex flex-col justify-end overflow-hidden rounded-2xl border border-white/10 aspect-[5/7] w-55 md:w-60 lg:w-65 xl:w-full'>
       <RenderEventImage
         image={image}
         event_name={event_name}

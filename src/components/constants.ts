@@ -1,5 +1,7 @@
 import type { ICustomSelectProps } from "./reusable/base-select";
+import { IoReceiptOutline } from "react-icons/io5";
 import { getRoutePath } from "@/config/get-route-path";
+import type { IconType } from "react-icons";
 
 export const date_list: ICustomSelectProps = {
   defaultValue: "jan",
@@ -20,7 +22,7 @@ export const date_list: ICustomSelectProps = {
   ],
 };
 
-export const account_links: { link: string; icon: string; name: string }[] = [
+export const account_links: { link: string; icon: string | IconType ; name: string }[] = [
   {
     link: getRoutePath("account"),
     icon: "/assets/harmburger/round-user.png",
@@ -38,7 +40,7 @@ export const account_links: { link: string; icon: string; name: string }[] = [
   },
   {
     link: getRoutePath("listed_tickets"),
-    icon: "/assets/harmburger/ticket.png",
+    icon: IoReceiptOutline,
     name: "LISTED TICKETS",
   },
 ];

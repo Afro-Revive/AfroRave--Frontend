@@ -50,6 +50,8 @@ export interface EventData {
   endDate: string
   isPublished: boolean
   customUrl: string
+  // currently doesnt exist in the backend but will be added soon
+  hasResaleTickets?: boolean
   metadata: {
     termsOfRefund: string
     eventContact: {

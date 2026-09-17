@@ -67,6 +67,8 @@ function NavigationLinks() {
     <div className="hidden md:flex items-center gap-6 lg:gap-10">
       {account_links.map((item) => {
         const active = isLinkActive(item.link);
+        // Aliased so TS narrows the union — it won't narrow `item.icon` in JSX.
+        const Icon = item.icon;
 
         return (
           <Link
@@ -77,14 +79,18 @@ function NavigationLinks() {
               active ? "opacity-100 text-white" : "opacity-60 hover:opacity-100 text-white"
             )}
           >
-            <img
-              src={item.icon}
-              alt={item.name}
-              className="w-4 h-4"
-              style={{
-                filter: redFilter
-              }}
-            />
+            {typeof Icon === "string" ? (
+              <img
+                src={Icon}
+                alt={item.name}
+                className="w-4 h-4"
+                style={{
+                  filter: redFilter
+                }}
+              />
+            ) : (
+              <Icon className="w-4 h-4 text-deep-red" />
+            )}
             <span className="text-[12px] uppercase tracking-[0.05em] font-medium">
               {item.name}
             </span>

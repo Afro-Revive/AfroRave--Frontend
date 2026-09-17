@@ -2,6 +2,8 @@ import { CreatorMenuButton } from '@/components/reusable/creator-menu-button'
 import { UserMenuButton } from '@/components/reusable/user-menu-button'
 import LoginButton from '@/layouts/components/login-button'
 import NavSheet from '@/layouts/components/nav-sheet'
+import { getRoutePath } from '@/config/get-route-path'
+import { cn } from '@/lib/utils'
 import { useScroll } from '@/lib/useScroll'
 import { useAfroStore } from '@/stores'
 import { Search } from 'lucide-react'
@@ -16,14 +18,23 @@ export default function Header() {
   const { user, isAuthenticated, isCreator, isFan, isVendor } = useAfroStore()
   const location = useLocation()
   const isLandingPage = location.pathname === '/'
+  // The events page paints its own flat backdrop, so the bar gets a solid tone
+  // instead of the transparent-until-scrolled treatment.
+  const isEventsPage = location.pathname === getRoutePath('events')
   const [isSearchOpen, setIsSearchOpen] = useState(false)
 
 
   return (
     <header className='w-full fixed top-0 flex justify-center z-50 h-[90px]'>
       <div
-        className={`absolute inset-0 transition-all duration-300 ${hasScrolled ? 'h-full bg-black/25 backdrop-blur-sm' : 'h-0'
-          }`}
+        className={cn(
+          'absolute inset-0 transition-all duration-300',
+          isEventsPage
+            ? 'h-full bg-[#1A1A1A]'
+            : hasScrolled
+              ? 'h-full bg-black/25 backdrop-blur-sm'
+              : 'h-0',
+        )}
       />
 
       <nav className='relative px-4 md:px-8 w-full flex items-center justify-between py-4'>
