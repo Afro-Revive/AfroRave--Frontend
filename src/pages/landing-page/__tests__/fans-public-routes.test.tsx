@@ -13,7 +13,7 @@ const publicRoutes: { path: string; text: RegExp }[] = [
   { path: '/fans', text: /find tickets/i },
   { path: '/fans/events', text: /select category/i },
   { path: '/fans/events/afro-nation-lagos', text: /afro nation lagos/i },
-  { path: '/fans/resell', text: /resell with ease/i },
+  { path: '/fans/resell', text: /can’t make it to an event/i },
   { path: '/fans/about-us', text: /coming soon/i },
   { path: '/fans/blog', text: /coming soon/i },
   { path: '/fans/refund-policy', text: /coming soon/i },

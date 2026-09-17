@@ -4,6 +4,7 @@ import type {
   ResaleListingData,
   TicketData,
 } from '@/types'
+import type { CartLineItem } from '@/types/cart'
 
 const PRIMARY_CAPTION = '(includes fees)'
 
@@ -15,8 +16,9 @@ export function toPurchasableTickets(
     cartKey: ticket.ticketId,
     ticketId: ticket.ticketId,
     name: ticket.ticketName,
-    price: ticket.price,
+    price: ticket.salesPrice,
     available: ticket.availableQuantity,
+    purchaseLimit: ticket.purchaseLimit,
     caption: PRIMARY_CAPTION,
     source: 'primary',
   }))
@@ -38,9 +40,19 @@ export function toPurchasableResaleListings(
       name: listing.ticketName,
       price: listing.price,
       available: listing.quantity,
+      // A listing has no separate per-buyer cap — the whole listing is the cap.
+      purchaseLimit: listing.quantity,
       caption: `${listing.quantity} available · sold by ${listing.sellerName}`,
       source: 'resale',
     }))
+}
+
+/**
+ * True when the cart holds something and all of it is resale. `listingId` is only
+ * set on resale lines.
+ */
+export function isResaleOnlyCart(items: CartLineItem[]): boolean {
+  return items.length > 0 && items.every((item) => Boolean(item.listingId))
 }
 
 /** Index rows by `cartKey` so cart lookups are one map hit instead of a scan per field. */

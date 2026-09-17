@@ -25,7 +25,10 @@ export default function Cart({ event }: CartProps) {
   const closeCart = useCartStore((state) => state.closeCart)
 
   const { data: ticketsResponse } = useGetEventTickets(event.eventId)
-  const { data: resaleListingsResponse } = useGetEventResaleListings(event.eventId)
+  const { data: resaleListingsResponse } = useGetEventResaleListings(
+    event.eventId,
+    isAuthenticated,
+  )
   const { mutateAsync: syncCart, isPending: isSyncing } = useSyncCartToServer()
   const { mutate: clearCart } = useClearCart()
 

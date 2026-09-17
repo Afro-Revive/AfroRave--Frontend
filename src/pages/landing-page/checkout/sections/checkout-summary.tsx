@@ -45,6 +45,7 @@ export default function CheckoutSummary({
   const { data: ticketsResponse } = useGetEventTickets(eventId ?? "");
   const { data: resaleListingsResponse } = useGetEventResaleListings(
     eventId ?? "",
+    isAuthenticated,
   );
   const [promoDiscount, setPromoDiscount] = useState<PromoDiscount | null>(
     null,
@@ -81,22 +82,24 @@ export default function CheckoutSummary({
     };
   });
 
+  console.log("cartItems", cartItems);
+
   const totalPrice = cartItems.reduce(
     (sum, item) => sum + item.price * item.quantity,
     0,
   );
   const totalQuantity = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
-  const checkoutMutation = useCheckoutCart();
+  const {mutate: checkoutMutation, isPending} = useCheckoutCart();
 
   function handleCheckout() {
-    checkoutMutation.mutate(
+    checkoutMutation(
       {
         promoCodeId: promoCodeId || "",
         callbackUrl: `${window.location.origin}/fans/payment-confirmation`,
       },
       {
-        onSuccess: (data) => {
+        onSuccess: (data: InitializePaymentResponse) => {
           const response = data as InitializePaymentResponse;
           window.location.href = response.data.authorizationUrl;
         },
@@ -194,9 +197,9 @@ export default function CheckoutSummary({
         {isFanAccount && (
           <Button
             onClick={handleCheckout}
-            className="bg-white font-sf-pro-display text-black hover:bg-white/90"
+            className="bg-white uppercase font-sf-pro-display text-black hover:bg-white/90"
           >
-            CHECKOUT
+           {isPending ? "Processing..." : "CHECKOUT"}
           </Button>
         )}
       </div>

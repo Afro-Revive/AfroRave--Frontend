@@ -1,5 +1,6 @@
 import type {
   OrganizerProfileResponse,
+  PayoutHistoryResponse,
   UpdateUserProfileRequest,
   UserProfileResponse,
   UserTicketsResponse,
@@ -95,6 +96,14 @@ class ProfileService {
    */
   async changePassword(data: { currentPassword: string; newPassword: string; confirmNewPassword: string }): Promise<void> {
     const response = await api.patch('/api/Profile/change-password', data)
+    return response.data
+  }
+
+  /**
+   * Get User Payout History
+   */
+  async getPayoutHistory(): Promise<PayoutHistoryResponse> {
+    const response = await api.get('/api/profile/user/payout-history')
     return response.data
   }
 }

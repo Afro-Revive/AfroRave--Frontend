@@ -11,7 +11,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { useCreateCart, useUpdateCartQuantity } from "@/hooks/use-cart";
 
-import { useCartStore } from "@/stores";
+import { useAfroStore, useCartStore } from "@/stores";
 import type {
   PaginatedResponse,
   PurchasableTicket,
@@ -19,20 +19,25 @@ import type {
   TicketData,
 } from "@/types";
 import {
+  isResaleOnlyCart,
   toPurchasableResaleListings,
   toPurchasableTickets,
 } from "@/lib/purchasable-tickets";
 
 export default function TicketSection({ eventId, layout }: ITicketProps) {
-  const [isSales, setIsSales] = useState(false);
+  const isAuthenticated = useAfroStore((state) => state.isAuthenticated);
+  const [isSales, setIsSales] = useState(() =>
+    isResaleOnlyCart(useCartStore.getState().items),
+  );
   const { data: ticketResponse, isPending: isLoading } =
     useGetEventTickets(eventId);
   const { data: resaleListingsResponse, isPending: isResaleListingsLoading } =
-    useGetEventResaleListings(eventId);
+    useGetEventResaleListings(eventId, isAuthenticated);
 
   const tickets = toPurchasableTickets(
     ticketResponse?.data as PaginatedResponse<TicketData> | undefined,
   );
+
   const resaleListings = toPurchasableResaleListings(
     resaleListingsResponse?.data as
       | PaginatedResponse<ResaleListingData>
@@ -87,20 +92,28 @@ export default function TicketSection({ eventId, layout }: ITicketProps) {
 }
 
 function TicketCard({ ticket, layout }: ITicketCard) {
-  const { cartKey, ticketId, listingId, name, price, caption, available } =
+  const { cartKey, ticketId, listingId, name, price, caption, available, purchaseLimit } =
     ticket;
   const localItems = useCartStore((state) => state.items);
 
   const ticketCount =
     localItems.find((i) => i.cartKey === cartKey)?.quantity ?? 0;
   const isSoldOut = available <= 0;
-  const atLimit = ticketCount >= available;
+  // Whichever runs out first: stock on hand, or what one buyer is allowed.
+  const maxPerBuyer = Math.min(available, purchaseLimit || available);
+  const atLimit = ticketCount >= maxPerBuyer;
 
   const createCartMutation = useCreateCart();
   const updateQuantityMutation = useUpdateCartQuantity();
 
   function createCart() {
-    createCartMutation.mutate({ cartKey, ticketId, listingId, quantity: 1 });
+    createCartMutation.mutate({
+      cartKey,
+      ticketId,
+      listingId,
+      quantity: 1,
+      purchaseLimit: maxPerBuyer,
+    });
     useCartStore.getState().openCart();
   }
 

@@ -426,13 +426,17 @@ export function useGetTrendingEvents() {
   })
 }
 
-export function useGetEventResaleListings(eventId?: string) {
+/**
+ * Resolve only if the user is authenticated, otherwise return an empty array.
+ */
+export function useGetEventResaleListings(eventId?: string, enabled = true) {
   return useQuery({
     queryKey: eventKeys.resaleListings(eventId || ''),
     queryFn: () => {
       if (!eventId) throw new Error('Event ID is required')
       return eventService.getEventResaleListings(eventId)
-    }
+    },
+    enabled: enabled && !!eventId,
   })
 }
 

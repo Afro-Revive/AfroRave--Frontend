@@ -7,9 +7,10 @@ import { NavLogo } from "../root-layout/header/nav-logo";
 
 export default function AccountHeader() {
   const { user } = useAfroStore();
-
+  // Translucent rather than fully clear: the header is fixed, so content
+  // scrolls underneath it. Matches the landing header's scrolled state.
   return (
-    <header className="w-full fixed top-0 left-0 z-50 bg-[#1A1A1A]">
+    <header className="w-full fixed top-0 left-0 z-50 bg-black/25 backdrop-blur-sm">
       <nav className="w-full px-4 md:px-10 h-[80px] flex items-center justify-between">
 
         {/* Left: Logo and Menu Trigger */}
@@ -66,6 +67,8 @@ function NavigationLinks() {
     <div className="hidden md:flex items-center gap-6 lg:gap-10">
       {account_links.map((item) => {
         const active = isLinkActive(item.link);
+        // Aliased so TS narrows the union — it won't narrow `item.icon` in JSX.
+        const Icon = item.icon;
 
         return (
           <Link
@@ -76,14 +79,18 @@ function NavigationLinks() {
               active ? "opacity-100 text-white" : "opacity-60 hover:opacity-100 text-white"
             )}
           >
-            <img
-              src={item.icon}
-              alt={item.name}
-              className="w-4 h-4"
-              style={{
-                filter: redFilter
-              }}
-            />
+            {typeof Icon === "string" ? (
+              <img
+                src={Icon}
+                alt={item.name}
+                className="w-4 h-4"
+                style={{
+                  filter: redFilter
+                }}
+              />
+            ) : (
+              <Icon className="w-4 h-4 text-deep-red" />
+            )}
             <span className="text-[12px] uppercase tracking-[0.05em] font-medium">
               {item.name}
             </span>

@@ -1,27 +1,55 @@
 import { Link } from 'react-router-dom'
 import { getRoutePath } from '@/config/get-route-path'
 import { RenderEventImage } from '@/components/shared/render-event-flyer'
+import { formatEventDate } from '@/lib/helper-func'
+import { cn } from '@/lib/utils'
 
-export function Tickets({ id, image, event_name, quantity }: ITickets) {
-  return (
-    <Link
-      to={getRoutePath('active_tickets', { eventId: id })}
-      className='md:w-[200px] w-fit h-[306px] flex flex-col gap-3 rounded-[5px]'>
-      <div className='w-fit h-fit relative'>
-        <RenderEventImage
-          image={image}
-          event_name={event_name}
-          className='w-full h-[256px] rounded-[10px]'
-        />
+export function Tickets({ id, image, event_name, ticketQuantity, event_date, event_location, disabled = false }: ITickets) {
+  const card_class = cn(
+    // max-md:shrink-0 so cards keep their width in the mobile scroller
+    // instead of being squeezed to fit one row.
+    'relative flex flex-col justify-end overflow-hidden rounded-2xl border border-white/10 aspect-[5/7] w-55 md:w-60 lg:w-62.25 max-md:shrink-0',
+    // Without `group` the hover states below have nothing to key off
+    disabled ? 'opacity-50' : 'group'
+  )
 
-        <span className='absolute size-6 top-1.5 right-1 bg-white text-black text-sm font-semibold font-sf-pro-rounded flex items-center justify-center rounded-full'>
-          {quantity}
+  const card_content = (
+    <>
+      <RenderEventImage
+        image={image}
+        event_name={event_name}
+        className='absolute inset-0 w-full! h-full! md:h-full! object-cover transition-transform duration-500 group-hover:scale-105'
+      />
+
+      <div className='absolute inset-x-0 bottom-0 h-3/5 bg-gradient-to-t from-black via-black/75 to-transparent' />
+
+      <div className='absolute inset-x-0 bottom-[5%] flex flex-col gap-1.5 p-4'>
+        <p className='font-inter-tight text-base md:text-xl uppercase font-black text-white leading-tight'>
+          {event_name}
+        </p>
+
+        <p className='font-inter-tight text-sm md:text-base text-white leading-snug'>
+          {formatEventDate(event_date)}
+          { event_location ? ` at ${event_location }.` : ''}
+        </p>
+        <span className=' w-fit items-center gap-6 rounded-2xl bg-white px-2 py-1.5 text-[10px] font-inter-tight uppercase tracking-wide text-black transition-colors'>
+          {ticketQuantity} Tickets
         </span>
       </div>
+    </>
+  )
 
-      <p className='max-w-full font-sf-pro-display font-extrabold tracking-[-0.25px] text-wrap uppercase'>
-        {event_name} {""}
-      </p>
+  if (disabled) {
+    return (
+      <div className={card_class} aria-disabled='true'>
+        {card_content}
+      </div>
+    )
+  }
+
+  return (
+    <Link to={getRoutePath('active_tickets', { eventId: id })} className={card_class}>
+      {card_content}
     </Link>
   )
 }
@@ -29,6 +57,10 @@ export function Tickets({ id, image, event_name, quantity }: ITickets) {
 interface ITickets {
   id: string
   event_name: string
+  event_date: string
+  event_location: string
   image: string
-  quantity: number
+  ticketQuantity: number
+  /** Renders a non-navigable, dimmed card — used for events that have passed. */
+  disabled?: boolean
 }

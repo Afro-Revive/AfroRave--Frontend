@@ -185,17 +185,19 @@ export const useCartStore = create<CartState>()(
       setPromoCodeId: (id) => set({ promoCodeId: id }),
       addItem: (item) =>
         set((state) => {
+          // Never let a line exceed the ticket's per-buyer purchase limit.
+          const limit = item.purchaseLimit ?? Number.POSITIVE_INFINITY
           const existing = state.items.find((i) => i.cartKey === item.cartKey)
           if (existing) {
             return {
               items: state.items.map((i) =>
                 i.cartKey === item.cartKey
-                  ? { ...i, quantity: i.quantity + item.quantity }
+                  ? { ...i, quantity: Math.min(i.quantity + item.quantity, limit) }
                   : i,
               ),
             }
           }
-          return { items: [...state.items, item] }
+          return { items: [...state.items, { ...item, quantity: Math.min(item.quantity, limit) }] }
         }),
       removeItem: (cartKey) =>
         set((state) => ({ items: state.items.filter((i) => i.cartKey !== cartKey) })),
@@ -204,7 +206,14 @@ export const useCartStore = create<CartState>()(
           items:
             quantity <= 0
               ? state.items.filter((i) => i.cartKey !== cartKey)
-              : state.items.map((i) => (i.cartKey === cartKey ? { ...i, quantity } : i)),
+              : state.items.map((i) =>
+                  i.cartKey === cartKey
+                    ? {
+                        ...i,
+                        quantity: Math.min(quantity, i.purchaseLimit ?? Number.POSITIVE_INFINITY),
+                      }
+                    : i,
+                ),
         })),
       clearLocal: () => set({ items: [] }),
       setSyncing: (value) => set({ isSyncingCart: value }),

@@ -1,13 +1,13 @@
-import { account_links } from '@/components/constants'
 import { CreatorMenuButton } from '@/components/reusable/creator-menu-button'
 import { UserMenuButton } from '@/components/reusable/user-menu-button'
 import LoginButton from '@/layouts/components/login-button'
 import NavSheet from '@/layouts/components/nav-sheet'
-import { useScroll } from '@/lib/useScroll'
+import { getRoutePath } from '@/config/get-route-path'
 import { cn } from '@/lib/utils'
+import { useScroll } from '@/lib/useScroll'
 import { useAfroStore } from '@/stores'
 import { Search } from 'lucide-react'
-import { NavLink, useLocation } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 import { NavLogo } from './nav-logo'
 import { useState, useEffect } from 'react'
 
@@ -18,17 +18,23 @@ export default function Header() {
   const { user, isAuthenticated, isCreator, isFan, isVendor } = useAfroStore()
   const location = useLocation()
   const isLandingPage = location.pathname === '/'
-  const isFansPage = location.pathname === '/fans'
+  // The events page paints its own flat backdrop, so the bar gets a solid tone
+  // instead of the transparent-until-scrolled treatment.
+  const isEventsPage = location.pathname === getRoutePath('events')
   const [isSearchOpen, setIsSearchOpen] = useState(false)
 
-  // Show minimal header (no nav links) on home and fans pages
-  const showMinimalHeader = isLandingPage || isFansPage
 
   return (
     <header className='w-full fixed top-0 flex justify-center z-50 h-[90px]'>
       <div
-        className={`absolute inset-0 transition-all duration-300 ${hasScrolled ? 'h-full bg-black/25 backdrop-blur-sm' : 'h-0'
-          }`}
+        className={cn(
+          'absolute inset-0 transition-all duration-300',
+          isEventsPage
+            ? 'h-full bg-[#1A1A1A]'
+            : hasScrolled
+              ? 'h-full bg-black/25 backdrop-blur-sm'
+              : 'h-0',
+        )}
       />
 
       <nav className='relative px-4 md:px-8 w-full flex items-center justify-between py-4'>
@@ -47,7 +53,6 @@ export default function Header() {
 
             {isAuthenticated && isFan && (
               <>
-                {!showMinimalHeader && <NavigationLinks />}
                 <UserMenuButton user={user} />
               </>
             )}
@@ -73,27 +78,6 @@ export default function Header() {
         onClose={() => setIsSearchOpen(false)}
       />
     </header>
-  )
-}
-
-function NavigationLinks() {
-  return (
-    <div className='hidden md:flex items-center gap-14'>
-      {account_links.map((item) => (
-        <NavLink
-          key={item.name}
-          to={item.link}
-          className={({ isActive }) =>
-            cn('flex items-center gap-2 border-b-2 transition-all pb-1', {
-              'opacity-100 border-deep-red': isActive,
-              'opacity-60 border-transparent hover:border-deep-red': !isActive,
-            })
-          }>
-          <img src={item.icon} alt={item.name} className='size-[19px]' />
-          <span className='text-base font-input-mono'>{item.name}</span>
-        </NavLink>
-      ))}
-    </div>
   )
 }
 

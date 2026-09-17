@@ -2,6 +2,7 @@ import { EmptyState } from '../components/empty-state'
 import { getRoutePath } from '@/config/get-route-path'
 import { Tickets } from '../components/tickets'
 import { LoadingFallback } from '@/components/loading-fallback'
+import { totalTicketsPurchased } from '@/lib/helper-func'
 import type { UserTicketData } from '@/types'
 
 export default function PastTicketsTab({
@@ -27,14 +28,17 @@ export default function PastTicketsTab({
 
 function PastTickets({ data }: { data: UserTicketData[] }) {
   return (
-    <div className='flex flex-wrap items-center justify-center gap-7 px-5 md:px-[50px] lg:px-[100px] mb-[100px]'>
+    <div className='w-full min-w-0 flex items-center gap-7 px-5 md:px-[50px] lg:px-[100px] mb-[100px] max-md:overflow-x-auto max-md:scrollbar-none md:flex-wrap md:justify-center'>
       {data.map((item) => (
-         <Tickets
+        <Tickets
           key={item.eventId}
           id={item.eventId}
           event_name={item.eventName}
           image={item.desktopMedia?.flyer}
-          quantity={item.ticketDetails.reduce((sum, t) => sum + t.totalQuantity, 0)}
+          event_date={item.eventStartDate}
+          event_location={item.eventVenue}
+          ticketQuantity={totalTicketsPurchased(item.ticketDetails)}
+          disabled
         />
       ))}
     </div>

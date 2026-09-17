@@ -2,6 +2,14 @@ import { SectionContainer } from '../_components/section-container'
 import { BlockName } from '../../_components/block-name'
 import { Link } from 'react-router-dom'
 import type { EventDetailData } from '@/types'
+import {
+  getEventSocialLinks,
+  type EventSocials,
+  type EventSocialPlatform,
+} from '@/lib/helper-func'
+import { IoLogoInstagram } from 'react-icons/io5'
+import { FaXTwitter, FaTiktok, FaFacebookF } from 'react-icons/fa6'
+import type { IconType } from 'react-icons'
 
 export default function ContactSection({ event }: { event: EventDetailData }) {
   return (
@@ -31,49 +39,33 @@ export default function ContactSection({ event }: { event: EventDetailData }) {
   )
 }
 
-function SocialMediaLinks({ socials }: { socials: ISocials }) {
-  const platforms: SocialPlatform[] = [
-    { name: 'yt', link: socials.facebook, alt: 'Facebook' },
-    { name: 'insta', link: socials.instagram, alt: 'Instagram' },
-    { name: 'tiktok', link: socials.tiktok, alt: 'TikTok' },
-    { name: 'X', link: socials.x, alt: 'X' },
-  ].filter((platform) => platform.link) as SocialPlatform[]
+const SOCIAL_ICONS: Record<EventSocialPlatform, IconType> = {
+  instagram: IoLogoInstagram,
+  x: FaXTwitter,
+  tiktok: FaTiktok,
+  facebook: FaFacebookF,
+}
+
+function SocialMediaLinks({ socials }: { socials: Partial<EventSocials> }) {
+  const links = getEventSocialLinks(socials)
 
   return (
     <div className='flex items-center gap-5'>
-      {platforms.map((platform) => (
-        <SocialMediaIcon key={platform.name} platform={platform} link={platform.link} />
-      ))}
+      {links.map(({ platform, alt, url }) => {
+        const Icon = SOCIAL_ICONS[platform]
+
+        return (
+          <Link
+            key={platform}
+            to={url}
+            target='_blank'
+            rel='noopener noreferrer'
+            aria-label={alt}
+            className='text-white hover:opacity-80 transition-opacity'>
+            <Icon className='w-[18px] h-[18px]' />
+          </Link>
+        )
+      })}
     </div>
   )
-}
-
-function SocialMediaIcon({ platform, link }: ISocialMediaIconProps) {
-  return (
-    <Link to={link}>
-      <img
-        src={`/assets/landing-page/${platform.name}.png`}
-        alt={platform.alt}
-        className='w-[18px] h-auto'
-      />
-    </Link>
-  )
-}
-
-interface ISocials {
-  instagram: 'string'
-  x: 'string'
-  tiktok: 'string'
-  facebook: 'string'
-}
-
-type SocialPlatform = {
-  name: 'yt' | 'insta' | 'tiktok' | 'X'
-  link: string
-  alt: string
-}
-
-interface ISocialMediaIconProps {
-  platform: SocialPlatform
-  link: string
 }

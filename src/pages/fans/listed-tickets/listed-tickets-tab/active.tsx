@@ -2,6 +2,7 @@ import { getRoutePath } from '@/config/get-route-path'
 import { EmptyState } from '@/pages/fans/my-tickets/components/empty-state'
 import { Tickets } from '@/pages/fans/my-tickets/components/tickets'
 import { UserTicketData } from '@/types'
+import { totalTicketsPurchased } from '@/lib/helper-func'
 
 export default function ActiveListedTicketsTab({ data }: { data: UserTicketData[] }) {
   const isEmpty = data.length === 0
@@ -26,7 +27,9 @@ function ActiveTickets({ data }: { data: UserTicketData[] }) {
           id={item.eventId}
           event_name={item.eventName}
           image={item.desktopMedia?.flyer}
-          quantity={item.ticketDetails.reduce((sum, t) => sum + t.totalQuantity, 0)}
+          event_date={item.eventStartDate}
+          event_location={item.eventVenue}
+          ticketQuantity={totalTicketsPurchased(item.ticketDetails)}
         />
       ))}
     </div>

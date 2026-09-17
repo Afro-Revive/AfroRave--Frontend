@@ -3,6 +3,7 @@ import { EmptyState } from '../components/empty-state'
 import { Tickets } from '../components/tickets'
 import type { UserTicketData } from '@/types'
 import { LoadingFallback } from '@/components/loading-fallback'
+import { totalTicketsPurchased } from '@/lib/helper-func'
 
 export default function ActiveTicketsTab({
   data,
@@ -27,14 +28,16 @@ export default function ActiveTicketsTab({
 
 function ActiveTickets({ data }: { data: UserTicketData[] }) {
   return (
-    <div className='grid w-full gap-4 h-screen grid-cols-2 md:grid-cols-4 lg:grid-cols-6 '>
+    <div className='w-full min-w-0 flex gap-7 mb-[100px] max-md:overflow-x-auto max-md:scrollbar-none md:flex-wrap'>
       {data.map((item) => (
         <Tickets
           key={item.eventId}
           id={item.eventId}
           event_name={item.eventName}
           image={item.desktopMedia?.flyer}
-          quantity={item.ticketDetails.reduce((sum, t) => sum + t.totalQuantity, 0)}
+          event_date={item.eventStartDate}
+          event_location={item.eventVenue}
+          ticketQuantity={totalTicketsPurchased(item.ticketDetails)}
         />
       ))}
     </div>

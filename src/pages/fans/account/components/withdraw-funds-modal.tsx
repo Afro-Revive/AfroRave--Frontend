@@ -110,11 +110,15 @@ export function WithdrawFundsModal({
       open={isOpen}
       onClose={handleClose}
       size="small"
-      titleClassName="font-inter text-sm px-0"
+      // Floats the X out of its own row so it shares the title's line; the
+      // overrides strip the pill background floatingCancel ships with.
+      floatingCancel
+      cancelClassName="top-4 right-6 md:top-4 md:right-6 p-0 bg-transparent hover:bg-transparent backdrop-blur-none"
+      titleClassName="font-inter text-sm items-center px-6 py-4"
       title="Withdraw Funds"
       className="bg-[#1A1A1A] border border-white/10"
     >
-      <div className="w-full flex flex-col gap-6 p-6">
+      <div className="w-full flex flex-col gap-4 px-6 pb-6">
         {/* Header */}
         <div className="flex flex-col gap-4">
           <div className="border-b border-white/10" />
@@ -124,7 +128,7 @@ export function WithdrawFundsModal({
         <div className="bg-[#262626] px-3 py-2 rounded-md flex flex-col gap-2">
           <div className="flex items-center gap-2">
             <Wallet className="w-5 h-5 text-light-red" />
-            <p className="text-[#8E8E93] text-sm font-sf-pro-display">
+            <p className="text-[#8E8E93] text-sm font-inter">
               Available Balance
             </p>
           </div>
@@ -200,7 +204,7 @@ export function WithdrawFundsModal({
             placeholder="₦ 0"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
-            className="w-full h-14 bg-transparent border border-white/20 rounded-lg px-4 font-medium text-white text-lg font-sf-pro-display placeholder:text-white/40 focus:border-white/40"
+            className="w-full py-5 bg-transparent border border-white/20 rounded-lg px-4 font-medium text-white text-lg font-inter placeholder:text-white/40 focus:border-white/40"
           />
         </div>
 

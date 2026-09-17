@@ -1,9 +1,9 @@
 import { Link } from 'react-router-dom'
 import { cn } from '@/lib/utils'
 import { getRoutePath } from '@/config/get-route-path'
-import { CalendarDays, MapPin } from 'lucide-react'
+import { ArrowRight } from 'lucide-react'
 import { RenderEventImage } from './render-event-flyer'
-import { formatEventDate, formatEventTime } from '@/lib/helper-func'
+import { formatEventDate } from '@/lib/helper-func'
 export function CategoryBlock({
   name,
   data,
@@ -28,7 +28,7 @@ export function CategoryBlock({
           className={cn({
             'flex gap-5 overflow-x-scroll scrollbar-none w-full': display === 'flex',
             flex: display === 'flex' && homePage,
-            'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-8 justify-center':
+            'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 justify-center':
               display === 'grid',
           })}>
           {filteredData?.map((item) => (
@@ -64,57 +64,33 @@ function EventCard({
   event_location,
   event_date,
   customUrl,
-  start_time,
   showLocation,
-  layout = 'start',
 }: IEventCardProps) {
   return (
     <Link
       to={getRoutePath('individual_event', { eventId: customUrl })}
-      className={cn(
-        'flex flex-col gap-1 min-w-[160px] md:min-w-[195px] md:w-fit max-w-[180px] md:max-w-full lg:min-w-[200px] lg:max-w-[220px]',
-        {
-          'items-start': layout === 'start',
-          'items-center': layout === 'middle',
-        },
-      )}>
+      className='group relative flex flex-col justify-end overflow-hidden rounded-2xl border border-white/10 aspect-[5/7] w-55 md:w-60 lg:w-65 xl:w-full'>
       <RenderEventImage
         image={image}
         event_name={event_name}
-        className='rounded-sm md:rounded-lg'
+        className='absolute inset-0 w-full! h-full! md:h-full! object-cover transition-transform duration-500 group-hover:scale-105'
       />
 
-      <div className='flex flex-col gap-1 md:gap-2 py-2 px-1'>
-        <p
-          className={cn('text-sm md:text-base font-black font-sf-pro-display uppercase', {
-            'text-start md:text-center': layout === 'middle',
-            'text-start': layout === 'start',
-          })}>
+      <div className='absolute inset-x-0 bottom-0 h-3/5 bg-gradient-to-t from-black via-black/75 to-transparent' />
+
+      <div className='relative flex flex-col gap-1.5 p-4'>
+        <p className='font-inter-tight text-base md:text-lg font-black text-white capitalize leading-tight'>
           {event_name}
         </p>
 
-        <div className='flex flex-col gap-1'>
-          {showLocation && (
-            <div
-              className={cn('flex items-start md:gap-1.5 gap-0.5 justify-center', {
-                'justify-center': layout === 'middle',
-                'justify-start': layout === 'start',
-              })}>
-              <MapPin size={10} color='var(--foreground)' />
-                <EventDetailsParagraph text={event_location} />
-            </div>
-          )}
-
-          <div
-            className={cn('flex items-start md:gap-1.5 gap-0.5', {
-              'justify-center': layout === 'middle',
-            })}>
-            {showLocation &&
-             <CalendarDays size={10} color='var(--foreground)' />}
-              <EventDetailsParagraph text={`${formatEventDate(event_date)} at ${formatEventTime(start_time)}`} />
-         
-          </div>
-        </div>
+        <p className='font-inter-tight text-sm text-white leading-snug'>
+          {formatEventDate(event_date)}
+          {showLocation && event_location ? ` at ${event_location }.` : ''}
+        </p>
+        <span className='mt-2 w-fit hidden group-hover:inline-flex items-center gap-6 rounded-md bg-white px-4 py-2 font-input-mono text-xs uppercase tracking-wide text-deep-red transition-colors'>
+          Get Tickets
+          <ArrowRight size={14} />
+        </span>
       </div>
     </Link>
   )
@@ -122,10 +98,6 @@ function EventCard({
 
 function CategoryBlockName({ name }: { name: string }) {
   return <p className='text-xl font-bold font-sf-pro-display'>{name}</p>
-}
-
-function EventDetailsParagraph({ text }: { text: string }) {
-  return <p className='font-sf-pro-display text-xs font-normal text-secondary-white text-start -mt-0.5'>{text}</p>
 }
 
 export function CategoryBlockSkeleton({ name }: { name?: string }) {
@@ -137,14 +109,11 @@ export function CategoryBlockSkeleton({ name }: { name?: string }) {
         {Array.from({ length: 4 }).map((_, idx) => (
           <div
             key={`event-skeleton-${idx}`}
-            className='flex flex-col gap-1 min-w-[160px] md:min-w-[195px] md:w-fit max-w-[180px] md:max-w-full lg:min-w-[200px] lg:max-w-[220px] w-full'>
-            <div className='w-full h-[160px] md:h-[250px] bg-gray-200 rounded-[5px] md:rounded-[15px] animate-pulse' />
-            <div className='flex flex-col gap-1 md:gap-2 py-2 px-1'>
-              <div className='h-4 md:h-6 w-3/4 bg-gray-200 rounded animate-pulse' />
-              <div className='space-y-1'>
-                <div className='h-3 md:h-4 w-1/2 bg-gray-200 rounded animate-pulse' />
-                <div className='h-3 md:h-4 w-2/3 bg-gray-200 rounded animate-pulse' />
-              </div>
+            className='relative flex flex-col justify-end overflow-hidden rounded-2xl aspect-[5/7] min-w-[220px] max-w-[260px] md:min-w-[240px] lg:min-w-[255px] bg-gray-200 animate-pulse'>
+            <div className='flex flex-col gap-2 p-4'>
+              <div className='h-5 w-3/4 bg-gray-300 rounded' />
+              <div className='h-3 w-2/3 bg-gray-300 rounded' />
+              <div className='mt-2 h-8 w-[130px] bg-gray-300 rounded-[4px]' />
             </div>
           </div>
         ))}

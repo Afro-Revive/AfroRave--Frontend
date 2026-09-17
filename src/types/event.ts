@@ -50,6 +50,8 @@ export interface EventData {
   endDate: string
   isPublished: boolean
   customUrl: string
+  // currently doesnt exist in the backend but will be added soon
+  hasResaleTickets?: boolean
   metadata: {
     termsOfRefund: string
     eventContact: {
@@ -97,10 +99,10 @@ export interface EventDetailData {
     termsOfRefund: string
     eventContact: { email: string; website: string }
     socials: {
-      instagram: 'string'
-      x: 'string'
-      tiktok: 'string'
-      facebook: 'string'
+      instagram: string
+      x: string
+      tiktok: string
+      facebook: string
     }
 
     desktopMedia: { flyer: string; background: string } | null
@@ -121,13 +123,20 @@ export type EventDetailResponse = ApiResponse<EventDetailData>
 export interface TicketData {
   ticketId: string
   ticketName: string
+  ticketType?: 'Single' | 'Group' | 'MultiDay'
+  accessType?: 'Free' | 'Paid' | 'Invite'
+  groupSize: number
+  purchaseLimit: number
   price: number
+  basePrice: number
+  salesPrice: number
+  resalePrice: number
+  fee: number
+  feePercentage: number
   quantity: number
   availableQuantity: number
   eventId: string
   eventName: string
-  ticketType?: 'Single' | 'Group' | 'MultiDay'
-  accessType?: 'Free' | 'Paid' | 'Invite'
   salesType?: 'Online' | 'Door'
   description?: string
   ticketDetails?: {
@@ -387,6 +396,8 @@ export interface PurchasableTicket {
   name: string
   price: number
   available: number
+  /** Max a single buyer may take. Falls back to `available` for resale listings. */
+  purchaseLimit: number
   /** Fine print under the price. */
   caption: string
   source: 'primary' | 'resale'
