@@ -200,7 +200,7 @@ export default function EventCategoryBlocks() {
   console.log(trendingEvents);
 
   return (
-    <section className="w-full bg-[#1E1E1E] flex flex-col gap-10  pb-16 px-3 md:px-8 lg:px-0 min-h-[calc(100vh-300px)]">
+    <section className="w-full bg-[#1E1E1E] flex flex-col gap-10  pb-16 md:px-8 lg:px-0 min-h-[calc(100vh-300px)]">
       {/* <div className='lg:pl-[60px]'>
         <CategoryBlock
           name='Trending'
@@ -212,7 +212,7 @@ export default function EventCategoryBlocks() {
       </div> */}
       <OffTheDeckHero />
 
-      <div className="flex flex-col gap-10 px-20">
+      <div className="flex flex-col gap-10 md:px-20 px-5">
         <div className="flex flex-col gap-3">
           <div className="flex items-center gap-3 md:gap-6 overflow-x-auto min-h-[40px]">
             <BaseSelect
@@ -227,7 +227,7 @@ export default function EventCategoryBlocks() {
                 else next.delete("category");
                 setSearchParams(next);
               }}
-              triggerClassName="rounded-full hover:border-deep-red w-1/5 px-5"
+              triggerClassName="rounded-full hover:border-deep-red md:w-1/5 w-full px-5"
             />
 
             <BaseSelect
@@ -243,7 +243,7 @@ export default function EventCategoryBlocks() {
                 next.delete("date");
                 setSearchParams(next);
               }}
-              triggerClassName="rounded-full hover:border-deep-red w-1/5 px-5"
+              triggerClassName="rounded-full hover:border-deep-red md:w-1/5 w-full px-5"
             />
 
             {QUICK_FILTERS.map(({ param, value, label }) => {
@@ -302,7 +302,6 @@ export default function EventCategoryBlocks() {
   );
 }
 
-// TODO: point these at the real Off The Deck accounts once they exist.
 const off_the_deck_socials: { href: string; icon: IconType; alt: string }[] = [
   { href: "https://www.instagram.com/offthedeck__?stkn=dDJ4Z2k3N2wxMHFs", icon: IoLogoInstagram, alt: "Off The Deck on Instagram" },
   { href: "https://x.com/offthedeck_?s=11", icon: FaXTwitter, alt: "Off The Deck on X" },
@@ -311,7 +310,7 @@ const off_the_deck_socials: { href: string; icon: IconType; alt: string }[] = [
 
 function OffTheDeckHero() {
   return (
-    <section className="relative mt-20 flex min-h-[260px] md:min-h-[320px] w-full items-center-safe pt-8 justify-start overflow-hidden ">
+    <section className="relative mt-20 flex min-h-50 md:min-h-80 w-full items-center-safe md:pt-8 pt-6 justify-start overflow-hidden ">
       <img
         src="/assets/landing-page/ad bg.png"
         alt=""
@@ -322,7 +321,7 @@ function OffTheDeckHero() {
       {/* Keeps the copy legible over the brighter centre of the artwork. */}
       <div className="absolute inset-0 bg-black/40" />
 
-      <div className="relative flex flex-col gap-4 px-24  ">
+      <div className="relative flex flex-col gap-4 md:px-24 px-8 ">
         <p className="font-phosphate text-2xl md:text-4xl font-black uppercase leading-0 mb-2 text-secondary-white">
           OffTheDeck
         </p>
