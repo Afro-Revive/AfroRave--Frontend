@@ -1,43 +1,14 @@
-import { SectionContainer } from '../_components/section-container'
-import { BlockName } from '../../_components/block-name'
-import { Link } from 'react-router-dom'
 import type { EventDetailData } from '@/types'
 import {
   getEventSocialLinks,
+  toAbsoluteUrl,
   type EventSocials,
   type EventSocialPlatform,
 } from '@/lib/helper-func'
 import { IoLogoInstagram } from 'react-icons/io5'
 import { FaXTwitter, FaTiktok, FaFacebookF } from 'react-icons/fa6'
+import { Mail, Link2 } from 'lucide-react'
 import type { IconType } from 'react-icons'
-
-export default function ContactSection({ event }: { event: EventDetailData }) {
-  return (
-    <SectionContainer>
-      <BlockName name='contact' />
-
-      <div className='w-full flex flex-col'>
-        <div className='w-full flex items-center justify-between p-6 border-b border-mid-dark-gray/30 rounded-t-[8px] bg-[#3d3d3d]'>
-          <p className='text-xl font-medium leading-[140%] font-sf-pro-display'>Socials</p>
-
-          <SocialMediaLinks socials={event.eventDetails.socials} />
-        </div>
-
-        {event.eventDetails.eventContact.website && (
-          <div className='w-full flex items-center justify-between p-6 border-b border-mid-dark-gray/30 rounded-b-[8px] bg-[#3d3d3d]'>
-            <p className='text-xl font-medium leading-[140%] font-sf-pro-display'>Website</p>
-
-            <Link
-              to={event.eventDetails.eventContact.website}
-              className='font-sf-pro-display font-medium text-xl w-fit leading-[140%] underline text-[#419e57] underline-offset-4'>
-              Click here
-            </Link>
-          </div>
-        )}
-      </div>
-    </SectionContainer>
-  )
-}
 
 const SOCIAL_ICONS: Record<EventSocialPlatform, IconType> = {
   instagram: IoLogoInstagram,
@@ -46,26 +17,79 @@ const SOCIAL_ICONS: Record<EventSocialPlatform, IconType> = {
   facebook: FaFacebookF,
 }
 
+export default function ContactSection({ event }: { event: EventDetailData }) {
+  const { socials, eventContact } = event.eventDetails
+
+  const email = eventContact?.email?.trim()
+  const website = eventContact?.website?.trim()
+
+  return (
+    <div className='w-full rounded-2xl bg-gunmetal-gray px-6 py-5 flex flex-col gap-4'>
+      <p className='font-inter-tight text-base md:text-lg font-bold text-white'>
+        Contact event organizers
+      </p>
+
+      <div className='flex items-center gap-5'>
+        <SocialMediaLinks socials={socials} />
+
+        {email && (
+          <ContactIconLink href={`mailto:${email}`} label={`Email ${email}`}>
+            <Mail className='w-[18px] h-[18px]' />
+          </ContactIconLink>
+        )}
+
+        {website && (
+          <ContactIconLink
+            href={toAbsoluteUrl(website, 'https://')}
+            label='Visit website'
+            external>
+            <Link2 className='w-[18px] h-[18px]' />
+          </ContactIconLink>
+        )}
+      </div>
+    </div>
+  )
+}
+
 function SocialMediaLinks({ socials }: { socials: Partial<EventSocials> }) {
+  // Only the platforms the organizer actually filled in.
   const links = getEventSocialLinks(socials)
 
   return (
-    <div className='flex items-center gap-5'>
+    <>
       {links.map(({ platform, alt, url }) => {
         const Icon = SOCIAL_ICONS[platform]
 
         return (
-          <Link
-            key={platform}
-            to={url}
-            target='_blank'
-            rel='noopener noreferrer'
-            aria-label={alt}
-            className='text-white hover:opacity-80 transition-opacity'>
+          <ContactIconLink key={platform} href={url} label={alt} external>
             <Icon className='w-[18px] h-[18px]' />
-          </Link>
+          </ContactIconLink>
         )
       })}
-    </div>
+    </>
+  )
+}
+
+function ContactIconLink({
+  href,
+  label,
+  external = false,
+  children,
+}: {
+  href: string
+  label: string
+  /** mailto: links shouldn't open a blank tab. */
+  external?: boolean
+  children: React.ReactNode
+}) {
+  return (
+    <a
+      href={href}
+      aria-label={label}
+      title={label}
+      {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+      className='text-white transition-opacity hover:opacity-80'>
+      {children}
+    </a>
   )
 }

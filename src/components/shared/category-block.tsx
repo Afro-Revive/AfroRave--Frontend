@@ -4,6 +4,9 @@ import { getRoutePath } from '@/config/get-route-path'
 import { ArrowRight } from 'lucide-react'
 import { RenderEventImage } from './render-event-flyer'
 import { formatEventDate } from '@/lib/helper-func'
+
+const MAX_HOME_EVENTS = 8
+
 export function CategoryBlock({
   name,
   data,
@@ -13,21 +16,22 @@ export function CategoryBlock({
   homePage = false,
   isLoading = false,
 }: ICategoryBlock) {
-  const filteredData = homePage ? data?.slice(0, 5) : data
+  const filteredData = homePage ? data?.slice(0, MAX_HOME_EVENTS) : data
 
   if (isLoading) {
     return <CategoryBlockSkeleton name={name} />
   }
 
   return (
-    <div className='flex flex-col gap-5 w-full'>
+    <div className='flex flex-col gap-5 w-full min-w-0'>
       {name && <CategoryBlockName name={name} />}
 
       {data && data.length > 0 ? (
         <div
           className={cn({
-            'flex gap-5 overflow-x-scroll scrollbar-none w-full': display === 'flex',
-            flex: display === 'flex' && homePage,
+            // min-w-0 lets the row be narrower than its cards, which is what
+            // turns the overflow into scrolling rather than a wider parent.
+            'flex gap-5 overflow-x-auto scrollbar-none w-full min-w-0': display === 'flex',
             'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 md:gap-2 gap-4 justify-center':
               display === 'grid',
           })}>

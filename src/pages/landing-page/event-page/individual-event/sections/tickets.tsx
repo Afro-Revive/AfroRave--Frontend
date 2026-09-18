@@ -1,8 +1,10 @@
 import { TicketTab } from "../../_components/ticket-tab";
-import { cn } from "@/lib/utils";
 import { formatNaira } from "@/lib/format-price";
 import { type LucideIcon, Plus, Minus, LoaderCircle } from "lucide-react";
+import { BiGroup } from "react-icons/bi";
+import { BsInfoCircle } from "react-icons/bs";
 import { Button } from "@/components/ui/button";
+import BaseModal from "@/components/reusable/base-modal";
 import { useState } from "react";
 import {
   useGetEventTickets,
@@ -24,7 +26,7 @@ import {
   toPurchasableTickets,
 } from "@/lib/purchasable-tickets";
 
-export default function TicketSection({ eventId, layout }: ITicketProps) {
+export default function TicketSection({ eventId }: ITicketProps) {
   const isAuthenticated = useAfroStore((state) => state.isAuthenticated);
   const [isSales, setIsSales] = useState(() =>
     isResaleOnlyCart(useCartStore.getState().items),
@@ -51,12 +53,7 @@ export default function TicketSection({ eventId, layout }: ITicketProps) {
   const isTabLoading = showResale ? isResaleListingsLoading : isLoading;
 
   return (
-    <div
-      className={cn("!w-full flex flex-col gap-7", {
-        "px-5 lg:px-32": layout === "default",
-        "pl-5 lg:pl-32": layout !== "default",
-      })}
-    >
+    <div className="w-full min-w-0 flex flex-col gap-7">
       <div className="flex items-center gap-5">
         <TicketTab
           name="tickets"
@@ -73,17 +70,13 @@ export default function TicketSection({ eventId, layout }: ITicketProps) {
       </div>
 
       {isTabLoading ? (
-        <TicketCardSkeleton layout={layout} />
+        <TicketCardSkeleton />
       ) : (
-        <div
-          className={cn("w-full", {
-            "flex gap-7 overflow-x-scroll scrollbar-none":
-              layout === "with-flyer" || layout === "standard-carousel",
-            "grid sm:grid-cols-2 gap-x-5 gap-y-7": layout === "default",
-          })}
-        >
+        // One card: the container owns the surface and rounding, divide-y draws
+        // the separators so the last row has no trailing border.
+        <div className="w-full flex flex-col overflow-hidden rounded-md bg-gunmetal-gray divide-y divide-mid-dark-gray">
           {(showResale ? resaleListings : tickets).map((ticket) => (
-            <TicketCard key={ticket.cartKey} ticket={ticket} layout={layout} />
+            <TicketCard key={ticket.cartKey} ticket={ticket} />
           ))}
         </div>
       )}
@@ -91,9 +84,20 @@ export default function TicketSection({ eventId, layout }: ITicketProps) {
   );
 }
 
-function TicketCard({ ticket, layout }: ITicketCard) {
-  const { cartKey, ticketId, listingId, name, price, caption, available, purchaseLimit } =
-    ticket;
+function TicketCard({ ticket }: ITicketCard) {
+  const {
+    cartKey,
+    ticketId,
+    listingId,
+    name,
+    price,
+    caption,
+    available,
+    purchaseLimit,
+    groupSize,
+    description,
+  } = ticket;
+  const [showDetails, setShowDetails] = useState(false);
   const localItems = useCartStore((state) => state.items);
 
   const ticketCount =
@@ -122,49 +126,135 @@ function TicketCard({ ticket, layout }: ITicketCard) {
   }
 
   return (
+    <>
     <div
-      className={cn(
-        "flex items-center justify-between h-fit rounded-md bg-gunmetal-gray pl-5 pr-2 py-2.5 text-xl font-sf-pro-display",
-        {
-          "md:min-w-[480px] min-w-80 last:mr-5":
-            layout === "with-flyer" || layout === "standard-carousel",
-          "w-full": layout === "default",
-        },
-      )}
-    >
-      <div className="flex flex-col gap-1 font-sf-pro-display font-normal">
-        <p className="md:text-base text-sm capitalize">{name}</p>
-        <p className="text-sm">{formatNaira(price, { free: price === 0 })}</p>
-        <p className="text-xs text-[#ACACAC]">{caption}</p>
+      role="button"
+      tabIndex={0}
+      onClick={() => setShowDetails(true)}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          setShowDetails(true);
+        }
+      }}
+      className="w-full flex items-center justify-between gap-4 h-fit pl-5 pr-2 py-4 text-xl font-sf-pro-display cursor-pointer transition-colors hover:bg-white/5">
+      <div className="flex items-start gap-3 min-w-0">
+        <BsInfoCircle
+          aria-hidden="true"
+          className="w-5 h-5 shrink-0 mt-0.5 text-white"
+        />
+
+        <div className="flex flex-col gap-1 font-sf-pro-display font-normal min-w-0">
+        <div className="flex items-center gap-2">
+          <p className="md:text-base text-sm capitalize">{name}</p>
+
+        </div>
+        <div className="flex flex-row items-center gap-2">
+          <p className="text-sm text-tech-blue">
+            {formatNaira(price, { free: price === 0 })}
+          </p>
+          <p className="text-xs text-[#ACACAC]">{caption}</p>
+          
+        </div>
+         {groupSize ? <GroupBadge size={groupSize} /> : null}
+        </div>
       </div>
 
-      <div className="flex items-center gap-2 px-3 rounded-full h-12 bg-light-green">
-        {ticketCount > 0 && (
-          <>
+      {/* stopPropagation so using the counter doesn't also open the modal. */}
+      <div onClick={(event) => event.stopPropagation()} className="shrink-0">
+        {isSoldOut ? (
+          <SoldOutPill />
+        ) : (
+          <div className="flex items-center gap-2 px-3 rounded-full h-12 bg-light-green">
+            {ticketCount > 0 && (
+              <>
+                <TicketButton
+                  action={() => updateCart(ticketCount - 1)}
+                  Icon={Minus}
+                  isLoading={updateQuantityMutation.isPending}
+                />
+
+                <span className="font-sf-pro-rounded font-bold text-sm">
+                  {ticketCount}
+                </span>
+              </>
+            )}
+
             <TicketButton
-              action={() => updateCart(ticketCount - 1)}
-              Icon={Minus}
-              isLoading={updateQuantityMutation.isPending}
+              action={() =>
+                ticketCount > 0 ? updateCart(ticketCount + 1) : createCart()
+              }
+              Icon={Plus}
+              disabled={atLimit}
+              isLoading={
+                createCartMutation.isPending || updateQuantityMutation.isPending
+              }
             />
-
-            <span className="font-sf-pro-rounded font-bold text-sm">
-              {ticketCount}
-            </span>
-          </>
+          </div>
         )}
-
-        <TicketButton
-          action={() =>
-            ticketCount > 0 ? updateCart(ticketCount + 1) : createCart()
-          }
-          Icon={Plus}
-          disabled={isSoldOut || atLimit}
-          isLoading={
-            createCartMutation.isPending || updateQuantityMutation.isPending
-          }
-        />
       </div>
     </div>
+
+    <BaseModal
+      open={showDetails}
+      onClose={() => setShowDetails(false)}
+      size="small"
+      title={name}
+      titleClassName="items-start px-6 "
+      titleTextClassName="font-inter-tight font-bold md:text-2xl text-xl normal-case"
+      className="bg-system-black border border-white/10">
+      <div className="flex flex-col gap-2 px-6 pb-6 font-sf-pro-display">
+        <div className="flex items-center gap-2">
+          {isSoldOut ? (
+            <SoldOutPill />
+          ) : (
+            <>
+              <p className="text-base text-tech-blue">
+                {formatNaira(price, { free: price === 0 })}
+              </p>
+              <p className="text-xs text-[#ACACAC]">{caption}</p>
+            </>
+          )}
+        </div>
+
+        {groupSize ? <GroupBadge size={groupSize} /> : null}
+
+        {description ? (
+          <div className="flex flex-col gap-1 ">
+            <p className="font-inter-tight font-bold text-2xl text-white">
+              Description
+            </p>
+          <p className="text-sm whitespace-pre-line text-white/80">{description}</p>
+          </div>
+        ) : (
+          <p className="text-sm text-white">
+            No description provided for this ticket.
+          </p>
+        )}
+      </div>
+    </BaseModal>
+    </>
+  );
+}
+
+function SoldOutPill() {
+  return (
+    <span className="flex items-center justify-center h-12 px-5 rounded-full bg-mid-dark-gray font-sf-pro-rounded text-xs font-bold uppercase tracking-wide text-white/60">
+      Sold Out
+    </span>
+  );
+}
+
+/** Matches the group badge on the my-tickets route. */
+function GroupBadge({ size }: { size: number }) {
+  return (
+    <span
+      title={`Admits ${size} people`}
+      className="flex w-fit items-center gap-1 shrink-0 rounded-full text-[#BFEAC8] font-inter-tight text-xs font-bold"
+    >
+      <BiGroup className="w-5 h-5" />
+      Group of {size}
+    </span>
   );
 }
 
@@ -194,23 +284,13 @@ function TicketButton({
   );
 }
 
-function TicketCardSkeleton({ layout }: { layout: ITicketProps["layout"] }) {
+function TicketCardSkeleton() {
   return (
-    <Skeleton
-      className={cn(
-        "flex items-center justify-between h-[76px] rounded-md bg-gunmetal-gray pl-5 pr-2 py-2.5 text-xl font-sf-pro-display",
-        {
-          "md:min-w-[480px] last:mr-5":
-            layout === "with-flyer" || layout === "standard-carousel",
-          "w-full": layout === "default",
-        },
-      )}
-    />
+    <Skeleton className="w-full flex items-center justify-between h-[76px] rounded-md bg-gunmetal-gray pl-5 pr-2 py-2.5 text-xl font-sf-pro-display" />
   );
 }
 
 interface ITicketProps {
-  layout: "default" | "standard-carousel" | "with-flyer";
   eventId: string;
 }
 
@@ -223,5 +303,4 @@ interface ITicketButton {
 
 interface ITicketCard {
   ticket: PurchasableTicket;
-  layout: ITicketProps["layout"];
 }

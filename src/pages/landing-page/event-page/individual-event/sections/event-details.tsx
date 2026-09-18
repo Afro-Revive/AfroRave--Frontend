@@ -1,40 +1,31 @@
-import { cn } from '@/lib/utils'
-import type { EventDetailData } from '@/types'
-import { formatDateLong } from '@/lib/helper-func'
-import { RenderEventImage } from '@/components/shared/render-event-flyer'
+import { cn } from "@/lib/utils";
+import type { EventDetailData } from "@/types";
+import { RenderEventImage } from "@/components/shared/render-event-flyer";
 
-export default function EventDetailsSection({ event, layout }: ComponentProps) {
+export default function EventDetailsSection({ event }: ComponentProps) {
+  // posterUrl is the current field; older events only carry desktopMedia.flyer.
+  const poster =
+    event.posterUrl ||
+    event.eventDetails?.posterUrl ||
+    event.eventDetails?.desktopMedia?.flyer;
+
   return (
-    <div
-      className={cn('relative w-full flex items-end justify-between px-5 lg:px-[120px]')}>
-      <div className='flex flex-col gap-3'>
-        {layout === 'standard-carousel' && (
-          <>
-            <RenderEventImage
-              image={event.eventDetails.desktopMedia?.flyer}
-              event_name={event.eventName}
-              className='w-[142px] h-[182px] md:w-[284px] md:h-[364px] !text-base'
-            />
-          </>
-        )}
-
-        <div className='flex flex-col gap-1'>
-          <p className='text-2xl md:text-3xl uppercase font-sf-compact tracking-[-0.25px] font-black'>
-            {event.eventName}
-          </p>
-
-          <div className='flex flex-col gap-2 font-sf-pro-display font-light'>
-            <p className='text-xl  md:text-2xl'>{event.venue}</p>
-            <p className='text-base'>{formatDateLong(event.eventDate.endDate)}</p>
-          </div>
-        </div>
+    <div className={cn("relative w-full flex flex-col gap-5")}>
+      <div className="flex flex-col gap-1">
+        <p className="text-2xl md:text-4xl uppercase font-work-sans tracking-[-0.25px] font-black">
+          {event.eventName}
+        </p>
       </div>
-
+      <RenderEventImage
+        image={poster}
+        event_name={event.eventName}
+        // w-full so it fills the column instead of overflowing it at a fixed width.
+        className="w-full max-w-[450px] h-[224px] md:h-[550px] shrink-0 object-cover"
+      />
     </div>
-  )
+  );
 }
 
 type ComponentProps = {
-  layout: 'default' | 'standard-carousel' | 'with-flyer'
-  event: EventDetailData
-}
+  event: EventDetailData;
+};

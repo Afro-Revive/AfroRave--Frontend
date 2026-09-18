@@ -1,8 +1,8 @@
 "use client";
 
 import type { IEvents } from "@/data/events";
-import { BlockName } from "./_components/block-name";
 import { EventOutlineButton } from "./_components/event-otline-btn";
+import { CiLocationOn } from "react-icons/ci";
 
 export function EventLocation({
   event_location,
@@ -15,7 +15,6 @@ export function EventLocation({
 
   return (
     <div className="flex max-lg:flex-col gap-[30px] lg:gap-[120px]">
-      <BlockName name="location" />
 
       <div className="flex flex-col gap-8">
         <div className="w-full lg:w-[525px] xl:w-[722px] h-[300px] md:h-[452px]">
@@ -27,11 +26,12 @@ export function EventLocation({
         </div>
 
         <div className="flex flex-col gap-5">
-          <p className="font-sf-pro-display">{event_location}</p>
+          <p className="font-inter-tight text-base font-bold">{event_location}</p>
 
           <a href={mapsUrl} target="_blank" rel="noopener noreferrer">
-            <EventOutlineButton>
-              <span className="text-sm font-sf-pro-rounded font-medium">
+            <EventOutlineButton className="w-fit py-5">
+              <CiLocationOn className="w-6 h-6" />
+              <span className="text-sm font-inter-tight font-bold ">
                 Open in Maps
               </span>
             </EventOutlineButton>

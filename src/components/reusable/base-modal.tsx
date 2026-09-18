@@ -25,7 +25,11 @@ interface CustomModalProps {
   description?: string | React.ReactNode
   children: ReactNode
   className?: string
+  /** Styles the header wrapper — alignment, padding. */
   titleClassName?: string
+  /** Styles the title text itself. DialogTitle hardcodes text-lg/font-semibold,
+   *  which a class on the wrapper cannot override. */
+  titleTextClassName?: string
   /** Overrides the close button's own classes — position, background, colour. */
   cancelClassName?: string
   open?: boolean
@@ -61,6 +65,7 @@ function BaseModal({
   onClose,
   size = 'small',
   titleClassName,
+  titleTextClassName,
   cancelClassName,
   removeCancel = false,
   floatingCancel = false,
@@ -120,7 +125,7 @@ function BaseModal({
         }}
         cancelOnOverlay={cancelOnOverlay}>
         <DialogHeader className={cn('w-full flex flex-col items-center justify-center font-input-mono', titleClassName)}>
-          <DialogTitle>
+          <DialogTitle className={titleTextClassName}>
             {title || <VisuallyHidden>{title || 'Modal Dialog'}</VisuallyHidden>}
           </DialogTitle>
           <DialogDescription>
