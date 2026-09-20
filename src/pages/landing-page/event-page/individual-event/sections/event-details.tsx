@@ -20,7 +20,7 @@ export default function EventDetailsSection({ event }: ComponentProps) {
         image={poster}
         event_name={event.eventName}
         // w-full so it fills the column instead of overflowing it at a fixed width.
-        className="w-full max-w-[450px] h-[224px] md:h-[550px] shrink-0 object-cover"
+        className="w-full max-w-[450px] h-100 md:h-[550px] shrink-0 object-cover"
       />
     </div>
   );

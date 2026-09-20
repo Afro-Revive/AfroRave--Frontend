@@ -40,7 +40,7 @@ export function ShowMoreText({ text, limit = 300, className }: ShowMoreTextProps
         <button
           type='button'
           onClick={() => setIsExpanded((prev) => !prev)}
-          className='w-3/10 font-inter-tight border border-white py-2.5 px-5 rounded-2xl justify-between text-sm font-medium inline-flex items-center gap-2 transition-opacity hover:opacity-80 mt-4'>
+          className='md:w-3/10 w-1/2 font-inter-tight border border-white py-2.5 px-5 rounded-2xl justify-between text-sm font-medium inline-flex items-center gap-2 transition-opacity hover:opacity-80 mt-4'>
           {isExpanded ? 'Show less' : 'Read more'}
           <Plus
             size={14}

@@ -47,8 +47,8 @@ export default function CartContainer({
   return (
     // Natural height — the modal body is the scroll container.
     <section className="w-full flex flex-col z-10">
-      <div className="shrink-0 flex flex-col gap-1 border-b border-mid-dark-gray pb-4 w-full px-4 md:px-24">
-        <p className="text-2xl md:text-3xl uppercase leading-normal font-work-sans font-black">
+      <div className="shrink-0 flex flex-col gap-1 border-b border-mid-dark-gray pb-4 w-full px-8 md:px-24">
+        <p className="text-xl md:text-3xl uppercase leading-normal font-work-sans font-black">
           {event.eventName}
         </p>
         <p className="text-sm md:text-base font-inter-tight">{event.venue}</p>
@@ -58,17 +58,17 @@ export default function CartContainer({
           {formatTimezone(event.eventDate.timezone)})
         </p>
       </div>
-      <div className="w-2/3 flex flex-col gap-5 px-4 md:px-24 md:py-10 pb-36 md:pb-10">
+      <div className="md:w-2/3 w-full flex flex-col gap-5 px-8 md:px-24 md:py-10 pb-36 md:pb-10">
         <div className="w-full flex flex-col md:flex-row items-stretch gap-4">
-          <div className=" md:w-[300px] md:h-[400px] w-[200px] h-[300px] shrink-0">
+          <div className=" md:w-[300px] md:h-[400px] w-[200px] h-[300px] mt-4 md:mt-0 shrink-0">
             <RenderEventImage
               image={event.eventDetails.desktopMedia?.flyer}
               event_name={event.eventName}
               className="!w-full !h-full object-cover"
             />
           </div>
-          <div className="flex flex-col flex-1 gap-4 md:gap-0 ">
-            <p className="font-inter-tight md:text-2xl text-lg font-bold mb-8">
+          <div className="flex flex-col flex-1 gap-2 md:gap-0 ">
+            <p className="font-inter-tight md:text-2xl text-lg font-bold md:mb-4">
               About Event
             </p>
             <div className="flex flex-col  gap-1">
@@ -76,11 +76,11 @@ export default function CartContainer({
                 {event.eventName}
               </p>
 
-              <p className="font-inter-tight text-sm md:text-base font-bold">
+              <p className="font-inter-tight text-sm md:text-base ">
                 {formatDateLong(event.eventDate.startDate)} | {event.venue}
               </p>
 
-              <p className="font-inter-tight text-sm md:text-base font-bold">
+              <p className="font-inter-tight text-sm md:text-base ">
                 Doors open: {formatTimeLong(event.eventDate.startTime)} -{" "}
                 {formatTimeLong(event.eventDate.endTime)}
               </p>

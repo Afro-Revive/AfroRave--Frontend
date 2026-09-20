@@ -15,13 +15,13 @@ export default function EventDetails({ event }: IEventDetailsProp) {
   return (
     <section className="md:pb-16 w-full flex flex-col items-center">
       {/* pt clears the fixed header — there's no background image to sit under. */}
-      <div className="relative w-full grid lg:grid-cols-[minmax(0,40%)_minmax(0,1fr)] gap-10 lg:gap-[100px] px-5 lg:px-[120px] pt-[120px] md:pt-[140px] z-10">
+      <div className="relative w-full grid lg:grid-cols-[minmax(0,40%)_minmax(0,1fr)] gap-10 lg:gap-[100px] px-5 lg:px-[120px] pt-[90px] md:pt-[140px] z-10">
         <div className="lg:sticky lg:top-30 lg:self-start">
           <EventDetailsSection event={event} />
         </div>
 
         {isAuthenticated && (
-          <div className="absolute top-20 right-2 md:top-28 md:right-5 z-10">
+          <div className="absolute hidden md:block md:top-28 md:right-5 z-10">
             <EventBookmarkButton
               isWatchlisted={event?.isOnWatchlist}
               eventId={event.eventId}
@@ -30,7 +30,7 @@ export default function EventDetails({ event }: IEventDetailsProp) {
         )}
 
         {/* Everything else scrolls past the pinned column. */}
-        <div className="flex min-w-0 flex-col gap-8 md:gap-16 md:mt-14">
+        <div className="flex min-w-0 flex-col gap-8 md:gap-16 md:mt-14 mb-8">
 
           <Cart event={event} />
 
