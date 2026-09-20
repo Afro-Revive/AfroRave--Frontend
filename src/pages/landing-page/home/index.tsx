@@ -263,33 +263,42 @@ function BecomeCreatorSection() {
 
 function MobileAppSection() {
   return (
-    <section className="flex flex-col gap-6 md:px-12 md:py-48 px-6 py-20 bg-[#111111] ">
-      <h2 className="font-phosphate text-3xl font-black uppercase md:text-5xl">
-        Get The Mobile App
-      </h2>
+    <section className="relative overflow-hidden flex flex-col gap-6 md:px-12 md:py-48 px-6 py-20 bg-[#111111] ">
+      <img
+        src="/assets/FAN_HOMEPAGE/mobile app.png"
+        alt=""
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-40"
+      />
 
-      <p className="max-w-xl font-inter-tight text-sm md:text-base leading-relaxed text-white">
-        Our Ticket Resale feature currently supports only direct ticket sales,
-        safely and securely. List, set your price, and let us handle the rest.
-      </p>
+      <div className="relative flex flex-col gap-6">
+        <h2 className="font-phosphate text-3xl font-black uppercase md:text-5xl">
+          Get The Mobile App
+        </h2>
 
-      <div className="flex items-center gap-3">
-        {app_store_links.map((store) => (
-          <a
-            key={store.alt}
-            href={store.href}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label={store.alt}
-            className="transition-opacity hover:opacity-80"
-          >
-            <img
-              src={store.src}
-              alt={store.alt}
-              className="h-10 w-auto object-contain"
-            />
-          </a>
-        ))}
+        <p className="max-w-xl font-inter-tight text-sm md:text-base leading-relaxed text-white">
+          Our Ticket Resale feature currently supports only direct ticket sales,
+          safely and securely. List, set your price, and let us handle the rest.
+        </p>
+
+        <div className="flex items-center gap-3">
+          {app_store_links.map((store) => (
+            <a
+              key={store.alt}
+              href={store.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={store.alt}
+              className="transition-opacity hover:opacity-80"
+            >
+              <img
+                src={store.src}
+                alt={store.alt}
+                className="h-10 w-auto object-contain"
+              />
+            </a>
+          ))}
+        </div>
       </div>
     </section>
   );
