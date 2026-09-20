@@ -128,6 +128,9 @@ export function useProcessCheckout() {
     mutationFn: (data: CheckoutRequest) => cartService.processCheckout(data),
     mutationKey: cartKeys.processCheckout(),
     onSuccess: () => {
+      useCartStore.getState().clearLocal()
+      useCartStore.getState().setPromoCodeId(null)
+
       queryClient.invalidateQueries({ queryKey: cartKeys.lists() })
       // Invalidate user tickets queries to refresh the user's ticket list after checkout
       queryClient.invalidateQueries({queryKey: ['user-active-tickets']})

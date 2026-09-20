@@ -84,7 +84,8 @@ export default function TicketSection({ eventId }: ITicketProps) {
   );
 }
 
-function TicketCard({ ticket }: ITicketCard) {
+/** Also used by the cart so both surfaces stay identical. */
+export function TicketCard({ ticket }: ITicketCard) {
   const {
     cartKey,
     ticketId,

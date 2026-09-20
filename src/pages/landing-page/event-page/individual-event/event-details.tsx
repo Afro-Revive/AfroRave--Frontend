@@ -21,7 +21,7 @@ export default function EventDetails({ event }: IEventDetailsProp) {
         </div>
 
         {isAuthenticated && (
-          <div className="absolute top-20 right-2 md:top-28 md:right-[20px] z-10">
+          <div className="absolute top-20 right-2 md:top-28 md:right-5 z-10">
             <EventBookmarkButton
               isWatchlisted={event?.isOnWatchlist}
               eventId={event.eventId}
