@@ -4,6 +4,9 @@ import { getRoutePath } from '@/config/get-route-path'
 import { ArrowRight } from 'lucide-react'
 import { RenderEventImage } from './render-event-flyer'
 import { formatEventDate } from '@/lib/helper-func'
+
+const MAX_HOME_EVENTS = 8
+
 export function CategoryBlock({
   name,
   data,
@@ -13,22 +16,23 @@ export function CategoryBlock({
   homePage = false,
   isLoading = false,
 }: ICategoryBlock) {
-  const filteredData = homePage ? data?.slice(0, 5) : data
+  const filteredData = homePage ? data?.slice(0, MAX_HOME_EVENTS) : data
 
   if (isLoading) {
     return <CategoryBlockSkeleton name={name} />
   }
 
   return (
-    <div className='flex flex-col gap-5 w-full'>
+    <div className='flex flex-col gap-5 w-full min-w-0'>
       {name && <CategoryBlockName name={name} />}
 
       {data && data.length > 0 ? (
         <div
           className={cn({
-            'flex gap-5 overflow-x-scroll scrollbar-none w-full': display === 'flex',
-            flex: display === 'flex' && homePage,
-            'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 justify-center':
+            // min-w-0 lets the row be narrower than its cards, which is what
+            // turns the overflow into scrolling rather than a wider parent.
+            'flex gap-5 overflow-x-auto scrollbar-none w-full min-w-0': display === 'flex',
+            'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 md:gap-2 gap-4 justify-center':
               display === 'grid',
           })}>
           {filteredData?.map((item) => (
@@ -43,6 +47,7 @@ export function CategoryBlock({
               start_time={item.startTime}
               showLocation={showLocation}
               layout={layout}
+              display={display}
             />
           ))}
         </div>
@@ -65,11 +70,19 @@ function EventCard({
   event_date,
   customUrl,
   showLocation,
+  display = 'flex',
 }: IEventCardProps) {
   return (
     <Link
       to={getRoutePath('individual_event', { eventId: customUrl })}
-      className='group relative flex flex-col justify-end overflow-hidden rounded-2xl border border-white/10 aspect-[5/7] w-55 md:w-60 lg:w-65 xl:w-full'>
+      className={cn(
+        'group relative flex flex-col justify-end overflow-hidden rounded-2xl border border-white/10 aspect-[5/7]',
+        display === 'grid'
+          ? // Fill the grid column — a fixed width overflows the narrow mobile columns.
+            'w-full'
+          : // Horizontal scroller: hold the width instead of being squeezed by flex.
+            'w-48 shrink-0 md:w-60 lg:w-65',
+      )}>
       <RenderEventImage
         image={image}
         event_name={event_name}
@@ -154,4 +167,6 @@ interface IEventCardProps {
   layout?: 'start' | 'middle'
   showLocation?: boolean
   customUrl: string
+  /** Grid cards fill their column; flex cards keep a fixed width to scroll. */
+  display?: 'flex' | 'grid'
 }

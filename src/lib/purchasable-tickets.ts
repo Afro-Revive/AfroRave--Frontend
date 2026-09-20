@@ -8,6 +8,16 @@ import type { CartLineItem } from '@/types/cart'
 
 const PRIMARY_CAPTION = '(includes fees)'
 
+/**
+ * Group size worth surfacing. A size of 1 admits one person like any other
+ * ticket, so it isn't a group.
+ */
+function groupSizeOf(ticket: TicketData): number | undefined {
+  const size = ticket.groupSize ?? 0
+  const isGroup = ticket.ticketType === 'Group' || size > 1
+  return isGroup && size > 1 ? size : undefined
+}
+
 /** Flatten a primary-sale ticket page into cart-ready rows. */
 export function toPurchasableTickets(
   tickets: PaginatedResponse<TicketData> | undefined,
@@ -20,6 +30,8 @@ export function toPurchasableTickets(
     available: ticket.availableQuantity,
     purchaseLimit: ticket.purchaseLimit,
     caption: PRIMARY_CAPTION,
+    groupSize: groupSizeOf(ticket),
+    description: ticket.description || ticket.ticketDetails?.description,
     source: 'primary',
   }))
 }

@@ -107,7 +107,9 @@ export interface EventDetailData {
 
     desktopMedia: { flyer: string; background: string } | null
     theme: { themeName: 'default' | 'standard-carousel' | 'with-flyer' }
+    posterUrl?: string
   }
+  posterUrl?: string
   eventStat: {
     netProfit: number
     ticketSold: number
@@ -400,6 +402,10 @@ export interface PurchasableTicket {
   purchaseLimit: number
   /** Fine print under the price. */
   caption: string
+  /** People admitted per ticket. Only set when the ticket is a group ticket. */
+  groupSize?: number
+  /** Long-form copy shown in the ticket details modal. */
+  description?: string
   source: 'primary' | 'resale'
 }
 

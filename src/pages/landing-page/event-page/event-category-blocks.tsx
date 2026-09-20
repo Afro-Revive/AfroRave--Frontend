@@ -14,13 +14,26 @@ import {
   BaseSelect,
   type ICustomSelectProps,
 } from "@/components/reusable/base-select";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
+import {
+  Carousel,
+  type CarouselApi,
+  CarouselContent,
+  CarouselItem,
+} from "@/components/ui/carousel";
 import {
   useGetTrendingEvents,
   useGetAllEvents,
 } from "@/hooks/use-event-mutations";
 import { CategoryBlock } from "@/components/shared/category-block";
-import { useSearchParams, useNavigate, useLocation } from "react-router-dom";
+import {
+  Link,
+  useSearchParams,
+  useNavigate,
+  useLocation,
+} from "react-router-dom";
+import { ArrowRight } from "lucide-react";
+import { app_store_links } from "@/layouts/root-layout/footer";
 import type { EventData, TrendingEventData } from "@/types/event";
 import type { PaginatedResponse } from "@/types";
 
@@ -200,7 +213,7 @@ export default function EventCategoryBlocks() {
   console.log(trendingEvents);
 
   return (
-    <section className="w-full bg-[#1E1E1E] flex flex-col gap-10  pb-16 px-3 md:px-8 lg:px-0 min-h-[calc(100vh-300px)]">
+    <section className="w-full bg-[#1E1E1E] flex flex-col gap-10  pb-16 md:px-8 lg:px-0 min-h-[calc(100vh-300px)]">
       {/* <div className='lg:pl-[60px]'>
         <CategoryBlock
           name='Trending'
@@ -210,9 +223,9 @@ export default function EventCategoryBlocks() {
           layout='start'
         />
       </div> */}
-      <OffTheDeckHero />
+      <AdCarousel />
 
-      <div className="flex flex-col gap-10 px-20">
+      <div className="flex flex-col gap-10 md:px-20 px-5">
         <div className="flex flex-col gap-3">
           <div className="flex items-center gap-3 md:gap-6 overflow-x-auto min-h-[40px]">
             <BaseSelect
@@ -227,7 +240,7 @@ export default function EventCategoryBlocks() {
                 else next.delete("category");
                 setSearchParams(next);
               }}
-              triggerClassName="rounded-full hover:border-deep-red w-1/5 px-5"
+              triggerClassName="rounded-full hover:border-deep-red md:w-1/5 w-full px-5"
             />
 
             <BaseSelect
@@ -243,7 +256,7 @@ export default function EventCategoryBlocks() {
                 next.delete("date");
                 setSearchParams(next);
               }}
-              triggerClassName="rounded-full hover:border-deep-red w-1/5 px-5"
+              triggerClassName="rounded-full hover:border-deep-red md:w-1/5 w-full px-5"
             />
 
             {QUICK_FILTERS.map(({ param, value, label }) => {
@@ -302,18 +315,115 @@ export default function EventCategoryBlocks() {
   );
 }
 
-// TODO: point these at the real Off The Deck accounts once they exist.
 const off_the_deck_socials: { href: string; icon: IconType; alt: string }[] = [
   { href: "https://www.instagram.com/offthedeck__?stkn=dDJ4Z2k3N2wxMHFs", icon: IoLogoInstagram, alt: "Off The Deck on Instagram" },
   { href: "https://x.com/offthedeck_?s=11", icon: FaXTwitter, alt: "Off The Deck on X" },
   { href: "https://youtube.com/@offthedecksessions?si=HMM-5ob4HRRoLmJH", icon: FaYoutube, alt: "Off The Deck on YouTube" },
 ];
 
-function OffTheDeckHero() {
+/** How long each slide holds before advancing. */
+const AD_SLIDE_INTERVAL_MS = 3000;
+
+interface AdSlide {
+  id: string;
+  image: string;
+  title: string;
+  description: string;
+  subtext?: string;
+  /** Footer icon links. */
+  links?: { href: string; icon: IconType; alt: string }[];
+  /** Footer call to action. `to` routes internally, `href` leaves the site. */
+  button?: {
+    label: string;
+    href?: string;
+    to?: string;
+  };
+  /** Footer badge images, e.g. the app store buttons. */
+  storeLinks?: { href: string; src: string; alt: string }[];
+}
+
+// Every slide shares this shape, so new ones are a data entry rather than markup.
+const AD_SLIDES: AdSlide[] = [
+  {
+    id: "off-the-deck",
+    image: "/assets/landing-page/ad bg.png",
+    title: "OffTheDeck",
+    subtext: "New episodes out on YouTube",
+    description: "Listen to specially curated dj sessions",
+    links: off_the_deck_socials,
+  },
+  {
+    id: "afrorevive vfx",
+    image: "/assets/event/av vfx ad@1.5x.png",
+    title: "AfroRevive VFX",
+    description: "Rent Afrorevive Curve-Capable screens for seamless curved stage designs, wider viewing angles, and immersive visuals across concerts, brand activations and live productions.",
+    button: {
+      label: "Contact Us",
+      href: "/contact"
+    }
+  },
+  {
+    id: "get-mobile-app",
+    image: "/assets/event/mobile app@1.5x.png",
+    title: "Get the mobile app",
+    description: "Our Ticket Resell feature lets you easily sell your tickets to other fans, safely and securely. List - set your price - let us handle the rest!",
+    storeLinks: app_store_links,
+  },
+  {
+    id: "cytech-world-communication",
+    image: "/assets/event/cytech ad@1.5x.png",
+    title: "Cytech World Communication",
+    description: "From sound and lighting to staging, structures and full-scale production, Cytech World Communication delivers the technical backbone behind unforgettable events.",
+    button: {
+      label: "Learn More",
+      href: "/contact"
+    }
+  }
+  
+];
+
+/**
+ * Auto-advancing ad banner. No chevrons or dots by design — it scrolls on its
+ * own and pauses while the pointer or keyboard focus is inside it.
+ */
+function AdCarousel() {
+  const [api, setApi] = useState<CarouselApi>();
+  const [isPaused, setIsPaused] = useState(false);
+
+  useEffect(() => {
+    // Nothing to rotate through with a single slide.
+    if (!api || isPaused || AD_SLIDES.length < 2) return;
+
+    const timer = setInterval(() => api.scrollNext(), AD_SLIDE_INTERVAL_MS);
+    return () => clearInterval(timer);
+  }, [api, isPaused]);
+
   return (
-    <section className="relative mt-20 flex min-h-[260px] md:min-h-[320px] w-full items-center-safe pt-8 justify-start overflow-hidden ">
+    <Carousel
+      setApi={setApi}
+      opts={{ loop: true }}
+      className="mt-20 w-full"
+      onMouseEnter={() => setIsPaused(true)}
+      onMouseLeave={() => setIsPaused(false)}
+      onFocusCapture={() => setIsPaused(true)}
+      onBlurCapture={() => setIsPaused(false)}
+    >
+      <CarouselContent className="ml-0">
+        {AD_SLIDES.map((slide) => (
+          <CarouselItem key={slide.id} className="pl-0">
+            <AdSlidePanel slide={slide} />
+          </CarouselItem>
+        ))}
+      </CarouselContent>
+    </Carousel>
+  );
+}
+
+function AdSlidePanel({ slide }: { slide: AdSlide }) {
+  return (
+    <section className="relative flex min-h-50 md:min-h-80 w-full items-center-safe md:pt-8 pt-6 justify-start overflow-hidden">
       <img
-        src="/assets/landing-page/ad bg.png"
+        src={slide.image}
         alt=""
         aria-hidden="true"
         className="absolute inset-0 h-full w-full object-cover"
@@ -322,34 +432,88 @@ function OffTheDeckHero() {
       {/* Keeps the copy legible over the brighter centre of the artwork. */}
       <div className="absolute inset-0 bg-black/40" />
 
-      <div className="relative flex flex-col gap-4 px-24  ">
+      <div className="relative flex flex-col gap-4 md:px-24 px-8">
         <p className="font-phosphate text-2xl md:text-4xl font-black uppercase leading-0 mb-2 text-secondary-white">
-          OffTheDeck
+          {slide.title}
         </p>
 
-        <p className="font-inter-tight text-base font-bold md:text-xl capitalize text-secondary-white">
-          New episodes out on YouTube
-        </p>
-        <p className="font-inter-tight text-sm md:text-base text-secondary-white">
-          Listen to specially curated dj sessions
+ {slide.subtext && (
+          <p className="font-inter-tight text-lg md:text-2xl font-bold text-secondary-white">
+            {slide.subtext}
+          </p>
+        )}
+
+        <p className="font-inter-tight text-base max-w-3xl text-secondary-white">
+          {slide.description}
         </p>
 
-        <div className="mt-1 flex items-center gap-4">
-          {off_the_deck_socials.map(({ href, icon: Icon, alt }) => (
-            <a
-              key={alt}
-              href={href}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={alt}
-              className="text-white transition-opacity hover:opacity-80"
-            >
-              <Icon className="h-5 w-5" />
-            </a>
-          ))}
-        </div>
+        {slide.links && slide.links.length > 0 && (
+          <div className="mt-1 flex items-center gap-4">
+            {slide.links.map(({ href, icon: Icon, alt }) => (
+              <a
+                key={alt}
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={alt}
+                className="text-white transition-opacity hover:opacity-80"
+              >
+                <Icon className="h-5 w-5" />
+              </a>
+            ))}
+          </div>
+        )}
+
+        {slide.button && <AdSlideButton button={slide.button} />}
+
+        {slide.storeLinks && slide.storeLinks.length > 0 && (
+          <div className="mt-2 flex items-center gap-3">
+            {slide.storeLinks.map((store) => (
+              <a
+                key={store.alt}
+                href={store.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={store.alt}
+                className="transition-opacity hover:opacity-80"
+              >
+                <img
+                  src={store.src}
+                  alt={store.alt}
+                  className="h-9 md:h-10 w-auto object-contain"
+                />
+              </a>
+            ))}
+          </div>
+        )}
       </div>
     </section>
+  );
+}
+
+function AdSlideButton({ button }: { button: NonNullable<AdSlide["button"]> }) {
+  const className =
+    "mt-2 w-fit inline-flex items-center gap-2 rounded-full bg-white px-6 py-2.5 font-input-mono text-xs uppercase tracking-wide text-deep-red transition-colors hover:bg-white/90";
+
+  if (button.to) {
+    return (
+      <Link to={button.to} className={className}>
+        {button.label}
+        <ArrowRight size={14} />
+      </Link>
+    );
+  }
+
+  return (
+    <a
+      href={button.href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={className}
+    >
+      {button.label}
+      <ArrowRight size={14} />
+    </a>
   );
 }
 

@@ -25,7 +25,11 @@ interface CustomModalProps {
   description?: string | React.ReactNode
   children: ReactNode
   className?: string
+  /** Styles the header wrapper — alignment, padding. */
   titleClassName?: string
+  /** Styles the title text itself. DialogTitle hardcodes text-lg/font-semibold,
+   *  which a class on the wrapper cannot override. */
+  titleTextClassName?: string
   /** Overrides the close button's own classes — position, background, colour. */
   cancelClassName?: string
   open?: boolean
@@ -61,6 +65,7 @@ function BaseModal({
   onClose,
   size = 'small',
   titleClassName,
+  titleTextClassName,
   cancelClassName,
   removeCancel = false,
   floatingCancel = false,
@@ -119,8 +124,8 @@ function BaseModal({
           }
         }}
         cancelOnOverlay={cancelOnOverlay}>
-        <DialogHeader className={cn('w-full flex flex-col items-center justify-center font-input-mono', titleClassName)}>
-          <DialogTitle>
+        <DialogHeader className={cn('w-full shrink-0 flex flex-col items-center justify-center font-input-mono', titleClassName)}>
+          <DialogTitle className={titleTextClassName}>
             {title || <VisuallyHidden>{title || 'Modal Dialog'}</VisuallyHidden>}
           </DialogTitle>
           <DialogDescription>
@@ -128,7 +133,9 @@ function BaseModal({
           </DialogDescription>
         </DialogHeader>
 
-        <div className='flex flex-col transition-all duration-500 ease-[cubic-bezier(0.25,0.1,0.25,1)]'>{children}</div>
+        {/* flex-1/min-h-0 bounds the body to the modal's height; overflow-y-auto
+            then scrolls content that outgrows it rather than clipping it. */}
+        <div className='flex flex-col flex-1 min-h-0 overflow-y-auto transition-all duration-500 ease-[cubic-bezier(0.25,0.1,0.25,1)]'>{children}</div>
 
         {hasFooter && <div className='absolute bottom-0 right-0 z-10'>{footerContent}</div>}
 

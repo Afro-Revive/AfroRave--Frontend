@@ -47,7 +47,12 @@ export function CartSummaryFloat({
 
   return (
     <div className="fixed bottom-0 left-1/2 -translate-x-1/2 md:left-auto md:translate-x-0 md:right-0 z-[999999] w-80">
-      <div className={cn( isOpen ? "bg-white": " bg-mid-dark-gray ", "bg-white rounded-t-xl shadow-2xl overflow-hidden")}>
+      <div
+        className={cn(
+          isOpen ? "bg-white" : " bg-mid-dark-gray ",
+          "bg-white rounded-t-xl shadow-2xl overflow-hidden",
+        )}
+      >
         {/* Expandable panel — grows upward from the bar */}
         <div
           className={cn(
@@ -90,20 +95,23 @@ export function CartSummaryFloat({
                   className="flex items-center border border-soft-gray rounded-md justify-between px-5 py-3"
                 >
                   <div className="flex flex-col gap-0.5">
-                    <p className="text-black capitalize text-sm font-inter">
-                      {item.name}
-                      {item.isResale && (
-                        <span className="ml-2 text-[10px] uppercase tracking-wide text-black/50">
-                          resale
-                        </span>
-                      )}
-                    </p>
-                    <p className="text-black text-xs font-inter">
-                      {formatNaira(item.price, { free: item.price === 0 })}
-                    </p>
+                    <div className="flex flex-row items-center gap-0.5">
+                      <p className="text-black md:text-base text-sm font-inter-tight mr-2">
+                        ×{item.quantity}
+                      </p>
+                      <p className="text-black capitalize md:text-base text-sm font-inter">
+                        {item.name}
+                      </p>
+                    </div>
+
+                    {item.isResale && (
+                      <span className="text-[10px] uppercase tracking-wide text-black/50">
+                        (resale)
+                      </span>
+                    )}
                   </div>
-                  <span className="text-black md:text-xl text-lg font-sf-pro-text">
-                    ×{item.quantity}
+                  <span className="text-tech-blue text-base font-inter-tight font-medium">
+                    {formatNaira(item.price, { free: item.price === 0 })}
                   </span>
                 </li>
               ))
@@ -112,7 +120,12 @@ export function CartSummaryFloat({
 
           {/* Checkout CTA inside panel */}
           <div className="md:px-5 px-3 md:py-4 py-2 border-t border-white/10">
-            <CheckoutButton action={action} isLoading={isLoading} totalTickets={totalTickets} totalPrice={totalPrice} />
+            <CheckoutButton
+              action={action}
+              isLoading={isLoading}
+              totalTickets={totalTickets}
+              totalPrice={totalPrice}
+            />
           </div>
         </div>
 
@@ -126,7 +139,12 @@ export function CartSummaryFloat({
             >
               <ChevronUp size={18} className="text-black" />
             </button>
-            <CheckoutButton action={action} isLoading={isLoading} totalTickets={totalTickets} totalPrice={totalPrice} />
+            <CheckoutButton
+              action={action}
+              isLoading={isLoading}
+              totalTickets={totalTickets}
+              totalPrice={totalPrice}
+            />
           </div>
         )}
       </div>
@@ -158,7 +176,9 @@ function CheckoutButton({
         <>
           <span className="text-white text-sm">Checkout</span>
           <span className="text-white text-base font-semibold">
-            {formatNaira(totalPrice, { free: totalPrice === 0 && totalTickets > 0 })}
+            {formatNaira(totalPrice, {
+              free: totalPrice === 0 && totalTickets > 0,
+            })}
           </span>
         </>
       )}

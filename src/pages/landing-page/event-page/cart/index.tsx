@@ -64,7 +64,7 @@ export default function Cart({ event }: CartProps) {
         confirmCloseTitle='Exit Cart?'
         confirmCloseMessage='Your cart will be cleared if you leave this page. Are you sure you want to go back?'
         hasFooter>
-        <div className='flex flex-col h-fit w-full justify-center items-center md:mt-24 mt-16'>
+        <div className='flex flex-col h-fit w-full justify-center items-center mt-6'>
           <CartContainer
             event={event}
             isLoading={isSyncing}
