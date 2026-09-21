@@ -1,5 +1,6 @@
 import BaseModal from "@/components/reusable/base-modal";
 import { useAuth } from "@/contexts/auth-context";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { OnlyShowIf } from "@/lib/environment";
 import { cn } from "@/lib/utils";
 import { SignupForm } from "@/pages/auth/sign-up/signup-form";
@@ -24,7 +25,9 @@ export function AuthModal() {
     switchAuthType,
     loginType,
     switchToSignup,
+    showAuthVideo,
   } = useAuth();
+  const isMobile = useIsMobile();
   const [showForgotPassword, setShowForgotPassword] = useState(false);
 
   // Check if we are on the fans page — fans get a different signup experience
@@ -63,8 +66,15 @@ export function AuthModal() {
     }
   };
 
-  // Fans get a video panel beside the form, so the modal needs the wider size.
-  const showVideoPanel = isFansPage && !showForgotPassword;
+
+  const [keepVideoPanel, setKeepVideoPanel] = useState(false);
+  useEffect(() => {
+    if (isAuthModalOpen) setKeepVideoPanel(showAuthVideo);
+  }, [isAuthModalOpen, showAuthVideo]);
+
+  // The video panel is opt-in per entry point (the fans sidebar and fans header sets it) and is
+  // desktop-only — organizer/vendor login and checkout get the plain modal.
+  const showVideoPanel = keepVideoPanel && !isMobile && !showForgotPassword;
 
   const getModalSize = () => {
     if (showVideoPanel) return "full";

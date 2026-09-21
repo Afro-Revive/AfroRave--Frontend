@@ -108,7 +108,7 @@ function AuthButtons() {
       </Button>
       <Button
         variant="secondary"
-        onClick={() => openAuthModal("signup")}
+        onClick={() => openAuthModal("signup", undefined)}
         className="w-full h-12  border-white text-white hover:bg-white/10"
       >
         Sign Up

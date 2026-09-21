@@ -16,13 +16,6 @@ import {
 } from "@/components/reusable/base-select";
 import { useEffect, useMemo, useState } from "react";
 import {
-  Carousel,
-  type CarouselApi,
-  CarouselContent,
-  CarouselItem,
-} from "@/components/ui/carousel";
-import {
-  useGetTrendingEvents,
   useGetAllEvents,
 } from "@/hooks/use-event-mutations";
 import { CategoryBlock } from "@/components/shared/category-block";
@@ -34,7 +27,7 @@ import {
 } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { app_store_links } from "@/layouts/root-layout/footer";
-import type { EventData, TrendingEventData } from "@/types/event";
+import type { EventData } from "@/types/event";
 import type { PaginatedResponse } from "@/types";
 
 const MONTH_ABBRS = [
@@ -166,15 +159,9 @@ export default function EventCategoryBlocks() {
   // Sync BaseSelect state with URL params
   const selectedCategory = searchParams.get("category") ?? "";
   const selectedMonth = searchParams.get("month") ?? "";
-
-  // isPending is dropped while the Trending block below is commented out.
-  const { data: trendingEventResponse } = useGetTrendingEvents();
   const { data: allEventResponse, isPending: isLoadingAllEvent } =
     useGetAllEvents();
 
-  const trendingEvents = trendingEventResponse?.data as
-    | PaginatedResponse<TrendingEventData>
-    | undefined;
   const allEvents = allEventResponse?.data as
     | PaginatedResponse<EventData>
     | undefined;
@@ -210,7 +197,6 @@ export default function EventCategoryBlocks() {
       setSearchParams(new URLSearchParams());
     }
   };
-  console.log(trendingEvents);
 
   return (
     <section className="w-full bg-[#1E1E1E] flex flex-col gap-10  pb-16 md:px-8 lg:px-0 min-h-[calc(100vh-300px)]">
@@ -383,39 +369,47 @@ const AD_SLIDES: AdSlide[] = [
 ];
 
 /**
- * Auto-advancing ad banner. No chevrons or dots by design — it scrolls on its
- * own and pauses while the pointer or keyboard focus is inside it.
+ * Ad banner that crossfades between slides on a timer. Not swipeable and with
+ * no controls by design; it pauses while the pointer or keyboard focus is in it.
  */
 function AdCarousel() {
-  const [api, setApi] = useState<CarouselApi>();
-  const [isPaused, setIsPaused] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(0);
 
   useEffect(() => {
     // Nothing to rotate through with a single slide.
-    if (!api || isPaused || AD_SLIDES.length < 2) return;
+    if ( AD_SLIDES.length < 2) return;
 
-    const timer = setInterval(() => api.scrollNext(), AD_SLIDE_INTERVAL_MS);
+    const timer = setInterval(
+      () => setActiveIndex((current) => (current + 1) % AD_SLIDES.length),
+      AD_SLIDE_INTERVAL_MS,
+    );
     return () => clearInterval(timer);
-  }, [api, isPaused]);
+  }, []);
 
   return (
-    <Carousel
-      setApi={setApi}
-      opts={{ loop: true }}
-      className="mt-20 w-full"
-      onMouseEnter={() => setIsPaused(true)}
-      onMouseLeave={() => setIsPaused(false)}
-      onFocusCapture={() => setIsPaused(true)}
-      onBlurCapture={() => setIsPaused(false)}
+    <div
+      className="mt-20 grid w-full"
     >
-      <CarouselContent className="ml-0">
-        {AD_SLIDES.map((slide) => (
-          <CarouselItem key={slide.id} className="pl-0">
+      {AD_SLIDES.map((slide, index) => {
+        const isActive = index === activeIndex;
+
+        return (
+          <div
+            key={slide.id}
+            aria-hidden={!isActive}
+            className={cn(
+              "col-start-1 row-start-1 transition-opacity duration-700 ease-in-out",
+              isActive
+                ? "opacity-100"
+                : // pointer-events-none keeps the hidden slides' links unclickable.
+                  "opacity-0 pointer-events-none",
+            )}
+          >
             <AdSlidePanel slide={slide} />
-          </CarouselItem>
-        ))}
-      </CarouselContent>
-    </Carousel>
+          </div>
+        );
+      })}
+    </div>
   );
 }
 

@@ -131,12 +131,12 @@ function DiscoverEventsSection() {
   }, [allEventResponse, activeFilter]);
 
   return (
-    <section className="flex flex-col gap-6 px-8">
-      <h2 className="font-work-sans text-3xl font-black uppercase md:text-5xl">
+    <section className="flex flex-col gap-6 ">
+      <h2 className="font-work-sans text-3xl font-black uppercase md:text-5xl md:px-8 px-6">
         Discover Events
       </h2>
 
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2 md:px-8 px-6">
         {DISCOVER_FILTERS.map(({ key, label }) => (
           <button
             key={key}
@@ -155,7 +155,8 @@ function DiscoverEventsSection() {
         ))}
       </div>
 
-      <CategoryBlock
+        <div className="md:pl-8 pl-6">
+<CategoryBlock
         data={filteredEvents.map((e) => ({
           ...e,
           desktopMedia: e.metadata.desktopMedia,
@@ -164,6 +165,8 @@ function DiscoverEventsSection() {
         isLoading={isPending}
         homePage
       />
+        </div>
+      
     </section>
   );
 }
