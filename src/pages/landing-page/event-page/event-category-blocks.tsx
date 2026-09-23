@@ -210,7 +210,7 @@ export default function EventCategoryBlocks() {
       <AdCarousel />
 
       <div className="flex flex-col gap-10 md:px-20 px-5">
-        <div className="flex flex-col gap-3">
+        <div className="sticky top-22.5 z-30 -mx-5 md:-mx-20 flex flex-col gap-3 bg-[#1E1E1E] px-5 md:px-20 py-4">
           <div className="flex items-center gap-3 md:gap-6 overflow-x-auto min-h-[40px]">
             <BaseSelect
               type="others"
