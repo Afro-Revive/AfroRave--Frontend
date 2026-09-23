@@ -55,6 +55,12 @@ export default function ResellPage() {
         <div className="mx-auto w-full max-w-[1200px] px-5 md:px-10 pt-[140px] pb-20 md:pb-28">
           {/* Hero */}
           <section className="flex flex-col-reverse items-center gap-10 md:flex-row md:items-center md:justify-between md:gap-12">
+             <img
+              src={HERO_MOCKUP}
+              alt=""
+              aria-hidden="true"
+              className="w-[260px] md:w-[340px] lg:w-[380px] md:hidden block shrink-0 object-contain -rotate-3"
+            />
             <div className="flex w-full flex-col gap-5 md:max-w-[520px]">
               <p className="font-input-mono text-sm  uppercase tracking-[0.50em] text-white">
                 Ticket Resale
@@ -75,7 +81,7 @@ export default function ResellPage() {
               src={HERO_MOCKUP}
               alt=""
               aria-hidden="true"
-              className="w-[260px] md:w-[340px] lg:w-[380px] shrink-0 object-contain -rotate-3"
+              className="w-[260px] md:w-[340px] lg:w-[380px] hidden md:block shrink-0 object-contain -rotate-3"
             />
           </section>
 

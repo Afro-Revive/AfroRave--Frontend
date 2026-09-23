@@ -15,6 +15,7 @@ export function CategoryBlock({
   display = 'flex',
   homePage = false,
   isLoading = false,
+  rowClassName,
 }: ICategoryBlock) {
   const filteredData = homePage ? data?.slice(0, MAX_HOME_EVENTS) : data
 
@@ -28,13 +29,18 @@ export function CategoryBlock({
 
       {data && data.length > 0 ? (
         <div
-          className={cn({
-            // min-w-0 lets the row be narrower than its cards, which is what
-            // turns the overflow into scrolling rather than a wider parent.
-            'flex gap-5 overflow-x-auto scrollbar-none w-full min-w-0': display === 'flex',
-            'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 md:gap-2 gap-4 justify-center':
-              display === 'grid',
-          })}>
+          className={cn(
+            {
+              // min-w-0 lets the row be narrower than its cards, which is what
+              // turns the overflow into scrolling rather than a wider parent.
+              'flex gap-5 overflow-x-auto scrollbar-none w-full min-w-0': display === 'flex',
+              'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 md:gap-2 gap-4 justify-center':
+                display === 'grid',
+            },
+            // Padding set here scrolls away with the content, unlike padding on
+            // an outer wrapper which insets the whole scroller.
+            rowClassName,
+          )}>
           {filteredData?.map((item) => (
             <EventCard
               key={item.eventId}
@@ -76,7 +82,7 @@ function EventCard({
     <Link
       to={getRoutePath('individual_event', { eventId: customUrl })}
       className={cn(
-        'group relative flex flex-col justify-end overflow-hidden rounded-2xl border border-white/10 aspect-[5/7]',
+        'group relative flex flex-col justify-end overflow-hidden rounded-2xl border border-white/10 aspect-[3/4]',
         display === 'grid'
           ? // Fill the grid column — a fixed width overflows the narrow mobile columns.
             'w-full'
@@ -154,6 +160,8 @@ interface ICategoryBlock {
   display?: 'flex' | 'grid'
   homePage?: boolean
   isLoading?: boolean
+  /** Applied to the row/grid itself — use for gutters that should scroll away. */
+  rowClassName?: string
 }
 
 interface IEventCardProps {

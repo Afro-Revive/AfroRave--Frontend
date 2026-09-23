@@ -15,9 +15,7 @@ import {
   type ICustomSelectProps,
 } from "@/components/reusable/base-select";
 import { useEffect, useMemo, useState } from "react";
-import {
-  useGetAllEvents,
-} from "@/hooks/use-event-mutations";
+import { useGetAllEvents } from "@/hooks/use-event-mutations";
 import { CategoryBlock } from "@/components/shared/category-block";
 import {
   Link,
@@ -295,16 +293,27 @@ export default function EventCategoryBlocks() {
           isLoading={isLoadingAllEvent}
           display="grid"
         />
-
       </div>
     </section>
   );
 }
 
 const off_the_deck_socials: { href: string; icon: IconType; alt: string }[] = [
-  { href: "https://www.instagram.com/offthedeck__?stkn=dDJ4Z2k3N2wxMHFs", icon: IoLogoInstagram, alt: "Off The Deck on Instagram" },
-  { href: "https://x.com/offthedeck_?s=11", icon: FaXTwitter, alt: "Off The Deck on X" },
-  { href: "https://youtube.com/@offthedecksessions?si=HMM-5ob4HRRoLmJH", icon: FaYoutube, alt: "Off The Deck on YouTube" },
+  {
+    href: "https://www.instagram.com/offthedeck__?stkn=dDJ4Z2k3N2wxMHFs",
+    icon: IoLogoInstagram,
+    alt: "Off The Deck on Instagram",
+  },
+  {
+    href: "https://x.com/offthedeck_?s=11",
+    icon: FaXTwitter,
+    alt: "Off The Deck on X",
+  },
+  {
+    href: "https://youtube.com/@offthedecksessions?si=HMM-5ob4HRRoLmJH",
+    icon: FaYoutube,
+    alt: "Off The Deck on YouTube",
+  },
 ];
 
 /** How long each slide holds before advancing. */
@@ -342,30 +351,32 @@ const AD_SLIDES: AdSlide[] = [
     id: "afrorevive vfx",
     image: "/assets/event/av vfx ad@1.5x.png",
     title: "AfroRevive VFX",
-    description: "Rent Afrorevive Curve-Capable screens for seamless curved stage designs, wider viewing angles, and immersive visuals across concerts, brand activations and live productions.",
+    description:
+      "Rent Afrorevive Curve-Capable screens for seamless curved stage designs, wider viewing angles, and immersive visuals across concerts, brand activations and live productions.",
     button: {
       label: "Contact Us",
-      href: "/contact"
-    }
+      href: "/contact",
+    },
   },
   {
     id: "get-mobile-app",
     image: "/assets/event/mobile app@1.5x.png",
     title: "Get the mobile app",
-    description: "Our Ticket Resell feature lets you easily sell your tickets to other fans, safely and securely. List - set your price - let us handle the rest!",
+    description:
+      "Our Ticket Resell feature lets you easily sell your tickets to other fans, safely and securely. List - set your price - let us handle the rest!",
     storeLinks: app_store_links,
   },
   {
     id: "cytech-world-communication",
     image: "/assets/event/cytech ad@1.5x.png",
     title: "Cytech World Communication",
-    description: "From sound and lighting to staging, structures and full-scale production, Cytech World Communication delivers the technical backbone behind unforgettable events.",
+    description:
+      "From sound and lighting to staging, structures and full-scale production, Cytech World Communication delivers the technical backbone behind unforgettable events.",
     button: {
       label: "Learn More",
-      href: "/contact"
-    }
-  }
-  
+      href: "/contact",
+    },
+  },
 ];
 
 /**
@@ -377,7 +388,7 @@ function AdCarousel() {
 
   useEffect(() => {
     // Nothing to rotate through with a single slide.
-    if ( AD_SLIDES.length < 2) return;
+    if (AD_SLIDES.length < 2) return;
 
     const timer = setInterval(
       () => setActiveIndex((current) => (current + 1) % AD_SLIDES.length),
@@ -387,9 +398,7 @@ function AdCarousel() {
   }, []);
 
   return (
-    <div
-      className="mt-20 grid w-full"
-    >
+    <div className="mt-20 grid w-full">
       {AD_SLIDES.map((slide, index) => {
         const isActive = index === activeIndex;
 
@@ -415,7 +424,7 @@ function AdCarousel() {
 
 function AdSlidePanel({ slide }: { slide: AdSlide }) {
   return (
-    <section className="relative flex min-h-50 md:min-h-80 w-full items-center-safe md:pt-8 pt-6 justify-start overflow-hidden">
+    <section className="relative flex min-h-65 md:min-h-80 w-full items-center-safe md:pt-8 pt-6 justify-start overflow-hidden">
       <img
         src={slide.image}
         alt=""
@@ -426,12 +435,12 @@ function AdSlidePanel({ slide }: { slide: AdSlide }) {
       {/* Keeps the copy legible over the brighter centre of the artwork. */}
       <div className="absolute inset-0 bg-black/40" />
 
-      <div className="relative flex flex-col gap-4 md:px-24 px-8">
-        <p className="font-phosphate text-2xl md:text-4xl font-black uppercase leading-0 mb-2 text-secondary-white">
+      <div className="relative flex flex-col md:gap-4 gap-1 md:px-24 px-8">
+        <p className="font-phosphate text-xl md:text-4xl font-black uppercase leading-0 mb-2 text-secondary-white">
           {slide.title}
         </p>
 
- {slide.subtext && (
+        {slide.subtext && (
           <p className="font-inter-tight text-lg md:text-2xl font-bold text-secondary-white">
             {slide.subtext}
           </p>
