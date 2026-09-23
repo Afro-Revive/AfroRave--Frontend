@@ -190,10 +190,8 @@
     @apply px-[1rem] md:px-[2rem];
   }
 
-  /* Page backdrop for the fans pages. Set on the layout wrapper so it runs
-     behind the header and footer too. */
   .bg-fans-radial {
-    background-image: radial-gradient(ellipse at center, #0a0a0a 77%, #1e1e1e 100%);
+    background-image: radial-gradient(ellipse at top right, #0a0a0a 77%, #1e1e1e 100%);
   }
 }
 

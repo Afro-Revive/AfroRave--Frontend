@@ -15,16 +15,7 @@ import {
   type ICustomSelectProps,
 } from "@/components/reusable/base-select";
 import { useEffect, useMemo, useState } from "react";
-import {
-  Carousel,
-  type CarouselApi,
-  CarouselContent,
-  CarouselItem,
-} from "@/components/ui/carousel";
-import {
-  useGetTrendingEvents,
-  useGetAllEvents,
-} from "@/hooks/use-event-mutations";
+import { useGetAllEvents } from "@/hooks/use-event-mutations";
 import { CategoryBlock } from "@/components/shared/category-block";
 import {
   Link,
@@ -34,7 +25,7 @@ import {
 } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { app_store_links } from "@/layouts/root-layout/footer";
-import type { EventData, TrendingEventData } from "@/types/event";
+import type { EventData } from "@/types/event";
 import type { PaginatedResponse } from "@/types";
 
 const MONTH_ABBRS = [
@@ -166,15 +157,9 @@ export default function EventCategoryBlocks() {
   // Sync BaseSelect state with URL params
   const selectedCategory = searchParams.get("category") ?? "";
   const selectedMonth = searchParams.get("month") ?? "";
-
-  // isPending is dropped while the Trending block below is commented out.
-  const { data: trendingEventResponse } = useGetTrendingEvents();
   const { data: allEventResponse, isPending: isLoadingAllEvent } =
     useGetAllEvents();
 
-  const trendingEvents = trendingEventResponse?.data as
-    | PaginatedResponse<TrendingEventData>
-    | undefined;
   const allEvents = allEventResponse?.data as
     | PaginatedResponse<EventData>
     | undefined;
@@ -210,7 +195,6 @@ export default function EventCategoryBlocks() {
       setSearchParams(new URLSearchParams());
     }
   };
-  console.log(trendingEvents);
 
   return (
     <section className="w-full bg-[#1E1E1E] flex flex-col gap-10  pb-16 md:px-8 lg:px-0 min-h-[calc(100vh-300px)]">
@@ -226,7 +210,7 @@ export default function EventCategoryBlocks() {
       <AdCarousel />
 
       <div className="flex flex-col gap-10 md:px-20 px-5">
-        <div className="flex flex-col gap-3">
+        <div className="sticky top-22.5 z-30 -mx-5 md:-mx-20 flex flex-col gap-3 bg-[#1E1E1E] px-5 md:px-20 py-4">
           <div className="flex items-center gap-3 md:gap-6 overflow-x-auto min-h-[40px]">
             <BaseSelect
               type="others"
@@ -309,16 +293,27 @@ export default function EventCategoryBlocks() {
           isLoading={isLoadingAllEvent}
           display="grid"
         />
-
       </div>
     </section>
   );
 }
 
 const off_the_deck_socials: { href: string; icon: IconType; alt: string }[] = [
-  { href: "https://www.instagram.com/offthedeck__?stkn=dDJ4Z2k3N2wxMHFs", icon: IoLogoInstagram, alt: "Off The Deck on Instagram" },
-  { href: "https://x.com/offthedeck_?s=11", icon: FaXTwitter, alt: "Off The Deck on X" },
-  { href: "https://youtube.com/@offthedecksessions?si=HMM-5ob4HRRoLmJH", icon: FaYoutube, alt: "Off The Deck on YouTube" },
+  {
+    href: "https://www.instagram.com/offthedeck__?stkn=dDJ4Z2k3N2wxMHFs",
+    icon: IoLogoInstagram,
+    alt: "Off The Deck on Instagram",
+  },
+  {
+    href: "https://x.com/offthedeck_?s=11",
+    icon: FaXTwitter,
+    alt: "Off The Deck on X",
+  },
+  {
+    href: "https://youtube.com/@offthedecksessions?si=HMM-5ob4HRRoLmJH",
+    icon: FaYoutube,
+    alt: "Off The Deck on YouTube",
+  },
 ];
 
 /** How long each slide holds before advancing. */
@@ -356,72 +351,80 @@ const AD_SLIDES: AdSlide[] = [
     id: "afrorevive vfx",
     image: "/assets/event/av vfx ad@1.5x.png",
     title: "AfroRevive VFX",
-    description: "Rent Afrorevive Curve-Capable screens for seamless curved stage designs, wider viewing angles, and immersive visuals across concerts, brand activations and live productions.",
+    description:
+      "Rent Afrorevive Curve-Capable screens for seamless curved stage designs, wider viewing angles, and immersive visuals across concerts, brand activations and live productions.",
     button: {
       label: "Contact Us",
-      href: "/contact"
-    }
+      href: "/contact",
+    },
   },
   {
     id: "get-mobile-app",
     image: "/assets/event/mobile app@1.5x.png",
     title: "Get the mobile app",
-    description: "Our Ticket Resell feature lets you easily sell your tickets to other fans, safely and securely. List - set your price - let us handle the rest!",
+    description:
+      "Our Ticket Resell feature lets you easily sell your tickets to other fans, safely and securely. List - set your price - let us handle the rest!",
     storeLinks: app_store_links,
   },
   {
     id: "cytech-world-communication",
     image: "/assets/event/cytech ad@1.5x.png",
     title: "Cytech World Communication",
-    description: "From sound and lighting to staging, structures and full-scale production, Cytech World Communication delivers the technical backbone behind unforgettable events.",
+    description:
+      "From sound and lighting to staging, structures and full-scale production, Cytech World Communication delivers the technical backbone behind unforgettable events.",
     button: {
       label: "Learn More",
-      href: "/contact"
-    }
-  }
-  
+      href: "/contact",
+    },
+  },
 ];
 
 /**
- * Auto-advancing ad banner. No chevrons or dots by design — it scrolls on its
- * own and pauses while the pointer or keyboard focus is inside it.
+ * Ad banner that crossfades between slides on a timer. Not swipeable and with
+ * no controls by design; it pauses while the pointer or keyboard focus is in it.
  */
 function AdCarousel() {
-  const [api, setApi] = useState<CarouselApi>();
-  const [isPaused, setIsPaused] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(0);
 
   useEffect(() => {
     // Nothing to rotate through with a single slide.
-    if (!api || isPaused || AD_SLIDES.length < 2) return;
+    if (AD_SLIDES.length < 2) return;
 
-    const timer = setInterval(() => api.scrollNext(), AD_SLIDE_INTERVAL_MS);
+    const timer = setInterval(
+      () => setActiveIndex((current) => (current + 1) % AD_SLIDES.length),
+      AD_SLIDE_INTERVAL_MS,
+    );
     return () => clearInterval(timer);
-  }, [api, isPaused]);
+  }, []);
 
   return (
-    <Carousel
-      setApi={setApi}
-      opts={{ loop: true }}
-      className="mt-20 w-full"
-      onMouseEnter={() => setIsPaused(true)}
-      onMouseLeave={() => setIsPaused(false)}
-      onFocusCapture={() => setIsPaused(true)}
-      onBlurCapture={() => setIsPaused(false)}
-    >
-      <CarouselContent className="ml-0">
-        {AD_SLIDES.map((slide) => (
-          <CarouselItem key={slide.id} className="pl-0">
+    <div className="mt-20 grid w-full">
+      {AD_SLIDES.map((slide, index) => {
+        const isActive = index === activeIndex;
+
+        return (
+          <div
+            key={slide.id}
+            aria-hidden={!isActive}
+            className={cn(
+              "col-start-1 row-start-1 transition-opacity duration-700 ease-in-out",
+              isActive
+                ? "opacity-100"
+                : // pointer-events-none keeps the hidden slides' links unclickable.
+                  "opacity-0 pointer-events-none",
+            )}
+          >
             <AdSlidePanel slide={slide} />
-          </CarouselItem>
-        ))}
-      </CarouselContent>
-    </Carousel>
+          </div>
+        );
+      })}
+    </div>
   );
 }
 
 function AdSlidePanel({ slide }: { slide: AdSlide }) {
   return (
-    <section className="relative flex min-h-50 md:min-h-80 w-full items-center-safe md:pt-8 pt-6 justify-start overflow-hidden">
+    <section className="relative flex min-h-65 md:min-h-80 w-full items-center-safe md:pt-8 pt-6 justify-start overflow-hidden">
       <img
         src={slide.image}
         alt=""
@@ -432,12 +435,12 @@ function AdSlidePanel({ slide }: { slide: AdSlide }) {
       {/* Keeps the copy legible over the brighter centre of the artwork. */}
       <div className="absolute inset-0 bg-black/40" />
 
-      <div className="relative flex flex-col gap-4 md:px-24 px-8">
-        <p className="font-phosphate text-2xl md:text-4xl font-black uppercase leading-0 mb-2 text-secondary-white">
+      <div className="relative flex flex-col md:gap-4 gap-1 md:px-24 px-8">
+        <p className="font-phosphate text-xl md:text-4xl font-black uppercase leading-0 mb-2 text-secondary-white">
           {slide.title}
         </p>
 
- {slide.subtext && (
+        {slide.subtext && (
           <p className="font-inter-tight text-lg md:text-2xl font-bold text-secondary-white">
             {slide.subtext}
           </p>

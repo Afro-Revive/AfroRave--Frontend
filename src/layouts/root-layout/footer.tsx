@@ -37,9 +37,10 @@ export default function Footer() {
         orientation="horizontal"
         className="w-full bg-[#686868] max-md:mt-7"
       />
-      
+
       <div className="w-full flex flex-col md:flex-row md:items-start md:justify-between md:gap-10 ">
-        <div className="flex flex-col gap-2">
+        {/* Desktop-only copy of the app block. */}
+        <div className="hidden md:flex flex-col gap-4">
           <Socials className="self-start justify-start max-md:py-3 w-fit" />
 
           <p className="text-white font-bold font-inter-tight text-sm mx-1">
@@ -67,6 +68,33 @@ export default function Footer() {
         </div>
 
         <div className="flex justify-between md:gap-[120px] max-md:w-full">
+          {/* Mobile-only copy, stacked beside the link columns. */}
+          <div className="flex md:hidden flex-col gap-0.5 w-fit">
+            <Socials className="self-start justify-start max-md:py-3 w-fit" />
+
+            <p className="text-white font-bold font-inter-tight text-sm ">
+              Get The Afrorevive App
+            </p>
+
+            <div className="flex flex-col items-start gap-1 ">
+              {app_store_links.map((store) => (
+                <a
+                  key={store.alt}
+                  href={store.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={store.alt}
+                  className="transition-opacity hover:opacity-80"
+                >
+                  <img
+                    src={store.src}
+                    alt={store.alt}
+                    className="h-9 md:h-10 w-auto object-contain"
+                  />
+                </a>
+              ))}
+            </div>
+          </div>
           {footer_links.map((footer_link) => (
             <FooterLinkBlock
               key={footer_link.title}
@@ -89,7 +117,7 @@ export const app_store_links: { href: string; src: string; alt: string }[] = [
   },
   {
     href: "#",
-    src: "/assets/landing-page/google-play.png",
+    src: "/assets/landing-page/play-store-1.png",
     alt: "Get it on Google Play",
   },
 ];

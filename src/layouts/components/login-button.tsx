@@ -20,7 +20,8 @@ export default function LoginButton({ className }: { className?: string }) {
       items={[
         {
           label: 'Fan',
-          onClick: () => openAuthModal('login', 'guest'),
+          // Fans get the video panel; organizers and vendors don't.
+          onClick: () => openAuthModal('login', 'guest', { withVideo: true }),
         },
         {
           label: 'Organizer',

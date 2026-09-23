@@ -10,7 +10,16 @@ interface AuthContextType {
   authType: AuthType
   loginType: LoginType
   signupType: SignupType
-  openAuthModal: (type: AuthType, loginType?: LoginType) => void
+  /**
+   * True only when the modal was opened somewhere the video panel belongs 
+   * This is true from the fans sidebar and the fans heder login button, and false from the organizer/vendor login and checkout.
+   */
+  showAuthVideo: boolean
+  openAuthModal: (
+    type: AuthType,
+    loginType?: LoginType,
+    options?: { withVideo?: boolean },
+  ) => void
   closeAuthModal: () => void
   switchAuthType: (type: AuthType, loginType?: LoginType) => void
   switchToSignup: (signupType: SignupType) => void
@@ -23,6 +32,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [authType, setAuthType] = useState<AuthType>('login')
   const [loginType, setLoginType] = useState<LoginType>('guest')
   const [signupType, setSignupType] = useState<SignupType>('guest')
+  const [showAuthVideo, setShowAuthVideo] = useState(false)
   const [searchParams, setSearchParams] = useSearchParams()
 
   useEffect(() => {
@@ -47,8 +57,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [searchParams])
 
   const openAuthModal = useCallback(
-    (type: AuthType, loginType?: LoginType) => {
+    (type: AuthType, loginType?: LoginType, options?: { withVideo?: boolean }) => {
       setAuthType(type)
+      setShowAuthVideo(options?.withVideo === true)
       if (loginType) {
         setLoginType(loginType)
         setSearchParams({ [type]: loginType })
@@ -64,6 +75,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setIsAuthModalOpen(false)
     // Reset signupType to 'guest' so role selection shows again next time
     setSignupType('guest')
+    setShowAuthVideo(false)
     setSearchParams(
       (params) => {
         params.delete('login')
@@ -104,6 +116,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         authType,
         loginType,
         signupType,
+        showAuthVideo,
         openAuthModal,
         closeAuthModal,
         switchAuthType,
