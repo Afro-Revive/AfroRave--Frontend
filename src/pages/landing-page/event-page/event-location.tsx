@@ -14,10 +14,10 @@ export function EventLocation({
   const mapsUrl = `https://www.google.com/maps/search/${encoded}`;
 
   return (
-    <div className="flex max-lg:flex-col gap-[30px] lg:gap-[120px]">
+    <div className="flex max-lg:flex-col gap-[30px] lg:gap-[120px] w-full min-w-0">
 
-      <div className="flex flex-col gap-8">
-        <div className="w-full lg:w-[525px] xl:w-[722px] h-[300px] md:h-[452px]">
+      <div className="flex flex-col gap-8 w-full min-w-0">
+        <div className="w-full max-w-[722px] h-[300px] md:h-[452px]">
           <iframe
             src={embedUrl}
             loading="lazy"

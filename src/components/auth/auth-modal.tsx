@@ -117,11 +117,17 @@ export function AuthModal() {
       open={isAuthModalOpen}
       onClose={handleModalClose}
       floatingCancel
-      cancelClassName={cn({
-        // Sits over the form half, clear of the video.
-        "top-6 right-6 z-[60] bg-black/10 text-black hover:bg-black/20":
-          showVideoPanel,
-      })}
+      cancelClassName={cn(
+        // dialog.tsx defaults a floating cancel to white-on-white/10, which is
+        // built for dark video. Every branch here sits on a light surface, so
+        // the dark treatment applies throughout, not just with the video.
+        "bg-black/10 text-black hover:bg-black/20",
+        {
+          // Only the position is video-specific: over the form half, clear of
+          // the video.
+          "top-6 right-6 z-[60]": showVideoPanel,
+        },
+      )}
       className={cn({
         "inset-0 h-screen max-h-screen w-screen max-w-none translate-x-0 translate-y-0 overflow-hidden rounded-none sm:rounded-none bg-gradient-to-b from-[#F3F3F3] to-[#D9D9D9]":
           showVideoPanel,
@@ -140,7 +146,7 @@ export function AuthModal() {
             (signupType === "guest" && !isFansPage)
           ),
       })}
-      overlayClassName="bg-gradient-to-b from-[#848484] to-[#1E1E1E] !opacity-100"
+      overlayClassName="bg-[#F5F5F5] !opacity-100"
       size={getModalSize()}
     >
       <div
