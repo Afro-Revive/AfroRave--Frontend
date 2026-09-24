@@ -12,6 +12,72 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* Tablets in portrait take the phone layout; the same tablet in landscape
+   takes the desktop one. Width alone can't separate them — a 9.7" iPad is
+   1024 wide in landscape and a 13" iPad Pro is 1024 in portrait — so below
+   1025px the desktop tiers additionally require landscape. Phones (<640) and
+   laptops (>=1025) resolve exactly as they did before.
+
+   These shadow Tailwind's built-in breakpoint variants. They are declared in
+   ascending order because variant declaration order is what fixes their
+   order in the emitted stylesheet, and that order is what decides which of
+   `md:px-10 xl:px-15` wins on a wide screen. The max-* variants are exact
+   boolean complements of their counterparts, so every width/orientation pair
+   matches precisely one side. */
+@custom-variant sm {
+  @media (min-width: 1025px), (min-width: 640px) and (orientation: landscape) {
+    @slot;
+  }
+}
+
+@custom-variant md {
+  @media (min-width: 1025px), (min-width: 768px) and (orientation: landscape) {
+    @slot;
+  }
+}
+
+@custom-variant lg {
+  @media (min-width: 1025px), (min-width: 1024px) and (orientation: landscape) {
+    @slot;
+  }
+}
+
+@custom-variant xl {
+  @media (min-width: 1280px) {
+    @slot;
+  }
+}
+
+/* Descending, mirroring how Tailwind orders max-* so the narrower one wins. */
+@custom-variant max-lg {
+  @media (max-width: 1023px), (max-width: 1024px) and (orientation: portrait) {
+    @slot;
+  }
+}
+
+@custom-variant max-md {
+  @media (max-width: 767px), (max-width: 1024px) and (orientation: portrait) {
+    @slot;
+  }
+}
+
+@custom-variant max-sm {
+  @media (max-width: 639px), (max-width: 1024px) and (orientation: portrait) {
+    @slot;
+  }
+}
+
+/* The band that now falls to the mobile layout but is not a phone: a tablet
+   held upright. Nothing in the sm/md/lg scale matches here, so `tablet:` never
+   competes with them — but every max-* variant does match, which is why it is
+   declared last, so `max-md:py-3 tablet:py-6` resolves to the tablet value.
+   Its landscape counterpart is already covered by `md:`. */
+@custom-variant tablet {
+  @media (min-width: 640px) and (max-width: 1024px) and (orientation: portrait) {
+    @slot;
+  }
+}
+
 :root {
   font-family: "SF Pro Display", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
     Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
