@@ -63,12 +63,8 @@ export default function Header() {
               </>
             )}
 
-            {!isAuthenticated && !isLandingPage && (
-              <>
-                <LoginButton />
-                <NavSheet />
-              </>
-            )}
+            {!isAuthenticated && <LoginButton />}
+            <NavSheet />
           </div>
         )}
       </nav>
