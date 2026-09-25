@@ -19,12 +19,14 @@ import {
 import { FaReceipt } from "react-icons/fa6";
 import { FaXTwitter, FaTiktok, FaYoutube } from "react-icons/fa6";
 import { BsTicketPerforated } from "react-icons/bs";
-import { MdOutlineSpaceDashboard } from "react-icons/md";
+import {
+  MdOutlineContactSupport,
+  MdOutlineSpaceDashboard,
+} from "react-icons/md";
 import type { IconType } from "react-icons";
 import {
   ChevronRight,
   CircleUserRound,
-  LogOut,
   Minus,
   Plus,
   Settings,
@@ -288,7 +290,11 @@ const account_sections: AccountSection[] = [
     items: [
       { name: "Profile", icon: User, to: getRoutePath("account") },
       { name: "Settings", icon: Settings, to: getRoutePath("settings") },
-      { name: "Log Out", icon: LogOut, logout: true },
+      {
+        name: "Support",
+        icon: MdOutlineContactSupport,
+        to: getRoutePath("support"),
+      },
     ],
   },
   {

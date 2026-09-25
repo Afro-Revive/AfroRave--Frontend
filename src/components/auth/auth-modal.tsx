@@ -265,6 +265,8 @@ function AuthVideoPanel() {
         </p>
         <Link
           to="https://youtube.com/@offthedecksessions?si=HMM-5ob4HRRoLmJH"
+          target="_blank"
+          rel="noopener noreferrer"
           className="inline-flex gap-2 items-center"
         >
           <FaYoutube className="w-6 h-6 text-white" />
