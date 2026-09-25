@@ -38,14 +38,14 @@ export default function LandingPage() {
 
 function HeroSection() {
   return (
-    <section className="relative flex xl:h-screen lg:h-[70vh h] items-center overflow-hidden xl:px-16 px-6 pt-[90px]">
+    <section className="relative flex xl:min-h-screen lg:min-h-[70vh] tablet:justify-center items-center overflow-hidden xl:px-15 tablet:px-12 md:px-10 px-6 pt-22.5 tablet:pt-44">
       {/* Warm glow bleeding in from behind the mockups, as in the design. */}
       <div className="pointer-events-none absolute -right-24 top-0 h-full  rounded-full bg-deep-red/20 blur-[120px]" />
 
       {/* w-full so justify-between has room to push the mockups to the right edge. */}
       <div className="relative flex w-full flex-col gap-10 lg:flex-row lg:items-center lg:justify-between max-md:mt-10">
         <div className="flex max-w-2xl flex-col gap-6">
-          <h1 className="font-work-sans sm:text-7xl text-5xl font-black uppercase leading-[1.00] lg:text-[80px] xl:text-[110px]">
+          <h1 className="font-work-sans sm:text-7xl text-5xl tablet:text-7xl font-black uppercase leading-[1.00] lg:text-[80px] xl:text-[110px]">
             Tickets
             <br />
             To Every
@@ -72,7 +72,7 @@ function HeroSection() {
           </Link>
         </div>
 
-        <div className="relative w-full max-w-[520px] shrink-0 lg:mx-0 lg:ml-auto lg:max-w-[450px] lg:self-start px-5 lg:-mt-4">
+        <div className="relative w-full max-w-[520px] shrink-0 tablet:mx-auto lg:mx-0 lg:ml-auto lg:max-w-[450px] lg:self-start px-5 lg:-mt-4">
           <img
             src="/assets/FAN_HOMEPAGE/PROP EVENT.png"
             alt=""
@@ -132,11 +132,11 @@ function DiscoverEventsSection() {
 
   return (
     <section className="flex flex-col gap-6 ">
-      <h2 className="font-work-sans text-3xl font-black uppercase md:text-5xl md:px-15 px-6">
+      <h2 className="font-work-sans text-3xl font-black uppercase md:text-5xl xl:px-15 tablet:px-12 md:px-10 px-6">
         Discover Events
       </h2>
 
-      <div className="flex flex-wrap items-center gap-2 md:px-15 px-6">
+      <div className="flex flex-wrap items-center gap-2 xl:px-15 md:px-10 tablet:px-12 px-6">
         {DISCOVER_FILTERS.map(({ key, label }) => (
           <button
             key={key}
@@ -165,7 +165,7 @@ function DiscoverEventsSection() {
         showLocation
         isLoading={isPending}
         homePage
-        rowClassName="pl-6 md:pl-15"
+        rowClassName="pl-6 xl:pl-15 md:pl-10 tablet:pl-12"
       />
       
     </section>
@@ -174,7 +174,7 @@ function DiscoverEventsSection() {
 
 function ResaleSection() {
   return (
-    <section className="flex flex-col gap-10 md:rounded-2xl bg-[#111111] px-6 py-12 md:flex-row md:items-center md:justify-between md:mx-15 mt-15 md:px-12">
+    <section className="flex flex-col gap-10 md:rounded-2xl bg-[#111111] px-6 py-12 md:flex-row md:items-center md:justify-between xl:mx-15 md:mx-10 tablet:mx-12 mt-15 md:px-12">
       <div className="flex max-w-xl max-md:text-center flex-col gap-5">
         <p className="font-input-mono text-sm uppercase tracking-[0.45em] text-deep-red">
           Ticket Resale
@@ -203,7 +203,7 @@ function ResaleSection() {
         src="/assets/FAN_HOMEPAGE/sell.png"
         alt=""
         aria-hidden="true"
-        className="mx-auto shrink-0 object-contain md:mx-0 md:mr-24 w-80 -rotate-2"
+        className="mx-auto shrink-0 object-contain md:mx-0 xl:mr-24 w-80 -rotate-2"
       />
       <Link
         to={getRoutePath("resell")}
@@ -224,7 +224,7 @@ const CREATOR_STATS = [
 
 function BecomeCreatorSection() {
   return (
-    <section className="flex flex-col md:gap-10 gap-5 md:px-12 px-6 md:py-24 md:flex-row md:items-center md:mx-15 mx-6 mt-15 md:justify-between">
+    <section className="flex flex-col md:gap-10 gap-5 md:px-12 px-6 md:py-24 md:flex-row md:items-center xl:mx-15 tablet:mx-12 md:mx-10 mx-6 mt-15 md:justify-between">
       <div className="flex max-w-2xl flex-col gap-5">
         <h2 className="font-work-sans text-3xl font-black uppercase md:text-5xl">
           Become A Creator

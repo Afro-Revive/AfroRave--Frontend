@@ -1,6 +1,7 @@
 import { useNavigate, useLocation } from 'react-router-dom'
-import { useLogout } from '@/hooks/use-auth'
-import { ChevronLeft, Zap, Settings, LogOut } from 'lucide-react'
+import { ChevronLeft, Zap, Settings } from 'lucide-react'
+import { MdOutlineContactSupport } from 'react-icons/md'
+import { getRoutePath } from '@/config/get-route-path'
 import { cn } from '@/lib/utils'
 
 const link_class =
@@ -14,11 +15,6 @@ const divider_class = 'h-px lg:w-full w-3/4 lg:ml-15 ml-6 bg-white/10'
 export default function AccountSidebar() {
     const navigate = useNavigate()
     const location = useLocation()
-    const logoutMutation = useLogout()
-
-    const handleLogout = () => {
-        logoutMutation.mutate()
-    }
 
     const isProfileActive = () => {
         return location.pathname === '/fans/account' && !location.search.includes('account=wallet')
@@ -71,13 +67,20 @@ export default function AccountSidebar() {
                         <div className={divider_class} />
                     </div>
 
-                    {/* LOG OUT */}
+                    {/* SUPPORT */}
                     <div className='mb-4'>
-                        <button onClick={handleLogout} className={link_class}>
+                        <button
+                            onClick={() => navigate(getRoutePath('support'))}
+                            className={cn(
+                                link_class,
+                                location.pathname === getRoutePath('support') && 'text-white',
+                            )}
+                        >
                             <div className='w-5 h-5 flex items-center justify-center shrink-0 text-deep-red'>
-                                <LogOut className='w-5 h-5' strokeWidth={1.5} />
+                                {/* react-icons draws filled paths, so no strokeWidth here. */}
+                                <MdOutlineContactSupport className='w-5 h-5' />
                             </div>
-                            <span className={label_class}>LOG OUT</span>
+                            <span className={label_class}>SUPPORT</span>
                         </button>
                         <div className={divider_class} />
                     </div>

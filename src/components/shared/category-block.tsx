@@ -7,6 +7,23 @@ import { formatEventDate } from '@/lib/helper-func'
 
 const MAX_HOME_EVENTS = 8
 
+
+/**
+ * One card size for both layouts.
+ *
+ * Phones: the grid keeps two fluid columns there (a fixed track would fit only
+ * one), so a fixed width can't match it — the calc reproduces the grid's own
+ * arithmetic instead. 28px is half the width the grid loses per row: the
+ * events container's `px-5` either side plus one `gap-4` between the two
+ * cards, i.e. (20 + 20 + 16) / 2. Update it if either of those changes.
+ *
+ * Tablet portrait and up: the grid switches to fixed tracks, so both layouts
+ * use the same literal width. `tablet:` has to restate a value because an
+ * upright tablet takes the mobile layout but is nowhere near phone-sized.
+ * Each width here must match its grid track below — 16rem and 18rem.
+ */
+const CARD_WIDTH = 'w-[calc(50vw_-_28px)] tablet:w-64 md:w-72'
+
 export function CategoryBlock({
   name,
   data,
@@ -31,10 +48,11 @@ export function CategoryBlock({
         <div
           className={cn(
             {
-              // min-w-0 lets the row be narrower than its cards, which is what
-              // turns the overflow into scrolling rather than a wider parent.
               'flex gap-5 overflow-x-auto scrollbar-none w-full min-w-0': display === 'flex',
-              'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 md:gap-2 gap-4 justify-center':
+              // Fixed tracks rather than fractional columns, so a wider screen
+              // buys more cards instead of bigger ones. Track widths mirror
+              // CARD_WIDTH.
+              'grid grid-cols-2 tablet:grid-cols-[repeat(auto-fill,16rem)] md:grid-cols-[repeat(auto-fill,18rem)] justify-center gap-4 tablet:gap-5 md:gap-5':
                 display === 'grid',
             },
             // Padding set here scrolls away with the content, unlike padding on
@@ -84,10 +102,10 @@ function EventCard({
       className={cn(
         'group relative flex flex-col justify-end overflow-hidden rounded-2xl border border-white/10 aspect-[3/4]',
         display === 'grid'
-          ? // Fill the grid column — a fixed width overflows the narrow mobile columns.
+          ? // Fills its track, which is itself capped at CARD_WIDTH's 18rem.
             'w-full'
           : // Horizontal scroller: hold the width instead of being squeezed by flex.
-            'w-48 shrink-0 md:w-60 lg:w-65',
+            cn(CARD_WIDTH, 'shrink-0'),
       )}>
       <RenderEventImage
         image={image}

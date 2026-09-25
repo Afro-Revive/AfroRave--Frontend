@@ -37,7 +37,7 @@ export default function Header() {
         )}
       />
 
-      <nav className='relative px-4 md:px-15 w-full flex items-center justify-between py-4'>
+      <nav className='relative px-4 xl:px-15 md:px-10 tablet:px-12 w-full flex items-center justify-between py-4'>
         <NavLogo />
 
         {isLandingPage ? (
@@ -63,12 +63,8 @@ export default function Header() {
               </>
             )}
 
-            {!isAuthenticated && !isLandingPage && (
-              <>
-                <LoginButton />
-                <NavSheet />
-              </>
-            )}
+            {!isAuthenticated && <LoginButton />}
+            <NavSheet />
           </div>
         )}
       </nav>

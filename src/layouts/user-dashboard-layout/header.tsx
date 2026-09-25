@@ -11,7 +11,7 @@ export default function AccountHeader() {
   // scrolls underneath it. Matches the landing header's scrolled state.
   return (
     <header className="w-full fixed top-0 left-0 z-50 bg-black/25 backdrop-blur-sm">
-      <nav className="w-full px-4 md:px-10 h-[80px] flex items-center justify-between">
+      <nav className="w-full px-4 xl:px-15 md:px-10 tablet:px-12  h-[80px] flex items-center justify-between">
 
         {/* Left: Logo and Menu Trigger */}
         <div className="flex items-center gap-4">
