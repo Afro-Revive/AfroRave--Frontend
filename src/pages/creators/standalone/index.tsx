@@ -1,146 +1,215 @@
-import { LoadingFallback } from '@/components/loading-fallback'
-import { BasePopover } from '@/components/reusable'
-import { DashboardCardSkeleton, DashboardCards } from '@/components/shared/dashboard-cards'
-import EventSelect from '@/components/shared/vendor-select'
-import { Button } from '@/components/ui/button'
-import { getRoutePath } from '@/config/get-route-path'
-import { useGetEvent, useGetOrganizerEvents } from '@/hooks/use-event-mutations'
-import { formatNaira } from '@/lib/format-price'
-import type { EventDetailData, EventData } from '@/types'
-import type { PaginatedResponse } from '@/types/api'
-import { Plus } from 'lucide-react'
-import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { LoadingFallback } from "@/components/loading-fallback";
+import { ComingSoon } from "@/components/reusable";
+import {
+  DashboardCardSkeleton,
+  DashboardCards,
+  type EventVisibility,
+} from "@/components/shared/dashboard-cards";
+import { Button } from "@/components/ui/button";
+import { getRoutePath } from "@/config/get-route-path";
+import {
+  useGetEvent,
+  useGetOrganizerEvents,
+} from "@/hooks/use-event-mutations";
+import { formatNaira } from "@/lib/format-price";
+import { cn } from "@/lib/utils";
+import type { EventData, EventDetailData } from "@/types";
+import type { PaginatedResponse } from "@/types/api";
+import {
+  ArrowRight,
+  Download,
+  Plus,
+  Ticket,
+  type LucideIcon,
+} from "lucide-react";
+import { useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 
-import { AddFilterBUtton, type EventFilter } from './components/add-filter-btn'
-import StandAloneModal from './components/standalone-modal'
-import { useGuideStore, useEventSelectorStore } from '@/stores'
+import { DashboardTabs, type DashboardTab } from "./components/dashboard-tabs";
+import {
+  EventFilters,
+  countEventsByStatus,
+  getListEventStatus,
+  type EventListFilter,
+} from "./components/event-filters";
+import { useGuideStore } from "@/stores";
+import { FiBarChart } from "react-icons/fi";
+import { IconType } from "react-icons/lib";
 
 function formatEventDate(dateStr: string): string {
-  if (!dateStr) return ''
-  const date = new Date(dateStr)
-  if (isNaN(date.getTime())) return dateStr
-  const day = date.getDate()
-  const suffix = day === 1 || day === 21 || day === 31 ? 'st' : day === 2 || day === 22 ? 'nd' : day === 3 || day === 23 ? 'rd' : 'th'
-  return date.toLocaleDateString('en-GB', { weekday: 'short' }) + ', ' + day + suffix + ' ' + date.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })
+  if (!dateStr) return "";
+  const date = new Date(dateStr);
+  if (isNaN(date.getTime())) return dateStr;
+  const day = date.getDate();
+  const suffix =
+    day === 1 || day === 21 || day === 31
+      ? "st"
+      : day === 2 || day === 22
+        ? "nd"
+        : day === 3 || day === 23
+          ? "rd"
+          : "th";
+  return (
+    date.toLocaleDateString("en-GB", { weekday: "short" }) +
+    ", " +
+    day +
+    suffix +
+    " " +
+    date.toLocaleDateString("en-GB", { month: "long", year: "numeric" })
+  );
 }
 
 export default function StandalonePage() {
-  const { data: response, isPending: isLoading } = useGetOrganizerEvents()
-  const [activeFilter, setActiveFilter] = useState<EventFilter>('all')
-  const { startGuide } = useGuideStore()
-  const { selectedEventId } = useEventSelectorStore()
+  const { data: response, isPending: isLoading } = useGetOrganizerEvents();
+  const [activeTab, setActiveTab] = useState<DashboardTab>("events");
+  const [activeFilter, setActiveFilter] = useState<EventListFilter>("all");
+  const { startGuide } = useGuideStore();
 
-  const allEvents = (response?.data as PaginatedResponse<EventData> | undefined)?.items ?? []
+  // Memoised because `?? []` hands back a new array every render, which would
+  // otherwise invalidate both useMemos below on every pass.
+  const allEvents = useMemo(
+    () =>
+      (response?.data as PaginatedResponse<EventData> | undefined)?.items ?? [],
+    [response],
+  );
 
-  // If a specific event is selected in the dropdown, show only that one; otherwise show all
-  const events = selectedEventId
-    ? allEvents.filter((e) => e.eventId === selectedEventId)
-    : allEvents
 
-    console.log(events)
+  // Counts come off the unfiltered list, so the pills keep showing every
+  // bucket's size no matter which one is selected.
+  const counts = useMemo(() => countEventsByStatus(allEvents), [allEvents]);
+
+  // Filtering moved up here from the card: the counts above need the status of
+  // every event anyway, and doing it in both places let them disagree.
+  const events = useMemo(
+    () =>
+      activeFilter === "all"
+        ? allEvents
+        : allEvents.filter(
+            (event) => getListEventStatus(event) === activeFilter,
+          ),
+    [allEvents, activeFilter],
+  );
 
   if (isLoading) {
-    return <LoadingFallback />
+    return <LoadingFallback />;
   }
 
   return (
-    <section className='w-full h-full flex flex-col items-start mb-[75px]'>
-      <StandAloneHeader activeFilter={activeFilter} onFilterChange={setActiveFilter} />
+    <section className="w-full h-full flex flex-col items-start mb-[75px]">
+      <DashboardTabs activeTab={activeTab} onTabChange={setActiveTab} />
 
-      <div className='w-full px-16 lg:px-20 pt-14'>
-        <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 max-w-[1040px]'>
-          {events && events.length > 0 ? (
-            <>
-              {events.map((item) => (
-                <StandAloneEvents key={item.eventId} id={item.eventId} activeFilter={activeFilter} />
-              ))}
-            </>
-          ) : (
-            <EmptyState onStartGuide={startGuide} />
-          )}
+      {activeTab === "guestlist" ? (
+        <ComingSoon
+          title="Guestlist"
+          description="Guestlist management is coming soon. You will be able to invite and check in guests from here."
+          showBackButton={false}
+        />
+      ) : (
+        <div className="w-full px-6 lg:px-10 pt-6 flex flex-col gap-8">
+          <EventFilters
+            counts={counts}
+            activeFilter={activeFilter}
+            onFilterChange={setActiveFilter}
+          />
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 ">
+            {events.length > 0 ? (
+              events.map((item) => (
+                // accessType only exists on the list payload, not on the
+                // detail one the card fetches, so it rides down as a prop.
+                <StandAloneEvents
+                  key={item.eventId}
+                  id={item.eventId}
+                  accessType={item.accessType}
+                />
+              ))
+            ) : (
+              <EmptyState onStartGuide={startGuide} />
+            )}
+          </div>
         </div>
-      </div>
+      )}
     </section>
-  )
+  );
 }
 
 function EmptyState({ onStartGuide }: { onStartGuide: () => void }) {
   return (
-    <div className='col-span-full w-full py-20 flex flex-col items-center gap-4'>
-      <p className='text-2xl font-bold text-charcoal font-sf-pro-display'>No events yet</p>
-      <p className='text-sm text-gray-400 max-w-xs font-sf-pro-text leading-relaxed text-center'>
+    <div className="col-span-full w-full py-20 flex flex-col items-center gap-4">
+      <p className="text-2xl font-bold text-charcoal font-sf-pro-display">
+        No events yet
+      </p>
+      <p className="text-sm text-gray-400 max-w-xs font-sf-pro-text leading-relaxed text-center">
         Tap the + to start a quick tutorial on creating your first event.
       </p>
       <button
         onClick={onStartGuide}
-        className='w-16 h-16 rounded-full bg-deep-red/10 flex items-center justify-center mt-2 hover:bg-deep-red/20 transition-colors'>
-        <Plus color='#8B0000' size={28} strokeWidth={1.5} />
+        className="w-16 h-16 rounded-full bg-deep-red/10 flex items-center justify-center mt-2 hover:bg-deep-red/20 transition-colors"
+      >
+        <Plus color="#8B0000" size={28} strokeWidth={1.5} />
       </button>
     </div>
-  )
+  );
 }
 
-function StandAloneHeader({
-  activeFilter,
-  onFilterChange,
+/**
+ * Takes the detail payload, so unlike getListEventStatus it can see sold_out —
+ * ticket counts live on eventStat, which the list endpoint doesn't return.
+ */
+function getEventStatus(
+  event: EventDetailData,
+): "drafts" | "upcoming" | "ongoing" | "sold_out" | "ended" {
+  if (!event.isPublished) return "drafts";
+
+  const now = new Date();
+  const startDate = new Date(event.eventDate.startDate);
+  const endDate = new Date(event.eventDate.endDate);
+
+  if (now > endDate) return "ended";
+
+  const { ticketSold, totalTicket } = event.eventStat;
+  if (totalTicket > 0 && ticketSold >= totalTicket) return "sold_out";
+
+  if (now >= startDate && now <= endDate) return "ongoing";
+
+  return "upcoming";
+}
+
+/**
+ * accessType arrives as a free-form string, so anything that isn't recognisably
+ * public or private returns undefined and the badge stays off rather than
+ * guessing at an event's visibility.
+ */
+function toEventVisibility(accessType?: string): EventVisibility | undefined {
+  const value = accessType?.trim().toLowerCase();
+
+
+  if (value === "private") return "Private";
+  if (value === "public") return "Public";
+
+  return undefined;
+}
+
+function StandAloneEvents({
+  id,
+  accessType,
 }: {
-  activeFilter: EventFilter
-  onFilterChange: (filter: EventFilter) => void
+  id: string;
+  accessType?: string;
 }) {
-  return (
-    <div className='w-full flex items-center justify-between bg-white h-14 px-5 lg:px-8 border-l border-light-gray'>
-      <AddFilterBUtton activeFilter={activeFilter} onFilterChange={onFilterChange} />
+  const { data: response, isPending: isLoading } = useGetEvent(id);
 
-      <div className='flex items-center gap-2 md:gap-4 lg:gap-8'>
-        <EventSelect className='!w-fit sm:!w-[155px] md:!w-fit' />
-
-        <Button variant='destructive' className='h-9 px-3 rounded-[6px] gap-1.5' asChild>
-          <Link to={getRoutePath('add_event')}>
-            <Plus color='#ffffff' size={13} />
-            <span className='font-sf-pro-text text-xs font-semibold'>Create</span>
-          </Link>
-        </Button>
-      </div>
-    </div>
-  )
-}
-
-function getEventStatus(event: EventDetailData): 'drafts' | 'upcoming' | 'ongoing' | 'sold_out' | 'ended' {
-  if (!event.isPublished) return 'drafts'
-
-  const now = new Date()
-  const startDate = new Date(event.eventDate.startDate)
-  const endDate = new Date(event.eventDate.endDate)
-
-  if (now > endDate) return 'ended'
-
-  const { ticketSold, totalTicket } = event.eventStat
-  if (totalTicket > 0 && ticketSold >= totalTicket) return 'sold_out'
-
-  if (now >= startDate && now <= endDate) return 'ongoing'
-
-  return 'upcoming'
-}
-
-function StandAloneEvents({ id, activeFilter }: { id: string; activeFilter: EventFilter }) {
-  const { data: response, isPending: isLoading } = useGetEvent(id)
-
-  const event = response?.data as EventDetailData | undefined
+  const event = response?.data as EventDetailData | undefined;
 
   if (isLoading) {
-    return <DashboardCardSkeleton />
+    return <DashboardCardSkeleton />;
   }
 
   if (!event) {
-    return null
+    return null;
   }
 
-  const status = getEventStatus(event)
-
-  if (activeFilter !== 'all' && status !== activeFilter) {
-    return null
-  }
+  const status = getEventStatus(event);
 
   return (
     <DashboardCards
@@ -148,110 +217,125 @@ function StandAloneEvents({ id, activeFilter }: { id: string; activeFilter: Even
       name={event.eventName}
       startDate={formatEventDate(event.eventDate.startDate)}
       status={status}
+      visibility={toEventVisibility(accessType)}
       eventId={event.eventId}
       cardInfo={[
         <StatParagraph
-          key='sold_tickets'
-          name='Sold'
-          stats={{ value: event.eventStat.ticketSold, totalValue: event.eventStat.totalTicket }}
+          key="sold_tickets"
+          name="Tickets Sold"
+          stats={{
+            value: event.eventStat.ticketSold,
+            totalValue: event.eventStat.totalTicket,
+          }}
         />,
         <StatParagraph
-          key='profit'
-          name='Net Profit'
+          key="profit"
+          name="Net Profit"
           stats={{ totalValue: formatNaira(event.eventStat.netProfit) }}
         />,
       ]}
       cardButtons={event_buttons}
       customButton={[
-        <BasePopover
-          key='popover_trigger'
-          className='p-0 bg-transparent shadow-none border-none'
-          trigger={
-            <Button
-              variant='ghost'
-              className='flex items-center justify-center h-10 hover:bg-gray-50 rounded-none border-l border-gray-100'>
-              <img
-                src='/assets/dashboard/creator/ellipses.png'
-                alt='Ellipses'
-                width={14}
-                height={12}
-                className='opacity-50'
-              />
-            </Button>
-          }
-          content={<PopoverContent event={event} />}
+        <EventActionButton
+          key="event_action"
+          eventId={event.eventId}
+          status={status}
         />,
       ]}
     />
-  )
+  );
 }
 
-function PopoverContent({ event }: { event: EventDetailData }) {
-  const eventLink = getRoutePath('individual_event', { eventId: event.eventId })
+type EventStatus = ReturnType<typeof getEventStatus>;
+
+/**
+ * The card's third action, which changes with the event's state: a draft is
+ * still being written, an ended event only has its numbers left, and anything
+ * live is managed.
+ */
+function EventActionButton({
+  eventId,
+  status,
+}: {
+  eventId: string;
+  status: EventStatus;
+}) {
+  const action = {
+    drafts: {
+      label: "Edit Draft",
+      to: getRoutePath("edit_event", { eventId }),
+      Icon: ArrowRight,
+      className: "text-tech-blue hover:text-tech-blue",
+    },
+    ended: {
+      label: "Report",
+      to: getRoutePath("reports"),
+      Icon: Download,
+      className: "text-[#464444] hover:text-black",
+    },
+  }[status as "drafts" | "ended"] ?? {
+    // upcoming, ongoing and sold_out are all still live events.
+    label: "Manage",
+    to: getRoutePath("edit_event", { eventId }),
+    Icon: ArrowRight,
+    className: "text-deep-red hover:text-deep-red",
+  };
 
   return (
-    <div className='w-[160px] flex flex-col bg-white rounded-[6px] shadow-lg border border-gray-100 overflow-hidden text-xs font-sf-pro-text'>
-      {[
-        { href: getRoutePath('edit_event', { eventId: event.eventId }), name: 'Edit Event' },
-        { href: eventLink, name: 'View Event Page' },
-      ].map((item) => (
-        <Link
-          key={item.name}
-          to={item.href}
-          className='text-black/80 border-b border-gray-100 h-9 flex items-center px-3 hover:bg-gray-50 transition-colors'>
-          {item.name}
-        </Link>
-      ))}
+    <Button
+      asChild
+      variant="ghost"
+      className={cn(
+        "flex items-center justify-center gap-1.5 h-9 rounded-none border-l border-gray-100 hover:bg-gray-50",
+        action.className,
+      )}
+    >
+      <Link to={action.to}>
+        <span className="font-sf-pro-text text-[10px] font-semibold uppercase whitespace-nowrap">
+          {action.label}
+        </span>
+        <action.Icon size={12} />
+      </Link>
+    </Button>
+  );
+}
 
-      <StandAloneModal event={event} />
+function StatParagraph({ name, stats }: IStatParagraph) {
+  return (
+    <div className="flex flex-col gap-0.5">
+      <p className="font-work-sans text-xs font-bold uppercase text-[#464444] whitespace-nowrap">
+        {name}
+      </p>
 
-      <Button
-        onClick={() => copyToClipboard(eventLink)}
-        variant='ghost'
-        className='flex h-9 items-center bg-transparent rounded-none text-xs text-black/80 font-sf-pro-text px-3 justify-start hover:bg-gray-50 border-t border-gray-100'>
-        Copy Link
-      </Button>
+      <p className="font-inter-tight text-xs font-bold text-[#00AD2E] whitespace-nowrap">
+        {typeof stats.value === "number" ? (
+          <>
+            {stats.value} /{" "}
+            <span className="text-black">{stats.totalValue}</span>
+          </>
+        ) : (
+          stats.totalValue
+        )}
+      </p>
     </div>
-  )
+  );
 }
 
-function StatParagraph({ key, name, stats }: IStatParagraph) {
-  return (
-    <p key={key} className='font-sf-pro-text text-[10px] text-gray-400 whitespace-nowrap'>
-      {name}:{' '}
-      <span className='text-black font-semibold text-[10px]'>
-        {typeof stats.value === 'number' ? `${stats.value} / ${stats.totalValue}` : stats.totalValue}
-      </span>
-    </p>
-  )
-}
-
-function copyToClipboard(text: string) {
-  if (navigator?.clipboard && typeof navigator.clipboard.writeText === 'function') {
-    navigator.clipboard.writeText(text)
-  } else {
-    const textarea = document.createElement('textarea')
-    textarea.value = text
-    textarea.setAttribute('readonly', '')
-    textarea.style.position = 'absolute'
-    textarea.style.left = '-9999px'
-    document.body.appendChild(textarea)
-    textarea.select()
-    document.execCommand('copy')
-    document.body.removeChild(textarea)
-  }
-}
-
-const event_buttons: { src: string; alt: string }[] = [
-  { src: '/assets/dashboard/creator/chart2.png', alt: 'Chart' },
+const event_buttons: {
+  src?: string;
+  Icon?: LucideIcon | IconType;
+  alt: string;
+  label: string;
+}[] = [
   {
-    src: '/assets/dashboard/creator/group-user.png',
-    alt: 'Group User',
+    Icon: FiBarChart,
+    alt: "Analytics",
+    label: "Analytics",
   },
-]
+  { Icon: Ticket, alt: "Tickets", label: "Tickets" },
+];
 
 interface IStatParagraph {
-  key: string
-  name: string
-  stats: { value?: number; totalValue: number | string }
+  name: string;
+  stats: { value?: number; totalValue: number | string };
 }

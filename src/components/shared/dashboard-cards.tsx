@@ -1,11 +1,16 @@
 import { cn } from "@/lib/utils";
 import { Badge } from "../ui/badge";
-import type { LucideIcon } from "lucide-react";
+import { Lock, type LucideIcon } from "lucide-react";
 import { Button } from "../ui/button";
 import { Skeleton } from "../ui/skeleton";
 import { RenderEventImage } from "./render-event-flyer";
 import { Link } from "react-router-dom";
 import { getRoutePath } from "@/config/get-route-path";
+import { RiShareCircleFill } from "react-icons/ri";
+import { Eye } from "iconsax-react";
+import { IconType } from "react-icons/lib";
+
+export type EventVisibility = "Private" | "Public";
 
 export function DashboardCardSkeleton() {
   return (
@@ -29,6 +34,7 @@ export function DashboardCards({
   image,
   name,
   status,
+  visibility,
   cardInfo,
   cardButtons,
   className,
@@ -58,33 +64,34 @@ export function DashboardCards({
         {/* Gradient overlay for text readability */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/10 to-transparent pointer-events-none" />
 
-        {/* Status Badge — top left */}
-        {status && <StatusBadge status={status} />}
+        {(status || visibility) && (
+          <div className="absolute top-2 left-2 z-10 flex items-center gap-1.5">
+            {status && <StatusBadge status={status} />}
+            {visibility && <VisibilityBadge visibility={visibility} />}
+          </div>
+        )}
 
         {/* Link icon — top right */}
         <Link to={getRoutePath("individual_event", { eventId: eventId })}>
-          <img
-            src="/assets/dashboard/creator/link.png"
-            alt="Link"
-            width={10}
-            height={10}
-            className="absolute top-2 right-2 z-10 opacity-70"
+          <RiShareCircleFill
+            size={14}
+            className="absolute top-2 right-2 z-10 text-white hover:text-gray-300 transition-colors"
           />
         </Link>
 
         {/* Event name + date — bottom left overlay */}
         <div className="absolute bottom-0 left-0 right-0 px-2.5 pb-2 z-10">
-          <p className="font-sf-pro-text font-medium text-[12px] text-white leading-tight capitalize line-clamp-1">
+          <p className="font-inter-tight font-black text-sm text-white leading-tight capitalize line-clamp-1">
             {name}
           </p>
-          <p className="font-sf-pro-display text-[10px] text-white/75 mt-0.5">
+          <p className="font-inter-tight text-xs text-white mt-0.5">
             {startDate}
           </p>
         </div>
       </div>
 
       {/* Stats row */}
-      <div className="flex items-center justify-center gap-5 px-3 py-2.5 bg-white border-t border-gray-100">
+      <div className="flex justify-between gap-5 px-3 py-2.5 bg-white ">
         {cardInfo}
       </div>
 
@@ -121,10 +128,10 @@ function StatusBadge({
   return (
     <Badge
       className={cn(
-        "py-0.5 px-2 rounded-full text-[9px] font-bold text-white font-sf-pro-text absolute top-2 left-2 z-10 uppercase tracking-wide",
+        "py-0.5 px-2 rounded-full text-[10px] font-bold text-white font-inter-tight uppercase tracking-wide",
         {
           "bg-tech-blue": status === "drafts",
-          "bg-deep-red": status === "ended",
+          "bg-soft-gray/50": status === "ended",
           "bg-green-500": status === "ongoing",
           "bg-orange-500": status === "sold_out",
           "bg-amber-500": status === "upcoming",
@@ -136,31 +143,47 @@ function StatusBadge({
   );
 }
 
+function VisibilityBadge({ visibility }: { visibility: EventVisibility }) {
+  const Icon = visibility === "Private" ? Lock : Eye;
+
+  return (
+    <Badge className="gap-1 py-0.5 px-2 rounded-full bg-soft-gray/50 backdrop-blur-sm text-[10px] capitalize font-bold text-white font-inter-tight tracking-wide">
+      <Icon size={10} strokeWidth={2.5} />
+      {visibility}
+    </Badge>
+  );
+}
+
 function EventButtons({
   Icon,
   alt,
   className,
   action,
   src,
+  label,
 }: IEventButtonsProps) {
   return (
     <Button
       onClick={action}
       variant="ghost"
       className={cn(
-        "flex items-center justify-center h-9 hover:bg-gray-50 rounded-none",
+        "flex items-center justify-center gap-1.5 h-9 hover:bg-gray-50 rounded-none",
         className,
       )}
     >
-      {Icon && <Icon color="#888888" size={13} xlinkTitle={alt} />}
+      {Icon && <Icon color="black" size={13} xlinkTitle={alt} />}
       {src && (
         <img
           src={src}
           alt={alt}
           width={13}
           height={11}
-          className="opacity-40"
         />
+      )}
+      {label && (
+        <span className="font-sf-pro-text text-[10px] font-semibold uppercase text-black whitespace-nowrap">
+          {label}
+        </span>
       )}
     </Button>
   );
@@ -172,6 +195,7 @@ interface IDashboardCardProps {
   name: string;
   startDate: string;
   status?: "ended" | "drafts" | "upcoming" | "ongoing" | "sold_out";
+  visibility?: EventVisibility;
   eventId: string;
   cardInfo: React.ReactNode[];
   cardButtons: Omit<IEventButtonsProps, "className">[];
@@ -179,9 +203,10 @@ interface IDashboardCardProps {
 }
 
 interface IEventButtonsProps {
-  Icon?: LucideIcon;
+  Icon?: LucideIcon | IconType;
   src?: string;
   alt: string;
+  label?: string;
   className?: string;
   action?: () => void;
 }

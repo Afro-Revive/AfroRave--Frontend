@@ -9,20 +9,47 @@ import { CreatorSettingsModal } from "@/pages/creators/standalone/components/cre
 import { Settings } from "lucide-react";
 import { useEventSelectorStore } from "@/stores";
 import { useVendorSlotsByType } from "@/hooks/use-vendor-mutation";
+import { useLocation } from "react-router-dom";
+
+/** `/creators/edit/` — derived rather than hardcoded so it tracks route-map. */
+const EDIT_EVENT_PREFIX = getRoutePath("edit_event", { eventId: "" });
+
+/**
+ * The id of the event whose details are open, read off the URL. useParams is no
+ * help here: this sidebar renders in the layout, above the route that declares
+ * :eventId, so it would come back empty.
+ */
+function useOpenEventId(): string | undefined {
+  const { pathname } = useLocation();
+
+  if (!pathname.startsWith(EDIT_EVENT_PREFIX)) return undefined;
+
+  return pathname.slice(EDIT_EVENT_PREFIX.length).split("/")[0] || undefined;
+}
 
 export default function CreatorSidebar() {
   const { selectedEventId } = useEventSelectorStore();
   const { revenueSlots, serviceSlots } = useVendorSlotsByType(
     selectedEventId ?? ""
   );
+  const openEventId = useOpenEventId();
 
   const creator_sidebar_links: ICreatorSidebarLinks[] = [
-    {
-      trigger: { icon: <CalendarIcon />, text: "EVENTS" },
-      links: [
-        { path: getRoutePath("standalone"), name: "STANDALONE" },
-      ],
-    },
+    // The events dashboard is its own page, not a sidebar destination, so this
+    // group only appears once there's an event to show details for.
+    ...(openEventId
+      ? [
+          {
+            trigger: { icon: <CalendarIcon />, text: "EVENTS" },
+            links: [
+              {
+                path: getRoutePath("edit_event", { eventId: openEventId }),
+                name: "EVENT DETAILS",
+              },
+            ],
+          },
+        ]
+      : []),
     {
       trigger: { icon: <ChartIcon />, text: "ANALYTICS" },
       links: [

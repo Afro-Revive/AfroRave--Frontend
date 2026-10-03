@@ -43,7 +43,7 @@ export const ROUTE_PATHS = {
   creators_contact: '/contact-us',
   creators_blog: '/blog',
   creators_wishlist: '/',
-  standalone: '/creators/standalone',
+  standalone: '/creators/events',
   season: '/creators/season',
   reports: '/creators/reports',
   charts: '/creators/charts',

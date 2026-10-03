@@ -43,14 +43,26 @@ export interface CreateEventRequest {
 
 // Event Data Types
 export interface EventData {
+  accessDeadline: string
+  accessType: string
+  availableSlots: number
+  category: string
   eventId: string
   eventName: string
   venue: string
   startDate: string
   startTime: string
   endDate: string
+  hasResaleTickets: boolean
+  isApplicationEnded: boolean
+  isApplicationPaused: boolean
+  eventCategory: string
   isPublished: boolean
   customUrl: string
+  posterUrl: string
+  stage: string
+  ticketSold: number
+  totalTicket: number
   metadata: {
     termsOfRefund: string
     eventContact: {
