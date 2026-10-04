@@ -1,23 +1,21 @@
-import { Badge } from '@/components/ui/badge'
 import {
   useCreateTicket,
   useDeleteTicket,
   useGetEventTickets,
   useUpdateTicket,
-} from '@/hooks/use-event-mutations'
+} from "@/hooks/use-event-mutations";
 // import { FakeDataGenerator } from '@/lib/fake-data-generator'
-import { cn } from '@/lib/utils'
-import { useEventStore } from '@/stores'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useState } from 'react'
-import { useForm } from 'react-hook-form'
-import { TabContainer } from '../../component/tab-ctn'
-import { AnimatedShowIf } from '../../component/animated-show-if'
+import { useEventStore } from "@/stores";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { TabContainer } from "../../component/tab-ctn";
+import { AnimatedShowIf } from "../../component/animated-show-if";
 import {
   defaultUnifiedTicketValues,
   unifiedTicketFormSchema,
   type UnifiedTicketForm as TForm,
-} from '../../schemas/ticket-schema'
+} from "../../schemas/ticket-schema";
 import {
   type SavedTicket,
   type TicketType,
@@ -29,38 +27,47 @@ import {
   onSubmit,
   transformTicketsResponse,
   updateTicket,
-} from './helper'
-import { TicketForm } from './ticket-form'
-import { TicketModal } from './ticket-modal'
-import { ActionPopover } from '../../component/action-popover'
-import { ContinueButton } from '../../component/continue-button'
-import { Ticket2 } from 'iconsax-react'
+} from "./helper";
+import { TicketSummaryCard } from "@/components/shared/ticket-summary-card";
+import { TicketForm } from "./ticket-form";
+import { TicketFormatPicker, type TicketFormat } from "./ticket-format-picker";
+import { ContinueButton } from "../../component/continue-button";
 
 export default function CreateTicketForm({
   handleFormChange,
   showError,
 }: {
-  handleFormChange: (form: string) => void
-  showError: () => void
+  handleFormChange: (form: string) => void;
+  showError: () => void;
 }) {
-  const [editingTicketId, setEditingTicketId] = useState<string | null>(null)
-  const [currentTicketType, setCurrentTicketType] = useState<TicketType | null>(null)
+  const [editingTicketId, setEditingTicketId] = useState<string | null>(null);
+  const [currentTicketType, setCurrentTicketType] = useState<TicketType | null>(
+    null,
+  );
+  // Tracked separately from currentTicketType because invite-only and single
+  // both resolve to 'single_ticket' — this is what the picker highlights.
+  const [selectedFormat, setSelectedFormat] = useState<TicketFormat | null>(
+    null,
+  );
 
-  const { eventId } = useEventStore()
+  const { eventId, visibility } = useEventStore();
 
-  const createTicketMutation = useCreateTicket(eventId || '')
-  const updateTicketMutation = useUpdateTicket(eventId || '')
-  const deleteTicketMutation = useDeleteTicket(eventId || '')
-  const { data: ticketsResponse } = useGetEventTickets(
-    eventId || undefined,
-  )
+  const createTicketMutation = useCreateTicket(eventId || "");
+  const updateTicketMutation = useUpdateTicket(eventId || "");
+  const deleteTicketMutation = useDeleteTicket(eventId || "");
+  const { data: ticketsResponse } = useGetEventTickets(eventId || undefined);
 
-  const savedTickets: SavedTicket[] = transformTicketsResponse(ticketsResponse)
+  const savedTickets: SavedTicket[] = transformTicketsResponse(ticketsResponse);
 
   const form = useForm<TForm>({
     resolver: zodResolver(unifiedTicketFormSchema),
     defaultValues: defaultUnifiedTicketValues as TForm,
-  })
+  });
+
+  const setTicketType = (type: TicketType | null) => {
+    setCurrentTicketType(type);
+    if (!type) setSelectedFormat(null);
+  };
 
   const handleCreateTicket = (values: TForm) =>
     createTicket(
@@ -69,8 +76,8 @@ export default function CreateTicketForm({
       form,
       createTicketMutation,
       setEditingTicketId,
-      setCurrentTicketType,
-    )
+      setTicketType,
+    );
 
   const handleUpdateTicket = (value: TForm) =>
     updateTicket(
@@ -80,33 +87,50 @@ export default function CreateTicketForm({
       form,
       updateTicketMutation,
       setEditingTicketId,
-      setCurrentTicketType,
-    )
+      setTicketType,
+    );
 
-  const handleAddTicket = (selectedType: TicketType) =>
-    addTicket(selectedType, form, setEditingTicketId, setCurrentTicketType)
+  /**
+   * Invite-only isn't a ticketType — it's a single ticket with the invite_only
+   * flag set, matching how the API splits ticketType from accessType.
+   */
+  const handleSelectFormat = (format: TicketFormat) => {
+    setSelectedFormat(format);
+
+    addTicket(
+      format === "group_ticket" ? "group_ticket" : "single_ticket",
+      form,
+      setEditingTicketId,
+      setCurrentTicketType,
+    );
+
+    // addTicket resets the form with invite_only: false, so this has to follow.
+    if (format === "invite_only") {
+      form.setValue("ticket.invite_only", true, { shouldDirty: true });
+    }
+  };
 
   const handleEditTicketWrapper = (ticket: SavedTicket) =>
-    handleEditTicket(ticket, form, setEditingTicketId, setCurrentTicketType)
+    handleEditTicket(ticket, form, setEditingTicketId, setCurrentTicketType);
 
   const handleDeleteTicketWrapper = (ticketId: string) =>
-    handleDeleteTicket(ticketId, deleteTicketMutation)
+    handleDeleteTicket(ticketId, deleteTicketMutation);
 
   const handleCancelEditWrapper = () =>
-    handleCancelEdit(form, setEditingTicketId, setCurrentTicketType)
+    handleCancelEdit(form, setEditingTicketId, setTicketType);
 
   // const handleFillSampleData = () => fillCurrentFormWithSampleData(currentTicketType, form)
 
-  const handleSubmit = () => onSubmit(eventId, handleFormChange)
+  const handleSubmit = () => onSubmit(eventId, handleFormChange);
 
   return (
-    <div className='w-full flex flex-col gap-8'>
+    <div className="w-full flex flex-col gap-8">
       <TabContainer<TForm>
-        heading='TICKETS'
-        className='max-w-[560px] w-full flex flex-col'
+        className="max-w-[560px] w-full flex flex-col"
         form={form}
         onSubmit={handleSubmit}
-        actionOnError={showError}>
+        actionOnError={showError}
+      >
         {/* {currentTicketType && (
           <FakeDataGenerator
             type='tickets'
@@ -118,11 +142,14 @@ export default function CreateTicketForm({
         )} */}
 
         <AnimatedShowIf condition={savedTickets.length > 0}>
-          <div className='w-full flex flex-col gap-3 mb-6'>
+          <div className="w-full flex flex-col gap-3 mb-6">
             {savedTickets.map((ticket: SavedTicket, idx: number) => (
-              <CreatedTicketCard
+              <TicketSummaryCard
                 key={`created-${ticket.ticketId}-${idx}`}
-                ticket={ticket}
+                name={ticket.ticketName}
+                price={ticket.price}
+                typeLabel={ticket.ticketType.replace("_", " ")}
+                isInviteOnly={ticket.invite_only}
                 onEdit={() => handleEditTicketWrapper(ticket)}
                 onDelete={() => handleDeleteTicketWrapper(ticket.ticketId)}
                 isUpdating={updateTicketMutation.isPending}
@@ -133,7 +160,7 @@ export default function CreateTicketForm({
         </AnimatedShowIf>
 
         <AnimatedShowIf condition={!!currentTicketType}>
-          <div className='w-full flex flex-col gap-8'>
+          <div className="w-full flex flex-col gap-8">
             {currentTicketType && (
               <TicketForm
                 form={form}
@@ -144,7 +171,9 @@ export default function CreateTicketForm({
                     : form.handleSubmit(handleCreateTicket)
                 }
                 isLoading={
-                  editingTicketId ? updateTicketMutation.isPending : createTicketMutation.isPending
+                  editingTicketId
+                    ? updateTicketMutation.isPending
+                    : createTicketMutation.isPending
                 }
                 isEditMode={!!editingTicketId}
                 onCancel={handleCancelEditWrapper}
@@ -153,85 +182,25 @@ export default function CreateTicketForm({
           </div>
         </AnimatedShowIf>
 
+        {/* Hidden the moment a format is chosen — currentTicketType is set both
+            when adding and when editing a saved ticket, so the picker and the
+            form are never on screen together. */}
         <AnimatedShowIf condition={!currentTicketType}>
-          <TicketModal onContinue={handleAddTicket} />
+          <TicketFormatPicker
+            selected={selectedFormat}
+            onSelect={handleSelectFormat}
+            hiddenFormats={visibility === "private" ? ["group_ticket"] : []}
+          />
         </AnimatedShowIf>
 
-
+        <ContinueButton
+          disabled={savedTickets.length === 0}
+          onClick={() => handleFormChange("promocode")}
+        />
       </TabContainer>
 
       {/* <ConfirmationMailForm /> */}
-
-      <ContinueButton
-        disabled={savedTickets.length === 0}
-        onClick={() => handleFormChange('promocode')}
-      />
     </div>
-  )
+  );
 }
 
-function CreatedTicketCard({
-  ticket,
-  onEdit,
-  onDelete,
-  isUpdating,
-  isDeleting,
-}: ICreatedTicketCard) {
-  console.log('ticket', ticket)
-  return (
-    <div className='w-full flex flex-col'>
-      <div className='w-full flex items-center justify-between border border-mid-dark-gray/30 px-3 py-[11px] shadow-[0px_2px_10px_2px_#0000001A] rounded-[5px]'>
-      <div className='flex flex-row gap-1 items-center'>
-        {
-          /**
-           * Change ticket icon 
-           */
-        }
-        <Ticket2 size={20} color='#00AD2E' variant='Bold' />
-        <p className='uppercase text-sm font-normal font-sf-pro-text leading-[100%] text-charcoal'>
-          {ticket.ticketName}
-        </p>
-      </div>
-     
-        <div className='flex items-center gap-3'>
-          <CustomBadge text={ticket.ticketType.replace('_', ' ')} />
-          {ticket.invite_only && <CustomBadge type='invite-only' />}
-          <ActionPopover
-            isDeleting={isDeleting}
-            isUpdating={isUpdating}
-            onEdit={onEdit}
-            onDelete={onDelete}
-          />
-        </div>
-      </div>
-      {ticket.invite_only && (
-        <p className='p-2.5 text-xs leading-[100%] font-sf-pro-display uppercase text-deep-red/70'>
-          access the invite link in your dashboard
-        </p>
-      )}
-    </div>
-  )
-}
-
-function CustomBadge({
-  type = 'default',
-  text = 'invite only',
-}: { type?: 'default' | 'invite-only'; text?: string }) {
-  return (
-    <Badge
-      className={cn('py-1.5 px-2 rounded-[6px] text-xs font-sf-pro-rounded leading-[100%]', {
-        'bg-[#00AD2E4D] text-[#00AD2E]': type === 'default',
-        'bg-deep-red/30 text-deep-red': type === 'invite-only',
-      })}>
-      {text}
-    </Badge>
-  )
-}
-
-interface ICreatedTicketCard {
-  ticket: SavedTicket
-  onEdit: () => void
-  onDelete: () => void
-  isUpdating: boolean
-  isDeleting: boolean
-}

@@ -20,13 +20,13 @@ interface IPriceField<T extends FieldValues> {
 export function PriceField<T extends FieldValues>({
   form,
   name,
-  label = "PRICE",
+  label = "PRICE Per Ticket",
   ticketTypeName,
   className,
   readOnly = false,
-  description,
   showMessage,
 }: IPriceField<T>) {
+
   const ticketType = useWatch({
     control: form.control,
     name: ticketTypeName || (name as Path<T>),
@@ -34,16 +34,7 @@ export function PriceField<T extends FieldValues>({
   const isFreeTicket = ticketType === "free";
 
   if (isFreeTicket) {
-    return (
-      <div className="w-full h-9 flex items-center gap-3">
-        <p className="py-[11px] w-14 h-full flex items-center justify-center bg-[#acacac] rounded-[5px]">
-          FREE
-        </p>
-        <div className="w-full h-9 flex items-center px-3 bg-gray-100 rounded-[5px] text-gray-500 text-sm">
-          Free ticket
-        </div>
-      </div>
-    );
+    return null;
   }
 
   return (
@@ -72,9 +63,9 @@ export function PriceField<T extends FieldValues>({
               value={field.value == null ? "" : String(field.value)}
             />
           </div>
-          <p className="mt-2 text-[10px] normal-case font-sf-pro-text text-mid-dark-gray">
+          {/* <p className="mt-2 text-[10px] normal-case font-sf-pro-text text-mid-dark-gray">
             {description}
-          </p>
+          </p> */}
         </div>
       )}
     </FormField>
