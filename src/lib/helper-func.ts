@@ -135,6 +135,24 @@ export function formatUsername(username?: string): string {
   return username.startsWith('@') ? username : `@${username}`
 }
 
+export function copyToClipboard(text: string) {
+  if (navigator?.clipboard?.writeText) {
+    navigator.clipboard.writeText(text)
+    return
+  }
+
+  // Fallback for insecure origins, where the clipboard API is unavailable.
+  const textarea = document.createElement('textarea')
+  textarea.value = text
+  textarea.setAttribute('readonly', '')
+  textarea.style.position = 'absolute'
+  textarea.style.left = '-9999px'
+  document.body.appendChild(textarea)
+  textarea.select()
+  document.execCommand('copy')
+  document.body.removeChild(textarea)
+}
+
 export function formatJoinedDate(dateString: string): string {
   try {
     const date = parseISO(dateString)

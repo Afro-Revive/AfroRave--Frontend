@@ -163,10 +163,18 @@ interface EventSelectorState {
   setSelectedEventId: (id: string | null) => void
 }
 
-export const useEventSelectorStore = create<EventSelectorState>()((set) => ({
-  selectedEventId: null,
-  setSelectedEventId: (id) => set({ selectedEventId: id }),
-}))
+// Persisted so the sidebar's selected-event card survives a refresh. Most
+// creator pages carry no event id in their URL, so without this the selection
+// is only recoverable by going back through the events dashboard.
+export const useEventSelectorStore = create<EventSelectorState>()(
+  persist(
+    (set) => ({
+      selectedEventId: null,
+      setSelectedEventId: (id) => set({ selectedEventId: id }),
+    }),
+    { name: 'afro-selected-event' },
+  ),
+)
 
 
 interface CartState {

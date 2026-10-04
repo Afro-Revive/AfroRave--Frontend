@@ -14,13 +14,14 @@ export function BaseAccordion({
   stringContent,
   children,
   isActive,
+  defaultOpen,
   icon,
   triggerClassName,
 }: IBaseAccordion) {
   // Controlled so the section holding the current route opens itself — landing on a
   // vendor slot should reveal that slot's name in the sidebar, not leave it collapsed.
   // Still collapsible by hand, and only forced open when `isActive` flips on.
-  const [value, setValue] = useState(isActive ? "item-1" : "")
+  const [value, setValue] = useState(isActive || defaultOpen ? "item-1" : "")
 
   useEffect(() => {
     if (isActive) setValue("item-1")
@@ -81,6 +82,11 @@ interface IBaseAccordion {
   stringContent?: string;
   children?: React.ReactNode;
   isActive?: boolean;
+  /**
+   * Opens the section on mount without marking it active. `isActive` also paints
+   * the trigger red, which would make a permanently-open group look selected.
+   */
+  defaultOpen?: boolean;
   icon?: React.ReactNode;
   triggerClassName?: string;
 }

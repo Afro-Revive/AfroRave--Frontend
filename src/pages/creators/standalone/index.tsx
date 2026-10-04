@@ -33,7 +33,7 @@ import {
   getListEventStatus,
   type EventListFilter,
 } from "./components/event-filters";
-import { useGuideStore } from "@/stores";
+import { useEventSelectorStore, useGuideStore } from "@/stores";
 import { FiBarChart } from "react-icons/fi";
 import { IconType } from "react-icons/lib";
 
@@ -310,6 +310,13 @@ function EventActionButton({
     className: "text-deep-red hover:text-deep-red",
   };
 
+  // Leaving the dashboard through this button is what "selecting" an event
+  // means — the sidebar reads the store to know whose summary to pin above the
+  // EVENTS group, and pages like Reports carry no id in their URL.
+  const setSelectedEventId = useEventSelectorStore(
+    (state) => state.setSelectedEventId,
+  );
+
   return (
     <Button
       asChild
@@ -319,7 +326,7 @@ function EventActionButton({
         action.className,
       )}
     >
-      <Link to={action.to}>
+      <Link to={action.to} onClick={() => setSelectedEventId(eventId)}>
         <span className="font-sf-pro-text text-[10px] font-semibold uppercase whitespace-nowrap">
           {action.label}
         </span>

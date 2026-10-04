@@ -8,6 +8,8 @@ import { getRoutePath } from './get-route-path'
 const StandalonePage = lazy(() => import('../pages/creators/standalone'))
 const SeasonPage = lazy(() => import('../pages/creators/season'))
 const AccessControlPage = lazy(() => import('../pages/creators/access-control'))
+const TicketsPage = lazy(() => import('../pages/creators/tickets'))
+const GuestListPage = lazy(() => import('../pages/creators/guest-list'))
 const PromoCodesPage = lazy(() => import('../pages/creators/promo-codes'))
 const ChartPage = lazy(() => import('../pages/creators/charts'))
 const ReportsPage = lazy(() => import('../pages/creators/reports'))
@@ -61,6 +63,26 @@ export const creator_dashboard_routes: RouteObject[] = [
       <OrganizerAuthGuard>
         <Suspense fallback={<LoadingFallback />}>
           <AccessControlPage />
+        </Suspense>
+      </OrganizerAuthGuard>
+    ),
+  },
+  {
+    path: getRoutePath('tickets'),
+    element: (
+      <OrganizerAuthGuard>
+        <Suspense fallback={<LoadingFallback />}>
+          <TicketsPage />
+        </Suspense>
+      </OrganizerAuthGuard>
+    ),
+  },
+  {
+    path: getRoutePath('guest_list'),
+    element: (
+      <OrganizerAuthGuard>
+        <Suspense fallback={<LoadingFallback />}>
+          <GuestListPage />
         </Suspense>
       </OrganizerAuthGuard>
     ),

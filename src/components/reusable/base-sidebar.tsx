@@ -30,6 +30,7 @@ export function BaseSideBar({
   collapsibleOnMobile = false,
   mobileFullscreen = false,
   children,
+  headerItem,
   footerItem,
 }: IBaseSidebar) {
   const location = useLocation();
@@ -41,6 +42,8 @@ export function BaseSideBar({
 
   const menuItems = (onLinkClick?: () => void) => (
     <>
+      {headerItem}
+
       {sidebar_links?.map((item) => {
         const isActive = item.links.some(
           (link) =>
@@ -55,6 +58,7 @@ export function BaseSideBar({
             links={item.links}
             trigger={item.trigger.text}
             isActive={isActive}
+            defaultOpen={item.defaultOpen}
             icon={item.trigger.icon}
             onLinkClick={onLinkClick}
           />
@@ -102,7 +106,7 @@ export function BaseSideBar({
       collapsible={effectiveCollapsible}
       className={cn(
         className,
-        "w-[320px] min-h-screen h-fit bg-white border-r-[0.5px] border-r-gray-200",
+        "lg:w-[320px] xl:w-95 w-70 min-h-screen h-fit bg-white border-r-[0.5px] border-r-gray-200",
       )}
     >
       <SidebarContent className={cn(contentClassName, "flex flex-col h-full")}>
@@ -123,12 +127,14 @@ function AccordionSidebarMenuItem({
   links,
   trigger,
   isActive,
+  defaultOpen,
   icon,
   onLinkClick,
 }: {
   links: ICreatorSidebarLinks["links"];
   trigger: string;
   isActive: boolean;
+  defaultOpen?: boolean;
   icon: React.ReactNode;
   onLinkClick?: () => void;
 }) {
@@ -140,6 +146,7 @@ function AccordionSidebarMenuItem({
       icon={icon}
       trigger={trigger}
       isActive={isActive}
+      defaultOpen={defaultOpen}
     >
       {links.map((item) => {
         const isActiveLink = isPathActive(location.pathname, item.path);
@@ -231,5 +238,7 @@ interface IBaseSidebar {
   collapsibleOnMobile?: boolean;
   mobileFullscreen?: boolean;
   children?: React.ReactNode;
+  /** Rendered above the link groups. */
+  headerItem?: React.ReactNode;
   footerItem?: React.ReactNode;
 }

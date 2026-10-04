@@ -48,6 +48,8 @@ export const ROUTE_PATHS = {
   reports: '/creators/reports',
   charts: '/creators/charts',
   realtime: '/creators/realtime',
+  tickets: '/creators/tickets',
+  guest_list: '/creators/guest-list',
   promo_codes: '/creators/promo-codes',
   edit_event: '/creators/edit/:eventId',
   add_event: '/creators/add-event',
@@ -131,6 +133,8 @@ export interface RouteParams {
   reports: never
   charts: never
   realtime: never
+  tickets: never
+  guest_list: never
   promo_codes: never
   edit_event: { eventId: string | number }
   add_event: never
