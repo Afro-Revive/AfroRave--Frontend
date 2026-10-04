@@ -138,6 +138,11 @@ export interface TicketData {
   ticketId: string
   ticketName: string
   price: number
+  basePrice: number
+  salesPrice: number
+  resalePrice: number
+  fee: number
+  feePercentage: number
   quantity: number
   availableQuantity: number
   eventId: string
@@ -145,6 +150,9 @@ export interface TicketData {
   ticketType?: 'Single' | 'Group' | 'MultiDay'
   accessType?: 'Free' | 'Paid' | 'Invite'
   salesType?: 'Online' | 'Door'
+  groupSize?: number
+  purchaseLimit?: number
+  validDays?: number
   description?: string
   ticketDetails?: {
     description?: string
