@@ -195,8 +195,11 @@ class EventService {
   /**
    * Get organizer events
    */
-  async getOrganizerEvents(): Promise<EventsResponse> {
-    const response = await api.get('/api/Event/organizer')
+  async getOrganizerEvents(params?: {
+    pageNumber?: number
+    pageSize?: number
+  }): Promise<EventsResponse> {
+    const response = await api.get('/api/Event/organizer', { params })
     return response.data
   }
 

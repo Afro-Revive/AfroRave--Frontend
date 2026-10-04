@@ -385,10 +385,14 @@ export function useGetAllEvents() {
   })
 }
 
-export function useGetOrganizerEvents() {
+export function useGetOrganizerEvents(params?: {
+  pageNumber?: number
+  pageSize?: number
+}) {
   return useQuery({
-    queryKey: eventKeys.organizer(),
-    queryFn: () => eventService.getOrganizerEvents(),
+    // params in the key so a different page size isn't served the cached set.
+    queryKey: [...eventKeys.organizer(), params ?? {}],
+    queryFn: () => eventService.getOrganizerEvents(params),
   })
 }
 

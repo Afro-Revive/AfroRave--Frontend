@@ -26,6 +26,7 @@ import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 
 import { DashboardTabs, type DashboardTab } from "./components/dashboard-tabs";
+import { EventsPagination } from "./components/events-pagination";
 import {
   EventFilters,
   countEventsByStatus,
@@ -59,10 +60,18 @@ function formatEventDate(dateStr: string): string {
   );
 }
 
+/** Three rows of the widest grid. */
+const EVENTS_PER_PAGE = 12;
+
 export default function StandalonePage() {
-  const { data: response, isPending: isLoading } = useGetOrganizerEvents();
+  // Asks for the whole set in one request
+  const { data: response, isPending: isLoading } = useGetOrganizerEvents({
+    pageNumber: 1,
+    pageSize: 200,
+  });
   const [activeTab, setActiveTab] = useState<DashboardTab>("events");
   const [activeFilter, setActiveFilter] = useState<EventListFilter>("all");
+  const [page, setPage] = useState(1);
   const { startGuide } = useGuideStore();
 
   // Memoised because `?? []` hands back a new array every render, which would
@@ -72,7 +81,6 @@ export default function StandalonePage() {
       (response?.data as PaginatedResponse<EventData> | undefined)?.items ?? [],
     [response],
   );
-
 
   // Counts come off the unfiltered list, so the pills keep showing every
   // bucket's size no matter which one is selected.
@@ -88,6 +96,21 @@ export default function StandalonePage() {
             (event) => getListEventStatus(event) === activeFilter,
           ),
     [allEvents, activeFilter],
+  );
+
+  const totalPages = Math.max(1, Math.ceil(events.length / EVENTS_PER_PAGE));
+
+  // Clamped rather than reset: a filter that shrinks the list can strand you on
+  // a page that no longer exists, which would render an empty grid.
+  const currentPage = Math.min(page, totalPages);
+
+  const visibleEvents = useMemo(
+    () =>
+      events.slice(
+        (currentPage - 1) * EVENTS_PER_PAGE,
+        currentPage * EVENTS_PER_PAGE,
+      ),
+    [events, currentPage],
   );
 
   if (isLoading) {
@@ -113,10 +136,8 @@ export default function StandalonePage() {
           />
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 ">
-            {events.length > 0 ? (
-              events.map((item) => (
-                // accessType only exists on the list payload, not on the
-                // detail one the card fetches, so it rides down as a prop.
+            {visibleEvents.length > 0 ? (
+              visibleEvents.map((item) => (
                 <StandAloneEvents
                   key={item.eventId}
                   id={item.eventId}
@@ -127,6 +148,13 @@ export default function StandalonePage() {
               <EmptyState onStartGuide={startGuide} />
             )}
           </div>
+
+          <EventsPagination
+            page={currentPage}
+            totalPages={totalPages}
+            totalCount={events.length}
+            onPageChange={setPage}
+          />
         </div>
       )}
     </section>
