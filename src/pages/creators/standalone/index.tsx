@@ -26,7 +26,7 @@ import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 
 import { DashboardTabs, type DashboardTab } from "./components/dashboard-tabs";
-import { EventsPagination } from "./components/events-pagination";
+import { Pagination } from "@/components/shared/pagination";
 import {
   EventFilters,
   countEventsByStatus,
@@ -149,11 +149,12 @@ export default function StandalonePage() {
             )}
           </div>
 
-          <EventsPagination
+          <Pagination
             page={currentPage}
             totalPages={totalPages}
             totalCount={events.length}
             onPageChange={setPage}
+            itemLabel={{ one: "event", other: "events" }}
           />
         </div>
       )}
