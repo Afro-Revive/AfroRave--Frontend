@@ -32,9 +32,13 @@ const TICKET_FORMATS: { value: TicketFormat; name: string; caption: string }[] =
 export function TicketFormatPicker({
   selected,
   onSelect,
+  header = 'Choose Ticket Format',
+  description = 'Select how this ticket admits guests. You can add more ticket types after this one.',
   hiddenFormats = [],
 }: {
   selected: TicketFormat | null
+  header?: string
+  description?: string
   onSelect: (format: TicketFormat) => void
   /** Formats the event can't offer — a private event has no group tickets. */
   hiddenFormats?: TicketFormat[]
@@ -47,11 +51,10 @@ export function TicketFormatPicker({
     <div className='w-full flex flex-col gap-4'>
       <div className='flex flex-col gap-1'>
         <h2 className='font-inter-tight font-bold text-2xl text-black uppercase'>
-          Choose Ticket Format
+          {header}
         </h2>
         <p className='font-inter-tight font-medium text-sm text-[#464444]'>
-          Select how this ticket admits guests. You can add more ticket types after this
-          one.
+          {description}
         </p>
       </div>
 

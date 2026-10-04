@@ -80,25 +80,31 @@ export function CreatorPageContainer({
   action?: React.ReactNode
   children: React.ReactNode
 }) {
+  // Pages that open with their own banner pass nothing here, and the bar is
+  // left out entirely rather than rendered empty.
+  const hasHeader = Boolean(heading || onBack || action)
+
   return (
-    <div className='w-full items-center'>
-      <div className='w-full flex items-center justify-between gap-4 py-3 px-5 md:px-8 bg-white border-l border-[#e9e9e9]'>
-        {onBack ? (
-          <Button
-            variant='ghost'
-            className='w-fit h-fit hover:bg-black/10 !p-1 flex items-center gap-3'
-            onClick={onBack}>
-            <ChevronLeft color='#000000' className='min-w-1.5 min-h-3' />
+    <div className='w-full'>
+      {hasHeader && (
+        <div className='w-full flex items-center justify-between gap-4 py-3 px-5 md:px-8 bg-white border-l border-[#e9e9e9]'>
+          {onBack ? (
+            <Button
+              variant='ghost'
+              className='w-fit h-fit hover:bg-black/10 !p-1 flex items-center gap-3'
+              onClick={onBack}>
+              <ChevronLeft color='#000000' className='min-w-1.5 min-h-3' />
+              <span className='text-sm font-medium font-sf-pro-display text-black'>{heading}</span>
+            </Button>
+          ) : (
             <span className='text-sm font-medium font-sf-pro-display text-black'>{heading}</span>
-          </Button>
-        ) : (
-          <span className='text-sm font-medium font-sf-pro-display text-black'>{heading}</span>
-        )}
+          )}
 
-        {action}
-      </div>
+          {action}
+        </div>
+      )}
 
-      <div className='container w-full h-fit flex flex-col items-center'>{children}</div>
+      <div className='w-full h-fit flex flex-col'>{children}</div>
     </div>
   )
 }
