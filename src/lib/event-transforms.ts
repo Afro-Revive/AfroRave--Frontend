@@ -65,6 +65,7 @@ export function transformEventDetailsToCreateRequest(
     description: formData.description,
     customUrl: formData.custom_url,
     posterUrl: formData.poster_url,
+    accessType: formData.visibility === 'public' ? 'Public' : 'Private',
     eventDate: {
       timezone: timezoneOffset, // Use UTC offset instead of timezone name
       startDate: formatDate(formData.start_date.date),

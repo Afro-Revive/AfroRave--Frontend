@@ -39,6 +39,8 @@ export interface CreateEventRequest {
   posterUrl: string
   eventDate: EventDate
   eventDetails: EventDetails
+  accessType: 'Public' | 'Private'
+  accessDeadline?: string
 }
 
 // Event Data Types
@@ -97,6 +99,7 @@ export interface EventDetailData {
   customUrl: string
   category: string
   isPublished: boolean
+  accessType?: string
   eventDate: {
     startDate: string
     endDate: string

@@ -4,6 +4,7 @@ import { CustomFormField as FormField } from '@/components/shared/custom-form'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { OnlyShowIf } from '@/lib/environment'
+import { CgSoftwareUpload } from "react-icons/cg";
 import { cn } from '@/lib/utils'
 import { useUploadImage } from '@/hooks/useCloudinaryUpload'
 import { X, LoaderCircle } from 'lucide-react'
@@ -15,7 +16,7 @@ import { X, LoaderCircle } from 'lucide-react'
 export function PosterUploadField<T extends FieldValues>({
   form,
   name,
-  label = 'EVENT POSTER',
+  label = 'Upload a png or jpeg file',
 }: {
   form: UseFormReturn<T>
   name: Path<T>
@@ -41,9 +42,10 @@ export function PosterUploadField<T extends FieldValues>({
   }
 
   return (
-    <FormField form={form} name={name} label={label} className='w-[162px]'>
+    <FormField form={form} name={name} label={label} labelClassName='font-inter-tight font-medium text-base normal-case text-[#595959]/50' className='w-[285px]'>
       {() => (
-        <div className='relative flex flex-col items-center justify-center w-[162px] h-[216px] rounded-[5px] shadow-[0px_4px_12px_0px_#0000001F] py-2'>
+        // TODO: fix the linear background for this 
+        <div className='relative flex flex-col items-center justify-center w-full h-[350px] rounded-[5px] bg-black/30 shadow-[0px_4px_12px_0px_#0000001F] py-2'>
           <OnlyShowIf condition={preview !== null}>
             <Button
               type='button'
@@ -70,10 +72,11 @@ export function PosterUploadField<T extends FieldValues>({
             />
           ) : (
             <div className='flex flex-col items-center justify-center font-sf-pro-text pointer-events-none'>
-              <span className='text-mid-dark-gray text-sm text-center normal-case'>
-                Insert poster image
+              <span className='text-white text-lg font-inter-tight font-black text-center normal-case'>
+                Insert Flyer Image
               </span>
-              <span className='text-deep-red text-xs mt-2'>550 X 770 (PIXELS)</span>
+              <span className='text-white font-inter-tight text-sm mt-2'>550 X 770 (Pixels)</span>
+              <CgSoftwareUpload size={24} className='mt-4 text-white'/>
             </div>
           )}
 

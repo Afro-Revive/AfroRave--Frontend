@@ -24,8 +24,15 @@ interface AfroState {
 interface EventState {
   eventId: string | null
   eventData: CreateEventRequest | null
+  /**
+   * Kept beside eventData rather than inside it: CreateEventRequest has no
+   * visibility field, but later steps of the create flow need to know — the
+   * ticket formats on offer depend on it.
+   */
+  visibility: 'public' | 'private' | null
   setEventId: (id: string) => void
   setEventData: (data: CreateEventRequest) => void
+  setVisibility: (visibility: 'public' | 'private') => void
   resetEventData: () => void
 }
 
@@ -126,9 +133,11 @@ export const useAfroStore = create<AfroState>()((set, get) => ({
 export const useEventStore = create<EventState>()((set) => ({
   eventId: null,
   eventData: null,
+  visibility: null,
   setEventId: (id: string) => set({ eventId: id }),
   setEventData: (data: CreateEventRequest) => set({ eventData: data }),
-  resetEventData: () => set({ eventId: null, eventData: null }),
+  setVisibility: (visibility: 'public' | 'private') => set({ visibility }),
+  resetEventData: () => set({ eventId: null, eventData: null, visibility: null }),
 }))
 
 interface GuideState {
