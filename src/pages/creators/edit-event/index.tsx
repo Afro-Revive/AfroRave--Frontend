@@ -103,6 +103,7 @@ export default function EditEventPage() {
           eventId={event.eventId}
           setActiveTab={setActiveTabState}
           eventName={event.eventName}
+          accessType={event.accessType}
         />
       ),
     },

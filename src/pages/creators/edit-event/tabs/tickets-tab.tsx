@@ -1,5 +1,6 @@
 import { FormBase } from '@/components/reusable'
 import BaseTable from '@/components/reusable/base-table'
+import { TicketSummaryCard } from '@/components/shared/ticket-summary-card'
 import {
   Dialog,
   DialogClose,
@@ -27,7 +28,7 @@ import { transformTicketsToCreateRequest } from '@/lib/event-transforms'
 import type { PromoCodeData, TicketData } from '@/types'
 import type { PaginatedResponse } from '@/types/api'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { EllipsisVertical, Plus, Ticket, Trash2, X } from 'lucide-react'
+import { EllipsisVertical, Plus, Trash2, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useSearchParams } from 'react-router-dom'
@@ -44,7 +45,10 @@ import {
 } from '../../add-event/schemas/ticket-schema'
 import type { TicketType } from '../../add-event/ticket-forms/create/helper'
 import { TicketForm } from '../../add-event/ticket-forms/create/ticket-form'
-import { TicketModal } from '../../add-event/ticket-forms/create/ticket-modal'
+import {
+  TicketFormatPicker,
+  type TicketFormat,
+} from '../../add-event/ticket-forms/create/ticket-format-picker'
 import { populatePromoCodeJson } from '../../add-event/ticket-forms/promo-code-form/helper'
 import { PromoCodeFormFields } from '../../add-event/ticket-forms/promo-code-form/promo-code-form'
 import { TabChildrenContainer } from '../component/edit-tab-children-container'
@@ -52,11 +56,19 @@ import { cn } from '@/lib/utils'
 import { OnlyShowIf } from '@/lib/environment'
 import { formatNaira } from '@/lib/format-price'
 
-export default function TicketsTab({ eventId, setActiveTab, eventName }: ITicketTab) {
+export default function TicketsTab({
+  eventId,
+  setActiveTab,
+  eventName,
+  accessType,
+}: ITicketTab) {
+  // Only an explicit 'private' hides group tickets — an unrecognised or missing
+  // accessType leaves them available rather than silently removing an option.
+  const isPrivateEvent = accessType?.trim().toLowerCase() === 'private'
+
   const [searchParams, setSearchParams] = useSearchParams()
   const [currentForm, setCurrentForm] = useState<string>()
   const [selectedType, setSelectedType] = useState<TicketType>()
-  const [ticketFormOpen, setTicketFormOpen] = useState(false)
   const [ticketTab, setTicketTab] = useState<'ticket' | 'promocode'>('ticket')
 
   const { data: ticketsResponse, isLoading, error, refetch } = useGetEventTickets(eventId)
@@ -105,7 +117,6 @@ export default function TicketsTab({ eventId, setActiveTab, eventName }: ITicket
       onSuccess: () => {
         setSelectedType(undefined)
         ticketForm.reset()
-        setTicketFormOpen(false)
       },
     })
   }
@@ -133,10 +144,17 @@ export default function TicketsTab({ eventId, setActiveTab, eventName }: ITicket
     deletePromocodeMutation.mutateAsync(id)
   }
 
-  function handleAddTicket(selectedType: TicketType) {
-    ticketForm.setValue('ticket.ticketType', selectedType)
-    setSelectedType(selectedType)
-    setTicketFormOpen(true)
+  /**
+   * Invite-only isn't a ticketType — it's a single ticket carrying the
+   * invite_only flag, matching how the API splits ticketType from accessType.
+   */
+  function handleSelectFormat(format: TicketFormat) {
+    const ticketType: TicketType =
+      format === 'group_ticket' ? 'group_ticket' : 'single_ticket'
+
+    ticketForm.setValue('ticket.ticketType', ticketType)
+    ticketForm.setValue('ticket.invite_only', format === 'invite_only')
+    setSelectedType(ticketType)
   }
 
   function handleBackClick() {
@@ -173,43 +191,6 @@ export default function TicketsTab({ eventId, setActiveTab, eventName }: ITicket
       buttonText={eventName}
       isLoading={undefined}>
 
-      {/* Ticket creation modal */}
-      <Dialog
-        open={ticketFormOpen}
-        onOpenChange={(open) => {
-          setTicketFormOpen(open)
-          if (!open) { setSelectedType(undefined); ticketForm.reset() }
-        }}>
-        <DialogContent
-          noCancel
-          className='w-[95vw] sm:max-w-[864px] max-h-[90vh] flex flex-col p-0 gap-0 overflow-hidden'>
-          <DialogTitle className='sr-only'>Create ticket</DialogTitle>
-          <DialogDescription className='sr-only'>Ticket creation form</DialogDescription>
-          {/* Header */}
-          <div className='flex items-center justify-between px-5 sm:px-7 py-4 border-b border-gray-100 shrink-0'>
-            <span className='text-base font-black uppercase font-sf-pro-display text-black'>
-              Create {selectedType?.replace(/_/g, ' ')}
-            </span>
-            <DialogClose asChild>
-              <button type='button' className='text-gray-400 hover:text-black transition-colors p-1 rounded'>
-                <X size={20} />
-              </button>
-            </DialogClose>
-          </div>
-          {/* Scrollable form content */}
-          <div className='overflow-y-auto flex-1 px-5 sm:px-7 py-5'>
-            <FormBase form={ticketForm} onSubmit={() => {}} className='flex flex-col gap-5'>
-              <TicketForm
-                form={ticketForm}
-                type={selectedType || 'single_ticket'}
-                onSubmit={() => ticketForm.handleSubmit(handleCreateTicket, (errors) => console.log('Ticket validation errors:', errors))()}
-                isLoading={isCreatingTIcket}
-                onCancel={() => { setTicketFormOpen(false); setSelectedType(undefined); ticketForm.reset() }}
-              />
-            </FormBase>
-          </div>
-        </DialogContent>
-      </Dialog>
       <div className='w-full flex flex-col gap-10 md:gap-14 pt-6 px-4 md:p-14'>
         <div className='flex flex-col gap-[13px]'>
           <div className='flex items-center justify-between gap-2 flex-wrap'>
@@ -246,9 +227,6 @@ export default function TicketsTab({ eventId, setActiveTab, eventName }: ITicket
               </Button>
             </OnlyShowIf>
 
-            <OnlyShowIf condition={ticketTab === 'ticket' && (tickets?.items?.length ?? 0) > 0}>
-              <TicketModal onContinue={handleAddTicket} />
-            </OnlyShowIf>
           </div>
 
           {(() => {
@@ -264,8 +242,10 @@ export default function TicketsTab({ eventId, setActiveTab, eventName }: ITicket
               return <ErrorState activeTab={ticketTab} onClick={refetchPromocodes} />
             }
 
+            // No empty state for tickets: the format list below is always on
+            // screen, so it already says what to do next.
             if ((tickets?.items?.length ?? 0) === 0 && ticketTab === 'ticket') {
-              return <EmptyTicketState onAddTicket={handleAddTicket} />
+              return null
             }
 
             if ((promocodes?.items?.length ?? 0) === 0 && ticketTab === 'promocode') {
@@ -307,32 +287,39 @@ export default function TicketsTab({ eventId, setActiveTab, eventName }: ITicket
           })()}
         </div>
 
+        {/* Inline composer, same shape as the create-event flow: the format
+            list stands by default and the form replaces it once one is picked.
+            No modal in either direction. */}
+        <OnlyShowIf condition={ticketTab === 'ticket' && !isLoading && !error}>
+          {selectedType ? (
+            <FormBase form={ticketForm} onSubmit={() => {}} className='flex flex-col gap-5'>
+              <TicketForm
+                form={ticketForm}
+                type={selectedType}
+                onSubmit={() =>
+                  ticketForm.handleSubmit(handleCreateTicket, (errors) =>
+                    console.log('Ticket validation errors:', errors),
+                  )()
+                }
+                isLoading={isCreatingTIcket}
+                onCancel={() => {
+                  setSelectedType(undefined)
+                  ticketForm.reset()
+                }}
+              />
+            </FormBase>
+          ) : (
+            <TicketFormatPicker
+              selected={null}
+              onSelect={handleSelectFormat}
+              hiddenFormats={isPrivateEvent ? ['group_ticket'] : []}
+            />
+          )}
+        </OnlyShowIf>
+
         {(tickets?.items?.length ?? 0) > 0 ? <TicketSales tickets={tickets!.items} /> : null}
       </div>
     </TabChildrenContainer>
-  )
-}
-
-function EmptyTicketState({ onAddTicket }: { onAddTicket: (type: TicketType) => void }) {
-  return (
-    <div className='w-full py-12 flex flex-col items-center justify-center bg-gray-50 rounded-lg border-2 border-dashed border-gray-300'>
-      <Ticket className='w-12 h-12 text-gray-400 mb-4' />
-      <h3 className='text-lg font-medium text-gray-900 mb-2'>No tickets created yet</h3>
-      <p className='text-sm text-gray-500 text-center max-w-md'>
-        Start by creating your first ticket type. You can add multiple ticket types with different
-        pricing and features.
-      </p>
-      <div className='mt-4'>
-        <TicketModal
-          onContinue={onAddTicket}
-          trigger={
-            <Button className='bg-deep-red text-white hover:bg-deep-red/80'>
-              Create First Ticket
-            </Button>
-          }
-        />
-      </div>
-    </div>
   )
 }
 
@@ -489,7 +476,6 @@ function TicketCard({ ticket, onDelete, isLoading = false }: ITIcketCard) {
     (detail.description && detail.description.trim()) ||
     (detail.ticketDetails?.description && detail.ticketDetails.description.trim()) ||
     ''
-  const allowResell = detail.ticketDetails?.allowResell
 
   // Available count for display
   const availableQty = detail.availableQuantity ?? ticket.availableQuantity
@@ -497,78 +483,18 @@ function TicketCard({ ticket, onDelete, isLoading = false }: ITIcketCard) {
   const typeBadge = ticketType
     ? ({ Single: 'Single Ticket', Group: 'Group Ticket', MultiDay: 'Multi Day' } as const)[ticketType]
     : null
-  const salesBadge = salesType === 'Door' ? 'Door Ticket' : null
-  const inviteBadge = accessType === 'Invite' ? 'Invite Only' : null
-  const freeBadge = accessType === 'Free' ? 'Free' : null
-  const resellBadge = allowResell ? 'Resale' : null
 
   return (
     <>
-      <div
-        className='w-full min-h-16 bg-white py-3 pl-3 pr-1 rounded-[8px] flex items-center justify-between shadow-sm border border-gray-100 cursor-pointer'
-        onClick={() => setDetailOpen(true)}>
-        <div className='flex items-center gap-4 flex-1 min-w-0'>
-          <Button
-            variant='ghost'
-            className='py-0 px-1 w-fit h-fit hover:bg-black/20 shrink-0'
-            onClick={(e) => e.stopPropagation()}>
-            <img src='/assets/event/menu.png' alt='Grip' className='size-4' />
-          </Button>
-          <p className='text-sm font-sf-pro-display text-black truncate'>{ticket.ticketName}</p>
-          <div className='flex flex-wrap items-center gap-1.5 ml-2'>
-            {typeBadge && (
-              <span className='px-2 py-0.5 rounded-full text-[11px] font-medium bg-[#E8F5E9] text-[#2E7D32]'>
-                {typeBadge}
-              </span>
-            )}
-            {salesBadge && (
-              <span className='px-2 py-0.5 rounded-full text-[11px] font-medium bg-[#E0F2F1] text-[#00695C]'>
-                {salesBadge}
-              </span>
-            )}
-            {inviteBadge && (
-              <span className='px-2 py-0.5 rounded-full text-[11px] font-medium bg-[#FFEBEE] text-[#B71C1C]'>
-                {inviteBadge}
-              </span>
-            )}
-            {freeBadge && (
-              <span className='px-2 py-0.5 rounded-full text-[11px] font-medium bg-[#E3F2FD] text-[#1565C0]'>
-                {freeBadge}
-              </span>
-            )}
-            {resellBadge && (
-              <span className='px-2 py-0.5 rounded-full text-[11px] font-medium bg-[#FFF8E1] text-[#F57F17]'>
-                {resellBadge}
-              </span>
-            )}
-            {isSoldOut && (
-              <span className='px-2 py-0.5 rounded-full text-[11px] font-medium bg-[#FFEBEE] text-[#B71C1C]'>
-                Sold Out
-              </span>
-            )}
-          </div>
-        </div>
-
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant='ghost'
-              className='p-1 !w-fit h-fit hover:bg-black/20 shrink-0'
-              onClick={(e) => e.stopPropagation()}>
-              <EllipsisVertical className='w-[3px] h-[13px]' color='#000000' />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align='end'>
-            <DropdownMenuItem
-              onClick={() => onDelete()}
-              disabled={isLoading}
-              className='text-deep-red focus:text-deep-red'>
-              <Trash2 size={16} className='mr-2' />
-              {isLoading ? 'Deleting...' : 'Delete Ticket'}
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
+      <TicketSummaryCard
+        name={ticket.ticketName}
+        price={ticket.price}
+        typeLabel={typeBadge ?? 'Ticket'}
+        isInviteOnly={accessType === 'Invite'}
+        onClick={() => setDetailOpen(true)}
+        onDelete={onDelete}
+        isDeleting={isLoading}
+      />
 
       {/* Detail popup */}
       <Dialog open={detailOpen} onOpenChange={setDetailOpen}>
@@ -663,6 +589,8 @@ interface ITicketTab {
   eventId: string
   setActiveTab: (tab: string) => void
   eventName: string
+  /** The event's 'Public' | 'Private' flag, used to gate group tickets. */
+  accessType?: string
 }
 
 interface ITIcketCard {
