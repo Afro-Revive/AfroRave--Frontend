@@ -1,7 +1,10 @@
 import { Badge } from '@/components/ui/badge'
 import { formatNaira } from '@/lib/format-price'
 import { cn } from '@/lib/utils'
-import { ActionPopover } from '@/pages/creators/add-event/component/action-popover'
+import {
+  ActionPopover,
+  ActionPopoverItem,
+} from '@/pages/creators/add-event/component/action-popover'
 import { BsTicketPerforated } from 'react-icons/bs'
 
 /**
@@ -18,6 +21,7 @@ export function TicketSummaryCard({
   onClick,
   onEdit,
   onDelete,
+  onSendInvite,
   isUpdating = false,
   isDeleting = false,
 }: {
@@ -29,6 +33,8 @@ export function TicketSummaryCard({
   /** Omit where the ticket can only be removed. */
   onEdit?: () => void
   onDelete: () => void
+  /** Only reaches the menu on an invite-only ticket. */
+  onSendInvite?: () => void
   isUpdating?: boolean
   isDeleting?: boolean
 }) {
@@ -66,6 +72,16 @@ export function TicketSummaryCard({
             isUpdating={isUpdating}
             onEdit={onEdit}
             onDelete={onDelete}
+            editLabel='Edit Ticket'
+            extraActions={
+              isInviteOnly && onSendInvite ? (
+                <ActionPopoverItem
+                  onClick={onSendInvite}
+                  disabled={isUpdating || isDeleting}>
+                  Send Invite
+                </ActionPopoverItem>
+              ) : undefined
+            }
           />
         </div>
       </div>
