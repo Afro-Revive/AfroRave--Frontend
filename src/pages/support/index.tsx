@@ -56,7 +56,6 @@ export default function SupportPage() {
     )
   }
 
-  // Detailed view - sidebar and content
   return (
     <>
       <div className='w-full flex items-center justify-between py-2.5 px-8 pt-6'>

@@ -10,7 +10,6 @@ import { useSearchParams } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
 import EventDetailsTab from './tabs/event-details-tab'
 import PublishTab from './tabs/publish-tab'
-import ThemeTab from './tabs/theme-tab'
 import TicketsTab from './tabs/tickets-tab'
 import { OnlyShowIf } from '@/lib/environment'
 import { ApplyPromoCodePopover } from './component/apply-promo-popover'
@@ -69,7 +68,7 @@ export default function AddEventPage() {
   const tabs: IEditTabProps[] = [
     {
       value: 'event-details',
-      name: 'Event Details',
+      name: 'Event Info',
       element: <EventDetailsTab setStep={setStep} setActiveTabState={setActiveTabState} />,
     },
     {
@@ -83,11 +82,11 @@ export default function AddEventPage() {
         />
       ),
     },
-    {
-      value: 'theme',
-      name: 'Theme',
-      element: <ThemeTab setStep={setStep} setActiveTabState={setActiveTabState} />,
-    },
+    // {
+    //   value: 'theme',
+    //   name: 'Theme',
+    //   element: <ThemeTab setStep={setStep} setActiveTabState={setActiveTabState} />,
+    // },
     {
       value: 'publish',
       name: 'Publish',
@@ -125,8 +124,8 @@ export default function AddEventPage() {
               formParam={searchParams.get('form')}
             />
 
-            <section className='max-w-[1536px] w-full flex flex-col gap-10 px-5 md:px-14'>
-              <div className='flex flex-col gap-6 md:py-10'>
+            <section className='w-full flex flex-col gap-10 px-5 md:px-14'>
+              <div className='flex flex-col gap-6 '>
                 <div className='flex flex-col gap-2 text-black font-sf-pro-display'>
                   <p className='font-black text-2xl md:text-4xl uppercase'>{heading}</p>
                   <p className='text-[13px] max-w-[351px] uppercase'>{description}</p>
@@ -169,7 +168,7 @@ function CustomTabTriggers({
   className?: string
 }) {
   return (
-    <TabsList className={cn('items-center gap-5 md:gap-24 w-fit h-fit bg-transparent', className)}>
+    <TabsList className={cn('items-center gap-5 md:gap-48 w-fit h-fit bg-transparent', className)}>
       {tabs.map((tab) => (
         <TabsTrigger
           disabled
