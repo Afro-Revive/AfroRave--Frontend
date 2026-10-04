@@ -5,7 +5,7 @@ import type { EventDetailData } from '@/types'
 import { Globe, Link2, Lock } from 'lucide-react'
 import { RiShareCircleFill } from 'react-icons/ri'
 import { Link } from 'react-router-dom'
-import { copyToClipboard, formatEventDate } from '@/lib/helper-func'
+import { copyToClipboard, formatEventDate, toVisibility } from '@/lib/helper-func'
 
 /**
  * Summary of the event currently being worked on, pinned above the sidebar
@@ -19,7 +19,7 @@ export function SelectedEventCard({ eventId }: { eventId?: string }) {
 
   if (!eventId || !event) return null
 
-  const isPrivate = event.accessType?.trim().toLowerCase() === 'private'
+  const isPrivate = toVisibility(event.accessType) === 'private'
   const VisibilityIcon = isPrivate ? Lock : Globe
 
   const eventPath = getRoutePath('individual_event', {

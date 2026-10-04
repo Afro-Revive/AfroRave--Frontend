@@ -52,6 +52,7 @@ export const ROUTE_PATHS = {
   guest_list: '/creators/guest-list',
   promo_codes: '/creators/promo-codes',
   edit_event: '/creators/edit/:eventId',
+  audience: '/creators/audience/:eventId',
   add_event: '/creators/add-event',
   access_control: '/creators/access-control',
   revenue_vendor: '/creators/revenue-vendor',
@@ -137,6 +138,7 @@ export interface RouteParams {
   guest_list: never
   promo_codes: never
   edit_event: { eventId: string | number }
+  audience: { eventId: string | number }
   add_event: never
   access_control: never
   seating_maps: never

@@ -10,12 +10,18 @@ import { BiArrowBack } from "react-icons/bi";
 import { Ticket2 } from "iconsax-react";
 import { useEventSelectorStore } from "@/stores";
 import { useVendorSlotsByType } from "@/hooks/use-vendor-mutation";
+import { useGetEvent } from "@/hooks/use-event-mutations";
+import { toVisibility } from "@/lib/helper-func";
+import type { EventDetailData } from "@/types";
 import { Link, useLocation } from "react-router-dom";
 import { useEffect } from "react";
 import { SelectedEventCard } from "./selected-event-card";
 
-/** `/creators/edit/` — derived rather than hardcoded so it tracks route-map. */
-const EDIT_EVENT_PREFIX = getRoutePath("edit_event", { eventId: "" });
+/** Derived rather than hardcoded so they track route-map. */
+const EVENT_SCOPED_PREFIXES = [
+  getRoutePath("edit_event", { eventId: "" }),
+  getRoutePath("audience", { eventId: "" }),
+];
 
 /**
  * The id of the event whose details are open, read off the URL. useParams is no
@@ -25,9 +31,10 @@ const EDIT_EVENT_PREFIX = getRoutePath("edit_event", { eventId: "" });
 function useOpenEventId(): string | undefined {
   const { pathname } = useLocation();
 
-  if (!pathname.startsWith(EDIT_EVENT_PREFIX)) return undefined;
+  const prefix = EVENT_SCOPED_PREFIXES.find((p) => pathname.startsWith(p));
+  if (!prefix) return undefined;
 
-  return pathname.slice(EDIT_EVENT_PREFIX.length).split("/")[0] || undefined;
+  return pathname.slice(prefix.length).split("/")[0] || undefined;
 }
 
 export default function CreatorSidebar() {
@@ -49,6 +56,13 @@ export default function CreatorSidebar() {
 
   const openEventId = routeEventId ?? selectedEventId ?? undefined;
 
+  // Shares a query key with SelectedEventCard, so this costs no extra request.
+  const { data: eventResponse } = useGetEvent(openEventId ?? "");
+  const openEvent = eventResponse?.data as EventDetailData | undefined;
+
+  // Audience is the invite list, which only a private event has.
+  const isPrivateEvent = !!openEvent && toVisibility(openEvent.accessType) === "private";
+
   const creator_sidebar_links: ICreatorSidebarLinks[] = [
     {
       trigger: { icon: <CalendarIcon />, text: "EVENTS" },
@@ -58,6 +72,14 @@ export default function CreatorSidebar() {
               path: getRoutePath("edit_event", { eventId: openEventId }),
               name: "EVENT DETAILS",
             },
+            ...(isPrivateEvent
+              ? [
+                  {
+                    path: getRoutePath("audience", { eventId: openEventId }),
+                    name: "AUDIENCE",
+                  },
+                ]
+              : []),
           ]
         : [],
     },

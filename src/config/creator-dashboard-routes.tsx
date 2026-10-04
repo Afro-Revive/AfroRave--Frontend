@@ -15,6 +15,7 @@ const ChartPage = lazy(() => import('../pages/creators/charts'))
 const ReportsPage = lazy(() => import('../pages/creators/reports'))
 const RealtimePage = lazy(() => import('../pages/creators/realtime'))
 const EditEventPage = lazy(() => import('../pages/creators/edit-event'))
+const AudiencePage = lazy(() => import('../pages/creators/audience'))
 
 // Vendor routes
 const RevenueVendorPage = lazy(() => import('../pages/vendor/revenue-vendor'))
@@ -53,6 +54,16 @@ export const creator_dashboard_routes: RouteObject[] = [
       <OrganizerAuthGuard>
         <Suspense fallback={<LoadingFallback />}>
           <EditEventPage />
+        </Suspense>
+      </OrganizerAuthGuard>
+    ),
+  },
+  {
+    path: getRoutePath('audience', { eventId: ':eventId' }),
+    element: (
+      <OrganizerAuthGuard>
+        <Suspense fallback={<LoadingFallback />}>
+          <AudiencePage />
         </Suspense>
       </OrganizerAuthGuard>
     ),

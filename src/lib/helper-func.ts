@@ -135,6 +135,11 @@ export function formatUsername(username?: string): string {
   return username.startsWith('@') ? username : `@${username}`
 }
 
+/** The API spells this 'Public'/'Private'; forms and UI use lowercase. */
+export function toVisibility(accessType?: string): 'public' | 'private' {
+  return accessType?.trim().toLowerCase() === 'private' ? 'private' : 'public'
+}
+
 export function copyToClipboard(text: string) {
   if (navigator?.clipboard?.writeText) {
     navigator.clipboard.writeText(text)
