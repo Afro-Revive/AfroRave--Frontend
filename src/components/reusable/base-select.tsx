@@ -126,7 +126,7 @@ export function BaseSelect({
             placeholder={placeholder}
             className={cn("leading-normal", valueClassName, {
               "font-light font-input-mono text-sm": type === "others",
-              "font-normal font-sf-pro-text": type === "auth",
+              "font-normal font-work-sans": type === "auth",
             })}
           >
             {value && selectedItemRenderer(value)}
@@ -136,7 +136,7 @@ export function BaseSelect({
             placeholder={placeholder}
             className={cn("leading-normal", valueClassName, {
               "font-light font-input-mono text-sm": type === "others",
-              "font-normal font-sf-pro-text": type === "auth",
+              "font-normal font-work-sans": type === "auth",
             })}
           />
         )}
@@ -176,7 +176,7 @@ export function BaseSelect({
                   {
                     "font-sf-pro-text font-light text-xs text-white hover:!text-white hover:!bg-white/10 data-[highlighted]:!text-white border-white":
                       type === "others",
-                    "font-sf-pro-text text-black hover:!text-black hover:!bg-black/10 data-[highlighted]:!bg-black/20 data-[highlighted]:!black-white border-black":
+                    "font-work-sans text-black hover:!text-black hover:!bg-black/10 data-[highlighted]:!bg-black/20 data-[highlighted]:!black-white border-black":
                       type === "auth",
                   },
                   itemClassName

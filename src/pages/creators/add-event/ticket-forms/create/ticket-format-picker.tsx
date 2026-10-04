@@ -1,4 +1,4 @@
-import { Ticket2 } from 'iconsax-react'
+import { BsTicketPerforated } from 'react-icons/bs';
 import { cn } from '@/lib/utils'
 
 /**
@@ -73,13 +73,13 @@ export function TicketFormatPicker({
                   : 'border-black/10 hover:border-black/30',
               )}>
               <span className='shrink-0 pt-0.5'>
-                <Ticket2 size={18} color='#AE0D0D' variant='Outline' />
+                <BsTicketPerforated size={20} color='#AE0D0D' />
               </span>
 
               <span className='flex flex-col gap-1'>
                 <span
                   className={cn(
-                    'font-inter-tight text-sm font-bold uppercase tracking-[0.08em]',
+                    'font-work-sans text-sm  uppercase ',
                     isSelected ? 'text-deep-red' : 'text-black',
                   )}>
                   {name}

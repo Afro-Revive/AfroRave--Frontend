@@ -2,7 +2,7 @@ import { Badge } from '@/components/ui/badge'
 import { formatNaira } from '@/lib/format-price'
 import { cn } from '@/lib/utils'
 import { ActionPopover } from '@/pages/creators/add-event/component/action-popover'
-import { Ticket2 } from 'iconsax-react'
+import { BsTicketPerforated } from 'react-icons/bs'
 
 /**
  * One saved ticket, as listed while building an event and while editing one.
@@ -42,10 +42,10 @@ export function TicketSummaryCard({
           onClick && 'cursor-pointer',
         )}>
         <div className='flex flex-row gap-1 items-center'>
-          <Ticket2 size={20} color='#00AD2E' variant='Bold' />
+          <BsTicketPerforated size={20} color='#AE0D0D' className='rotate-90' />
 
           <div className='flex flex-col gap-1 ml-2'>
-            <p className='capitalize text-sm font-semibold font-inter-tight leading-[100%] text-black'>
+            <p className='capitalize text-sm font-semibold font-work-sans leading-[100%] text-black'>
               {name}
             </p>
             <p className='capitalize text-xs font-medium font-inter-tight leading-[100%] text-[#949494]'>

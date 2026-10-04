@@ -18,8 +18,7 @@ export default function CreatorDashboardLayout() {
 
       <main className="relative w-full flex">
         {!isEventsDashboard && <CreatorSidebar />}
-
-        <div className="w-full flex flex-col items-center justify-center">
+        <div className="w-full flex flex-col items-center">
           <Outlet />
         </div>
       </main>
