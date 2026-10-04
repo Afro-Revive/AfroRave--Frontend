@@ -1,12 +1,5 @@
 import { Button } from "@/components/ui/button";
 import { ChevronLeft } from "lucide-react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 
 export function TabChildrenContainer({
   handleBackClick,
@@ -16,10 +9,8 @@ export function TabChildrenContainer({
   isPublished,
   handleSaveEvent,
   handlePublishEvent,
-  currentTab,
   children,
   buttonText,
-  onChange,
 }: ITabChildrenProps) {
   return (
     <div className="w-full h-fit flex flex-col items-center">
@@ -37,24 +28,6 @@ export function TabChildrenContainer({
         </Button>
 
         <div className="flex items-center md:gap-8 gap-4 mt-3 md:mt-0">
-          <Select value={currentTab} onValueChange={onChange}>
-            <SelectTrigger className=" bg-black !text-white rounded-md !px-4 text-sm font-regular [&_svg]:!text-white [&_svg]:!opacity-100">
-              <SelectValue placeholder="Tabs" />
-            </SelectTrigger>
-            <SelectContent className="bg-white">
-              {[
-                { label: "Event Details", value: "event-details" },
-                { label: "Tickets", value: "tickets" },
-                { label: "Theme", value: "theme" },
-                { label: "Settings", value: "settings" },
-              ].map((item) => (
-                <SelectItem key={item.value} value={item.value}>
-                  {item.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
           <Button
             variant="destructive"
             className="py-2 w-fit px-8 text-xs font-sf-pro-text font-black rounded-[5px]"
@@ -92,8 +65,6 @@ interface ITabChildrenProps {
   isUploading?: boolean;
   handleSaveEvent: () => void;
   handlePublishEvent?: () => void;
-  currentTab: string;
-  onChange: (tab: string) => void;
   children: React.ReactNode;
   buttonText?: string;
 }

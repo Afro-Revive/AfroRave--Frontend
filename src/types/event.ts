@@ -97,6 +97,7 @@ export interface EventDetailData {
   description: string
   ageRating: 'PG' | '16+' | '18+'
   customUrl: string
+  posterUrl: string
   category: string
   isPublished: boolean
   accessType?: string
