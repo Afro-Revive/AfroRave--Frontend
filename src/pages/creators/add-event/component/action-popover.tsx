@@ -13,9 +13,13 @@ export function ActionPopover({ isDeleting, isUpdating, onDelete, onEdit }: IAct
       }
       content={
         <>
-          <Button variant='ghost' onClick={onEdit} disabled={isUpdating || isDeleting} className='font-inter'>
-            {isUpdating ? 'Updating...' : 'Edit'}
-          </Button>
+          {/* Omitted where there's nothing to edit — the edit-event tab lists
+              saved tickets it can only delete. */}
+          {onEdit && (
+            <Button variant='ghost' onClick={onEdit} disabled={isUpdating || isDeleting} className='font-inter'>
+              {isUpdating ? 'Updating...' : 'Edit'}
+            </Button>
+          )}
           <Button
             variant='ghost'
             onClick={onDelete}
@@ -32,6 +36,6 @@ export function ActionPopover({ isDeleting, isUpdating, onDelete, onEdit }: IAct
 interface IActionPopover {
   isDeleting: boolean
   isUpdating: boolean
-  onEdit: () => void
+  onEdit?: () => void
   onDelete: () => void
 }
