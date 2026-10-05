@@ -392,6 +392,7 @@ export type ResaleListingsResponse = ApiResponse<ResaleListingData[]>
 export interface PurchasableTicket {
   /** Stable identity for cart lookups: the ticketId for primary, the listing id for resale. */
   cartKey: string
+  accessType?: 'Free' | 'Paid' | 'Invite'
   ticketId: string
   /** Only set for resale rows — the specific listing being bought. */
   listingId?: string

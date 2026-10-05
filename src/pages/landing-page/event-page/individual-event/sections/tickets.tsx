@@ -1,6 +1,6 @@
 import { TicketTab } from "../../_components/ticket-tab";
 import { formatNaira } from "@/lib/format-price";
-import { type LucideIcon, Plus, Minus, LoaderCircle } from "lucide-react";
+import { type LucideIcon, Plus, Minus, LoaderCircle, Lock } from "lucide-react";
 import { BiGroup } from "react-icons/bi";
 import { BsInfoCircle } from "react-icons/bs";
 import { Button } from "@/components/ui/button";
@@ -94,12 +94,14 @@ export function TicketCard({ ticket }: ITicketCard) {
     price,
     caption,
     available,
+    accessType,
     purchaseLimit,
     groupSize,
     description,
   } = ticket;
   const [showDetails, setShowDetails] = useState(false);
   const localItems = useCartStore((state) => state.items);
+  const isInviteOnly = accessType === "Invite";
 
   const ticketCount =
     localItems.find((i) => i.cartKey === cartKey)?.quantity ?? 0;
@@ -152,7 +154,10 @@ export function TicketCard({ ticket }: ITicketCard) {
         </div>
         <div className="flex flex-row items-center gap-2">
           <p className="text-sm text-tech-blue">
-            {formatNaira(price, { free: price === 0 })}
+            {
+              isInviteOnly ? "Invite Only" : formatNaira(price, { free: price === 0 })
+            }
+            
           </p>
           <p className="text-xs text-[#ACACAC]">{caption}</p>
           
@@ -163,7 +168,11 @@ export function TicketCard({ ticket }: ITicketCard) {
 
       {/* stopPropagation so using the counter doesn't also open the modal. */}
       <div onClick={(event) => event.stopPropagation()} className="shrink-0">
-        {isSoldOut ? (
+        {/* Checked before isSoldOut: invite-only tickets carry an
+            availableQuantity of 0, so they would otherwise read as sold out. */}
+        {isInviteOnly ? (
+          <InviteOnlyPill />
+        ) : isSoldOut ? (
           <SoldOutPill />
         ) : (
           <div className="flex items-center gap-2 px-3 rounded-full h-12 bg-light-green">
@@ -206,7 +215,14 @@ export function TicketCard({ ticket }: ITicketCard) {
       className="bg-system-black border border-white/10">
       <div className="flex flex-col gap-2 px-6 pb-6 font-sf-pro-display">
         <div className="flex items-center gap-2">
-          {isSoldOut ? (
+          {/* Same precedence as the row, so a padlock there can't become a
+              Sold Out pill here. */}
+          {isInviteOnly ? (
+            <p className="flex items-center gap-1.5 text-base text-tech-blue">
+              <Lock aria-hidden="true" className="size-4" />
+              Invite Only
+            </p>
+          ) : isSoldOut ? (
             <SoldOutPill />
           ) : (
             <>
@@ -242,6 +258,21 @@ function SoldOutPill() {
   return (
     <span className="flex items-center justify-center h-12 px-5 rounded-full bg-mid-dark-gray font-sf-pro-rounded text-xs font-bold uppercase tracking-wide text-white/60">
       Sold Out
+    </span>
+  );
+}
+
+/**
+ * Invite-only tickets can't be added to a cart — they arrive by invitation —
+ * so the counter is replaced by a padlock rather than a disabled plus button.
+ */
+function InviteOnlyPill() {
+  return (
+    <span
+      title="Invite only — this ticket is sent to invited guests"
+      className="flex items-center justify-center size-12 rounded-full bg-mid-dark-gray text-white/60">
+      <Lock aria-hidden="true" className="size-5" />
+      <span className="sr-only">Invite only</span>
     </span>
   );
 }

@@ -28,6 +28,7 @@ export function toPurchasableTickets(
     name: ticket.ticketName,
     price: ticket.salesPrice,
     available: ticket.availableQuantity,
+    accessType: ticket.accessType,
     purchaseLimit: ticket.purchaseLimit,
     caption: PRIMARY_CAPTION,
     groupSize: groupSizeOf(ticket),
