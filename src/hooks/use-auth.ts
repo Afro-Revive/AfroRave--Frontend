@@ -11,7 +11,7 @@ import type {
   UserSignup,
   VendorRegisterData,
 } from '@/types/auth'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query'
 import type { AxiosError } from 'axios'
 import { useNavigate } from 'react-router-dom'
 
@@ -83,7 +83,6 @@ export const authKeys = {
 export function useRegisterUser() {
   const queryClient = useQueryClient()
   const setAuth = useAfroStore((state) => state.setAuth)
-  const { closeAuthModal } = useAuth()
 
   return useMutation({
     mutationFn: (data: UserSignup) => authService.registerUser(data),
@@ -93,18 +92,9 @@ export function useRegisterUser() {
         setAuth(data.data.userData, data.data.token, data.data.refreshToken)
       }
 
-      // Close auth modal
-      closeAuthModal()
-
       // Invalidate and refetch user data
       queryClient.invalidateQueries({ queryKey: authKeys.user() })
       authToasts.userVerified()
-      // if(data.data.userData.accountType === 'User'){
-      //   navigate(getRoutePath('account'))
-      // } else if(data.data.userData.accountType === 'Organizer'){
-      //   navigate(getRoutePath('standalone'))
-      // }
-    
     },
     onError: (error: unknown) => {
       const errorMessage = extractErrorMessage(error)
@@ -341,6 +331,21 @@ export function useResetPassword() {
     onError: (error: unknown) => {
       const errorMessage = extractErrorMessage(error)
       authToasts.loginError(errorMessage)
+    },
+  })
+}
+
+export function useGetCurrentUser() {
+  return useQuery({
+    queryKey: authKeys.user(),
+    queryFn: async () => {
+      try {
+        return await authService.verifyToken()
+      } catch (error: unknown) {
+        const errorMessage = extractErrorMessage(error)
+        authToasts.loginError(errorMessage)
+        throw error
+      }
     },
   })
 }

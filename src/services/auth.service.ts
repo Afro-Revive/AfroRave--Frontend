@@ -7,6 +7,7 @@ import type {
   RefreshTokenResponse,
   CompleteProfileData,
   UserSignup,
+  CurrentUserResponse,
 } from '@/types/auth'
 import api from './http.service'
 
@@ -33,6 +34,11 @@ class AuthService {
 
   static logout() {
     return api.post<{ message: string }>('/auth/logout')
+  }
+
+
+  static verifyToken() {
+    return api.get<CurrentUserResponse>('/api/Auth/me')
   }
 
   static changePassword(data: { currentPassword: string; newPassword: string }) {

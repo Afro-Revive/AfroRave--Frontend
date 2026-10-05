@@ -1,3 +1,5 @@
+import { ApiResponse } from "./api"
+
 // User registration types
 export interface UserRegisterData {
   firstName: string
@@ -123,6 +125,29 @@ export interface LoginResponse {
   token: string
   refreshToken?: string
 }
+
+export interface CurrentUserData {
+  userId: string
+  email: string
+  accountType: 'User' | 'Vendor' | 'Organizer'
+  profile: {
+    firstName: string
+    lastName: string
+    gender: string
+    country: string
+    phoneNumber: string
+    businessName?: string
+    companyName?: string
+    description?: string
+    profilePicture?: string
+    vendorType?: string
+    category?: string
+    vendorCategory?: string
+    businessData?: string
+  }
+}
+
+export type CurrentUserResponse = ApiResponse<CurrentUserData>
 
 export interface VerifyLoginResponse {
   message: string

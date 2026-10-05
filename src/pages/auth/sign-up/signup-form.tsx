@@ -60,7 +60,8 @@ export function SignupForm({ type }: SignupFormProps) {
       accountType: type,
     }
 
-    registerUser.mutate(userData)
+    // Reset form after successful registration
+    registerUser.mutate(userData, { onSuccess: () => form.reset() })
   }
 
   return (
