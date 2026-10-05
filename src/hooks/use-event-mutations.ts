@@ -77,6 +77,11 @@ export function usePublishEvent() {
       console.log('Event published:', data)
       // Invalidate and refetch specific event
       queryClient.invalidateQueries({ queryKey: eventKeys.detail(eventId) })
+      // Publishing moves the event out of drafts, so the dashboard's list — which
+      // the status filter counts are derived from — is stale until it refetches.
+      queryClient.invalidateQueries({ queryKey: eventKeys.organizer() })
+      // It also becomes publicly visible, so the fan-facing lists are stale too.
+      queryClient.invalidateQueries({ queryKey: eventKeys.lists() })
     },
     onError: (error) => {
       console.error('Failed to publish event:', error)
