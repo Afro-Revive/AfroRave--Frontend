@@ -2,12 +2,12 @@ import { FormBase, FormField } from '@/components/reusable'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import PasswordInput from '@/components/ui/password-input'
-import { type LoginType, useAuth } from '@/contexts/auth-context'
+import { useAuth } from '@/contexts/auth-context'
 import { useLogin } from '@/hooks/use-auth'
 import type { LoginData } from '@/types/auth'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { LockKeyhole, type LucideIcon, Mail } from 'lucide-react'
-import { useEffect } from 'react'
+// import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
@@ -50,14 +50,14 @@ export function UserLoginForm({ onForgotPassword, onLoginSuccess }: { onForgotPa
     switchToSignup(loginType)
   }
 
-  useEffect(() => {
-    const dummyData = dummyLoginData.find((data) => data.type === loginType)
+  // useEffect(() => {
+  //   const dummyData = dummyLoginData.find((data) => data.type === loginType)
 
-    if (dummyData) {
-      form.setValue('email', dummyData.email)
-      form.setValue('password', dummyData.password)
-    }
-  }, [loginType, form])
+  //   if (dummyData) {
+  //     form.setValue('email', dummyData.email)
+  //     form.setValue('password', dummyData.password)
+  //   }
+  // }, [loginType, form])
 
   return (
     <>
@@ -151,23 +151,23 @@ function InputContainer({
   )
 }
 
-const dummyLoginData: { type: LoginType; email: string; password: string }[] = [
-  {
-    type: 'creator',
-    email: 'iseoluwaariyibi+6@gmail.com',
-    password: 'password',
-  },
-  {
-    type: 'vendor',
-    email: 'iseoluwaariyibi+1@gmail.com',
-    password: 'vendorpassword',
-  },
-  {
-    type: 'guest',
-    email: 'iseoluwaariyibi+10@gmail.com',
-    password: 'password',
-  },
-]
+// const dummyLoginData: { type: LoginType; email: string; password: string }[] = [
+//   {
+//     type: 'creator',
+//     email: 'iseoluwaariyibi+6@gmail.com',
+//     password: 'password',
+//   },
+//   {
+//     type: 'vendor',
+//     email: 'iseoluwaariyibi+1@gmail.com',
+//     password: 'vendorpassword',
+//   },
+//   {
+//     type: 'guest',
+//     email: 'iseoluwaariyibi+10@gmail.com',
+//     password: 'password',
+//   },
+// ]
 
 export const CreatorLogo = () => (
   <svg
