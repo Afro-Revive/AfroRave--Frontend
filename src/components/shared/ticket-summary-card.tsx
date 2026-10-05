@@ -17,6 +17,7 @@ export function TicketSummaryCard({
   name,
   price,
   typeLabel,
+  accessLabel,
   isInviteOnly = false,
   onClick,
   onEdit,
@@ -28,6 +29,8 @@ export function TicketSummaryCard({
   name: string
   price: number
   typeLabel: string
+  /** The ticket's accessType — Free, Paid or Invite. */
+  accessLabel?: string
   isInviteOnly?: boolean
   onClick?: () => void
   /** Omit where the ticket can only be removed. */
@@ -65,7 +68,15 @@ export function TicketSummaryCard({
           className='flex items-center gap-3'
           onClick={(event) => event.stopPropagation()}>
           <TicketBadge text={typeLabel} />
-          {isInviteOnly && <TicketBadge type='invite-only' />}
+
+          {/* Falls back to Invite so callers that only know the boolean — the
+              create flow holds no accessType — keep their badge. */}
+          {(accessLabel ?? (isInviteOnly ? 'Invite' : undefined)) && (
+            <TicketBadge
+              type={isInviteOnly ? 'invite-only' : 'access'}
+              text={accessLabel ?? 'Invite'}
+            />
+          )}
 
           <ActionPopover
             isDeleting={isDeleting}
@@ -99,16 +110,17 @@ function TicketBadge({
   type = 'default',
   text = 'invite only',
 }: {
-  type?: 'default' | 'invite-only'
+  type?: 'default' | 'invite-only' | 'access'
   text?: string
 }) {
   return (
     <Badge
       className={cn(
-        'py-1.5 px-2 rounded-[6px] text-xs font-sf-pro-rounded leading-[100%] whitespace-nowrap',
+        'py-1.5 px-2 rounded-[6px] text-xs font-sf-pro-rounded leading-[100%] whitespace-nowrap capitalize',
         {
           'bg-[#00AD2E4D] text-[#00AD2E]': type === 'default',
           'bg-deep-red/30 text-deep-red': type === 'invite-only',
+          'bg-black/10 text-black/70': type === 'access',
         },
       )}>
       {text}

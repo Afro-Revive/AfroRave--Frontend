@@ -59,6 +59,7 @@ export function TicketCard({
         name={ticket.ticketName}
         price={ticket.price}
         typeLabel={typeBadge ?? 'Ticket'}
+        accessLabel={accessType}
         isInviteOnly={accessType === 'Invite'}
         onClick={() => setDetailOpen(true)}
         onDelete={onDelete}
