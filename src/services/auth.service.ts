@@ -37,8 +37,14 @@ class AuthService {
   }
 
 
-  static verifyToken() {
-    return api.get<CurrentUserResponse>('/api/Auth/me')
+  /**
+   * Without a token this answers about the Bearer holder. With one 
+   * it answers to the token passed in the query string.
+   */
+  static verifyToken(token?: string) {
+    return api.get<CurrentUserResponse>('/api/Auth/me', {
+      params: token ? { token } : undefined,
+    })
   }
 
   static changePassword(data: { currentPassword: string; newPassword: string }) {

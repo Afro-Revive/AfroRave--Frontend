@@ -335,17 +335,17 @@ export function useResetPassword() {
   })
 }
 
-export function useGetCurrentUser() {
+/**
+ * The signed-in user, or — given a verification token — whoever that token
+ * belongs to. The token is part of the key so a link-scoped result never
+ * overwrites the session user's cache entry.
+ */
+export function useGetCurrentUser(token?: string) {
   return useQuery({
-    queryKey: authKeys.user(),
-    queryFn: async () => {
-      try {
-        return await authService.verifyToken()
-      } catch (error: unknown) {
-        const errorMessage = extractErrorMessage(error)
-        authToasts.loginError(errorMessage)
-        throw error
-      }
-    },
+    queryKey: [...authKeys.user(), token ?? 'session'],
+    queryFn: () => authService.verifyToken(token),
+    // No toast here: callers render their own failure state, and a login error
+    // makes no sense on a page reached from an email link.
+    retry: false,
   })
 }

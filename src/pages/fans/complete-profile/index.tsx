@@ -22,35 +22,13 @@ import { useGetCurrentUser } from "@/hooks";
 import type { CurrentUserData } from "@/types/auth";
 import { VENDOR_CATEGORIES } from "@/types/vendor";
 
-/**
- * TODO: this page only works in the browser the account was created in.
- *
- * The email link is meant to be opened anywhere, but the page identifies the
- * person with GET /api/Auth/me, which authenticates off the Bearer JWT in
- * localStorage. The `token` query param never reaches that call — it only gates
- * rendering and rides along in the submit payload. Open the link on another
- * device and there is no JWT, so /me 401s and the person can never finish.
- *
- * Two further consequences while it stays this way:
- *  - On a shared device the form prefills whoever is signed in, not whoever the
- *    link belongs to, and shapes the payload from their accountType.
- *  - A 401 here runs clearAuth() through the response interceptor, so a failed
- *    load signs the person out across the whole app.
- *
- * Fix needs backend: either /api/Auth/me accepts the email token as an
- * alternative credential, or a dedicated endpoint takes the token and returns
- * { firstName, lastName, email, accountType }. The second is preferable — it
- * cannot be confused with the session user.
- */
 export default function CompleteProfilePage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const token = searchParams.get("token");
-  const {data: userData, isLoading: isUserLoading} = useGetCurrentUser();
+  const {data: userData, isLoading: isUserLoading} = useGetCurrentUser(token ?? undefined);
   const user = userData?.data?.data as CurrentUserData | undefined;
   const userAccountType = user?.accountType;
-  // const { user } = useAuth();
-  // const userAccountType = user?.accountType;
 
   const completeProfileMutation = useCompleteProfile();
 
