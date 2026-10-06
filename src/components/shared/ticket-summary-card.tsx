@@ -96,12 +96,6 @@ export function TicketSummaryCard({
           />
         </div>
       </div>
-
-      {isInviteOnly && (
-        <p className='p-2.5 text-xs leading-[100%] font-sf-pro-display uppercase text-deep-red/70'>
-          access the invite link in your dashboard
-        </p>
-      )}
     </div>
   )
 }
@@ -119,7 +113,7 @@ function TicketBadge({
         'py-1.5 px-2 rounded-[6px] text-xs font-sf-pro-rounded leading-[100%] whitespace-nowrap capitalize',
         {
           'bg-[#00AD2E4D] text-[#00AD2E]': type === 'default',
-          'bg-deep-red/30 text-deep-red': type === 'invite-only',
+          'bg-[#409BFF]/60 text-tech-blue': type === 'invite-only',
           'bg-black/10 text-black/70': type === 'access',
         },
       )}>
