@@ -1,4 +1,5 @@
-import { CategoryResponse, CreateGuestRequest, EventGuestlistConfigResponse, GuestListResponse } from "@/types/guestlist";
+import type { ApiResponse } from "@/types/api";
+import { CategoryResponse, CreateGuestRequest, EventCheckinListResponse, EventGuestlistConfigResponse, GuestListData, GuestListResponse } from "@/types/guestlist";
 import api from "./http.service";
 
 class GuestListService {
@@ -19,7 +20,9 @@ class GuestListService {
     }
 
     // Add Guest to Organizer Guest List
-    async addGuestList(data: CreateGuestRequest): Promise<void>{
+    // Returns the created guest. Its id is at data.id — the envelope carries an
+    // id of its own, always the zero GUID, which is not the guest's.
+    async addGuestList(data: CreateGuestRequest): Promise<ApiResponse<GuestListData>>{
         const response = await api.post('/api/GuestList', data);
         return response.data;
     }
@@ -69,6 +72,14 @@ class GuestListService {
     // Get Event Gueslist Configuration
     async getEventGuestListConfig(eventId: string): Promise<EventGuestlistConfigResponse> {
         const response = await api.get(`/api/Guestlist/event/${eventId}`);
+        return response.data;
+    }
+
+    // Get Event Checkin List
+    async getEventCheckinList(eventId: string, search?: string): Promise<EventCheckinListResponse> {
+        const response = await api.get(`/api/Guestlist/event/${eventId}/checkin-list`, {
+            params: search ? { search } : undefined,
+        });
         return response.data;
     }
 

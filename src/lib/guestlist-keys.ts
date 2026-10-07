@@ -8,4 +8,7 @@ export const guestlistKeys = {
     [...guestlistKeys.guests(), params ?? {}] as const,
   categories: () => [...guestlistKeys.all, 'categories'] as const,
   eventConfig: (eventId: string) => [...guestlistKeys.all, 'event', eventId] as const,
+  /** Nested under eventConfig, so saving the event's list refreshes this too. */
+  checkinList: (eventId: string, search?: string) =>
+    [...guestlistKeys.eventConfig(eventId), 'checkin-list', search ?? ''] as const,
 }

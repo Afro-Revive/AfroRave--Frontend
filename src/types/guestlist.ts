@@ -27,7 +27,17 @@ export interface EventGuestlistCongigData {
     individualGuestIds: string[]
 }
 
+export interface EventCheckinGuest {
+    guestId: string
+    name: string
+    email: string
+    categoryName: string | null
+    isCheckedIn: boolean
+    checkedInAt: string | null
+}
+
 
 export type CategoryResponse = ApiResponse<CategoryData[]>
 export type GuestListResponse = ApiResponse<GuestListData[]>
 export type EventGuestlistConfigResponse = ApiResponse<EventGuestlistCongigData>
+export type EventCheckinListResponse = ApiResponse<EventCheckinGuest[]>
