@@ -1,11 +1,11 @@
 import { useVendorSlotsByType } from "@/hooks/use-vendor-mutation";
 import { MdStorefront } from "react-icons/md";
-import { Button } from "@/components/ui/button";
+// import { Button } from "@/components/ui/button";
 import EventSelect from "@/components/shared/vendor-select";
-import { Upload } from "lucide-react";
+// import { Upload } from "lucide-react";
 import { AddFilterBUtton } from "@/pages/creators/standalone/components/add-filter-btn";
 import CreateVendorSlot from "../component/create-vendor-slot-modal";
-import { cn } from "@/lib/utils";
+// import { cn } from "@/lib/utils";
 import { useEventSelectorStore } from "@/stores";
 
 export default function RevenueVendorPage() {
@@ -56,17 +56,17 @@ export default function RevenueVendorPage() {
   );
 }
 
-function SectionMapBtn({ type }: { type: "edit" | "upload" }) {
-  return (
-    <Button
-      variant="ghost"
-      className={cn("h-8 flex items-center gap-1 hover:bg-black/10", {
-        "text-[#00AD2E]": type === "edit",
-        "text-deep-red": type === "upload",
-      })}
-    >
-      <Upload size={18} />
-      <span className="text-xs font-sf-pro-display">Upload Section Map</span>
-    </Button>
-  );
-}
+// function SectionMapBtn({ type }: { type: "edit" | "upload" }) {
+//   return (
+//     <Button
+//       variant="ghost"
+//       className={cn("h-8 flex items-center gap-1 hover:bg-black/10", {
+//         "text-[#00AD2E]": type === "edit",
+//         "text-deep-red": type === "upload",
+//       })}
+//     >
+//       <Upload size={18} />
+//       <span className="text-xs font-sf-pro-display">Upload Section Map</span>
+//     </Button>
+//   );
+// }
