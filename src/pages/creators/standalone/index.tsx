@@ -1,5 +1,4 @@
 import { LoadingFallback } from "@/components/loading-fallback";
-import { ComingSoon } from "@/components/reusable";
 import {
   DashboardCardSkeleton,
   DashboardCards,
@@ -20,12 +19,15 @@ import {
   Download,
   Plus,
   Ticket,
+  Upload,
   type LucideIcon,
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 
 import { DashboardTabs, type DashboardTab } from "./components/dashboard-tabs";
+import { GuestlistTab } from "./guestlist";
+import { useBulkUploadGuests } from "@/hooks/use-guestlist-mutations";
 import { Pagination } from "@/components/shared/pagination";
 import {
   EventFilters,
@@ -70,6 +72,10 @@ export default function StandalonePage() {
     pageSize: 200,
   });
   const [activeTab, setActiveTab] = useState<DashboardTab>("events");
+  // Both live here because the guestlist actions sit in the tab bar, above the
+  // tab's own content.
+  const [isAddGuestOpen, setIsAddGuestOpen] = useState(false);
+  const bulkUploadGuests = useBulkUploadGuests();
   const [activeFilter, setActiveFilter] = useState<EventListFilter>("all");
   const [page, setPage] = useState(1);
   const { startGuide } = useGuideStore();
@@ -119,13 +125,53 @@ export default function StandalonePage() {
 
   return (
     <section className="w-full h-full flex flex-col items-start mb-[75px]">
-      <DashboardTabs activeTab={activeTab} onTabChange={setActiveTab} />
+      <DashboardTabs
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        actions={
+          activeTab === "guestlist" ? (
+            <div className="flex items-center gap-3 shrink-0">
+              {/* A label wrapping a hidden input, so the file picker opens
+                  without needing a ref on a button. */}
+              <label
+                className={cn(
+                  "flex h-9 cursor-pointer items-center gap-1.5 rounded-md bg-black px-3 font-inter-tight text-sm font-semibold text-white transition-colors hover:bg-black/90",
+                  bulkUploadGuests.isPending && "pointer-events-none opacity-60",
+                )}
+              >
+                <input
+                  type="file"
+                  accept=".csv,text/csv"
+                  className="sr-only"
+                  onChange={(event) => {
+                    const file = event.target.files?.[0];
+                    if (file) bulkUploadGuests.mutate(file);
+                    // Cleared so picking the same file twice still fires.
+                    event.target.value = "";
+                  }}
+                />
+                <Upload size={13} />
+                <span className="whitespace-nowrap">
+                  {bulkUploadGuests.isPending ? "Uploading..." : "Upload CSV"}
+                </span>
+              </label>
+
+              <Button
+                type="button"
+                onClick={() => setIsAddGuestOpen(true)}
+                className="h-9 gap-1.5 rounded-[6px] bg-[#00AD2E] px-3 font-inter-tight text-sm font-semibold text-white hover:bg-[#00AD2E]/90">
+                <Plus size={14} />
+                <span className="whitespace-nowrap">Add Guest</span>
+              </Button>
+            </div>
+          ) : undefined
+        }
+      />
 
       {activeTab === "guestlist" ? (
-        <ComingSoon
-          title="Guestlist"
-          description="Guestlist management is coming soon. You will be able to invite and check in guests from here."
-          showBackButton={false}
+        <GuestlistTab
+          isAddGuestOpen={isAddGuestOpen}
+          onAddGuestOpenChange={setIsAddGuestOpen}
         />
       ) : (
         <div className="w-full px-6 lg:px-10 pt-6 flex flex-col gap-8">

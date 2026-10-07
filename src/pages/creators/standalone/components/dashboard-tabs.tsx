@@ -20,9 +20,12 @@ export const DASHBOARD_TABS: { value: DashboardTab; label: string; icon: LucideI
 export function DashboardTabs({
   activeTab,
   onTabChange,
+  actions,
 }: {
   activeTab: DashboardTab
   onTabChange: (tab: DashboardTab) => void
+  /** Replaces Create Event — the guestlist tab has its own two actions. */
+  actions?: React.ReactNode
 }) {
   return (
     <div className='w-full flex items-center justify-between gap-4 bg-white h-14 px-5 lg:px-8 border-l border-light-gray'>
@@ -48,14 +51,16 @@ export function DashboardTabs({
         })}
       </div>
 
-      <Button variant='destructive' className='h-9 px-3 rounded-[6px] gap-1.5 shrink-0' asChild>
-        <Link to={getRoutePath('add_event')}>
-          <Plus color='#ffffff' size={13} />
-          <span className='font-sf-pro-text text-xs font-bold whitespace-nowrap'>
-            Create Event
-          </span>
-        </Link>
-      </Button>
+      {actions ?? (
+        <Button variant='destructive' className='h-9 px-3 rounded-[6px] gap-1.5 shrink-0' asChild>
+          <Link to={getRoutePath('add_event')}>
+            <Plus color='#ffffff' size={13} />
+            <span className='font-sf-pro-text text-xs font-bold whitespace-nowrap'>
+              Create Event
+            </span>
+          </Link>
+        </Button>
+      )}
     </div>
   )
 }
