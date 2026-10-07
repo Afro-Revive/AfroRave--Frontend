@@ -13,6 +13,7 @@ export interface CreateGuestRequest {
     name: string
     email: string
     categoryId?: string
+    categoryIds?: string[]
 }
 
 export interface CategoryData {

@@ -116,6 +116,26 @@ export function useDeleteCategory() {
   })
 }
 
+/** Takes a guest out of one category. The guest stays on the account. */
+export function useRemoveGuestFromCategory() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({ guestId, categoryId }: { guestId: string; categoryId: string }) =>
+      guestListService.removeGuestFromCategory(guestId, categoryId),
+    onSuccess: () => {
+      toast.success('Guest removed from category!')
+      // Guests: the row's category list changes, and it drops out of the
+      // filtered view. Categories: that tile's count goes down.
+      queryClient.invalidateQueries({ queryKey: guestlistKeys.guests() })
+      queryClient.invalidateQueries({ queryKey: guestlistKeys.categories() })
+    },
+    onError: () => {
+      toast.error('Failed to remove guest from category. Please try again.')
+    },
+  })
+}
+
 export function useBulkUploadGuests() {
   const queryClient = useQueryClient()
 

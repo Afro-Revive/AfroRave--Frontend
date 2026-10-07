@@ -8,11 +8,10 @@ class GuestListService {
     // params rather than a template string: without a category this was sending
     // the literal `?categoryId=undefined`.
     async getOrganizerGuestList(params?: {
-        categoryId?: string
         pageNumber?: number
         pageSize?: number
         search?: string
-        /** Not yet honoured server-side — sent so it works once it is. */
+        categoryId?: string
         sort?: string
     }): Promise<GuestListResponse> {
         const response = await api.get('/api/GuestList', { params });
@@ -86,6 +85,12 @@ class GuestListService {
     // Configure an event to an organizer's guest list
     async configureEventGuestList(eventId: string, data: { categoryIds: string[], individualGuestIds: string[] }): Promise<void> {
         const response = await api.post(`/api/Guestlist/event/${eventId}/configure`, data);
+        return response.data;
+    }
+
+    // Remove Guest from category
+    async removeGuestFromCategory(guestId: string, categoryId: string): Promise<void> {
+        const response = await api.delete(`/api/GuestList/categories/${categoryId}/guests/${guestId}`);
         return response.data;
     }
 }

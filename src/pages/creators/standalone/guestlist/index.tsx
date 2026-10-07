@@ -3,6 +3,7 @@ import {
   useAddCategory,
   useAddGuest,
   useDeleteGuest,
+  useRemoveGuestFromCategory,
   useGetOrganizerCategories,
   useGetOrganizerGuestList,
 } from '@/hooks/use-guestlist-mutations'
@@ -48,8 +49,6 @@ export function GuestlistTab({
     pageNumber: page,
     pageSize: GUESTS_PER_PAGE,
     search: debouncedSearch || undefined,
-    // TODO: the endpoint ignores this today. Sent anyway so the select starts
-    // working the moment sorting lands, rather than needing a second change.
     sort,
   })
 
@@ -62,6 +61,7 @@ export function GuestlistTab({
   const addGuest = useAddGuest()
   const addCategory = useAddCategory()
   const deleteGuest = useDeleteGuest()
+  const removeFromCategory = useRemoveGuestFromCategory()
 
   // Two unwraps: the envelope's data is a page, the guests are its items.
   const guestPage = data?.data as PaginatedResponse<GuestListData> | undefined
@@ -110,8 +110,11 @@ export function GuestlistTab({
           totalCount={guestPage?.totalCount ?? guests.length}
           onPageChange={setPage}
           isFetching={isFetching}
-          // TODO: no endpoint to remove from category yet
-          onRemoveFromCategory={() => {}}
+          // Only offered inside a category, so activeCategoryId is a real id
+          // here rather than the All-guests sentinel.
+          onRemoveFromCategory={(guest) =>
+            removeFromCategory.mutate({ guestId: guest.id, categoryId: activeCategoryId })
+          }
           onDeleteGuest={(guest) => deleteGuest.mutate(guest.id)}
         />
       )}
@@ -137,10 +140,9 @@ export function GuestlistTab({
         onNewCategory={() => setIsNewCategoryOpen(true)}
         onSubmit={({ name, email, categoryIds }) =>
           addGuest.mutate(
-            // TODO: CreateGuestRequest only takes one categoryId, so anything
-            // past the first is dropped. Needs categoryIds on the endpoint to
-            // match what the picker offers.
-            { name, email, categoryId: categoryIds[0] },
+            // categoryIds only, not the legacy single categoryId as well —
+            // sending both would leave the server to decide which wins.
+            { name, email, categoryIds },
             { onSuccess: () => onAddGuestOpenChange(false) },
           )
         }

@@ -19,10 +19,6 @@ import {
 } from '../../standalone/guestlist/constant'
 import { ALL_CATEGORIES_ID, IMPORT_PAGE_SIZE } from '../constant'
 
-/**
- * Picks guests already on the account to add to this event. Paging, category
- * and search are the server's; sort is sent but not yet honoured.
- */
 export function ImportGuestlistCard({
   guests,
   categories,
