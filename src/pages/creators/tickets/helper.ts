@@ -81,3 +81,13 @@ function scheduling(ticket: TicketData) {
     },
   }
 }
+
+/** "12 Oct 2026", or a dash for a missing or unparseable date. */
+export function formatShortDate(value?: string | null): string {
+  if (!value) return '—'
+
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return '—'
+
+  return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+}

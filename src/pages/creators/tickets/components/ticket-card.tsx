@@ -8,6 +8,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { useGetTicket } from '@/hooks/use-event-mutations'
+import { useGetTicketInvites } from '@/hooks/use-invite-ticket-mutations'
 import type { TicketData } from '@/types'
 import { X } from 'lucide-react'
 import { useState } from 'react'
@@ -18,6 +19,8 @@ export function TicketCard({
   onDelete,
   onEdit,
   onSendInvite,
+  onSelect,
+  isSelected = false,
   isLoading = false,
   isUpdating = false,
 }: ITicketCard) {
@@ -49,6 +52,14 @@ export function TicketCard({
   // Available count for display
   const availableQty = detail.availableQuantity ?? ticket.availableQuantity
 
+  // Only invite-only tickets show a count, so only they fetch one. Shares its
+  // key with the Send Invites modal, so sending refreshes this too.
+  const isInviteOnly = accessType === 'Invite'
+  const { data: invites = [] } = useGetTicketInvites(ticket.ticketId, {
+    enabled: isInviteOnly,
+  })
+  const invitesSent = isInviteOnly ? invites.length : undefined
+
   const typeBadge = ticketType
     ? ({ Single: 'Single Ticket', Group: 'Group Ticket', MultiDay: 'Multi Day' } as const)[ticketType]
     : null
@@ -60,11 +71,15 @@ export function TicketCard({
         price={ticket.price}
         typeLabel={typeBadge ?? 'Ticket'}
         accessLabel={accessType}
-        isInviteOnly={accessType === 'Invite'}
-        onClick={() => setDetailOpen(true)}
+        isInviteOnly={isInviteOnly}
+        // Invite-only tickets select, so their invites show below the list.
+        // Others keep the detail popup — there's nothing per-ticket to list.
+        onClick={isInviteOnly ? onSelect : () => setDetailOpen(true)}
+        isSelected={isSelected}
         onDelete={onDelete}
         onEdit={onEdit}
         onSendInvite={onSendInvite}
+        invitesSent={invitesSent}
         isDeleting={isLoading}
         isUpdating={isUpdating}
       />
@@ -155,6 +170,9 @@ interface ITicketCard {
   onEdit: () => void
   /** Called only for invite-only tickets. */
   onSendInvite: () => void
+  /** Clicking an invite-only ticket selects it, to show its invites. */
+  onSelect: () => void
+  isSelected?: boolean
   isLoading?: boolean
   isUpdating?: boolean
 }

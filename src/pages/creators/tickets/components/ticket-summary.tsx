@@ -1,9 +1,7 @@
-import BaseTable from '@/components/reusable/base-table'
 import { Button } from '@/components/ui/button'
 import { formatNaira } from '@/lib/format-price'
-import type { TicketData } from '@/types'
 import { ArrowRight, Ticket } from 'lucide-react'
-import { SALES_COLUMNS, SUMMARY_PLACEHOLDER } from '../constant'
+import { SUMMARY_PLACEHOLDER } from '../constant'
 
 export function SummaryCard() {
   return (
@@ -47,34 +45,6 @@ function SummaryStat({ label, children }: { label: string; children: React.React
       <p className='flex items-center gap-2 font-work-sans text-xl font-bold text-black'>
         {children}
       </p>
-    </div>
-  )
-}
-
-/** Always every ticket, matching the summary above it, not the active filter. */
-export function TicketSales({ tickets }: { tickets: TicketData[] }) {
-  const salesData = tickets.map((ticket) => {
-    const isUnlimited = ticket.quantity === 0
-    const sold = isUnlimited ? ticket.availableQuantity : ticket.quantity - ticket.availableQuantity
-    const isSoldOut = !isUnlimited && ticket.availableQuantity === 0
-    return {
-      ticketName: ticket.ticketName,
-      ticketSold: isUnlimited ? `${sold} / ∞` : `${sold} / ${ticket.quantity}`,
-      price: formatNaira(ticket.price, { free: ticket.price === 0 }),
-      status: isSoldOut ? 'SOLD OUT' : ('ONGOING' as const),
-    }
-  })
-
-  return (
-    <div className='w-full bg-white p-3 md:p-5 flex flex-col gap-5 rounded-[10px]'>
-      <div className='flex items-center gap-1'>
-        <img src='/assets/harmburger/ticket.png' alt='Ticket' className='size-5' />
-        <p className='text-black font-medium md:text-xl text-base font-sf-pro-display'>
-          Ticket Sales
-        </p>
-      </div>
-
-      <BaseTable caption='A table of your ticket sales' columns={SALES_COLUMNS} data={salesData} />
     </div>
   )
 }

@@ -5,6 +5,7 @@ import {
   ActionPopover,
   ActionPopoverItem,
 } from '@/pages/creators/add-event/component/action-popover'
+import { Send } from 'lucide-react'
 import { BsTicketPerforated } from 'react-icons/bs'
 
 /**
@@ -23,6 +24,8 @@ export function TicketSummaryCard({
   onEdit,
   onDelete,
   onSendInvite,
+  invitesSent,
+  isSelected = false,
   isUpdating = false,
   isDeleting = false,
 }: {
@@ -38,6 +41,10 @@ export function TicketSummaryCard({
   onDelete: () => void
   /** Only reaches the menu on an invite-only ticket. */
   onSendInvite?: () => void
+  /** Invites sent so far. Shown on invite-only tickets only. */
+  invitesSent?: number
+  /** Highlighted as the ticket whose details are showing below. */
+  isSelected?: boolean
   isUpdating?: boolean
   isDeleting?: boolean
 }) {
@@ -45,9 +52,11 @@ export function TicketSummaryCard({
     <div className='w-full flex flex-col'>
       <div
         role={onClick ? 'button' : undefined}
+        aria-pressed={onClick ? isSelected : undefined}
         onClick={onClick}
         className={cn(
-          'w-full flex items-center justify-between border border-mid-dark-gray/30 px-3 py-[11px] shadow-[0px_2px_10px_2px_#0000001A] rounded-[5px]',
+          'w-full flex items-center justify-between border px-3 py-[11px] shadow-[0px_2px_10px_2px_#0000001A] rounded-[5px] transition-colors',
+          isSelected ? 'border-deep-red' : 'border-mid-dark-gray/30',
           onClick && 'cursor-pointer',
         )}>
         <div className='flex flex-row gap-1 items-center'>
@@ -76,6 +85,15 @@ export function TicketSummaryCard({
               type={isInviteOnly ? 'invite-only' : 'access'}
               text={accessLabel ?? 'Invite'}
             />
+          )}
+
+          {isInviteOnly && (
+            <span
+              title={`${invitesSent ?? 0} ${invitesSent === 1 ? 'invite' : 'invites'} sent`}
+              className='flex items-center gap-1 font-inter-tight text-sm font-semibold text-[#00AD2E]'>
+              <Send className='size-4' />
+              {invitesSent ?? 0}
+            </span>
           )}
 
           <ActionPopover

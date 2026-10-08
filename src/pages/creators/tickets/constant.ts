@@ -28,9 +28,11 @@ export const SUMMARY_PLACEHOLDER = {
   totalTickets: 400,
 }
 
-export const SALES_COLUMNS: { key: string; label: string }[] = [
-  { key: 'ticketName', label: 'Ticket Name' },
-  { key: 'ticketSold', label: 'Ticket Sold' },
-  { key: 'price', label: 'Price' },
-  { key: 'status', label: 'Status' },
-]
+/** Rows per page in the event's order table. */
+export const ORDERS_PAGE_SIZE = 10
+
+/** Rows per page in the Send Invites guestlist. */
+export const INVITE_PAGE_SIZE = 20
+
+/** The All Guests pill — not a real category id. */
+export const ALL_INVITE_CATEGORIES_ID = 'all'

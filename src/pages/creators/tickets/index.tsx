@@ -1,5 +1,4 @@
 import { FormBase } from '@/components/reusable'
-import { getRoutePath } from '@/config/get-route-path'
 import {
   useCreateTicket,
   useDeleteTicket,
@@ -28,19 +27,21 @@ import {
   CreatorPageContainer,
   SelectedEventGate,
 } from '../_components/selected-event-page'
+import { EventOrdersTable } from './components/event-orders-table'
+import { SendInvitesModal } from './components/send-invites-modal'
 import { TicketCard } from './components/ticket-card'
+import { TicketInvitesTable } from './components/ticket-invites-table'
 import {
   ErrorState,
   LoadingState,
   NoMatchesState,
 } from './components/ticket-list-states'
 import { TicketNotice } from './components/ticket-notice'
-import { SummaryCard, TicketSales } from './components/ticket-summary'
+import { SummaryCard } from './components/ticket-summary'
 import { TicketsHeader } from './components/tickets-header'
 import type { TicketFilter } from './constant'
 import { toTicketFormValues, toTicketType } from './helper'
 import { OnlyShowIf } from '@/lib/environment'
-import { useNavigate } from 'react-router-dom'
 
 export default function TicketsPage() {
   return (
@@ -55,11 +56,13 @@ function EventTickets({ eventId, accessType }: IEventTickets) {
   // accessType leaves them available rather than silently removing an option.
   const isPrivateEvent = toVisibility(accessType) === 'private'
 
-  const navigate = useNavigate()
 
   const [selectedType, setSelectedType] = useState<TicketType>()
   const [editingTicketId, setEditingTicketId] = useState<string>()
   const [filter, setFilter] = useState<TicketFilter>('all')
+  // The ticket whose invites are being sent; the modal is open while it's set.
+  const [inviteTicket, setInviteTicket] = useState<TicketData | null>(null)
+  const [selectedTicketId, setSelectedTicketId] = useState<string | null>(null)
 
   const { data: ticketsResponse, isLoading, error, refetch } = useGetEventTickets(eventId)
   const { mutate: createTicketMutation, isPending: isCreatingTIcket } = useCreateTicket(eventId)
@@ -77,6 +80,10 @@ function EventTickets({ eventId, accessType }: IEventTickets) {
 
     return items
   }, [tickets?.items, filter])
+
+  // Looked up among the visible tickets, so filtering one out or deleting it
+  // drops back to the orders table rather than showing a ticket that's gone.
+  const selectedTicket = visibleTickets.find((ticket) => ticket.ticketId === selectedTicketId)
 
   const ticketForm = useForm<UnifiedTicketForm>({
     resolver: zodResolver(unifiedTicketFormSchema),
@@ -159,9 +166,14 @@ function EventTickets({ eventId, accessType }: IEventTickets) {
                 ticket={ticket}
                 onDelete={() => handleDeleteTicket(ticket.ticketId)}
                 onEdit={() => handleEditTicket(ticket)}
-                // Invites are issued from the audience list, which is where the
-                // guests for this event live.
-                onSendInvite={() => navigate(getRoutePath('audience', { eventId }))}
+                onSendInvite={() => setInviteTicket(ticket)}
+                isSelected={selectedTicket?.ticketId === ticket.ticketId}
+                // Clicking the selected ticket again deselects it.
+                onSelect={() =>
+                  setSelectedTicketId((current) =>
+                    current === ticket.ticketId ? null : ticket.ticketId,
+                  )
+                }
                 isLoading={deleteTicketMutation.isPending}
                 isUpdating={isUpdatingTicket && editingTicketId === ticket.ticketId}
               />
@@ -200,8 +212,23 @@ function EventTickets({ eventId, accessType }: IEventTickets) {
           )}
         </OnlyShowIf>
 
-        {(tickets?.items?.length ?? 0) > 0 ? <TicketSales tickets={tickets!.items} /> : null}
+        {/* A selected invite-only ticket shows who it's been sent to; otherwise
+            the event's orders. */}
+        {selectedTicket ? (
+          <TicketInvitesTable ticket={selectedTicket} onClear={() => setSelectedTicketId(null)} />
+        ) : (
+          <EventOrdersTable eventId={eventId} />
+        )}
       </div>
+
+      {/* Mounted only while open, so each ticket starts with a clean selection. */}
+      {inviteTicket && (
+        <SendInvitesModal
+          eventId={eventId}
+          ticket={inviteTicket}
+          onClose={() => setInviteTicket(null)}
+        />
+      )}
     </CreatorPageContainer>
   )
 }

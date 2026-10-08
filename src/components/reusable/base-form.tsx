@@ -55,6 +55,8 @@ export interface FormBaseProps<T extends FieldValues> {
   children: ReactNode
   /** Additional CSS classes for the form */
   className?: string
+  /** Lets a submit button outside the form target it via its `form` attribute. */
+  id?: string
 }
 
 /**
@@ -67,10 +69,11 @@ export function FormBase<T extends FieldValues>({
   onError,
   children,
   className,
+  id,
 }: FormBaseProps<T>) {
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit, onError)} className={cn('', className)}>
+      <form id={id} onSubmit={form.handleSubmit(onSubmit, onError)} className={cn('', className)}>
         {children}
       </form>
     </Form>
