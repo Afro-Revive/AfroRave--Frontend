@@ -18,16 +18,6 @@ export const PRIVATE_EVENT_NOTES = [
   'Drag tickets to change the order fans view them.',
 ]
 
-/**
- * Placeholder figures — the real numbers come from the analytics work on
- * another branch, which is also where View Analytics will point.
- */
-export const SUMMARY_PLACEHOLDER = {
-  netSales: 2_000_000,
-  ticketsIssued: 120,
-  totalTickets: 400,
-}
-
 /** Rows per page in the event's order table. */
 export const ORDERS_PAGE_SIZE = 10
 

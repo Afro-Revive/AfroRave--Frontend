@@ -146,7 +146,7 @@ function EventTickets({ eventId, accessType }: IEventTickets) {
       <div className='w-full flex flex-col gap-6 px-5 md:px-14 py-6 md:py-8'>
         <TicketNotice filter={filter} isPrivateEvent={isPrivateEvent} />
 
-        <SummaryCard />
+        <SummaryCard eventId={eventId} />
 
         <div className='flex flex-col gap-[13px]'>
           {(() => {

@@ -20,10 +20,9 @@ import {
   Plus,
   Ticket,
   Upload,
-  type LucideIcon,
 } from "lucide-react";
 import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import { DashboardTabs, type DashboardTab } from "./components/dashboard-tabs";
 import { GuestlistTab } from "./guestlist";
@@ -37,7 +36,6 @@ import {
 } from "./components/event-filters";
 import { useEventSelectorStore, useGuideStore } from "@/stores";
 import { FiBarChart } from "react-icons/fi";
-import { IconType } from "react-icons/lib";
 
 function formatEventDate(dateStr: string): string {
   if (!dateStr) return "";
@@ -274,8 +272,19 @@ function StandAloneEvents({
   accessType?: string;
 }) {
   const { data: response, isPending: isLoading } = useGetEvent(id);
+  const navigate = useNavigate();
+  const setSelectedEventId = useEventSelectorStore(
+    (state) => state.setSelectedEventId,
+  );
 
   const event = response?.data as EventDetailData | undefined;
+
+  // Analytics and Tickets read the selected event, not the URL, so pick this
+  // one before going.
+  function openForEvent(path: string) {
+    setSelectedEventId(id);
+    navigate(path);
+  }
 
   if (isLoading) {
     return <DashboardCardSkeleton />;
@@ -310,7 +319,20 @@ function StandAloneEvents({
           stats={{ totalValue: formatNaira(event.eventStat.netProfit) }}
         />,
       ]}
-      cardButtons={event_buttons}
+      cardButtons={[
+        {
+          Icon: FiBarChart,
+          alt: "Analytics",
+          label: "Analytics",
+          action: () => openForEvent(getRoutePath("realtime")),
+        },
+        {
+          Icon: Ticket,
+          alt: "Tickets",
+          label: "Tickets",
+          action: () => openForEvent(getRoutePath("tickets")),
+        },
+      ]}
       customButton={[
         <EventActionButton
           key="event_action"
@@ -345,7 +367,8 @@ function EventActionButton({
     },
     ended: {
       label: "Report",
-      to: getRoutePath("reports"),
+      // Reports is still a Coming Soon page; analytics has the event's numbers.
+      to: getRoutePath("realtime"),
       Icon: Download,
       className: "text-[#464444] hover:text-black",
     },
@@ -359,7 +382,7 @@ function EventActionButton({
 
   // Leaving the dashboard through this button is what "selecting" an event
   // means — the sidebar reads the store to know whose summary to pin above the
-  // EVENTS group, and pages like Reports carry no id in their URL.
+  // EVENTS group, and pages like Analytics carry no id in their URL.
   const setSelectedEventId = useEventSelectorStore(
     (state) => state.setSelectedEventId,
   );
@@ -403,20 +426,6 @@ function StatParagraph({ name, stats }: IStatParagraph) {
     </div>
   );
 }
-
-const event_buttons: {
-  src?: string;
-  Icon?: LucideIcon | IconType;
-  alt: string;
-  label: string;
-}[] = [
-  {
-    Icon: FiBarChart,
-    alt: "Analytics",
-    label: "Analytics",
-  },
-  { Icon: Ticket, alt: "Tickets", label: "Tickets" },
-];
 
 interface IStatParagraph {
   name: string;
