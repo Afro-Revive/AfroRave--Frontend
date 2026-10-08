@@ -96,7 +96,7 @@ const DialogContent = React.forwardRef<
           onClick={(e) => e.stopPropagation()}
           style={{ WebkitTapHighlightColor: 'transparent' }}
         >
-          <X className="h-5 w-5 md:h-6 md:w-6 text-white font-bold" />
+          <X className="h-5 w-5 md:h-6 md:w-6 text-black font-bold" />
           <span className="sr-only">Close</span>
         </DialogPrimitive.Close>
       )}

@@ -1,4 +1,5 @@
 import type {
+  NotificationResponse,
   OrganizerProfileResponse,
   PayoutHistoryResponse,
   UpdateUserProfileRequest,
@@ -88,6 +89,23 @@ class ProfileService {
     website: string
   }>): Promise<OrganizerProfileResponse> {
     const response = await api.patch('/api/profile/organizer', data)
+    return response.data
+  }
+
+  /**
+   * Get Organizers Notifications
+   */
+  async getOrganizerNotifications(): Promise<NotificationResponse> {
+    const response = await api.get('/api/profile/organizer/notifications')
+    return response.data
+  }
+
+  /**
+   * Mark Organizers Notifications as Read
+   */
+
+  async markOrganizerNotificationsAsRead(notificationId: string): Promise<void> {
+    const response = await api.patch(`/api/profile/organizer/notifications/${notificationId}/read`)
     return response.data
   }
 

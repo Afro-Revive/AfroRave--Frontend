@@ -1,6 +1,5 @@
 import { eventKeys } from '@/lib/event-keys'
 import { eventService } from '@/services/event.service'
-import { vendorService } from '@/services/vendor.service'
 import type {
   CreateEventRequest,
   CreatePromoCodeRequest,
@@ -78,6 +77,11 @@ export function usePublishEvent() {
       console.log('Event published:', data)
       // Invalidate and refetch specific event
       queryClient.invalidateQueries({ queryKey: eventKeys.detail(eventId) })
+      // Publishing moves the event out of drafts, so the dashboard's list — which
+      // the status filter counts are derived from — is stale until it refetches.
+      queryClient.invalidateQueries({ queryKey: eventKeys.organizer() })
+      // It also becomes publicly visible, so the fan-facing lists are stale too.
+      queryClient.invalidateQueries({ queryKey: eventKeys.lists() })
     },
     onError: (error) => {
       console.error('Failed to publish event:', error)
@@ -217,10 +221,12 @@ export function useCreateVendor() {
 
   return useMutation({
     mutationFn: (data: CreateVendorRequest) => eventService.createVendor(data),
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       toast.success('Vendor created successfully!')
-      console.log('Vendor created successfully')
-      // Invalidate and refetch vendors list
+      // The sidebar and slot pages read vendorSlots(eventId); lists() does not
+      // prefix-match that key, so the new slot would never show up without this.
+      queryClient.invalidateQueries({ queryKey: eventKeys.vendorSlots(variables.eventId) })
+      queryClient.invalidateQueries({ queryKey: eventKeys.vendors(variables.eventId) })
       queryClient.invalidateQueries({ queryKey: eventKeys.lists() })
     },
     onError: (error) => {
@@ -412,10 +418,14 @@ export function useGetAllEvents() {
   })
 }
 
-export function useGetOrganizerEvents() {
+export function useGetOrganizerEvents(params?: {
+  pageNumber?: number
+  pageSize?: number
+}) {
   return useQuery({
-    queryKey: eventKeys.organizer(),
-    queryFn: () => eventService.getOrganizerEvents(),
+    // params in the key so a different page size isn't served the cached set.
+    queryKey: [...eventKeys.organizer(), params ?? {}],
+    queryFn: () => eventService.getOrganizerEvents(params),
   })
 }
 
@@ -440,9 +450,14 @@ export function useGetEventResaleListings(eventId?: string, enabled = true) {
   })
 }
 
-export function useGetVendorAvailableEvents() {
+export function useGetEventAnalytics(eventId?: string) {
   return useQuery({
-    queryKey: eventKeys.vendorAvailable(),
-    queryFn: () => vendorService.getAvailableEvents(),
+    queryKey: eventKeys.analytics(eventId || ''),
+    queryFn: () => {
+      if (!eventId) throw new Error('Event ID is required')
+      return eventService.getEventAnalytics(eventId)
+    },
+    enabled: !!eventId,
   })
 }
+

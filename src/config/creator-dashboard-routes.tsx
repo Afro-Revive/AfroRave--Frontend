@@ -8,11 +8,13 @@ import { getRoutePath } from './get-route-path'
 const StandalonePage = lazy(() => import('../pages/creators/standalone'))
 const SeasonPage = lazy(() => import('../pages/creators/season'))
 const AccessControlPage = lazy(() => import('../pages/creators/access-control'))
+const TicketsPage = lazy(() => import('../pages/creators/tickets'))
+const GuestListPage = lazy(() => import('../pages/creators/guest-list'))
 const PromoCodesPage = lazy(() => import('../pages/creators/promo-codes'))
-const ChartPage = lazy(() => import('../pages/creators/charts'))
 const ReportsPage = lazy(() => import('../pages/creators/reports'))
 const RealtimePage = lazy(() => import('../pages/creators/realtime'))
 const EditEventPage = lazy(() => import('../pages/creators/edit-event'))
+const AudiencePage = lazy(() => import('../pages/creators/audience'))
 
 // Vendor routes
 const RevenueVendorPage = lazy(() => import('../pages/vendor/revenue-vendor'))
@@ -56,6 +58,16 @@ export const creator_dashboard_routes: RouteObject[] = [
     ),
   },
   {
+    path: getRoutePath('audience', { eventId: ':eventId' }),
+    element: (
+      <OrganizerAuthGuard>
+        <Suspense fallback={<LoadingFallback />}>
+          <AudiencePage />
+        </Suspense>
+      </OrganizerAuthGuard>
+    ),
+  },
+  {
     path: getRoutePath('access_control'),
     element: (
       <OrganizerAuthGuard>
@@ -66,21 +78,31 @@ export const creator_dashboard_routes: RouteObject[] = [
     ),
   },
   {
-    path: getRoutePath('promo_codes'),
+    path: getRoutePath('tickets'),
     element: (
       <OrganizerAuthGuard>
         <Suspense fallback={<LoadingFallback />}>
-          <PromoCodesPage />
+          <TicketsPage />
         </Suspense>
       </OrganizerAuthGuard>
     ),
   },
   {
-    path: getRoutePath('charts'),
+    path: getRoutePath('guest_list'),
     element: (
       <OrganizerAuthGuard>
         <Suspense fallback={<LoadingFallback />}>
-          <ChartPage />
+          <GuestListPage />
+        </Suspense>
+      </OrganizerAuthGuard>
+    ),
+  },
+  {
+    path: getRoutePath('promo_codes'),
+    element: (
+      <OrganizerAuthGuard>
+        <Suspense fallback={<LoadingFallback />}>
+          <PromoCodesPage />
         </Suspense>
       </OrganizerAuthGuard>
     ),

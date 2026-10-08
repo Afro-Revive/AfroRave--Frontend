@@ -23,10 +23,10 @@ export interface EventDate {
   timezone: string
   startDate: string
   endDate: string
-  frequency: 'Daily' | 'Weekly' | 'Monthly' | undefined
   startTime: string
   endTime: string
-  occurance: number | undefined
+  /** Required by the API. Always 'Once' now that season events are gone. */
+  frequency: 'Once'
 }
 
 export interface CreateEventRequest {
@@ -36,22 +36,35 @@ export interface CreateEventRequest {
   venue: string
   description: string
   customUrl: string
+  posterUrl: string
   eventDate: EventDate
   eventDetails: EventDetails
+  accessType: 'Public' | 'Private'
+  accessDeadline?: string
 }
 
 // Event Data Types
 export interface EventData {
+  accessDeadline: string
+  accessType: string
+  availableSlots: number
+  category: string
   eventId: string
   eventName: string
   venue: string
   startDate: string
   startTime: string
   endDate: string
+  hasResaleTickets: boolean
+  isApplicationEnded: boolean
+  isApplicationPaused: boolean
+  eventCategory: string
   isPublished: boolean
   customUrl: string
-  // currently doesnt exist in the backend but will be added soon
-  hasResaleTickets?: boolean
+  posterUrl: string
+  stage: string
+  ticketSold: number
+  totalTicket: number
   metadata: {
     termsOfRefund: string
     eventContact: {
@@ -84,8 +97,10 @@ export interface EventDetailData {
   description: string
   ageRating: 'PG' | '16+' | '18+'
   customUrl: string
+  posterUrl: string
   category: string
   isPublished: boolean
+  accessType?: string
   eventDate: {
     startDate: string
     endDate: string
@@ -109,7 +124,6 @@ export interface EventDetailData {
     theme: { themeName: 'default' | 'standard-carousel' | 'with-flyer' }
     posterUrl?: string
   }
-  posterUrl?: string
   eventStat: {
     netProfit: number
     ticketSold: number
@@ -140,6 +154,7 @@ export interface TicketData {
   eventId: string
   eventName: string
   salesType?: 'Online' | 'Door'
+  validDays?: number
   description?: string
   ticketDetails?: {
     description?: string
@@ -284,17 +299,23 @@ export interface VendorSlotData {
   slotName: string | null
   slotNumber: number | null
   price: number | null
+  applicationDeadline: Date | null
 }
 
 export interface VendorServiceData {
   serviceName: string | null
+  hasBudgetRange: boolean
   minBudget: number | null
   maxBudget: number | null
+  startTime: string | null
+  stopTime: string | null
   startDate: string | null
   endDate: string | null
+  applicationDeadline: Date | null
 }
 
 export interface VendorContact {
+  useDifferentContactDetails?: boolean
   email: string | null
   phoneNumbers: string[] | null
 }
@@ -311,6 +332,10 @@ export interface CreateVendorRequest {
   description: string
   eventId: string
   vendorDetails: VendorDetails
+  hideSocialLinks: boolean
+  /** Sent back by edit only; a new slot gets its status from the server. */
+  status?: string
+  applicationDeadline: string
 }
 
 // Promo code creation interfaces
@@ -448,3 +473,42 @@ export interface VendorAvailableEventData {
 }
 
 export type VendorAvailableEventsResponse = ApiResponse<VendorAvailableEventData[]>
+
+
+export interface EventAnalyticsData {
+    totalRevenue: number
+    totalNetRevenue: number
+    totalTicketsSold: number
+    totalTicketsCreated: number
+    totalTicketsIssued: number
+    totalAttendees: number
+    totalResales: number
+    totalRevenueFromVendors: number
+    totalVendors: number
+    totalNumberOfVendorsAccepted: number
+    allVendorsOnboarded: number
+    topVendorCategory: string
+    allVendorCategories: string[]
+    totalPromoCodesCreated: number
+    promoCodesUsed: number
+    discountTotal: number
+    topPartner: string
+    topPartnerComission: number
+    topPartnerNetSales: number
+    audienceInsights: {
+      ageGroups: {
+        ageRange: string
+        count: number
+      }[]
+      genders: {
+        gender: string
+        count: number
+      }[]
+      locations: {
+        location: string
+        count: number
+      }[]
+    }
+}
+
+export type EventAnalyticsResponse = ApiResponse<EventAnalyticsData>

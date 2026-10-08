@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils'
 import { Link } from 'react-router-dom'
 import { useLocation } from 'react-router-dom'
 import { SidebarMenu, SidebarMenuItem, SidebarMenuButton } from '@/components/ui/sidebar'
+import { stripUnderscores } from '@/lib/helper-func'
 
 export default function VendorSidebar() {
   const location = useLocation()
@@ -51,7 +52,7 @@ export default function VendorSidebar() {
                   <span className={cn("shrink-0", isActiveLink ? "text-[#D32F2F] [&>svg]:stroke-[#D32F2F]" : "[&>svg]:stroke-current")}>
                     {item.icon}
                   </span>
-                  <span>{item.text}</span>
+                  <span> {stripUnderscores(item.text)}</span>
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>

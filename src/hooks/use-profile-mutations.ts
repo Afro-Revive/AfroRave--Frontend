@@ -146,3 +146,32 @@ export function usePayoutHistory() {
     queryFn: () => profileService.getPayoutHistory(),
   })
 }
+
+/**
+ * Hook for fetching organizer notifications
+ */
+export function useOrganizerNotifications() {
+  return useQuery({
+    queryKey: ['organizer-notifications'],
+    queryFn: () => profileService.getOrganizerNotifications(),
+  })
+}
+
+/**
+ * Hook for marking a notification as viewed
+ */
+
+export function useMarkNotificationAsRead() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (notificationId: string) => profileService.markOrganizerNotificationsAsRead(notificationId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['organizer-notifications'] })
+    },
+    onError: (error) => {
+      toast.error('Failed to mark notification as read. Please try again.')
+      console.error('Mark notification as read error:', error)
+    },
+  })
+}

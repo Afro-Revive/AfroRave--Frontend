@@ -7,7 +7,8 @@ import { Input } from '@/components/ui/input'
 import { useRegisterOrganizer, useRegisterVendor } from '@/hooks/use-auth'
 import {
   africanCountryCodes,
-  categoryOptions,
+  serviceVendorCategoryOptions,
+  revenueVendorCategoryOptions,
   genderOptions,
   vendorTypes,
 } from '@/pages/creators/add-event/constant'
@@ -15,7 +16,7 @@ import type { OrganizerRegisterData, VendorRegisterData } from '@/types/auth'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { OnlyShowIf } from '@/lib/environment'
 import { type HTMLInputTypeAttribute } from 'react'
-import { type FieldValues, type Path, type UseFormReturn, useForm } from 'react-hook-form'
+import { type FieldValues, type Path, type UseFormReturn, useForm, useWatch } from 'react-hook-form'
 import { z } from 'zod'
 
 const formSchema = z.object({
@@ -80,6 +81,12 @@ export function BusinessSignUp({ onSwitchToLogin, type = 'vendor' }: BusinessSig
     },
   })
 
+  const vendorType = useWatch({ control: form.control, name: 'vendor_type' })
+  const category = useWatch({ control: form.control, name: 'category' })
+  const categoryOptions =
+    vendorType === 'revenue_vendor' ? revenueVendorCategoryOptions : serviceVendorCategoryOptions
+  const selectedCategory = categoryOptions.find((option) => option.value === category)
+
   function onSubmit(values: z.infer<typeof formSchema>) {
     const phoneNumber = `${values.country_code}${values.phone_number}`
 
@@ -121,7 +128,7 @@ export function BusinessSignUp({ onSwitchToLogin, type = 'vendor' }: BusinessSig
   const isPending = type === 'vendor' ? registerVendor.isPending : registerOrganizer.isPending
 
   // Dynamic Title & Description
-  let title = type === 'vendor' ? 'OWN THE SPOTLIGHT' : 'BEYOND TICKETING'
+  const title = type === 'vendor' ? 'OWN THE SPOTLIGHT' : 'BEYOND TICKETING'
   let description = 'TELL US ABOUT YOU'
 
   if (type === 'vendor') {
@@ -164,6 +171,11 @@ export function BusinessSignUp({ onSwitchToLogin, type = 'vendor' }: BusinessSig
                 placeholder='CATEGORY'
               />
             </div>
+            {selectedCategory && (
+              <p className='text-[11px] normal-case leading-[130%] text-white/60 font-sf-pro-display -mt-2'>
+                {selectedCategory.description}
+              </p>
+            )}
           </OnlyShowIf>
 
           {/* Name Fields */}

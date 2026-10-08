@@ -6,21 +6,158 @@ import { VendorIcon } from "@/components/icons/vendor";
 import { ToolsIcon } from "@/components/icons/tools";
 
 import { CreatorSettingsModal } from "@/pages/creators/standalone/components/creator-settings-modal";
-import { Settings } from "lucide-react";
+import { BiArrowBack } from "react-icons/bi";
+import { Ticket2 } from "iconsax-react";
+import { useEventSelectorStore } from "@/stores";
+import { useVendorSlotsByType } from "@/hooks/use-vendor-mutation";
+import { useGetEvent } from "@/hooks/use-event-mutations";
+import { toVisibility } from "@/lib/helper-func";
+import type { EventDetailData } from "@/types";
+import { Link, useLocation } from "react-router-dom";
+import { useEffect } from "react";
+import { SelectedEventCard } from "./selected-event-card";
+
+/** Derived rather than hardcoded so they track route-map. */
+const EVENT_SCOPED_PREFIXES = [
+  getRoutePath("edit_event", { eventId: "" }),
+  getRoutePath("audience", { eventId: "" }),
+];
+
+/**
+ * The id of the event whose details are open, read off the URL. useParams is no
+ * help here: this sidebar renders in the layout, above the route that declares
+ * :eventId, so it would come back empty.
+ */
+function useOpenEventId(): string | undefined {
+  const { pathname } = useLocation();
+
+  const prefix = EVENT_SCOPED_PREFIXES.find((p) => pathname.startsWith(p));
+  if (!prefix) return undefined;
+
+  return pathname.slice(prefix.length).split("/")[0] || undefined;
+}
 
 export default function CreatorSidebar() {
+  const { selectedEventId, setSelectedEventId } = useEventSelectorStore();
+  const { revenueSlots, serviceSlots } = useVendorSlotsByType(
+    selectedEventId ?? ""
+  );
+
+  const routeEventId = useOpenEventId();
+
+  // Only the edit route carries the id, so it's remembered here. Without this
+  // the EVENTS group unmounted the moment you moved to Tickets or Analytics —
+  // and a remounted accordion comes back collapsed.
+  useEffect(() => {
+    if (routeEventId && routeEventId !== selectedEventId) {
+      setSelectedEventId(routeEventId);
+    }
+  }, [routeEventId, selectedEventId, setSelectedEventId]);
+
+  const openEventId = routeEventId ?? selectedEventId ?? undefined;
+
+  // Shares a query key with SelectedEventCard, so this costs no extra request.
+  const { data: eventResponse } = useGetEvent(openEventId ?? "");
+  const openEvent = eventResponse?.data as EventDetailData | undefined;
+
+  // Audience is the invite list, which only a private event has.
+  const isPrivateEvent = !!openEvent && toVisibility(openEvent.accessType) === "private";
+
+  const creator_sidebar_links: ICreatorSidebarLinks[] = [
+    {
+      trigger: { icon: <CalendarIcon />, text: "EVENTS" },
+      links: openEventId
+        ? [
+            {
+              path: getRoutePath("edit_event", { eventId: openEventId }),
+              name: "EVENT DETAILS",
+            },
+            ...(isPrivateEvent
+              ? [
+                  {
+                    path: getRoutePath("audience", { eventId: openEventId }),
+                    name: "AUDIENCE",
+                  },
+                ]
+              : []),
+          ]
+        : [],
+    },
+    {
+      trigger: { icon: <Ticket2 size={16} variant="Outline" />, text: "TICKETS" },
+      links: [
+        { path: getRoutePath("tickets"), name: "YOUR TICKETS" },
+        { path: getRoutePath("guest_list"), name: "GUEST LIST" },
+        { path: getRoutePath("promo_codes"), name: "PROMO CODES" },
+      ],
+    },
+    {
+      trigger: { icon: <ChartIcon />, text: "ANALYTICS" },
+      links: [
+        { path: getRoutePath("realtime"), name: "REALTIME" },
+      ],
+    },
+    {
+      trigger: { icon: <VendorIcon />, text: "VENDOR" },
+      links: [
+        {
+          path: getRoutePath("revenue_vendor"),
+          name: "REVENUE VENDOR",
+          subLinks: revenueSlots.length
+            ? revenueSlots.map((slot) => ({
+                path: getRoutePath("revenue_vendor_slot", {
+                  slotId: slot.vendorId,
+                }),
+                name: slot.vendorDetails.slotData.slotName,
+                category: slot.vendorCategory,
+              }))
+            : undefined,
+        },
+        {
+          path: getRoutePath("service_vendor"),
+          name: "SERVICE VENDOR",
+          subLinks: serviceSlots.length
+            ? serviceSlots.map((slot) => ({
+                path: getRoutePath("service_vendor_slot", {
+                  slotId: slot.vendorId,
+                }),
+                name: slot.vendorDetails.serviceData.serviceName,
+                category: slot.vendorCategory,
+              }))
+            : undefined,
+        },
+      ],
+    },
+    {
+      trigger: { icon: <ToolsIcon />, text: "TOOLS" },
+      links: [
+        { path: getRoutePath("access_control"), name: "ACCESS CONTROL" },
+        { path: getRoutePath("seating_maps"), name: "SEATING MAPS" },
+      ],
+    },
+  ];
+
   return (
     <BaseSideBar
-      className="pt-24 sticky top-0"
+      className="pt-8 sticky top-0"
       sidebar_links={creator_sidebar_links}
+      headerItem={<SelectedEventCard eventId={openEventId} />}
       collapsibleOnMobile={true}
+      collapsibleOnDesktop={true}
+      mobileFullscreen={true}
       footerItem={
         <CreatorSettingsModal
           customTrigger={
-            <div className="flex items-center gap-2.5 px-6 py-4 cursor-pointer hover:bg-gray-50 bg-white border-t border-gray-100 transition-colors group w-full">
-              <Settings className="size-[18px] text-black group-hover:text-deep-red transition-colors" />
-              <span className="text-[13px] font-normal tracking-widest text-black font-sf-pro-display uppercase">SETTINGS</span>
-            </div>
+            // <div className="flex items-center gap-2.5 px-6 py-4 cursor-pointer hover:bg-gray-50 bg-white border-t border-gray-100 transition-colors group w-full">
+            //   <Settings className="size-[18px] text-black group-hover:text-deep-red transition-colors" />
+            //   <span className="text-[13px] font-normal tracking-widest text-black font-sf-pro-display uppercase">SETTINGS</span>
+            // </div>
+            <Link to={getRoutePath("standalone")} className="flex items-center gap-2.5 px-6 py-7 cursor-pointer hover:bg-gray-50 bg-white border-t border-[#949494] transition-colors group w-full">
+              <span className="inline-flex items-center gap-4">
+                <BiArrowBack className="size-4 text-black group-hover:text-deep-red transition-colors" />
+               <p className="font-inter-tight font-semibold text-sm text-system-black"> Your Events </p> 
+              </span>
+            </Link>
           }
         />
       }
@@ -28,40 +165,12 @@ export default function CreatorSidebar() {
   );
 }
 
-const creator_sidebar_links: ICreatorSidebarLinks[] = [
-  {
-    trigger: { icon: <CalendarIcon />, text: "EVENTS" },
-    links: [
-      { path: getRoutePath("standalone"), name: "STANDALONE" },
-      { path: getRoutePath("season"), name: "SEASON" },
-    ],
-  },
-  {
-    trigger: { icon: <ChartIcon />, text: "ANALYTICS" },
-    links: [
-      { path: getRoutePath("reports"), name: "REPORTS" },
-      { path: getRoutePath("charts"), name: "CHARTS" },
-      { path: getRoutePath("realtime"), name: "REALTIME" },
-    ],
-  },
-  {
-    trigger: { icon: <VendorIcon />, text: "VENDOR" },
-    links: [
-      { path: getRoutePath("revenue_vendor"), name: "REVENUE VENDOR" },
-      { path: getRoutePath("service_vendor"), name: "SERVICE VENDOR" },
-    ],
-  },
-  {
-    trigger: { icon: <ToolsIcon />, text: "TOOLS" },
-    links: [
-      { path: getRoutePath("access_control"), name: "ACCESS CONTROL" },
-      { path: getRoutePath("promo_codes"), name: "PROMO CODES" },
-      { path: getRoutePath("seating_maps"), name: "SEATING MAPS" },
-    ],
-  },
-];
-
 export interface ICreatorSidebarLinks {
   trigger: { icon: React.ReactNode; text: string };
-  links: { path: string; name: string }[];
+  defaultOpen?: boolean;
+  links: {
+    path: string;
+    name: string;
+    subLinks?: { path: string; category: string; name: string }[];
+  }[];
 }
