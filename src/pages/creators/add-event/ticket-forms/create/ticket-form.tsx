@@ -29,6 +29,7 @@ export function TicketForm({
   const [openAdvancedOptions, setOpenAdvancedOptions] = useState(false);
   const availabilityValue = form.watch("ticket.quantity.availability");
   const isInviteOnly = form.watch("ticket.invite_only");
+  const whenToStart = form.watch("whenToStart");
   const isGroupTicket = type === "group_ticket";
 
   const formatCopy = TICKET_FORMAT_COPY[isInviteOnly ? "invite_only" : type];
@@ -322,9 +323,9 @@ DESCRIBE WHAT THIS TICKET INCLUDES.`}
               fans.
             </p>
           </div>
-          <OnlyShowIf
-            condition={form.getValues("whenToStart") === "at-a-scheduled-date"}
-          >
+          {/* watch, not getValues: getValues doesn't re-render, so picking a
+              scheduled start never revealed the date picker. */}
+          <OnlyShowIf condition={whenToStart === "at-a-scheduled-date"}>
             <DateForm
               form={form}
               name="START DATE"

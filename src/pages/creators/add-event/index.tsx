@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { getRoutePath } from '@/config/get-route-path'
 import { cn } from '@/lib/utils'
-import { useAfroStore } from '@/stores'
+import { useAfroStore, useEventStore } from '@/stores'
 import { ChevronLeft, Info } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
@@ -23,8 +23,15 @@ export default function AddEventPage() {
   const [showError, setShowError] = useState(false)
 
   const { user } = useAfroStore()
+  const resetEventData = useEventStore((state) => state.resetEventData)
 
   const navigate = useNavigate()
+
+  // The in-progress event lives in a store that outlives this page, so leaving
+  // — by publishing or abandoning — clears it. Otherwise the next Create Event
+  // opened with the last event's id, and jumping straight to the Tickets tab
+  // added tickets to that one.
+  useEffect(() => resetEventData, [resetEventData])
 
 
 
@@ -32,12 +39,14 @@ export default function AddEventPage() {
     const tabParam = searchParams.get('tab')
     const formParam = searchParams.get('form')
 
-    if (
-      tabParam === 'event-details' ||
-      tabParam === 'tickets' ||
-      tabParam === 'theme' ||
-      tabParam === 'publish'
-    ) {
+    // The theme step is gone. An old link to it lands on publish, which is
+    // where the theme step used to lead, rather than on a tab with no content.
+    if (tabParam === 'theme') {
+      setSearchParams({ tab: 'publish' }, { replace: true })
+      return
+    }
+
+    if (tabParam === 'event-details' || tabParam === 'tickets' || tabParam === 'publish') {
       setActiveTab(tabParam)
       RenderHeadline(tabParam, setHeading, setDescription, formParam)
     } else if (!tabParam) {
@@ -134,10 +143,6 @@ export default function AddEventPage() {
 
                 <OnlyShowIf condition={showError}>
                   <MoreTabDetails />
-                </OnlyShowIf>
-
-                <OnlyShowIf condition={activeTab === 'theme' && false}>
-                  <MoreTabDetails type='theme' />
                 </OnlyShowIf>
 
                 <OnlyShowIf condition={activeTab === 'tickets' && searchParams.get('form') === 'promocode'}>
@@ -238,21 +243,13 @@ function RenderHeadline(
   formParam?: string | null,
 ) {
   if (activeTab === 'tickets') {
-    if (formParam === 'promocode' || formParam === 'upgrades') {
+    if (formParam === 'promocode') {
       setHeading('GO BEYOND THE BASICS!')
       setDescription('Enhance your ticketing power with flexible, fan-friendly features')
       return
     }
     setHeading('CREATE YOUR TICKETS!')
     setDescription('Create different ticket types, set prices, and start your journey to a sold-out event!')
-    return
-  }
-
-  if (activeTab === 'theme') {
-    setHeading('AESTHETICS MATTERS!')
-    setDescription(
-      'CHOOSE A THEME FOR YOUR EVENT PAGE.',
-    )
     return
   }
 

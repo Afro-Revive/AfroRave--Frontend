@@ -252,7 +252,10 @@ export function transformTicketsToCreateRequest(
             ).period,
           )}`
         : '',
-      allowResell: false, // Add logic if needed
+      allowResell:
+        ticket.invite_only || ticket.ticketType === 'group_ticket'
+          ? false
+          : formData.allow_ticket_resell !== false,
       mail: { body: '' }, // Add logic if needed
     },
   }))

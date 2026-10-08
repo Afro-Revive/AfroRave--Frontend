@@ -2,7 +2,7 @@ import { BasePopover } from '@/components/reusable'
 import { Button } from '@/components/ui/button'
 import { getRoutePath } from '@/config/get-route-path'
 import { useGetEventPromoCodes, usePublishEvent } from '@/hooks/use-event-mutations'
-import { useGetEvent, useGetEventTickets, useGetEventVendors } from '@/hooks/use-event-mutations'
+import { useGetEvent, useGetEventTickets } from '@/hooks/use-event-mutations'
 import { cn } from '@/lib/utils'
 import { useEventStore } from '@/stores'
 import { Ellipsis, Pencil, MapPin, Calendar } from 'lucide-react'
@@ -11,7 +11,7 @@ import { useMemo } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { ContinueButton } from '../component/continue-button'
 import { RenderEventImage } from '@/components/shared/render-event-flyer'
-import { EventDetailData, PaginatedResponse, PromoCodeData, TicketData, VendorData} from '@/types'
+import { EventDetailData, PaginatedResponse, PromoCodeData, TicketData } from '@/types'
 
 export default function PublishTab({
   setStep,
@@ -19,11 +19,11 @@ export default function PublishTab({
   setStep: (step: number) => void
 }) {
   // redesign this tab to look like the figma file
-  useEffect(() => setStep(4), [setStep])
+  // Step 3: Event Info, Tickets, then this. It read 4 while theme sat at 3.
+  useEffect(() => setStep(3), [setStep])
 
   const { eventId } = useEventStore()
 
-  const vendors = useGetEventVendors(eventId || '').data?.data as PaginatedResponse<VendorData> | undefined
   const event = useGetEvent(eventId || '').data?.data as EventDetailData | undefined
   const tickets = useGetEventTickets(eventId || '').data?.data as PaginatedResponse<TicketData> | undefined
   const promoCodes = useGetEventPromoCodes(eventId || '').data?.data as PaginatedResponse<PromoCodeData> | undefined
@@ -31,16 +31,18 @@ export default function PublishTab({
   const publishEventMutation = usePublishEvent()
   const navigate = useNavigate()
 
-  const vendorNames = useMemo(() => {
-    if (!vendors || !Array.isArray(vendors)) return []
-    return vendors.map((v) => v.vendorName || '').filter((n: string) => n && typeof n === 'string')
-  }, [vendors])
+  const ticketItems = useMemo(() => tickets?.items ?? [], [tickets])
 
-  const ticketNames = useMemo(() => {
-    if (!tickets || !Array.isArray(tickets)) return []
+  // Read from .items: `tickets` is the page object, so the Array.isArray check
+  // this used to make was always false and the list came up empty.
+  const ticketNames = useMemo(
+    () => ticketItems.map((item) => item.ticketName).filter(Boolean),
+    [ticketItems],
+  )
 
-    return tickets.map((item) => item.ticketName).filter((n: string) => n && typeof n === 'string')
-  }, [tickets])
+  // On by default and opted out per ticket, so this is on when any ticket still
+  // allows it. Invite-only and group tickets never do.
+  const hasResale = ticketItems.some((ticket) => ticket.ticketDetails?.allowResell)
 
   const handlePublishEvent = async () => {
     if (!eventId) {
@@ -100,16 +102,9 @@ export default function PublishTab({
         <div className='flex flex-col gap-0'>
           <SectionContainer
             name='Tickets'
-            quantity={tickets?.items.length || 0}
+            quantity={ticketItems.length}
             href={`${getRoutePath('add_event')}/?tab=tickets`}
             data={ticketNames.map((item) => ({ tool: item, enabled: false }))}
-          />
-
-          <SectionContainer
-            name='Vendor Listings'
-            quantity={vendors?.items.length || 0}
-            href={`${getRoutePath('add_event')}/?tab=vendor`}
-            data={vendorNames.map((name) => ({ tool: name, enabled: false }))}
           />
 
           <SectionContainer
@@ -117,8 +112,7 @@ export default function PublishTab({
             href={`${getRoutePath('add_event')}/?tab=tickets`}
             data={[
               { tool: 'Promo Codes', enabled: (promoCodes?.items.length ?? 0) > 0 },
-              { tool: 'Upgrades', enabled: true },
-              { tool: 'Ticket Resale', enabled: true },
+              { tool: 'Ticket Resale', enabled: hasResale },
             ]}
           />
         </div>

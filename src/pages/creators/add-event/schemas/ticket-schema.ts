@@ -4,7 +4,9 @@ const scheduledStartSchema = z.object({
   whenToStart: z.enum(['immediately', 'at-a-scheduled-date'], {
     required_error: 'Pick an option.',
   }),
-  allow_ticket_resell: z.boolean().optional().default(false),
+  // On by default — organizers opt out. Invite-only and group tickets are
+  // forced off by the form and again by the request transform.
+  allow_ticket_resell: z.boolean().optional().default(true),
   scheduledDate: z
     .object({
       date: z.date({ required_error: 'A start date is required.' }),
@@ -116,8 +118,8 @@ export const defaultUnifiedTicketValues: UnifiedTicketForm = {
     description: '',
     ticketType: 'single_ticket',
   },
-  whenToStart: 'at-a-scheduled-date',
-  allow_ticket_resell: false,
+  whenToStart: 'immediately',
+  allow_ticket_resell: true,
   scheduledDate: {
     date: new Date(),
     hour: '12',
