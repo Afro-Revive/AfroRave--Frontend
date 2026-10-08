@@ -94,8 +94,6 @@ export default function CreatorSidebar() {
     {
       trigger: { icon: <ChartIcon />, text: "ANALYTICS" },
       links: [
-        { path: getRoutePath("reports"), name: "REPORTS" },
-        { path: getRoutePath("charts"), name: "CHARTS" },
         { path: getRoutePath("realtime"), name: "REALTIME" },
       ],
     },
@@ -145,6 +143,7 @@ export default function CreatorSidebar() {
       sidebar_links={creator_sidebar_links}
       headerItem={<SelectedEventCard eventId={openEventId} />}
       collapsibleOnMobile={true}
+      collapsibleOnDesktop={true}
       mobileFullscreen={true}
       footerItem={
         <CreatorSettingsModal

@@ -11,7 +11,6 @@ const AccessControlPage = lazy(() => import('../pages/creators/access-control'))
 const TicketsPage = lazy(() => import('../pages/creators/tickets'))
 const GuestListPage = lazy(() => import('../pages/creators/guest-list'))
 const PromoCodesPage = lazy(() => import('../pages/creators/promo-codes'))
-const ChartPage = lazy(() => import('../pages/creators/charts'))
 const ReportsPage = lazy(() => import('../pages/creators/reports'))
 const RealtimePage = lazy(() => import('../pages/creators/realtime'))
 const EditEventPage = lazy(() => import('../pages/creators/edit-event'))
@@ -104,16 +103,6 @@ export const creator_dashboard_routes: RouteObject[] = [
       <OrganizerAuthGuard>
         <Suspense fallback={<LoadingFallback />}>
           <PromoCodesPage />
-        </Suspense>
-      </OrganizerAuthGuard>
-    ),
-  },
-  {
-    path: getRoutePath('charts'),
-    element: (
-      <OrganizerAuthGuard>
-        <Suspense fallback={<LoadingFallback />}>
-          <ChartPage />
         </Suspense>
       </OrganizerAuthGuard>
     ),
