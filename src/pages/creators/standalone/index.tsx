@@ -130,12 +130,13 @@ export default function StandalonePage() {
         onTabChange={setActiveTab}
         actions={
           activeTab === "guestlist" ? (
-            <div className="flex items-center gap-3 shrink-0">
+            // Full width on mobile, each button taking half, under the tabs.
+            <div className="flex items-center gap-3 shrink-0 max-md:w-full">
               {/* A label wrapping a hidden input, so the file picker opens
                   without needing a ref on a button. */}
               <label
                 className={cn(
-                  "flex h-9 cursor-pointer items-center gap-1.5 rounded-md bg-black px-3 font-inter-tight text-sm font-semibold text-white transition-colors hover:bg-black/90",
+                  "flex h-9 cursor-pointer items-center justify-center gap-1.5 rounded-md bg-black px-3 font-inter-tight text-sm font-semibold text-white transition-colors hover:bg-black/90 max-md:flex-1",
                   bulkUploadGuests.isPending && "pointer-events-none opacity-60",
                 )}
               >
@@ -159,7 +160,7 @@ export default function StandalonePage() {
               <Button
                 type="button"
                 onClick={() => setIsAddGuestOpen(true)}
-                className="h-9 gap-1.5 rounded-[6px] bg-[#00AD2E] px-3 font-inter-tight text-sm font-semibold text-white hover:bg-[#00AD2E]/90">
+                className="h-9 gap-1.5 rounded-[6px] bg-[#00AD2E] px-3 font-inter-tight text-sm font-semibold text-white hover:bg-[#00AD2E]/90 max-md:flex-1">
                 <Plus size={14} />
                 <span className="whitespace-nowrap">Add Guest</span>
               </Button>

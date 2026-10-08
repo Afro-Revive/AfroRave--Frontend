@@ -63,10 +63,10 @@ export function TicketSummaryCard({
           <BsTicketPerforated size={20} color='#AE0D0D' className='rotate-90' />
 
           <div className='flex flex-col gap-1 ml-2'>
-            <p className='capitalize text-sm font-semibold font-work-sans leading-[100%] text-black'>
+            <p className='capitalize md:text-sm text-xs font-semibold font-work-sans leading-[100%] text-black'>
               {name}
             </p>
-            <p className='capitalize text-xs font-medium font-inter-tight leading-[100%] text-[#949494]'>
+            <p className='capitalize md:text-xs text-[10px] font-medium font-inter-tight leading-[100%] text-[#949494]'>
               {formatNaira(price, { free: true })}
             </p>
           </div>
@@ -90,7 +90,7 @@ export function TicketSummaryCard({
           {isInviteOnly && (
             <span
               title={`${invitesSent ?? 0} ${invitesSent === 1 ? 'invite' : 'invites'} sent`}
-              className='flex items-center gap-1 font-inter-tight text-sm font-semibold text-[#00AD2E]'>
+              className='flex items-center gap-1 font-inter-tight md:text-sm text-xs font-semibold text-[#00AD2E]'>
               <Send className='size-4' />
               {invitesSent ?? 0}
             </span>
@@ -128,7 +128,7 @@ function TicketBadge({
   return (
     <Badge
       className={cn(
-        'py-1.5 px-2 rounded-[6px] text-xs font-sf-pro-rounded leading-[100%] whitespace-nowrap capitalize',
+        'py-1.5 px-2 rounded-[6px] md:text-xs text-[10px] font-sf-pro-rounded leading-[100%] whitespace-nowrap capitalize',
         {
           'bg-[#00AD2E4D] text-[#00AD2E]': type === 'default',
           'bg-[#409BFF]/60 text-tech-blue': type === 'invite-only',

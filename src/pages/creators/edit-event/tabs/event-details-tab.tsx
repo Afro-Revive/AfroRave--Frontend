@@ -247,7 +247,7 @@ function EventDetailsForm({
         </FormField>
       </div>
 
-      <div className="grid grid-cols-2 md:gap-4">
+      <div className="grid md:grid-cols-2 grid-cols-1 gap-2 md:gap-4">
         <DateForm
           form={form}
           name="START DATE"

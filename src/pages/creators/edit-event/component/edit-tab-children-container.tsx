@@ -22,7 +22,7 @@ export function TabChildrenContainer({
           disabled={!handleBackClick}
         >
           <ChevronLeft color="#000000" className="min-w-1.5 min-h-3" />
-          <span className="text-sm font-medium font-sf-pro-display text-black">
+          <span className="text-sm font-medium font-inter-tight text-black">
             {buttonText}
           </span>
         </Button>
@@ -30,7 +30,7 @@ export function TabChildrenContainer({
         <div className="flex items-center md:gap-8 gap-4 mt-3 md:mt-0">
           <Button
             variant="destructive"
-            className="py-2 w-fit px-8 text-xs font-sf-pro-text font-black rounded-[5px]"
+            className="py-2 w-fit xl:px-8 px-4 text-xs font-inter-tight font-black rounded-[5px]"
             onClick={handleSaveEvent}
             disabled={isLoading || isUploading}
           >
@@ -40,7 +40,7 @@ export function TabChildrenContainer({
           {isPublished === false && (
             <Button
               variant="default"
-              className="h-8 w-24 text-xs font-sf-pro-text font-black rounded-[5px]"
+              className="h-8 w-24 text-xs font-inter-tight font-black rounded-[5px]"
               onClick={handlePublishEvent}
               disabled={isPublishing}
             >

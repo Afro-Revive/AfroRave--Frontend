@@ -46,7 +46,9 @@ export function PriceField<T extends FieldValues>({
       showMessage={showMessage}
     >
       {(field) => (
-        <div>
+        // w-full: the form item is items-start, so a bare div here shrinks to
+        // its content and the row inside can't fill the column.
+        <div className="w-full">
           <div className="w-full h-9 flex items-center gap-3">
             <p className="py-[11px] w-14 h-full flex items-center justify-center bg-[#acacac] rounded-[5px]">
               ₦
