@@ -1,7 +1,7 @@
 import { CalendarIcon } from '@/components/icons/calendar'
 import { DashboardCardSkeleton, DashboardCards } from '@/components/shared/dashboard-cards'
 import { getRoutePath } from '@/config/get-route-path'
-import { useGetVendorAvailableEvents } from '@/hooks/use-event-mutations'
+import { useGetVendorAvailableEvents } from '@/hooks/use-vendor-mutation'
 import { AddFilterBUtton } from '@/pages/creators/standalone/components/add-filter-btn'
 import { Bookmark } from 'lucide-react'
 import { Link } from 'react-router-dom'

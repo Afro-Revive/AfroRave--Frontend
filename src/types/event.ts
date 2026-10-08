@@ -331,7 +331,8 @@ export interface CreateVendorRequest {
   eventId: string
   vendorDetails: VendorDetails
   hideSocialLinks: boolean
-  status: string
+  /** Sent back by edit only; a new slot gets its status from the server. */
+  status?: string
   applicationDeadline: string
 }
 
