@@ -1,319 +1,270 @@
 # Changelog
 
-All notable changes to this project will be documented in this file.
+What changed in the AfroRevive frontend, newest first. Each section says how the
+design moved on, then what was **added**, **changed**, **removed** and
+**fixed**. File and hook names are in `code` where they help you find things.
 
-## [Unreleased]
+The previous, file-by-file version of this changelog is in git history:
+`git log -p -- CHANGELOG.md`.
 
-## Organizer vendor management (`organizers` branch)
+For what the app can do today, see [docs/FEATURES.md](docs/FEATURES.md).
 
-Feature-level summary of the organizer work on this branch. The entries further
-down carry the file-by-file detail.
+---
 
-### Added
-- **Vendor slots and offers.** Organizers can create, edit and manage Revenue vendor slots and Service vendor offers for an event, each with its own category, pricing, application deadline and contact details.
-- **Individual slot and offer pages.** Every slot and offer has its own page listing the vendors who applied to it, with an empty state while applications are open.
-- **Slot details view.** A read-only modal summarising a slot — status, deadline, contact details, description, and an overview of price, total slots, confirmed vendors and pending requests.
-- **Vendor application review.** A profile modal opened from an applicant row, showing the vendor's picture, description, contact details and a gallery viewer. Organizers can accept or reject an application from here; the applicant list and slot refresh on the decision, and an already-decided application shows its outcome instead of the actions.
-- **Slots in the sidebar.** The creator sidebar lists an event's Revenue and Service slots as nested links, so organizers can jump straight to a slot.
+## [Unreleased] — `prod` branch, October 2026
 
-### Changed
-- **Vendor categories split by type.** Revenue and Service vendors now have separate category lists, each showing a description of the category as it is selected.
-- **Applications are fetched per slot.** Slot pages request only their own applications rather than every application on the event.
-- **Organizer settings inbox uses real data.** Notifications come from the API instead of mock entries, and the remaining fake-data generators were removed.
+**Design:** the organizer dashboard got its biggest redesign so far.
+- The events dashboard is a full-width page with event cards.
+- Every event-level tool sits in a sidebar under a card showing the selected event.
+- Organizer screens moved to the **Work Sans** and **Inter Tight** fonts, on a light grey gradient.
+- On both sides of the app, a **tablet held upright now gets the mobile layout**.
 
-### Fixed
-- A newly created slot now appears in the sidebar and slot list immediately, instead of after a refresh.
-- Mobile layout issues across event creation, event editing and the navbar.
-- Promo code UI issues in the event wizard.
+### Added — organizers
+- **Events dashboard** (`/creators/events`):
+  - Event cards with status tags (draft, upcoming, ongoing, sold out, ended) and a public/private badge.
+  - Status filters and pagination.
+  - A Guestlist tab.
+  - The Analytics and Tickets buttons on each card now select that event and open its page.
+- **New sidebar:**
+  - A card at the top for the selected event, with Copy Link and View Event.
+  - Groups for Events, Tickets, Analytics, Vendor and Tools.
+  - Collapsible on desktop and full screen on mobile.
+- **Tickets page** (`/creators/tickets`):
+  - Filters (All, Invite-Only, Door) and notices.
+  - A summary card with real net sales and tickets issued.
+  - Each ticket shows its format and its access type (for example "Invite-Only").
+  - Ticket menus can edit a ticket and send invites.
+- **Invite-only tickets:**
+  - Send invites from your guestlist, or to a new guest, who is saved to the guestlist too.
+  - See the invites sent and their status.
+  - An orders table for the event.
+- **Guest lists:**
+  - An account-wide guestlist with categories, search, server-side paging and sort, and CSV upload.
+  - A per-event guestlist page for adding guests or importing them from the account list.
+- **Promo codes page** (`/creators/promo-codes`), moved out of the tickets tab.
+- **Private events:**
+  - Events can be public or private. A private event can later be made public, but never the other way round.
+  - A new **Audience** page (`/creators/audience/:eventId`): approve access requests in bulk, see approved fans, and pause or resume requests.
+- **Analytics** (`/creators/realtime`), merged in from the analytics branch:
+  - Overview, Vendors, Orders, Promo Codes and Insights tabs, using reusable bar, line and pie charts built on `recharts`.
+  - Linked from event cards and the tickets summary.
 
-### Fixed
-- **`User` type didn't match the real API shape** (`src/types/auth.ts`): Nearly every profile-ish field (`gender`, `state`, `country`, `phoneNumber`, `businessName`, `companyName`, `description`, `profilePicture`, `vendorType`, `category`, `vendorCategory`, `gallery`, `businessData` with `portfolio`/`socials`) was declared flat on `User`, but the real logged-in user object nests all of it under `user.profile`. Rewrote the interface to match, folding the old top-level `portfolio`/`website`/`socialLinks` fields into `profile.businessData.portfolio`/`.socials` (renaming `twitter`→`x` and `linkedin`→`linkedIn` to match the real payload). Cascade-fixed every consumer this broke: `layouts/vendor-dashboard-layout/index.tsx` (dev mock-auth injection), `pages/creators/standalone/components/creator-settings-modal.tsx`, `pages/vendor/discover/index.tsx` (`useProfileCompletion`), `pages/vendor/profile/edit-profile-modal.tsx`, `pages/vendor/profile/index.tsx`, and `pages/vendor/profile/view-profile-modal.tsx` — the latter two also had a dead `isSocialLinksString`/`socialLinksObj` branch left over from when `socialLinks` could allegedly be a bare string; removed it since `businessData.socials` is always a fixed-shape object now.
-- **"View More" toggle in `EditVendorSlotModal` never became "View Less"** (`src/pages/vendor/component/edit-vendor-slot-modal.tsx`): The description clamp toggle's label was hardcoded to "View More" regardless of `viewMore` state, and rendered even when there was no description to expand. Now swaps to "View Less" when expanded and only renders when `slot?.description` is present; also cleaned up malformed JSX whitespace around the `onClick` handler.
-
-### Added
-- **"Slot Overview" table in `EditVendorSlotModal`** (`src/pages/vendor/component/edit-vendor-slot-modal.tsx`): Replaced a broken, empty `<td><tr></tr></td>` stub with a real table showing price per slot (or budget range for Service offers), total slots, confirmed vendors, and pending requests. Confirmed/pending counts come from `useGetAllVendorApplications(slot.eventId)` filtered to `application.eventVendorId === slot.vendorId`, following the same pairing already used in `revenue-vendor/individual-slot/index.tsx`. Currency values use the existing `formatNaira` helper (`src/lib/format-price.ts`).
-
-### Added
-- **Shared hooks for splitting vendor data by type** (`src/hooks/use-vendor-mutation.ts`): Added `useVendorSlotsByType(eventId)` — fetches all vendor slots for an event once via `useGetAllVendorSlots`, unwraps `PaginatedResponse<VendorSlot[]>.items`, and returns `{ slots, revenueSlots, serviceSlots }` — so every consumer stops re-deriving this split itself. Rewired the four places that were each independently fetching + casting + filtering the same endpoint (`creator-side-bar.tsx`, `revenue-vendor/index.tsx`, `service-vendors/index.tsx`, `revenue-vendor/individual-slot/index.tsx`) onto this single hook. Added the parallel `useGetAllVendorApplications`/`useVendorApplicationsByType(eventId)` for the separate "vendors who applied to a slot" endpoint (`VendorSlotApplication[]`, distinct from the organizer's own created slots), following the same pattern, and wired it into both individual-slot pages (`revenue-vendor/individual-slot`, `service-vendors/individual-service`).
-- **Redirect to the new slot's page on successful creation** (`src/pages/vendor/component/create-vendor-slot-modal.tsx`): `useCreateVendor`'s `onSuccess` now closes the modal and navigates to `getRoutePath("revenue_vendor_slot" | "service_vendor_slot", { slotId })` using the `vendorId` echoed back in the create response, instead of just closing with no follow-through.
-
-### Fixed
-- **Duplicate `getAllVendorSlotsForEvent` service method** (`src/services/vendor.service.ts`): Removed — it was byte-for-byte identical to `getAllVendorSlots` (same endpoint, same signature), and its corresponding hook had already been dropped from `use-vendor-mutation.ts`, leaving it unreferenced dead code.
-
-### Added
-- **Vendor category descriptions shown on selection** (`src/pages/vendor/component/create-vendor-slot-modal.tsx`, `src/pages/creators/add-event/vendor-forms/vendor-form.tsx`, `src/pages/auth/sign-up/business-signup-form.tsx`): `categoryOptions` in `src/pages/creators/add-event/constant.ts` was split into `revenueVendorCategoryOptions` and `serviceVendorCategoryOptions`, each with a `description` field (e.g. "Food & Beverage — Snacks, meals, drinks... present at every event type; consistently the top earner"). All three forms now watch the selected `category` via `useWatch`, look it up in whichever list applies (Revenue vs Service), and render its description directly under the category select. Fixed two broken in-progress attempts at this along the way: in `vendor-form.tsx`, `useWatch` was being called on `form` before `form` was defined, against a flat `category` field that doesn't exist (the real path is `vendor.baseVendorDetails.category`), referencing an undefined `isRevenue` (this file uses `vendor.type` as its discriminant, not a boolean prop); in `business-signup-form.tsx`, the category select's item list was picked via a redundant inline ternary (`type === 'vendor' && ...`) inside a block already gated by `<OnlyShowIf condition={type === 'vendor'}>`.
-
-### Added
-- **Nested accordion sidebar links for vendor slots** (`src/layouts/creator-dashboard-layout/creator-side-bar.tsx`, `src/components/reusable/base-sidebar.tsx`): `CreatorSidebar` is now a live component instead of a static config — it reads `selectedEventId` from `useEventSelectorStore` and fetches slots via `useGetAllVendorSlots`, splitting them by `vendorType`. "REVENUE VENDOR"/"SERVICE VENDOR" each get an optional `subLinks` array populated only when that vendor type has slots for the selected event (e.g. a Revenue slot named "Outdoor Slot B" turns "REVENUE VENDOR" into its own nested accordion linking straight to that slot); with no slots, they stay flat links as before. `ICreatorSidebarLinks["links"]` items gained an optional `subLinks` field. `AccordionSidebarMenuItem` branches on it, rendering a nested `BaseAccordion` when present.
-- **`triggerClassName` prop on `BaseAccordion`** (`src/components/reusable/base-accordion.tsx`): Lets callers merge extra classes onto the `AccordionTrigger`, used to give the nested vendor-type accordion trigger the same active-state highlight (`border-l-[3px] bg-deep-red/16 border-l-deep-red`) that flat sidebar links get, instead of relying only on `BaseAccordion`'s subtler built-in icon-color/text-opacity `isActive` styling.
-- **Expandable `VendorItem` rows** (`src/pages/vendor/component/vendor-item.tsx`): Rows in the Revenue/Service vendor slot list no longer wrap the whole row in a `<Link>` (which forced instant navigation on any click). Each row is now a toggle button that expands in place to reveal a `children` details slot plus an explicit "View Full Details" link, with a `+` icon that rotates 45° into an `×` when open.
-
-### Fixed
-- **Sidebar active state didn't propagate from sub-links to parent links** (`base-sidebar.tsx`): Extracted a shared `isPathActive(pathname, path)` helper (replacing three duplicated inline `===`/`startsWith` checks) and used it to fix the top-level trigger's `isActive` check, which previously only checked each link's own `path` and ignored `subLinks` entirely — being on an individual slot page (e.g. `/creators/revenue-vendor/abc123`) now correctly marks both the immediate parent link ("REVENUE VENDOR") and the outer "VENDOR" trigger as active.
-- **`BaseAccordion` icon gap when no icon is passed** (`base-accordion.tsx`): The trigger's icon+text wrapper hardcoded `gap-2.5` even when no `icon` prop was given (e.g. the new nested vendor-type accordions), leaving dead space before the trigger text. `gap-2.5` and the icon `<span>` now only render when `icon` is truthy.
-- **Individual vendor slot empty state not centered** (`src/pages/vendor/revenue-vendor/individual-slot/index.tsx`): The "Application Is Ongoing" empty state relied on `mx-auto`/`mt-10` hacks on a `flex flex-col` block with no height, so it sat near the top-left rather than centered in the card. Scoped `w-full h-full flex flex-col items-center justify-center` to just the empty-state branch (not the vendor list branch, which stays left-aligned/normal flow).
-- **`eventId` plumbing for the vendor slots list** (`src/pages/vendor/revenue-vendor/index.tsx`): Was still importing a hardcoded `slots` mock array while also importing (unused) `useGetAllVendorSlots`. Now reads `selectedEventId` from `useEventSelectorStore` and calls `useGetAllVendorSlots(selectedEventId ?? '')` for real data; the actual `VendorSlot` → `VendorItem` prop mapping is still pending (real API shape doesn't match `VendorItem`'s mock-shaped props yet).
-
-### Added
-- **`CreateVendorSlot` modal** (`src/pages/vendor/component/create-vendor-slot-modal.tsx`, `src/pages/vendor/component/vendor-schema.ts`): New react-hook-form + zod modal letting an organizer create a Revenue or Service vendor slot from the `RevenueVendorPage`/`ServiceVendorPage` management pages (wired in as the "Create Slot"/"Create Offer" trigger, replacing the previously-inert `DestructiveAddBtn`). Submits via the existing `useCreateVendor` mutation against `eventId` from `useEventSelectorStore`. Includes: a read-only "Vendor Type" info box, category select, conditional Slot Details (name/number-of-slots stepper/price) vs Service Details (name/budget range/work-duration start-stop time), a live-computed read-only "Total Price" field, a Budget Range slider, an application-deadline date picker, an optional "use different contact details" section (email/phone), and a "Save as Draft" button that closes without submitting (mirroring the event wizard's own no-op "SAVE AS DRAFTS" button).
-- **`Slider` component** (`src/components/ui/slider.tsx`): New shadcn-style range slider on `@radix-ui/react-slider`, styled to match this codebase's existing primitives (`progress.tsx`/`checkbox.tsx` conventions). Used for the Budget Range field above.
-- **`readOnly` + `showMessage` support on `PriceField`** (`src/pages/creators/add-event/component/price-field.tsx`): Added `readOnly` (muted, non-editable input, used for the new Total Price field) and `showMessage` (was previously hardcoded off, so price validation errors — e.g. "Provide a price." — never rendered, making required-but-empty price fields fail submission with zero visible feedback).
-- **`showMessage` support on `SelectField`** (`src/pages/creators/add-event/component/select-field.tsx`): Same gap as `PriceField` — validation errors on select fields (e.g. phone country code) never displayed. Forwarded through to the internal `FormField`.
-- **`onClick` prop on `DestructiveAddBtn`** (`src/pages/creators/_components/destructive-add-btn.tsx`): Was purely decorative before (no way to attach a handler); needed to wire up `CreateVendorSlot`'s own trigger button.
-
-### Fixed
-- **Silent validation failures with no visible feedback** (`create-vendor-slot-modal.tsx`): Clicking Create did nothing when required fields were empty, with no indication why — caused by `PriceField` never surfacing its own errors (see above) and `FormBase` having no `onError` handler at all. Added `onError` that sets local `formError` state, rendered as an inline red message above the button row (replacing an earlier toast-based attempt, since the toast was easy to miss/dismiss). Every field in the form now has `showMessage` set so no validation error is ever silently swallowed.
-- **`BaseDatePicker` calendar hidden behind modals** (`src/components/reusable/base-date-picker.tsx`): Its `PopoverContent` used the default `z-50`, but `BaseModal`'s `DialogContent`/`DialogOverlay` sit at `z-[990000]`/`z-[900000]` — inside a modal, the calendar popup opened but rendered invisibly behind the modal content. Added `z-[10000000000]` to match the same fix already applied to `SelectContent` for the identical class of bug.
-- **`field.value` type widening across an entire form** (`create-vendor-slot-modal.tsx`): `CustomFormField`'s render-prop type isn't narrowed per field name, so once the form's schema mixed plain strings with nested objects (`startTime`, `stopTime`, `phone`) and a boolean (`hideSocialLinks`), `field.value` widened to a union of all of those in *every* field's render prop — breaking `slotName`, `slotNumber`, `serviceName`, and `description`, which are always plain strings. Fixed by wrapping each with `String(field.value ?? "")` instead of `field.value ?? ""`, which always collapses to a definite `string`.
+### Added — fans
+- **Private event card:** shown instead of the tickets on a private event.
+  - **Request access** sends a request. Fans then see "pending" until they're approved, and approved fans see the tickets.
+  - Signed-out fans are taken to login, with a green "Log in to request access" bar.
+- **Invite-only tickets** on the event page show a padlock instead of + and − buttons.
 
 ### Changed
-- **`VendorSelect` trigger text + chevron alignment** (`src/components/shared/vendor-select.tsx`): Added `[&>span]:truncate` to clip long event names and `[&_svg]:shrink-0` to prevent the chevron from being pushed off-line.
-- **Dashboard card image link unblocked** (`src/components/shared/dashboard-cards.tsx`): Added `pointer-events-none` to the gradient overlay (`absolute inset-0`) that was sitting on top of the `<Link>` and intercepting all clicks.
-- **`BaseSelect` auth-type content background** (`src/components/reusable/base-select.tsx`): Added `bg-white` to the `type="auth"` `SelectContent` so the dropdown is no longer transparent. `SelectItem` now gets `text-white focus:text-white focus:bg-white/10 data-[state=checked]:text-white` for consistent white text in all states.
-- **`SelectField` trigger background** (`src/pages/creators/add-event/component/select-field.tsx`): Changed `bg-white` → `!bg-white` to guarantee the trigger overrides `bg-transparent` from the `BaseSelect` base styles.
-- **`Input` focus/hover border fix** (`src/components/ui/input.tsx`): Replaced `focus-within:*` pseudo-classes (wrong on a self-focused `<input>`) with `focus:outline-none focus-visible:outline-none focus:ring-0`. Removed `focus:border-white` which was overriding any caller-supplied border colour on focus. Removed invalid `c:text-gray-150` class.
-- **Creator dashboard mobile hamburger** (`src/layouts/creator-dashboard-layout/header.tsx`, `index.tsx`): Removed the floating `SidebarTrigger` button from the page body. The header now shows a hamburger (`SidebarTrigger`) when the mobile sidebar is closed and swaps it for `CreatorMenuButton` when `openMobile` is true. Desktop always shows `CreatorMenuButton`.
-- **Creator sidebar mobile fullscreen** (`src/components/reusable/base-sidebar.tsx`, `src/layouts/creator-dashboard-layout/creator-side-bar.tsx`): Added `mobileFullscreen` prop to `BaseSideBar`. When enabled on mobile, the sidebar renders as a fixed full-screen white overlay below the header (`top-16`) instead of a slide-in drawer. Includes a `ChevronLeft` close button at the top. Navigation links close the overlay on click.
-- **`SidebarTrigger` size now overridable** (`src/components/ui/sidebar.tsx`): Removed `size="icon"` variant (which was injecting a hardcoded `size-9`) and removed the hardcoded `w-6 h-6` from the `Menu` icon. `Menu` now has a default `className="size-5"` so callers can override icon size via `[&>svg]:size-*` without fighting the button variant or a `:not([class*='size-'])` base rule.
-- **Edit event header two-row mobile layout** (`src/pages/creators/edit-event/component/edit-tab-children-container.tsx`): On mobile, the back button / event name sits on its own row at the top, and the tab select / save / publish buttons appear on a second row below. Desktop layout is unchanged (single row).
-
-
-### Added
-- **Debounce on promo code validation** (`src/pages/fans/account/components/promo-code.tsx`): `handleValidatePromocode` now debounces 600ms via a `useRef` timeout (cleared on each keystroke and on unmount) before firing `useValidatePromocode`, instead of validating on every change event.
-- **Promo code discount wired to checkout total** (`promo-code.tsx`, `src/pages/landing-page/checkout/sections/checkout-summary.tsx`, `src/pages/fans/account/components/totalPrice-accordion.tsx`): `PromoCode` now accepts an `onApply(discount: PromoDiscount | null)` callback, called with `{ discountAmount, discountType, discountValue }` on a valid code and `null` on invalid/cleared/error. `CheckoutSummary` holds the discount as local (non-persisted — a stale discount shouldn't outlive a cart-quantity change) state and passes it to `TotalAccordion`, which now shows the original ticket price and total struck through next to the discounted figures, plus a "Discount (X% OFF / ₦X OFF)" line.
-- **Applied promo code shown inside the input** (`promo-code.tsx`): Once a code validates, the input becomes read-only and displays `{code} · {discount} OFF` in place of the raw typed text, with a small `X` button to clear it (resets code, message, validity, `promoCodeId`, and calls `onApply(null)`) so the user can enter a different code.
-- **`ApiErrorResponse` type** (`src/types/api.ts`): `{ message, status, statusCode }` — shape of a failed (non-2xx) API response body, used to type `AxiosError` generics.
-
-### Fixed
-- **Promo code validation crash on success** (`promo-code.tsx`, `src/types/cart.ts`, `src/hooks/use-cart.ts`): `ValidatePromocodeData` had an accidental extra `data` wrapper — it modeled itself as the full response envelope (`message`/`data`/`cursor`/`id`/`status`/`statusCode`) but was then wrapped again in `ApiResponse<ValidatePromocodeData>`, adding a third nesting layer that doesn't exist in the real API response. This threw inside `onSuccess` at `payload.data.isValid` (`payload.data` was `undefined`) right after `setMessage` ran, so a *successful* validation silently failed to update `isValid`/`promoCodeId`/discount state. Fixed by extracting the flat result as `PromoValidationResult`, changing `ValidatePromocodeResponse` to `ValidatePromocodeData` directly (dropping the extra `ApiResponse` wrap), and reading fields directly off `payload` (`payload.isValid`, `payload.promoCodeId`, etc.) instead of `payload.data.*`. Supersedes the earlier "Promo code validation response fix" entry below, which described the now-removed double-nesting as the intended shape.
-- **`onError` error typing** (`src/hooks/use-cart.ts`): `useValidatePromocode` now types its mutation as `useMutation<ValidatePromocodeResponse, AxiosError<ApiErrorResponse>, ...>` instead of the default `Error`, so `error.response?.data?.message` in `promo-code.tsx`'s `onError` typechecks correctly instead of failing with "Property 'response' does not exist on type 'Error'".
-
-### Added
-- **Withdraw funds modal** (`src/pages/fans/account/components/withdraw-funds-modal.tsx`): Added bank account verification flow to the withdraw modal. Fetches Nigerian banks via `useGetNigerianBanks` on modal open and populates a `BaseSelect` dropdown (keyed by `bank.slug`, value is `bank.code`). Account number input (numeric, max 10 digits) debounces 400ms then calls `ticketService.verifyBankAccount` only when exactly 10 digits are entered and a bank is selected. Shows a spinner while verifying, the resolved account name in green on success, and "Account not found" on error. Confirm button disabled until amount is valid and bank account is verified. All state resets on close.
-- **`titleClassName` prop on `BaseModal`** (`src/components/reusable/base-modal.tsx`): Added optional `titleClassName` to `CustomModalProps` and destructured it into the component, applied to the `DialogHeader` via `cn`.
-
-### Changed
-- **Wallet tab loading guard** (`src/pages/fans/account/tabs/wallet-tab.tsx`): `isLoading` guard now returns the `LoadingFallback` (was missing `return`). `availableBalance` no longer defaults to `0` at the variable level — `?? 0` applied only at the two call sites so `₦0` is never rendered while data is loading.
-
-### Added
-- **Ticket resale modal** (`src/pages/fans/tickets-resale/modals/ticket-resale.tsx`): Three-step flow — select tickets → set prices → price picker — within a single Radix Dialog to avoid the focus-trap issue with nested dialogs. Users can select multiple ticket types with per-type quantities capped at 3 total across all types. Price picker uses ChevronLeft/ChevronRight to step ±₦1,000, seeded from the ticket's original price on first open and persisting changes across re-opens. Fee breakdown (service fee + payout) shown inline on each ticket card once a price is set. "List for Sale" button disabled until all selected tickets have a price set; shows "Listing..." and stays disabled while the request is in-flight.
-- **`TransformedTicket` component** (`src/pages/fans/my-tickets/components/transformed-ticket-icon.tsx`): Lucide `Ticket` icon rotated 180° with configurable `color` (required) and `size` (optional, default `16`) props. Used in the resale modal's price step to represent listed tickets.
-- **`useTicketResale` hook** (`src/hooks/use-tickets-mutations.ts`): `useMutation` that calls `ticketService.resellTickets(TicketResaleRequest[])`. Accepts an array so all ticket types are submitted in a single request (atomic — backend either lists all or none). Shows success/error toasts via `onSuccess`/`onError`.
-- **`TicketResaleRequest` type** (`src/types/ticket.ts`): `{ ticketId: string; quantity: number; price: number }`.
-- **`ticketService.resellTickets`** (`src/services/tickets.service.ts`): `POST /api/profile/user/ticket/resale/list` accepting `TicketResaleRequest[]`.
-
-### Added
-- **Ticket transfer modal** (`src/pages/fans/my-tickets/tickets-transfer/index.tsx`): Two-step flow — select tickets → enter recipient emails — within a single Radix Dialog. Ticket cards show quantity selector (same cap of 3 total) without price. Email step shows one input per selected ticket; each input debounces 600ms after the user stops typing, fires `ticketService.verifyTransferRecipient` only when the value passes email regex validation, and shows a spinner while verifying, the recipient's name on success, or an error message on failure. "Send" button stays disabled until all tickets have a verified recipient. Resets all state on close.
-- **`TicketTransferRequest` type** (`src/types/ticket.ts`): `{ ticketId: string; quantity: number; recipientIdentifier: string }`.
-- **`VerifyTransferRecipient` / `VerifyTransferRecipientResponse` types** (`src/types/ticket.ts`): Response shape for the verify endpoint — `{ userId, firstName, lastName, email, phoneNumber }`.
-- **`ticketService.verifyTransferRecipient`** (`src/services/tickets.service.ts`): `GET /api/Profile/user/ticket/transfer/verify-recipient?recipientIdentifier=` — checks whether a recipient account exists before transfer.
-- **`ticketService.transferTickets`** (`src/services/tickets.service.ts`): `POST /api/Profile/user/ticket/transfer` accepting `TicketTransferRequest[]`. Returns `ApiResponse<null>` so the response `message` is available to the caller.
-- **`useTransferTickets` hook** (`src/hooks/use-tickets-mutations.ts`): `useMutation` wrapping `ticketService.transferTickets`. `onSuccess` toasts `data.message` from the API response.
-- **`useVerifyTransferRecipient` hook** (`src/hooks/use-tickets-mutations.ts`): `useMutation` wrapping `ticketService.verifyTransferRecipient` for use cases that need mutation lifecycle state.
-
-### Changed
-- **`OtherActions` refactored** (`src/pages/fans/my-tickets/individual-active-tickets/index.tsx`): `actions` array moved inside the component so each item holds its handler directly (`action: onSell / onTransfer / onUpgrade`). All three render as `<button>` elements. `otherActionProps` interface added with `onSell`, `onTransfer`, `onUpgrade`. TRANSFER wired to `TicketTransferModal` via `transferOpen` state.
-- **SELL action wired to resale modal** (`src/pages/fans/my-tickets/individual-active-tickets/index.tsx`): SELL card now renders as a `<button>`. Clicking opens `TicketResaleModal` via `resaleOpen` state.
-
-### Added
-- **Payment confirmation page** (`src/pages/landing-page/payment-confirmation/index.tsx`): New standalone page (no navbar/layout) that Paystack redirects to after checkout via `callbackUrl`. Reads `reference`/`trxref` query params from the URL. On mount, fires `useProcessCheckout` to confirm the order with the backend. Shows a loading spinner while pending, a success state ("Thank You For Your Purchase!") with "Back to Events" and "View Tickets" CTAs on success, and an error state ("An Error Occurred") with a "Try Again" button on failure. Redirects to events if the reference param is missing.
-- **`payment_confirmation` route** (`src/config/route-map.ts`, `src/application.tsx`): Added `/fans/payment-confirmation` to `ROUTE_PATHS` and `RouteParams`. Registered as a standalone `<Route>` in `application.tsx` with no layout wrapper, so the navbar is not rendered.
-- **`useProcessCheckout` hook** (`src/hooks/use-cart.ts`): New mutation that calls `cartService.processCheckout(data)` with `paymentMethod`, `promoCodeId`, and `transactionReference`. Used by the payment confirmation page to finalise the order after Paystack redirect.
-
-### Changed
-- **Paystack callback URL** (`checkout-summary.tsx`): Changed from hardcoded `http://localhost:5173/fans` to `${window.location.origin}/fans/payment-confirmation`, so the redirect works correctly across dev, staging, and production environments.
-
-### Fixed
-- **`BaseModal` confirm overlay flashing on open** (`src/components/reusable/base-modal.tsx`): Replaced `useEffect` with `useLayoutEffect` to reset `showConfirm` whenever `open` changes. `useLayoutEffect` fires synchronously before the browser paints, so even if `showConfirm` was set to `true` in the same React batch as `open` becoming `true`, it is zeroed out before the user sees it. Also resets on `open → true` (not just `open → false`) so every modal open cycle starts with a clean confirm state.
-
-### Added
-- **Google Maps embed on event location** (`src/pages/landing-page/event-page/event-location.tsx`): Replaced react-leaflet `MapContainer`/`TileLayer`/`Marker` with a Google Maps `<iframe>` embed. Both the embed URL and the "Open in Maps" link are now derived synchronously from `event_location` via `encodeURIComponent` — no async geocoding or API key required. Removed all leaflet imports and the `createCustomIcon` helper.
-- **`toGoogleMapsUrl` and `locationToGoogleMapsUrl` utilities** (`src/lib/geocode.ts`): Added `toGoogleMapsUrl(lat, lon)` that returns a `google.com/maps?q=` URL from coordinates, and `locationToGoogleMapsUrl(location)` that geocodes a string via Nominatim and returns the Maps URL in one call.
-
-### Added
-- **Pagination cast pattern applied across pages**: All list endpoints now cast `response?.data` to `PaginatedResponse<ItemType> | undefined` and access `.items` for the array; single-item endpoints cast directly to the data type. `PaginatedResponse` is imported from `@/types/api` (not re-exported from `@/types`). Plain-array endpoints (e.g. vendor available events) cast to `Array<ItemType> | undefined` directly. Response types for list endpoints use the singular item type (`ApiResponse<EventData>` not `ApiResponse<EventData[]>`) so `items` resolves to `T[]` not `T[][]`.
-- **Promo code validation response fix** (`src/pages/fans/account/components/promo-code.tsx`): Cast `data.data` to `ValidatePromocodeData` before accessing `.data.isValid` — the type has a nested `data` object with the validity flag, not a top-level `isValid`.
-- **Business Details section shown for both Organizer and Vendor** (`complete-profile/index.tsx`): Fixed `userAccountType === "Organizer" || (userAccountType === "Vendor" && <JSX>)` — `||` short-circuited to boolean `true` for Organizer, rendering nothing. Changed to `(userAccountType === "Organizer" || userAccountType === "Vendor") && <JSX>`.
-- **`formState` destructuring fix** (`complete-profile/index.tsx`): `useForm` returns the form object directly — `{ form, ... } = useForm()` is invalid. Fixed to `const form = useForm()` with `const { formState: { errors, isSubmitting }, watch, setValue } = form` on the next line.
-- **Numeric month values on Complete Profile birthday select** (`src/pages/fans/complete-profile/index.tsx`): Replaced `date_list.items` (which used abbreviation values like `"jan"`) with a local `months` array using zero-padded numeric values (`"01"`–`"12"`). Labels remain full month names. `dateOfBirth` is now built correctly as `YYYY-MM-DD` without a separate conversion step.
-- **Error messages on Complete Profile fields** (`src/pages/fans/complete-profile/index.tsx`): Added `showMessage` to all `FormField` components (companyName, companyWebsite, gender, birthday month/day/year, country, state, phone). Category error already displayed via manual `errors.category.message`.
-- **`https://` validation on `companyWebsite`** (`src/pages/fans/complete-profile/zod-schema.ts`): Added `.refine` that rejects values not starting with `https://`; field stays optional so validation only fires when a value is entered.
-- **First name and last name read-only from local store** (`complete-profile/index.tsx`): Replaced profile API call with `useAuth()` store; first/last name displayed from `user.profile.firstName` / `user.profile.lastName`, email from `user.email`. No network request needed for the read-only section.
-- **Complete profile route moved to top-level** (`src/config/route-map.ts`): Changed from `/fans/complete-profile` to `/complete-profile` so the page is reachable regardless of account type.
-- **Organizer signup now redirects to fans account** (`src/hooks/use-auth.ts`): `useRegisterOrganizer` `onSuccess` now navigates to `getRoutePath('account')` instead of `getRoutePath('standalone')`.
-- **Token refresh fires 3 minutes before expiry** (`src/hooks/use-token-refresh.ts`): `REFRESH_BEFORE_MS` changed from `60 * 1000` to `3 * 60 * 1000` so the refresh request goes out with more buffer time before the access token actually expires.
-- **Pagination type system** (`src/types/api.ts`, `src/types/event.ts`): Added `PaginatedResponse<T>` interface (`items`, `pageNumber`, `pageSize`, `totalCount`, `totalPages`, `hasPrevious`, `hasNext`). `ApiResponse.data` updated to union `PaginatedResponse<T> | T`. All list response types updated to use singular item type (`ApiResponse<EventData>` instead of `ApiResponse<EventData[]>`) so `PaginatedResponse<T>.items` resolves to `T[]` not `T[][]`. Consumers cast `response.data as PaginatedResponse<ItemType>` and access `.items`.
-
-### Added
-- **`monthNumberToName` utility** (`src/lib/helper-func.ts`): Converts a month number to a 3-letter lowercase month code (e.g. `6` → `"jun"`) matching `date_list.items` values used in birthday selects. Used in `profile-transforms.ts` to correctly map `dateOfBirth.getMonth() + 1` to the select's value format.
-- **Inset/floating label pattern on fan profile tab** (`src/pages/fans/account/tabs/profile-tab.tsx`): All form fields now show the field label inside the input at the top (`position: absolute`, `top-[10px]`), with the value text pushed to the bottom via `pt-6` on inputs and `items-end` on selects. Applied to First Name, Last Name, Email, Gender, Birthday (Month/Day/Year), Country, State, and Phone Number.
-- **Birthday row layout** (`profile-tab.tsx`): Birthday rendered as a 4-column grid — a static "Birthday" label box on the left and Month, Day, Year selects on the same horizontal line, each with inset labels.
-- **Disabled password field** (`profile-tab.tsx`): Password field rendered as a non-interactive display — `disabled`, `tabIndex={-1}`, `pointer-events-none`, muted grey background (`bg-[#595959]`) and grey label/text to communicate it is not editable on this screen.
-- **`valueClassName` prop** (`src/components/reusable/base-select.tsx`): Added optional `valueClassName` to `ICustomSelectProps` for future styling of the selected value span.
-- **`CompleteProfileRequest` type** (`src/types/profile.ts`): Added interface covering all fields needed for profile completion — `token`, `firstName`, `lastName`, `country`, `dateOfBirth`, `gender`, `telephone`, `website`, `businessName`, `vendorType`, `category`, `portfolio`, `socials`, `companyName`.
-- **Complete Profile page** (`src/pages/fans/complete-profile/index.tsx`): New standalone page (no layout, no auth guard) accessible only via `?token=` query param from an email link. Redirects to home if token is missing or if the profile fetch returns a 401. Displays User Information (First Name, Last Name, Email, Password) as read-only greyed fields populated from `useUserProfile`. Personal Details (Gender, Birthday, Country, State, Phone) are editable `FormBase`/`FormField` fields pre-populated from the same endpoint, with a Save button that calls `useUpdateUserProfile`.
-- **`complete_profile` route** (`src/config/route-map.ts`, `src/application.tsx`): Added `/fans/complete-profile` to `ROUTE_PATHS` and `RouteParams` (`never` — token is a query param, not a path segment). Registered as a standalone `<Route>` in `application.tsx` with no layout wrapper or auth guard.
-
-### Changed
-- **`SelectTrigger` default alignment** (`src/components/ui/select.tsx`): Changed `items-center` to `items-end` so the selected value text aligns to the bottom of the trigger, matching the inset label layout. `ChevronDownIcon` uses `self-center` to remain vertically centred regardless.
-- **Sidebar nav divider lines** (`src/layouts/user-dashboard-layout/sidebar.tsx`): Divider elements moved outside the `<button>` into the wrapper `<div>` with `ml-[60px]` to align with the icon position (matching the button's `padding-left: 60px`). Removed `flex-col items-start` from buttons.
-- **`BaseSelect` dropdown item styling** (`src/components/reusable/base-select.tsx`): Removed red `data-[highlighted]:!bg-[#AE2323]` highlight from `type="others"` items. Removed checkmark SVG via `[&>span:first-child]:hidden` and reclaimed reserved padding with `!pr-2`. Active item background now uses `focus:!bg-white/10` to match the hover style.
-
-### Added
-- **Token refresh system**: Proactive JWT refresh before expiry and automatic session cleanup on expiry or 401.
-  - **`src/lib/token.ts`**: `decodeTokenExpiry(token)` decodes the `exp` claim from a JWT payload (returns Unix seconds). `isTokenExpired(token)` returns `true` if the token is malformed or `Date.now() >= exp * 1000`.
-  - **`src/hooks/use-token-refresh.ts`**: `useTokenRefresh` hook mounted globally in `AppRoutes`. Calculates `delay = tokenExpiry * 1000 - 60000 - Date.now()` and schedules a `setTimeout` to fire 1 minute before expiry. On fire: calls `authService.refreshToken({ accessToken, refreshToken })`; on success stores new tokens via `setTokens` and reschedules; on failure calls `clearAuth()` which triggers `AuthGuard` to redirect.
-  - **`stores/index.ts`**: Added `refreshToken`, `tokenExpiry` fields; `setAuth` now accepts optional `refreshToken`; new `setTokens(token, refreshToken)` action updates both and persists to localStorage; `clearAuth` wipes both; `getInitialState` clears stored auth if the persisted token is already expired on page load.
-  - **`services/auth.service.ts`**: Added `refreshToken({ accessToken, refreshToken })` calling `POST /api/Auth/refresh`.
-  - **`services/http.service.ts`**: Request interceptor calls `clearAuth()` and rejects the request if the stored token is already expired before sending. Response interceptor calls `clearAuth()` on any `401` response.
-  - **`types/auth.ts`**: Added `RefreshTokenResponse` type `{ message, token, refreshToken }`; added `refreshToken?` to `LoginResponse` and `AuthResponse`.
-- **`useSyncCartToServer` hook** (`use-cart.ts`): New mutation that calls `POST /api/cart/sync` with all local store items when an authenticated user clicks Continue in the cart. Server-side cart is only created at this point, not during browsing.
-- **`daysUntilEvent` utility** (`src/lib/helper-func.ts`): Returns the number of calendar days between today and an event's start date using `differenceInCalendarDays` from date-fns.
-- **`BaseModal` confirm-close overlay** (`base-modal.tsx`): Added `confirmClose` prop that intercepts close attempts (X button, Escape, overlay click) and renders an absolute-positioned confirmation card on top of the modal instead of closing immediately. Configurable via `confirmCloseTitle`, `confirmCloseMessage`, `confirmCloseConfirmText`, `confirmCloseCancelText`. Includes an X icon to dismiss the overlay without closing the modal. Applied to both the cart modal and checkout modal in `cart/index.tsx`.
-- **`TotalAccordion` component** (`src/pages/fans/account/components/totalPrice-accordion.tsx`): Collapsible total price breakdown showing ticket subtotal and service fee in the content, with TOTAL + price in the trigger and auto-appended chevron.
-- **`PromoCode` component** (`src/pages/fans/account/components/promo-code.tsx`): Extracted standalone reusable promo code component with typed `cartItems`, `totalPrice`, and `totalQuantity` props.
-- **`CheckoutSummary` component** (`src/pages/landing-page/checkout/sections/checkout-summary.tsx`): New component replacing the old `cart-summary` in the checkout flow, matching updated Figma. Layout: desktop flex-row with event details + order summary on the left and event image on the right; mobile stacks event details → image → order summary.
-- **Inter font** added to project (`src/styles/fonts.css`, `public/fonts/inter/`): Variable font files for Inter Regular and Italic; registered as `font-inter` in CSS.
-- Initial Changelog creation.
-- `formatTimeLong`, `formatDateLong`, `formatTimezone` utility functions added to `src/lib/helper-func.ts` for consistent event time and timezone display (e.g. `+1` → `WAT`).
-- `PromoCode` extracted into a standalone reusable component (`src/components/reusable/promo-code.tsx`) with typed `cartItems`, `totalPrice`, and `totalQuantity` props — replaces inline promo code logic in both cart-container and cart-summary.
-- `TotalAccordion` component: collapsible total price breakdown showing ticket subtotal and service fee, with TOTAL + price in the trigger and line-by-line breakdown in the content.
-- Full-screen login step on mobile checkout for unauthenticated users: cart summary hidden on mobile until authenticated, login form takes full screen width.
-- 10-minute countdown timer on checkout login screen (`useCountdown` hook using `setInterval`).
-- `isSyncingCart` flag to `useCartStore` for tracking post-login cart sync state (excluded from localStorage persistence).
-
-### Fixed
-- **Cart close button now clears local cart** (`cart/index.tsx`): `onClose` on the cart and checkout modals calls `clearCart()` before closing, so confirming exit wipes the local store & server store (if authenticated)
-
-### Changed
-- **Cart architecture — local store as single source of truth**: All cart mutations (`useCreateCart`, `useDeleteCart`, `useUpdateCartQuantity`) now always write to `useCartStore` regardless of auth state. Server cart is only created when an authenticated user clicks Continue (`useSyncCartToServer`). Unauthenticated flow is unchanged.
-- **`useGetAllCart` always reads from local store**: Removed the server fetch branch — all consumers (cart-container, tickets, checkout-summary) read from `useCartStore` directly, with ticket names/prices enriched via `useGetEventTickets`.
-- **`cart-container.tsx`**: Removed auth branching; always derives `cartItems` from local store. Added `isLoading` prop that disables and shows a spinner on the Continue button during server sync.
-- **`tickets.tsx` `TicketCard`**: `ticketCount` always read from `useCartStore`; `cartId` is always `ticketId`. Removed `useGetAllCart`, `useAfroStore`, and `CartData` imports.
-- **`checkout-summary.tsx`**: `cartItems` always derived from local store + `useGetEventTickets` enrichment; auth branching removed. Countdown timer only rendered for authenticated users (server cart can expire; local-only carts cannot).
-- **`useLogin` cart sync simplified** (`use-auth.ts`): Replaced per-item `Promise.allSettled` with a single `cartService.syncCart` call. Local store is **no longer cleared** after login sync so checkout-summary can still read items for display.
-- **`useClearCart`** (`use-cart.ts`): Now also calls `useCartStore.clearLocal()` after the server clear. Only calls the server when the user is authenticated.
-
-### Fixed
-- **Business signup form not submitting** (`business-signup-form.tsx`): `InputField` and `SelectField` wrappers were not passing `showMessage` to their inner `FormField`, so Zod validation errors were invisible — form appeared to do nothing on submit. Added `showMessage` to both field components.
-- **Theme tab `onSubmit` not triggering** (`theme-tab.tsx`): `RadioGroupItem` had `className='hidden'` which sets `display:none`, making the element non-interactive — label's `htmlFor` could not activate it, so `field.onChange` was never called and the theme value stayed `undefined`, failing `z.enum` validation silently. Fixed by changing to `className='sr-only'`. Also corrected typo `'defualt'` → `'default'` in the default theme option.
-- **Theme and desktopMedia cleared on event details save** (`event-details-tab.tsx`): `transformEventDetailsToCreateRequest` did not include `theme` or `desktopMedia` in its output, so the backend treated missing fields as a full replace and cleared them. Fixed by merging the existing event's `theme` and `desktopMedia` into the update payload in `onSubmit`.
-- **Ticket validation errors not surfaced** (`tickets-tab.tsx`): Added `onError` callback as the second argument to `handleSubmit` so Zod validation failures log to the console for debugging.
-- **Mobile screens for fans route** (`bceb4d9`): Fixed layout issues across cart container, checkout page, event description, event details, ticket section, and resell page on mobile viewports. Improved helper functions for time formatting (`formatTimeLong`, `formatDateLong`, `formatTimezone`).
-- **React Query stale cache after login** (`use-cart.ts`): Added `isAuthenticated` to the `useGetAllCart` query key so a state change from unauthenticated → authenticated creates a new cache slot, preventing local-format cart data from being served as server `CartData`.
-- **Race condition on login** (`use-auth.ts`, `stores/index.ts`): Local cart sync is now `await`ed before navigation and `onSuccess` callback fire. `isSyncingCart` wraps the full `Promise.allSettled` call so the UI spinner stays active for the entire sync duration.
-- **Post-login redirect to checkout** (`user-login-form.tsx`, `checkout/index.tsx`): User is correctly returned to the checkout page after signing in from the checkout flow.
-- **Cart trigger positioning**: Removed duplicate/conflicting layout in `event-details.tsx` that caused incorrect cart trigger placement on the event page.
-- **Base modal footer not visible on mobile** (`base-modal.tsx`): Switched `DialogContent` from `block` to `flex flex-col gap-0`; footer positioned with `absolute bottom-0 right-0 z-10`; removed `sm:overflow-y-auto` from full-size class.
-- **Lucide icon `color` prop misuse** (`cart-container.tsx`): Changed `color="text-white"` (invalid Tailwind class as CSS value) to `color="white"` on Plus/Minus icons — icons now render correctly.
-- **Cart container not scrollable on mobile**: Set `max-h-[calc(100vh-100px)] overflow-y-auto` on the inner content div so content scrolls within the modal.
-- **AccordionTrigger chevron misaligned**: Overrode base `items-start` with `items-center` so the chevron is vertically centred with TOTAL text and price.
-- **AccordionTrigger price appearing in the middle**: Wrapped TOTAL and price in a single `flex w-full justify-between` div before the auto-appended chevron, so layout is `TOTAL ... price ˅` rather than three separate flex items.
-- **Forgot password stacking a second dialog** (`35463f7`): Renders forgot password form inside the existing auth modal instead of opening a nested dialog.
-- **Settings button not opening / mobile sidebar trigger broken** (`5dc703b`): Fixed interactive trigger wiring on mobile sidebar and settings menu.
-- **Resell page mobile layout** (`resell-page/index.tsx`): "Revive" headline and CTA button now inline on same row; responsive text sizing (`text-[48px] md:text-[40px] lg:text-[72px]`); text centred on mobile, left-aligned on desktop.
-- **`isFan` / `isCreator` / `isVendor` always returning `false`** (`stores/index.ts`): Replaced getter pattern with explicit boolean properties set in `setAuth`, `clearAuth`, and `updateUser`.
-
-### Changed
-- **`formatNaira` refactored to options object** (`src/lib/format-price.ts`): Signature changed from `(amount, aproximate?)` to `(amount, options: { aproximate?, free? })`. Added `free` option — when `amount === 0 && free` returns the string `'FREE'` instead of `'₦0'`. Callers that previously passed a positional boolean now use `{ aproximate: true }`.
-- **Cart button FREE display** (`cart/index.tsx`): Added `hasCartItems` derived boolean; the checkout button now shows `'FREE'` only when the cart has items and the total price is ₦0, so the default empty-cart state still shows `₦0`.
-- **Cart container redesigned to match Figma** (`cart-container.tsx`, `875ad8a`): Layout updated to flex-row on desktop — event details and order summary on the left column, event image fixed on the right. On mobile, stacks as event details → image → order summary. Integrated `TotalAccordion` and `PromoCode` components. Inner content div uses `max-h-[calc(100vh-100px)] overflow-y-auto` for scrollability.
-- **Checkout page redesigned to match Figma** (`checkout/index.tsx`, `a6c6e6b`): `cart-summary` replaced by new `CheckoutSummary` component with matching layout. `useCountdown` hook moved inside `CheckoutSummary`.
-- **Publish event redirects to standalone route** (`event-details-tab.tsx`): After a successful publish, `onPublish` now calls `navigate(getRoutePath('standalone'))` instead of staying on the edit page.
-- **Event routing migrated from `eventID` to `customUrl`** (`hooks/use-event-mutations.ts`, `services/event.service.ts`, `components/shared/category-block.tsx`, `event-page/`): All event navigation now uses `customUrl` as the route parameter for cleaner, human-readable URLs.
-- **`eventID` removed as API request payload** (`event-transforms.ts`, creator edit-event tabs): Event ID no longer sent as part of the create/update request body; back-click navigation fixed in edit event tab.
-- **Cart summary** (`cart-summary.tsx`): Fully supports both authenticated (server `CartData`) and unauthenticated (local store + ticket enrichment via `useGetEventTickets`) states. `totalPrice` and `totalQuantity` computed from the normalised cart items array.
-- **Fans homepage UI** (`home/`, `afro-carousel.tsx`, `base-dropdown.tsx`): Various layout and dropdown bug fixes; carousel and own-the-stage section improvements.
-- **Footer social links** (`home/socials.tsx`, footer components): Real social media URLs added, open in new tab; social icon sizing reduced; top border added to footer social row; language selector removed.
-- **About-us mobile layout** (`/about-us`): Improved section spacing, typography scaling, and text readability across all mobile breakpoints.
-- **`cart-summary.tsx` checkout button**: Aligned to `self-center mx-auto`.
-- 2-step vendor signup flow matching Figma design specifications.
-- Responsive design for Vendor Dashboard (mobile and tablet support).
-- Enhanced creators landing page header with improved desktop sizing and layout.
-
-### Fixed
-- **Creators Landing Page Header Issues**:
-  - Removed duplicate headers by moving `/creators` route to `CreatorsLandingPageLayout`.
-  - Eliminated conflicting header from `IndexLayout` on creators page.
-  - Now displays single, consistent header across all creator pages.
-
-### Changed
-- **Refactored `BusinessSignUp` component** (`src/pages/auth/sign-up/business-signup-form.tsx`):
-    - Implemented multi-step state management using `useState`.
-    - **Step 1:** Collects Personal Information (Name, Phone, Gender), Business Details (Business Name, URLs), and Account Credentials (Email, Password).
-        - Button text: "Continue"
-        - Validates all Step 1 fields before proceeding.
-    - **Step 2:** Collects Business Classification (Vendor Type and Category).
-        - Title changes to "Business Type"
-        - Description changes to "Select The Applicable Category"
-        - Button text: "Sign Up"
-    - Added `handleContinue()` function to validate Step 1 fields using `form.trigger()` before transitioning to Step 2.
-    - Conditional rendering of form fields based on current step.
-    - Dynamic title and description based on step and user type.
-- **Updated Vendor Dashboard pages** to match Figma designs:
-    - Added "Discover events near you!" heading to Discover page.
-    - Changed card labels from "Category" to "Available Slots" with green styling.
-    - Implemented responsive grid layouts (1 column mobile → 2 columns tablet → 3-4 columns desktop).
-    - Added "Discover events near you!" heading to Discover page.
-    - Changed card labels from "Category" to "Available Slots" with green styling.
-    - Implemented responsive grid layouts (1 column mobile → 2 columns tablet → 3-4 columns desktop).
-    - Improved spacing and typography across all viewport sizes.
-    - Fixed text overflow issues on Profile page.
-- **Implemented new Vendor pages**:
-    - **Event Details Page**: Created `/vendor/discover/:eventId` with banner, event info, expandable "About" section, and scroll-stopping slot registration card.
-    - **Wishlist/Saved Events Page**: Created `/vendor/wishlist` with "RESULTS" header (mobile) / "Saved Events" (desktop) and responsive event grid.
-- **Implemented Vendor Dashboard Phase 2**:
-    - **Edit Profile Modal**: Implemented comprehensive modal (tabs: Profile, Inbox, Account) matching Figma Image 4. Replaced "DestructiveAddBtn".
-    - **Slot Details Page**: Created `/vendor/slots/:eventId` (e.g. "Blackmarket Flea") with search function and status-badged slot list matching Figma Image 2.
-    - **My Slots Integration**: Updated My Slots page (`/vendor/slots`) to display mock events that link to the new Details page.
-- **Implemented Vendor Dashboard Phases 3 & 4 (Gaps & Polish)**:
-    - **View Profile Modal**: Added read-only profile modal with badge, contact details, and gallery (Figma Image 2).
-    - **Inbox Improvements**:
-        - Populated "Inbox" tab with mock notifications (Figma Image 0).
-        - Added interactive Detail View with "Secure Slot" CTA (Figma Image 1).
-    - **Slot Features**:
-        - **Description Modal**: Refined modal with Quantity Selector, Green Price, and "Request" button to match updated Figma reference (Image 4).
-        - **Section Map**: Implemented interactive "List / Map" toggle displaying a color-coded stall grid (Figma Image 3).
-- **Enhanced Creators Landing Page Header (Desktop)**:
-    - **Increased header height** from `h-20` to `h-28` (40% larger on desktop).
-    - **Enlarged logo** from 80x40px to 120x60px on desktop (responsive: remains 80x40px on mobile).
-    - **Larger navigation links** from `text-sm` to `text-base lg:text-lg` for better readability.
-    - **Improved spacing** with `gap-12 lg:gap-16` between navigation items.
-    - **Added max-width** of `1400px` with enhanced padding (`px-4 md:px-8 lg:px-16`, `py-4 md:py-6`).
-    - **Repositioned countdown timer** from inline with LOGIN button to centered row below navigation for better visual hierarchy.
-    - **Responsive timer sizing** using `clamp(20px, 4vw, 28px)` for optimal scaling.
-- **Updated Creators Page Route**:
-    - **Changed route path** from `/fans/creators` to `/creators` in `src/config/route-map.ts`.
-    - All navigation links automatically updated via `getRoutePath('creators')` helper.
-    - **Updated content padding** from `pt-32` to `pt-40 md:pt-36` to accommodate larger header.
-- **Guest Cart Support — Unauthenticated fans can now add tickets to cart**:
-    - Created `useCartStore` in `src/stores/index.ts` using Zustand `persist` middleware, storing `{ ticketId, quantity }` items in localStorage under the key `afro-cart`. Cart survives page refreshes.
-    - Updated all cart hooks in `src/hooks/use-cart.ts` to check authentication before acting:
-        - `useGetAllCart`: returns local store items when unauthenticated, server data when authenticated.
-        - `useCreateCart`: writes to `useCartStore` when unauthenticated, calls `POST /api/Cart` when authenticated.
-        - `useDeleteCart`: removes from `useCartStore` when unauthenticated, calls `DELETE /api/cart/:id` when authenticated.
-        - `useUpdateCartQuantity`: updates `useCartStore` when unauthenticated, calls `PATCH /api/cart/:id/quantity` when authenticated. Also now invalidates `cartKeys.lists()` on success so ticket counts stay in sync.
-    - Updated `cart-trigger.tsx`: count badge reads from `useCartStore` directly when unauthenticated; loading spinner only shown for authenticated server fetches.
-    - Updated `cart/index.tsx` and `cart/cart-container.tsx`: when unauthenticated, local cart items are enriched with ticket name and price via `useGetEventTickets` for display and total price calculation.
-    - Updated `tickets.tsx`: replaced local `ticketCount` and `cartId` `useState` with values derived from global cart state — unauthenticated reads from `useCartStore`, authenticated reads from `useGetAllCart`. When unauthenticated, `ticketId` is used in place of `cartId`.
-    - Updated `useLogin` in `src/hooks/use-auth.ts`: on successful login, any items in the local cart are synced to the server. The sync is now `await`ed (not fire-and-forget) — `setSyncing(true)` is set before the `Promise.allSettled` call and `setSyncing(false)` is set in a `finally` block. Navigation and the optional `onSuccess` callback are deferred until after the sync completes, preventing race conditions where the page re-renders in an authenticated state while the cart is mid-sync.
-    - Added `isSyncingCart: boolean` and `setSyncing(value: boolean)` to `useCartStore` (`src/stores/index.ts`). `isSyncingCart` is excluded from localStorage persistence via `partialize` since it is transient runtime state. `cart/index.tsx` reads this flag so the checkout button spinner shows during both server loading and post-login sync.
-    - **Fixed `isFan` / `isCreator` / `isVendor` always returning `false`**: Fixed by replacing the getter pattern with regular boolean properties (`isCreator`, `isFan`, `isVendor`) that are explicitly set alongside `user` in `setAuth`, `clearAuth`, and `updateUser`.
-    - Updated `cart-summary.tsx`, `checkout/index.tsx`, and `cart/index.tsx`: threaded `eventId` through the prop chain so the checkout summary can enrich the local cart items with ticket name and price via `useGetEventTickets`. When unauthenticated, items are normalised from the local store; when authenticated, server `CartData` is used directly. `totalPrice` and `totalQuantity` are now calculated from the normalised cart items array, replacing the previous `getCartTotals` call. `handleValidatePromocode` pulls `eventIds` and `ticketIds` from the same normalised array so promo code validation works for both auth states.
+- **Edit event** is now a single Event Details page. Its Tickets, Theme and Settings tabs became separate pages or were removed.
+- **Create event:**
+  - The **theme step is gone**: promo codes lead straight to Publish, and old `?tab=theme` links land on Publish.
+  - Ticket sales **start immediately** by default.
+  - **Ticket resale is on by default.** Untick it to turn it off. Invite-only and group tickets never allow it.
+- **Publishing** refreshes the dashboard list straight away.
+- **Sign-up** no longer redirects. The form stays open and clears itself.
+- **Complete profile** (`/complete-profile`) works without being logged in. It reads the account from `/api/Auth/me?token=…`, so the email link works on any device.
+- **Prices:** amounts with kobo always show two decimals (`₦8,013.60`). Whole amounts stay as they were (`₦7,420`).
+- **One API address:** set by `VITE_API_URL`. Staging is `dev.afrorevive.com`; production is `api.afrorevive.com`. The test logins built into the login form were removed.
 
 ### Removed
-- Duplicate header component from `src/pages/landing-page/creators/index.tsx`.
-- Creators route from `src/config/routes.tsx` (moved to `creators-landing-page-routes.tsx`).
+- Ticket upgrades and vendor listings from the create-event Publish summary.
+- The Charts page and the Reports link. Analytics replaces both.
 
-### Technical Notes
-- **Files Modified**:
-  - `src/config/route-map.ts` - Updated creators route path
-  - `src/config/routes.tsx` - Removed creators route
-  - `src/config/creators-landing-page-routes.tsx` - Added creators landing page route
-  - `src/layouts/creators-landing-page-layout/sections/header.tsx` - Enhanced header sizing and layout
-  - `src/pages/landing-page/creators/index.tsx` - Removed duplicate header, updated padding
+### Fixed
+- **Ticket resale was never saved.** The ticket form always sent "no resale", whatever the organizer chose.
+- **The Publish summary never listed ticket names**, because it read the wrong field.
+- **Resume Requests didn't work.** The pause setting was sent in the request body, but the API reads it from the URL.
+- **The production build was failing.** It now passes both the type check and the bundle.
+- Mobile layouts for the dashboard tabs, price fields and ticket cards.
 
-### Breaking Changes
-- **URL Change**: Creators landing page now accessible at `/creators` instead of `/fans/creators`.
-- Old URL (`/fans/creators`) will return 404.
-- **Action Required**: Update any external links, bookmarks, or backend redirects pointing to `/fans/creators`.
+---
+
+## September 2026 — Fans redesign
+
+**Design:** the fan side was rebuilt from the new Figma file.
+- A new home page and events page.
+- The event details page, rebuilt.
+- New My Tickets cards and a new footer.
+- One radial background across all fan pages.
+
+### Added
+- New fans **home page**, with discover, resale, become-a-creator and mobile app sections.
+- **Events page:**
+  - A rotating ad banner.
+  - Filters that stick to the top of the screen while scrolling.
+  - An event carousel.
+- **Support** (`/fans/support`) as a contact form in the account sidebar, replacing Log Out there.
+- Mobile menu sections for **Account** and **Orders**.
+- **Payout history** in the wallet, wired to the API.
+- The ticket's **purchase limit** is now enforced in the cart.
+
+### Changed
+- **Login and sign-up modals** redesigned. The video panel only shows when logging in from the fans header on desktop.
+- **My Tickets** cards and the ticket detail page redesigned.
+- **Listed tickets** show the payout instead of the price.
+- **Resell info page** redesigned.
+- Prices everywhere show the ticket's **sales price**.
+- **Event creation:**
+  - Descriptions can be up to 2,000 characters.
+  - The custom URL is read-only.
+  - Forms show errors straight away.
+  - The poster URL and event frequency are sent to the API.
+
+### Removed
+- **Season events.** All events are now one-off.
+- **Vendor registration from event creation.** Vendors are set up from the Vendor pages instead.
+
+---
+
+## August 2026 — Vendor management and account security
+
+### Added
+- **Organizer vendor management:**
+  - Create and edit revenue **slots (stalls)** and service **offers**, each with a category, price, application deadline and contact details.
+  - A page per slot, listing the vendors who applied.
+  - A profile modal for each applicant, where the organizer can **accept or reject** them.
+  - The slots appear under Vendor in the sidebar.
+  - Category lists are split by vendor type, and each category shows a description.
+- **Analytics groundwork:** reusable chart components and the analytics endpoint. Finished in October.
+- **Fans:**
+  - Buy **resale tickets** from the event page and cart.
+  - **Edit the price** of, or **cancel**, a resale listing.
+- **Forgot and reset password** for all account types.
+- **Tests:** Jest tests covering the fan routes (`src/pages/fans/__tests__`).
+
+### Changed
+- The organizer **settings inbox** shows real notifications, and the fake-data generators were removed.
+- After completing a profile, each account type is sent to its own dashboard, not the fans account page.
+
+### Fixed
+- A new slot showed in the sidebar only after a refresh. It now appears straight away.
+- The date picker opened behind modals.
+- The create-slot form failed silently when a field was missing. It now shows why it can't submit.
+
+---
+
+## July 2026 — Fans can buy, resell and transfer
+
+### Added
+- **Checkout with Paystack:**
+  - After paying, Paystack sends fans back to a new `/fans/payment-confirmation` page, which confirms the order.
+  - Order receipts.
+- **Promo codes at checkout:** checked as you type, with the discount applied to the total.
+- **Resell** tickets (choose tickets, then set prices) and **transfer** them (the recipient is checked before sending).
+- **Wallet:** balance, and withdrawals to a verified Nigerian bank account.
+- **Fan profile:** gender, state, country and date of birth.
+- **Bookmark** an event from its page.
+- **Organizers:** create vendor slots and offers.
+
+### Removed
+- **Ticket upgrades.**
+- The **resale marketplace** pages were hidden until their API endpoint exists.
+
+---
+
+## June 2026 — Cart, routing and sessions
+
+### Added
+- **Fans can fill a cart without an account.** The cart lives in the browser (`useCartStore`) and is synced to the server when they log in.
+- **Sessions stay alive:** the access token refreshes automatically a few minutes before it expires.
+- **Complete profile page** for finishing an account from the email link.
+- **Paged responses everywhere:** list endpoints share one type, `PaginatedResponse`.
+
+### Changed
+- **Events are addressed by their custom URL** instead of their id. See breaking changes.
+- **Cart and checkout** redesigned to match Figma. Both ask "are you sure?" before closing.
+- **Event location** uses Google Maps instead of OpenStreetMap.
+- **One sign-up flow** for vendors and organizers.
+
+### Fixed
+- Logging in at checkout now returns the fan to checkout.
+- Race conditions between logging in and syncing the cart.
+- The cart and checkout on mobile screens.
+
+---
+
+## February – April 2026 — Figma alignment
+
+**Design:** the first full pass to match Figma.
+- The fans home page and the creators dashboard (sidebar, event cards, layout).
+- Modals, including the review and settings modals.
+- One brand red everywhere.
+
+### Added
+- The organizer **Settings modal** with real data.
+- Event **status tags** and a **filter** on the dashboard.
+- An interactive **creator guide** for first-time organizers.
+- A **forgot password** flow inside the login modal.
+- An **animated search bar** in the fans header.
+- A **mobile sidebar** for fans.
+- A **video background** on the waitlist page (`/`).
+- **Real social media links**, opening in a new tab.
+
+### Changed
+- `/creators` now redirects to `/home`.
+- Wallet styling updated to match Figma.
+
+### Fixed
+- Many mobile layout fixes, including About Us, event creation and the tickets tab.
+- The logout redirect.
+- Duplicate toasts on logout.
+
+---
+
+## October 2025 – January 2026 — Waitlist and vendors
+
+### Added
+- A **support page**, with a landing view and a detailed view.
+- **Vendor discover page** and vendor event pages.
+- **Waitlist page** (`/`), with a vendor registration callout and modal, a vendor newsletter, and a countdown timer.
+- **Vendor dashboard:** profile, inbox, slot modal and section map.
+- Vendor sign-up asks for portfolio and social links.
+- Animations on the home and about pages.
+
+### Fixed
+- The modal close button on iOS Safari.
+
+---
+
+## July – September 2025 — Connecting to the backend
+
+### Added
+- **Live data:** TanStack Query for fetching data, and Sonner for notifications.
+- **Accounts:** login, sign-up, route guards, and account menus for each role.
+- **Creator and vendor dashboards** with their own routes.
+- The **create-event wizard** (details, tickets, promo codes, theme), publishing and editing.
+- A **checkout page**.
+- A reusable video background, `VideoBackgroundWrapper`.
+
+### Changed
+- Fan pages moved under `/fans`.
+- Routing and folders were restructured for creators and vendors.
+
+---
+
+## April – June 2025 — First build
+
+### Added
+- **Fans:** landing page, events and event details, cart drawer, resell page, and a resale ticket page.
+- **Sign-up** form.
+- A **typed route map** (`route-map.ts`), so URLs are never typed by hand.
+- Documented **reusable components**.
+- **Support and FAQ** layout.
+- An early **charts page** and event picker for organizers.
+
+---
+
+## Breaking changes
+
+These changed URLs or data that other systems might rely on. Check them when
+updating links, emails or backend redirects.
+
+| When | Change |
+|---|---|
+| Feb 2026 | The creators landing page moved from `/fans/creators` to `/creators`, which redirects to `/home`. |
+| Jun 2026 | Event URLs use the event's custom URL: `/fans/events/<custom-url>`. |
+| Jun 2026 | Complete profile moved from `/fans/complete-profile` to `/complete-profile`. |
+| Jul 2026 | Paystack's callback URL is `<site>/fans/payment-confirmation`. |
+| Oct 2026 | The app needs `VITE_API_URL` and refuses to start without it. |
+| Oct 2026 | `/creators/charts` was removed. Use `/creators/realtime`. |
