@@ -1,5 +1,10 @@
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/contexts/auth-context";
+import {
+  useGetViewerAccessStatus,
+  useRequestAccess,
+} from "@/hooks/use-private-event-mutations";
 import { toVisibility } from "@/lib/helper-func";
 import { useAfroStore } from "@/stores";
 import type { EventDetailData } from "@/types";
@@ -16,16 +21,75 @@ export function PrivateEventGuard({
   event: EventDetailData;
   children: React.ReactNode;
 }) {
-  // TODO: let approved guests through to the tickets once the event response
-  // says whether the viewer has been approved.
   if (toVisibility(event.accessType) !== "private") return <>{children}</>;
 
-  return <PrivateEventNotice />;
+  return <PrivateEventAccess eventId={event.eventId}>{children}</PrivateEventAccess>;
 }
 
-function PrivateEventNotice() {
+function PrivateEventAccess({
+  eventId,
+  children,
+}: {
+  eventId: string;
+  children: React.ReactNode;
+}) {
   const isAuthenticated = useAfroStore((state) => state.isAuthenticated);
   const { openAuthModal } = useAuth();
+  const requestAccess = useRequestAccess(eventId);
+
+  // Only a signed-in viewer has a status; anyone else can only be asked to log in.
+  const { data: access, isPending: isStatusLoading } = useGetViewerAccessStatus(
+    eventId,
+    { enabled: isAuthenticated },
+  );
+
+  if (isAuthenticated && isStatusLoading) {
+    return <Skeleton className="h-[120px] w-full rounded-2xl bg-black/30" />;
+  }
+
+  // Approved guests see the tickets; the section handles sold out and the rest.
+  if (access?.canPurchaseTickets || access?.status === "Approved") {
+    return <>{children}</>;
+  }
+
+  // The status refetches after a request; until it lands, the click counts.
+  if (access?.status === "Pending" || requestAccess.isSuccess) {
+    return (
+      <AccessNotice
+        title="Your request is pending"
+        body="The organiser is reviewing your request. We'll email you once you're approved."
+        action={<RequestButton disabled>Request sent</RequestButton>}
+      />
+    );
+  }
+
+  if (access?.status === "Denied") {
+    return (
+      <AccessNotice
+        title="Your request wasn't approved"
+        body="The organiser didn't approve your request to attend this event."
+      />
+    );
+  }
+
+  if (access?.isApplicationPaused) {
+    return (
+      <AccessNotice
+        title="Requests are paused"
+        body="The organiser has paused requests for this event. Check back later."
+      />
+    );
+  }
+
+  // Ended, or closed some other way such as a passed deadline.
+  if (access && (access.isApplicationEnded || !access.canRequestAccess)) {
+    return (
+      <AccessNotice
+        title="Requests have closed"
+        body="The organiser is no longer accepting requests for this event."
+      />
+    );
+  }
 
   function handleRequestAccess() {
     if (!isAuthenticated) {
@@ -37,9 +101,34 @@ function PrivateEventNotice() {
       return;
     }
 
-    // TODO: send the access request once the endpoint exists.
+    requestAccess.mutate();
   }
 
+  return (
+    <AccessNotice
+      title="This is a private event"
+      body="Tickets are only available to approved guests. Request access and the organiser will review it. We'll email you once you're approved."
+      action={
+        <RequestButton
+          onClick={handleRequestAccess}
+          disabled={requestAccess.isPending}
+        >
+          {requestAccess.isPending ? "Requesting..." : "Request access"}
+        </RequestButton>
+      }
+    />
+  );
+}
+
+function AccessNotice({
+  title,
+  body,
+  action,
+}: {
+  title: string;
+  body: string;
+  action?: React.ReactNode;
+}) {
   return (
     <div className="w-full flex flex-col md:flex-row md:items-center gap-5 rounded-2xl bg-black/30 p-5 md:p-6">
       <div className="flex flex-1 items-start md:items-center gap-4">
@@ -49,22 +138,34 @@ function PrivateEventNotice() {
 
         <div className="flex flex-col gap-1">
           <p className="text-base md:text-lg font-work-sans font-bold text-white">
-            This is a private event
+            {title}
           </p>
-          <p className="text-sm text-white font-inter-tight">
-            Tickets are only available to approved guests. Request access and
-            the organiser will review it. We&apos;ll email you once you&apos;re
-            approved.
-          </p>
+          <p className="text-sm text-white font-inter-tight">{body}</p>
         </div>
       </div>
 
-      <Button
-        type="button"
-        onClick={handleRequestAccess}
-        className="h-11 shrink-0 rounded-lg font-inter-tight bg-tech-blue px-5 text-sm font-medium text-white hover:bg-tech-blue/90 max-md:w-full">
-        Request access
-      </Button>
+      {action}
     </div>
+  );
+}
+
+function RequestButton({
+  children,
+  onClick,
+  disabled,
+}: {
+  children: React.ReactNode;
+  onClick?: () => void;
+  disabled?: boolean;
+}) {
+  return (
+    <Button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      className="h-11 shrink-0 rounded-lg font-inter-tight bg-tech-blue px-5 text-sm font-medium text-white hover:bg-tech-blue/90 max-md:w-full"
+    >
+      {children}
+    </Button>
   );
 }

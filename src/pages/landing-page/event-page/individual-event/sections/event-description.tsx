@@ -6,6 +6,7 @@ import {
   formatTimeLong,
 } from "@/lib/helper-func";
 import { OnlyShowIf } from "@/lib/environment";
+import { FiLock } from "react-icons/fi";
 import { ShowMoreText } from "@/components/reusable/show-more-text";
 
 export default function EventDescription({
@@ -25,6 +26,15 @@ export default function EventDescription({
             <p className="px-3 w-16 h-8 rounded-[6px] bg-light-red flex justify-center items-center">
               18+
             </p>
+          </OnlyShowIf>
+
+          <OnlyShowIf condition={event.accessType === "Private"}>
+            <div className="flex items-center gap-2.5 px-3 h-8 rounded-[6px] bg-light-gray">
+              <FiLock className="text-black size-4" />
+              <p className="font-inter-tight text-sm font-semibold text-black flex justify-center items-center">
+                Private
+              </p>
+            </div>
           </OnlyShowIf>
 
           <div className="text-white flex items-center gap-2.5 px-3 h-8 rounded-[6px] bg-medium-gray">
@@ -57,7 +67,11 @@ export default function EventDescription({
         </div>
 
         <div className="flex flex-col gap-1 font-inter-tight text-sm">
-          <ShowMoreText text={event.description} limit={200} className="text-sm font-inter-tight" />
+          <ShowMoreText
+            text={event.description}
+            limit={200}
+            className="text-sm font-inter-tight"
+          />
         </div>
       </div>
     </div>
