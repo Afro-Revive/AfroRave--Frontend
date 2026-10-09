@@ -3,16 +3,14 @@ import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { getRoutePath } from '@/config/get-route-path'
 import { cn } from '@/lib/utils'
-import { useAfroStore } from '@/stores'
+import { useAfroStore, useEventStore } from '@/stores'
 import { ChevronLeft, Info } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
 import EventDetailsTab from './tabs/event-details-tab'
 import PublishTab from './tabs/publish-tab'
-import ThemeTab from './tabs/theme-tab'
 import TicketsTab from './tabs/tickets-tab'
-import VendorTab from './tabs/vendor-tab'
 import { OnlyShowIf } from '@/lib/environment'
 import { ApplyPromoCodePopover } from './component/apply-promo-popover'
 
@@ -22,12 +20,18 @@ export default function AddEventPage() {
   const [heading, setHeading] = useState<string>('')
   const [description, setDescription] = useState<string>('')
   const [step, setStep] = useState<number>()
-  const [themeBtnVisibility, setThemeBtnVisibility] = useState<boolean>(false)
   const [showError, setShowError] = useState(false)
 
   const { user } = useAfroStore()
+  const resetEventData = useEventStore((state) => state.resetEventData)
 
   const navigate = useNavigate()
+
+  // The in-progress event lives in a store that outlives this page, so leaving
+  // — by publishing or abandoning — clears it. Otherwise the next Create Event
+  // opened with the last event's id, and jumping straight to the Tickets tab
+  // added tickets to that one.
+  useEffect(() => resetEventData, [resetEventData])
 
 
 
@@ -35,25 +39,20 @@ export default function AddEventPage() {
     const tabParam = searchParams.get('tab')
     const formParam = searchParams.get('form')
 
-    if (
-      tabParam === 'event-details' ||
-      tabParam === 'tickets' ||
-      tabParam === 'theme' ||
-      tabParam === 'vendor' ||
-      tabParam === 'publish'
-    ) {
+    // The theme step is gone. An old link to it lands on publish, which is
+    // where the theme step used to lead, rather than on a tab with no content.
+    if (tabParam === 'theme') {
+      setSearchParams({ tab: 'publish' }, { replace: true })
+      return
+    }
+
+    if (tabParam === 'event-details' || tabParam === 'tickets' || tabParam === 'publish') {
       setActiveTab(tabParam)
       RenderHeadline(tabParam, setHeading, setDescription, formParam)
     } else if (!tabParam) {
       setActiveTab('event-details')
       setSearchParams({ tab: 'event-details' })
       RenderHeadline('event-details', setHeading, setDescription, null)
-    }
-
-    if (tabParam === 'theme' && formParam === 'banner') {
-      setThemeBtnVisibility(false)
-    } else {
-      setThemeBtnVisibility(false)
     }
   }, [searchParams, setSearchParams])
 
@@ -78,7 +77,7 @@ export default function AddEventPage() {
   const tabs: IEditTabProps[] = [
     {
       value: 'event-details',
-      name: 'Event Details',
+      name: 'Event Info',
       element: <EventDetailsTab setStep={setStep} setActiveTabState={setActiveTabState} />,
     },
     {
@@ -92,16 +91,11 @@ export default function AddEventPage() {
         />
       ),
     },
-    {
-      value: 'theme',
-      name: 'Theme',
-      element: <ThemeTab setStep={setStep} setActiveTabState={setActiveTabState} />,
-    },
-    {
-      value: 'vendor',
-      name: 'Vendor',
-      element: <VendorTab setStep={setStep} setActiveTabState={setActiveTabState} />,
-    },
+    // {
+    //   value: 'theme',
+    //   name: 'Theme',
+    //   element: <ThemeTab setStep={setStep} setActiveTabState={setActiveTabState} />,
+    // },
     {
       value: 'publish',
       name: 'Publish',
@@ -135,14 +129,12 @@ export default function AddEventPage() {
             <TabNav
               handleBackClick={handleBackClick}
               activeTab={activeTab}
-              themeBtnVisibility={themeBtnVisibility}
-              setActiveTabState={setActiveTabState}
               navigate={navigate}
               formParam={searchParams.get('form')}
             />
 
-            <section className='max-w-[1536px] w-full flex flex-col gap-10 px-5 md:px-14'>
-              <div className='flex flex-col gap-6 md:py-10'>
+            <section className='w-full flex flex-col gap-10 px-5 md:px-14'>
+              <div className='flex flex-col gap-6 '>
                 <div className='flex flex-col gap-2 text-black font-sf-pro-display'>
                   <p className='font-black text-2xl md:text-4xl uppercase'>{heading}</p>
                   <p className='text-[13px] max-w-[351px] uppercase'>{description}</p>
@@ -151,14 +143,6 @@ export default function AddEventPage() {
 
                 <OnlyShowIf condition={showError}>
                   <MoreTabDetails />
-                </OnlyShowIf>
-
-                <OnlyShowIf condition={activeTab === 'theme' && false}>
-                  <MoreTabDetails type='theme' />
-                </OnlyShowIf>
-
-                <OnlyShowIf condition={activeTab === 'vendor'}>
-                  <MoreTabDetails type='theme' />
                 </OnlyShowIf>
 
                 <OnlyShowIf condition={activeTab === 'tickets' && searchParams.get('form') === 'promocode'}>
@@ -189,7 +173,7 @@ function CustomTabTriggers({
   className?: string
 }) {
   return (
-    <TabsList className={cn('items-center gap-5 md:gap-24 w-fit h-fit bg-transparent', className)}>
+    <TabsList className={cn('items-center gap-5 md:gap-48 w-fit h-fit bg-transparent', className)}>
       {tabs.map((tab) => (
         <TabsTrigger
           disabled
@@ -203,14 +187,7 @@ function CustomTabTriggers({
   )
 }
 
-function TabNav({
-  activeTab,
-  handleBackClick,
-  themeBtnVisibility,
-  setActiveTabState,
-  navigate,
-  formParam,
-}: ITabNav) {
+function TabNav({ activeTab, handleBackClick, navigate, formParam }: ITabNav) {
   return (
     <div className='w-full h-fit flex items-center justify-between py-3 px-5 md:px-8 md:py-4'>
       <Button
@@ -223,9 +200,6 @@ function TabNav({
       <div className='flex gap-3'>
         {activeTab === 'tickets' && formParam === 'promocode' && <ApplyPromoCodePopover />}
 
-        {themeBtnVisibility && (
-          <NavBtn name={activeTab} action={() => setActiveTabState('vendor')} />
-        )}
 
 
 
@@ -237,16 +211,6 @@ function TabNav({
         </Button>
       </div>
     </div>
-  )
-}
-
-function NavBtn({ name, action }: { name: string; action: () => void }) {
-  return (
-    <Button
-      onClick={action}
-      className='h-10 w-[120px] text-xs font-sf-pro-text font-black rounded-[5px] bg-white text-deep-red hover:bg-black/10 uppercase'>
-      {name}
-    </Button>
   )
 }
 
@@ -279,27 +243,13 @@ function RenderHeadline(
   formParam?: string | null,
 ) {
   if (activeTab === 'tickets') {
-    if (formParam === 'promocode' || formParam === 'upgrades') {
+    if (formParam === 'promocode') {
       setHeading('GO BEYOND THE BASICS!')
       setDescription('Enhance your ticketing power with flexible, fan-friendly features')
       return
     }
     setHeading('CREATE YOUR TICKETS!')
     setDescription('Create different ticket types, set prices, and start your journey to a sold-out event!')
-    return
-  }
-
-  if (activeTab === 'theme') {
-    setHeading('AESTHETICS MATTERS!')
-    setDescription(
-      'CHOOSE A THEME FOR YOUR EVENT PAGE.',
-    )
-    return
-  }
-
-  if (activeTab === 'vendor') {
-    setHeading('Bring Your Event Together!')
-    setDescription('Match with trusted vendors who bring your vision to life')
     return
   }
 
@@ -319,8 +269,6 @@ function RenderHeadline(
 interface ITabNav {
   activeTab: string
   handleBackClick: () => void
-  themeBtnVisibility: boolean
-  setActiveTabState: (incomingTab: string) => void
   navigate: (path: string) => void
   formParam?: string | null
 }

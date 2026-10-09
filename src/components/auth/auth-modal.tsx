@@ -16,6 +16,10 @@ import { useEffect, useRef, useState } from "react";
 import { FaYoutube } from "react-icons/fa6";
 import { Link } from "react-router";
 
+/** Takes the dialog out of its centred box and over the whole screen. */
+const FULL_SCREEN_MODAL =
+  "inset-0 h-screen max-h-screen w-screen max-w-none translate-x-0 translate-y-0 rounded-none sm:rounded-none bg-gradient-to-b from-[#F3F3F3] to-[#D9D9D9]";
+
 export function AuthModal() {
   const {
     isAuthModalOpen,
@@ -26,6 +30,8 @@ export function AuthModal() {
     loginType,
     switchToSignup,
     showAuthVideo,
+    authNotice,
+    stayOnPage,
   } = useAuth();
   const isMobile = useIsMobile();
   const [showForgotPassword, setShowForgotPassword] = useState(false);
@@ -76,8 +82,13 @@ export function AuthModal() {
   // desktop-only — organizer/vendor login and checkout get the plain modal.
   const showVideoPanel = keepVideoPanel && !isMobile && !showForgotPassword;
 
+  // A notice is a full-width bar across the top of the screen, so the modal
+  // goes full screen like the video layout, with the form centred below it.
+  const showNoticeBar =
+    !!authNotice && authType === "login" && !showForgotPassword && !showVideoPanel;
+
   const getModalSize = () => {
-    if (showVideoPanel) return "full";
+    if (showVideoPanel || showNoticeBar) return "full";
     if (authType === "login") return "small";
     if (signupType === "creator" || signupType === "vendor") return "large";
     // Role selection modal should be large, but NOT on fans page (fans get small form)
@@ -126,11 +137,13 @@ export function AuthModal() {
           // Only the position is video-specific: over the form half, clear of
           // the video.
           "top-6 right-6 z-[60]": showVideoPanel,
+          // Below the notice bar rather than on top of it.
+          "top-20 right-5 md:top-24 md:right-10": showNoticeBar,
         },
       )}
       className={cn({
-        "inset-0 h-screen max-h-screen w-screen max-w-none translate-x-0 translate-y-0 overflow-hidden rounded-none sm:rounded-none bg-gradient-to-b from-[#F3F3F3] to-[#D9D9D9]":
-          showVideoPanel,
+        [FULL_SCREEN_MODAL]: showVideoPanel || showNoticeBar,
+        "overflow-hidden": showVideoPanel,
         "bg-transparent shadow-none":
           !showForgotPassword &&
           authType === "signup" &&
@@ -153,10 +166,20 @@ export function AuthModal() {
         className={cn("w-full", {
           // relative so the mobile video can absolutely fill it.
           "relative flex h-screen items-stretch": showVideoPanel,
+          "flex min-h-screen flex-col": showNoticeBar,
         })}
       >
         <OnlyShowIf condition={showVideoPanel}>
           <AuthVideoPanel />
+        </OnlyShowIf>
+
+        <OnlyShowIf condition={showNoticeBar}>
+          <p
+            role="status"
+            className="w-full shrink-0 bg-green/25 px-4 py-4 text-center font-sf-pro-text text-xs md:text-sm text-green"
+          >
+            {authNotice}
+          </p>
         </OnlyShowIf>
 
         <div
@@ -164,6 +187,7 @@ export function AuthModal() {
             // z-10 lifts the form above the mobile background video.
             "relative z-10 flex w-full flex-col items-center justify-center overflow-y-auto p-4 md:w-1/2 md:p-6":
               showVideoPanel,
+            "flex flex-1 items-center justify-center p-4": showNoticeBar,
           })}
         >
           <div
@@ -208,6 +232,8 @@ export function AuthModal() {
                   {authType === "login" ? (
                     <UserLoginForm
                       onForgotPassword={() => setShowForgotPassword(true)}
+                      // A no-op skips the dashboard redirect, as checkout does.
+                      onLoginSuccess={stayOnPage ? () => {} : undefined}
                     />
                   ) : (
                     renderSignupForm()

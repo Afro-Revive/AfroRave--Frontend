@@ -121,7 +121,7 @@ export default function VendorEventDetailsPage() {
 
                         <div className="flex flex-col gap-4 text-sm">
                             <div className="flex justify-between items-center">
-                                <span className="text-gray-600">Price Per Slot:</span>
+                                <span className="text-gray-600">Price Per Stall:</span>
                                 <span className="font-bold">₦200,000</span>
                             </div>
                             <div className="flex justify-between items-center">

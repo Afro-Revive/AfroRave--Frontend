@@ -5,6 +5,7 @@ import type {
   CreateThemeRequest,
   CreateTicketRequest,
   CreateVendorRequest,
+  EventAnalyticsResponse,
   EventData,
   EventDetailResponse,
   EventPromoCodesResponse,
@@ -215,8 +216,11 @@ class EventService {
   /**
    * Get organizer events
    */
-  async getOrganizerEvents(): Promise<EventsResponse> {
-    const response = await api.get('/api/Event/organizer')
+  async getOrganizerEvents(params?: {
+    pageNumber?: number
+    pageSize?: number
+  }): Promise<EventsResponse> {
+    const response = await api.get('/api/Event/organizer', { params })
     return response.data
   }
 
@@ -267,6 +271,14 @@ class EventService {
 
   async getEventResaleListings(eventId?: string): Promise<ResaleListingsResponse>{
     const response = await api.get(`/api/Profile/user/ticket/resale/?eventId=${eventId}`)
+    return response.data
+  }
+
+  /**
+   * Get event analytics using eventId
+   */
+  async getEventAnalytics(eventId: string): Promise<EventAnalyticsResponse> {
+    const response = await api.get(`/api/Analytics/organizer/dashboard/${eventId}`)
     return response.data
   }
 }

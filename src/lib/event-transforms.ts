@@ -1,12 +1,9 @@
 import type { unifiedTicketFormSchema } from '@/pages/creators/add-event/schemas/ticket-schema'
-import type { VendorSchema } from '@/pages/creators/add-event/schemas/vendor-service-schema'
-import type { slotSchema } from '@/pages/creators/add-event/schemas/vendor-slot-schema'
 import type { EditEventDetailsSchema } from '@/schema/edit-event-details'
 import type {
   CreateEventRequest,
   CreateThemeRequest,
   CreateTicketRequest,
-  CreateVendorRequest,
 } from '@/types'
 import type { z } from 'zod'
 import type { ThemeAndBannerSchema } from '@/pages/creators/add-event/schemas/theme-schema'
@@ -67,11 +64,12 @@ export function transformEventDetailsToCreateRequest(
     venue: formData.venue,
     description: formData.description,
     customUrl: formData.custom_url,
+    posterUrl: formData.poster_url,
+    accessType: formData.visibility === 'public' ? 'Public' : 'Private',
     eventDate: {
       timezone: timezoneOffset, // Use UTC offset instead of timezone name
       startDate: formatDate(formData.start_date.date),
       endDate: formatDate(formData.end_date.date),
-      frequency: formData.frequency || 'Weekly',
       startTime: convertTo24Hour(
         formData.start_date.hour,
         formData.start_date.minute,
@@ -82,7 +80,8 @@ export function transformEventDetailsToCreateRequest(
         formData.end_date.minute,
         formData.end_date.period,
       ),
-      occurance: formData.occurrence || 0,
+      // Compulsory server-side; every event is a one-off since season was dropped.
+      frequency: 'Once',
     },
     eventDetails: {
       termsOfRefund: '', // This field is not in the form, can be added later
@@ -131,12 +130,8 @@ export function transformCreateRequestToEventDetails(
     venue: eventData.venue,
     description: eventData.description,
     custom_url: eventData.customUrl,
-    event_type:
-      eventData.eventDate.frequency === 'Weekly' && (eventData.eventDate.occurance || 0) > 1
-        ? 'season'
-        : 'standalone',
-    frequency: eventData.eventDate.frequency,
-    occurrence: eventData.eventDate.occurance,
+    poster_url: eventData.posterUrl,
+    event_type: 'standalone',
     time_zone: eventData.eventDate.timezone,
     start_date: {
       date: new Date(eventData.eventDate.startDate),
@@ -257,7 +252,10 @@ export function transformTicketsToCreateRequest(
             ).period,
           )}`
         : '',
-      allowResell: false, // Add logic if needed
+      allowResell:
+        ticket.invite_only || ticket.ticketType === 'group_ticket'
+          ? false
+          : formData.allow_ticket_resell !== false,
       mail: { body: '' }, // Add logic if needed
     },
   }))
@@ -282,126 +280,6 @@ export function transformThemeToCreateRequest(
   }
 }
 
-/**
- * Transform form data from ServiceForm to CreateVendorRequest format
- */
-export function transformServiceToCreateRequest(
-  formData: VendorSchema,
-  eventId: string,
-): CreateVendorRequest {
-  // Convert time format from 12-hour to 24-hour
-  const convertTo24Hour = (hour: string, minute: string, period: 'AM' | 'PM'): string => {
-    let hour24 = Number.parseInt(hour, 10)
-    if (period === 'PM' && hour24 !== 12) hour24 += 12
-    if (period === 'AM' && hour24 === 12) hour24 = 0
-    return `${hour24.toString().padStart(2, '0')}:${minute}`
-  }
-
-  // Map vendor type from form string to API literal type
-  const mapVendorType = (type: string): 'Revenue' | 'Service' => {
-    return type === 'revenue_vendor' ? 'Revenue' : 'Service'
-  }
-
-  // Convert form data to API format for each service
-  return {
-    vendorType: mapVendorType(formData.vendor.type),
-    category: formData.vendor.baseVendorDetails.category,
-    description: formData.vendor.baseVendorDetails.description,
-    eventId,
-    vendorDetails: {
-      slotData: {
-        slotName:
-          formData.vendor.type === 'revenue_vendor' && formData.vendor.slot_name
-            ? formData.vendor.slot_name
-            : '',
-        slotNumber:
-          formData.vendor.type === 'revenue_vendor' && formData.vendor.number_of_slots
-            ? Number(formData.vendor.number_of_slots)
-            : 0,
-        price:
-          formData.vendor.type === 'revenue_vendor' && formData.vendor.price_per_slot
-            ? Number(formData.vendor.price_per_slot)
-            : 0,
-      },
-      serviceData: {
-        serviceName:
-          formData.vendor.type === 'service_vendor' && formData.vendor.service_name
-            ? formData.vendor.service_name
-            : '',
-        minBudget:
-          formData.vendor.type === 'service_vendor' && formData.vendor.budget.minBudget
-            ? Number(formData.vendor.budget.minBudget)
-            : 0,
-        maxBudget:
-          formData.vendor.type === 'service_vendor' && formData.vendor.budget.maxBudget
-            ? Number(formData.vendor.budget.maxBudget)
-            : 0,
-        startDate:
-          formData.vendor.type === 'service_vendor' && formData.vendor.startTime
-            ? `${new Date().toISOString().split('T')[0]}T${convertTo24Hour(
-                formData.vendor.startTime.hour,
-                formData.vendor.startTime.minute,
-                formData.vendor.startTime.period,
-              )}:00`
-            : new Date().toISOString(),
-        endDate:
-          formData.vendor.type === 'service_vendor' && formData.vendor.stopTime
-            ? `${new Date().toISOString().split('T')[0]}T${convertTo24Hour(
-                formData.vendor.stopTime.hour,
-                formData.vendor.stopTime.minute,
-                formData.vendor.stopTime.period,
-              )}:00`
-            : new Date().toISOString(),
-      },
-      contact: {
-        email: formData.vendor.baseVendorDetails?.email || '',
-        phoneNumbers:
-          formData.vendor.baseVendorDetails?.phone?.map(
-            (phone) => `${phone.countryCode}${phone.number}`,
-          ) || [],
-      },
-    },
-  }
-}
-
-/**
- * Transform form data from SlotForm to CreateVendorRequest format
- */
-export function transformSlotToCreateRequest(
-  formData: z.infer<typeof slotSchema>,
-  eventId: string,
-): CreateVendorRequest[] {
-  // Map vendor type from form string to API literal type
-  const mapVendorType = (type: string): 'Revenue' | 'Service' => {
-    return type === 'revenue_vendor' ? 'Revenue' : 'Service'
-  }
-
-  // Convert form data to API format for each slot
-  return formData.slot.map((slot) => ({
-    vendorType: mapVendorType(slot.type),
-    category: slot.category,
-    description: slot.description,
-    eventId,
-    vendorDetails: {
-      slotData: {
-        slotName: slot.name,
-        slotNumber: Number.parseInt(slot.slotAmount, 10),
-        price: Number.parseFloat(slot.pricePerSlot),
-      },
-      serviceData: {
-        serviceName: '', // Not applicable for slots
-        minBudget: 0,
-        maxBudget: 0,
-        startDate: new Date().toISOString(),
-        endDate: new Date().toISOString(),
-      },
-      contact: {
-        email: formData.email,
-        phoneNumbers: formData.phone.map((phone) => `${phone.countryCode}${phone.number}`),
-      },
-    },
-  }))
-}
 
 // /**
 //  * Transform form data from PromoCodeForm to CreatePromoCodeRequest format

@@ -1,5 +1,11 @@
 import { useEffect, useState } from 'react'
-import { format, parseISO, differenceInCalendarDays } from 'date-fns'
+import {
+  format,
+  parseISO,
+  differenceInCalendarDays,
+  differenceInMinutes,
+  formatDistanceToNowStrict,
+} from 'date-fns'
 import type { EventDetailData, UserTicketTicketDetails } from '@/types'
 
 function generateRandomString(length = 10) {
@@ -99,6 +105,11 @@ export function toDashCase(str: string): string {
   )
 }
 
+export function stripUnderscores(str?: string): string {
+  if (!str) return ''
+  return str.replace(/_/g, ' ')
+}
+
 // snake_case, kebab-case, camelCase, PascalCase, chunk, debounce, range
 
 export function getGreeting(): string {
@@ -131,6 +142,29 @@ export function formatUsername(username?: string): string {
   return username.startsWith('@') ? username : `@${username}`
 }
 
+/** The API spells this 'Public'/'Private'; forms and UI use lowercase. */
+export function toVisibility(accessType?: string): 'public' | 'private' {
+  return accessType?.trim().toLowerCase() === 'private' ? 'private' : 'public'
+}
+
+export function copyToClipboard(text: string) {
+  if (navigator?.clipboard?.writeText) {
+    navigator.clipboard.writeText(text)
+    return
+  }
+
+  // Fallback for insecure origins, where the clipboard API is unavailable.
+  const textarea = document.createElement('textarea')
+  textarea.value = text
+  textarea.setAttribute('readonly', '')
+  textarea.style.position = 'absolute'
+  textarea.style.left = '-9999px'
+  document.body.appendChild(textarea)
+  textarea.select()
+  document.execCommand('copy')
+  document.body.removeChild(textarea)
+}
+
 export function formatJoinedDate(dateString: string): string {
   try {
     const date = parseISO(dateString)
@@ -139,6 +173,18 @@ export function formatJoinedDate(dateString: string): string {
     console.error('Error parsing date:', error)
     return 'Join date unavailable'
   }
+}
+
+/** Initials for an avatar fallback: 'Lagos Food Co' -> 'LF'. */
+export function initialsFrom(name?: string, fallback = 'V'): string {
+  return (
+    (name ?? '')
+      .split(' ')
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((word) => word[0]?.toUpperCase() ?? '')
+      .join('') || fallback
+  )
 }
 
 export function truncate(str: string, maxLength: number): string {
@@ -261,6 +307,54 @@ export function formatEventDate(dateString: string): string {
 export function formatShortDate(dateString: string): string {
   try {
     return format(parseISO(dateString), 'MMMM d, yyyy')
+  } catch {
+    return dateString
+  }
+}
+
+/**
+ * How long ago something happened, for activity lists.
+ * Today: '2 hours ago'. The day before: 'Yesterday'. Older: '23 Sep 2026'.
+ */
+export function formatTimeAgo(dateString: string): string {
+  try {
+    const date = parseISO(dateString)
+    const days = differenceInCalendarDays(new Date(), date)
+
+    if (days <= 0) {
+      // Also catches a timestamp slightly ahead of this clock.
+      if (differenceInMinutes(new Date(), date) < 1) return 'Just now'
+      return formatDistanceToNowStrict(date, { addSuffix: true })
+    }
+    if (days === 1) return 'Yesterday'
+    return format(date, 'd MMM yyyy')
+  } catch {
+    return dateString
+  }
+}
+
+/**
+ * Bucket a timestamp into an inbox section header — the API sends timestamps,
+ * the inbox groups them under relative headings.
+ * '2026-08-26T09:00:00' -> 'Yesterday'
+ */
+export function relativeDateGroup(dateString: string): string {
+  try {
+    const days = differenceInCalendarDays(new Date(), parseISO(dateString))
+    if (days <= 0) return 'Today'
+    if (days === 1) return 'Yesterday'
+    if (days <= 7) return '7 Days Ago'
+    if (days <= 30) return '30 Days Ago'
+    return 'Older'
+  } catch {
+    return 'Older'
+  }
+}
+
+/** Compact date for list rows: '2026-08-26T09:00:00' -> 'Aug 26'. */
+export function formatMonthDay(dateString: string): string {
+  try {
+    return format(parseISO(dateString), 'MMM d')
   } catch {
     return dateString
   }

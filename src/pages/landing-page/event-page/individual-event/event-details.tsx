@@ -7,6 +7,7 @@ import EventDescription from "./sections/event-description";
 import EventDetailsSection from "./sections/event-details";
 import TicketSection from "./sections/tickets";
 import EventBookmarkButton from "./_components/event-bookmark-button";
+import { PrivateEventGuard } from "./_components/private-event-guard";
 import { useAfroStore } from "@/stores";
 
 export default function EventDetails({ event }: IEventDetailsProp) {
@@ -38,7 +39,9 @@ export default function EventDetails({ event }: IEventDetailsProp) {
           <EventDescription event={event} />
 
           {/**Tickets */}
-          <TicketSection eventId={event.eventId} />
+          <PrivateEventGuard event={event}>
+            <TicketSection eventId={event.eventId} />
+          </PrivateEventGuard>
 
           {/**Location */}
           <SectionContainer>

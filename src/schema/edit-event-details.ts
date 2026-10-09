@@ -9,9 +9,13 @@ export const EditEventDetailsSchema = z.object({
   }),
   category: z.string().min(3, { message: 'Provide a valid category.' }),
   venue: z.string().min(3, { message: 'Provide a venue.' }),
-  description: z.string().max(950, { message: 'Description must not exceed 950 characters.' }),
+  description: z.string().max(2000, { message: 'Description must not exceed 2000 characters.' }),
   terms_refund_policy: z.string().max(250, { message: 'Terms must not exceed 250 characters.' }).optional(),
   custom_url: z.string().min(3, { message: 'URL too short.' }),
+  poster_url: z.string().min(1, { message: 'Add an event poster.' }),
+  // Optional because the edit-event tab shares this schema and builds its
+  // defaults without it; add-event seeds it to 'public'.
+  visibility: z.enum(['public', 'private']).optional(),
   time_zone: z.string({ required_error: 'Select a time zone.' }),
   event_type: z.enum(['standalone', 'season'], { required_error: 'Select event type.' }),
   frequency: z.enum(['Daily', 'Weekly', 'Monthly']).optional(),

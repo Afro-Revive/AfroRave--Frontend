@@ -12,7 +12,7 @@ export default function VendorDashboardLayout() {
 
   useEffect(() => {
     // Inject mock data if user is missing or doesn't have the correct business name for dev purposes
-    if (!user || user.businessName !== "Sooyah Bistro") {
+    if (!user || user.profile.businessName !== "Sooyah Bistro") {
       setAuth({
         userId: "vendor-123",
         email: "eseoseatie22@icloud.com",
@@ -20,22 +20,28 @@ export default function VendorDashboardLayout() {
         profile: {
           firstName: "Favour",
           lastName: "Eseose Atie",
+          businessName: "Sooyah Bistro",
+          vendorType: "Food & Drinks",
+          phoneNumber: "+234 814 602 7405",
+          gender: "Female",
+          description: "",
+          profilePicture: "",
+          gallery: [],
+          businessData: {
+            portfolio: { webUrl: "https://sooyahbistro.com/portfolio" },
+            socials: {
+              instagram: "https://instagram.com/sooyahbistro",
+              x: "https://x.com/sooyahbistro",
+              facebook: "",
+              linkedIn: "",
+              tikTok: "",
+              youTube: "",
+              socialLink: "",
+            },
+          },
         },
-        businessName: "Sooyah Bistro",
-        vendorType: "Food & Drinks",
-        telphone: "+234 814 602 7405",
-        gender: "Female",
-        description: "",
-        profilePicture: "",
-        gallery: [],
         messages: 6,
         createdAt: "2025-04-01T00:00:00.000Z",
-        portfolio: "https://sooyahbistro.com/portfolio",
-        socialLinks: {
-          instagram: "https://instagram.com/sooyahbistro",
-          twitter: "https://x.com/sooyahbistro"
-        },
-        website: "https://sooyahbistro.com",
       }, "mock-token-123");
     }
   }, [user, setAuth]);

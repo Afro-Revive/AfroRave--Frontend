@@ -1,20 +1,24 @@
-import { Outlet } from "react-router-dom";
-import CreatorDashboardHeader from "./header";
+import { Outlet, useLocation } from "react-router-dom";
 import { SidebarProvider } from "@/components/ui/sidebar";
+import { getRoutePath } from "@/config/get-route-path";
+import CreatorDashboardHeader from "./header";
 import CreatorSidebar from "./creator-side-bar";
-import { SidebarTrigger } from "@/components/ui/sidebar";
 
 export default function CreatorDashboardLayout() {
+  const location = useLocation();
+
+  // The events dashboard is a standalone, full-width page — the sidebar isn't
+  // collapsed there, it isn't rendered. SidebarProvider still wraps everything
+  // because the header's trigger reads from its context.
+  const isEventsDashboard = location.pathname === getRoutePath("standalone");
+
   return (
-    <SidebarProvider className="w-full flex flex-col items-center bg-light-gray">
+    <SidebarProvider className="w-full flex flex-col items-center bg-gradient-to-b from-[#F3F3F3] to-[#D9D9D9]">
       <CreatorDashboardHeader />
 
       <main className="relative w-full flex">
-        <CreatorSidebar />
-
-        <SidebarTrigger className="absolute flex md:hidden top-[54px] left-3 z-10 text-white bg-deep-red hover:bg-deep-red/90 rounded-lg w-10 h-10 shadow-md [&>svg]:size-5" />
-
-        <div className="w-full flex flex-col items-center justify-center">
+        {!isEventsDashboard && <CreatorSidebar />}
+        <div className="w-full flex flex-col items-center">
           <Outlet />
         </div>
       </main>

@@ -20,14 +20,18 @@ export function VendorEditProfileModal({ customTrigger }: { customTrigger?: Reac
     const { user } = useAfroStore()
     const [selectedMessage, setSelectedMessage] = useState<number | null>(null)
     const [portfolioFile, setPortfolioFile] = useState<File | null>(null)
-    const [portfolioLink, setPortfolioLink] = useState(user?.portfolio || "")
+    const [portfolioLink, setPortfolioLink] = useState(
+        user?.profile.businessData?.portfolio?.webUrl ||
+            user?.profile.businessData?.portfolio?.fileUrl ||
+            "",
+    )
     const [isPortfolioOpen, setIsPortfolioOpen] = useState(false)
     const [isSocialsOpen, setIsSocialsOpen] = useState(false)
     const [socials, setSocials] = useState({
-        instagram: typeof user?.socialLinks === 'object' ? user.socialLinks.instagram || "" : "",
-        twitter: typeof user?.socialLinks === 'object' ? user.socialLinks.twitter || "" : "",
-        facebook: typeof user?.socialLinks === 'object' ? user.socialLinks.facebook || "" : "",
-        linkedin: typeof user?.socialLinks === 'object' ? user.socialLinks.linkedin || "" : "",
+        instagram: user?.profile.businessData?.socials.instagram || "",
+        twitter: user?.profile.businessData?.socials.x || "",
+        facebook: user?.profile.businessData?.socials.facebook || "",
+        linkedin: user?.profile.businessData?.socials.linkedIn || "",
     })
 
     const fileInputRef = useRef<HTMLInputElement>(null)
@@ -42,7 +46,7 @@ export function VendorEditProfileModal({ customTrigger }: { customTrigger?: Reac
         fileInputRef.current?.click()
     }
 
-    const businessName = user?.businessName || user?.companyName || ""
+    const businessName = user?.profile.businessName || user?.profile.companyName || ""
 
     return (
         <Dialog>
@@ -107,10 +111,10 @@ export function VendorEditProfileModal({ customTrigger }: { customTrigger?: Reac
                                 <Input id="email" defaultValue={user?.email} className="text-[#007AFF] border-gray-300 h-[42px] text-[13px] rounded-[6px] focus-visible:ring-1 focus-visible:ring-gray-400 w-full" />
 
                                 <Label htmlFor="phone" className="text-gray-600 font-normal text-[13px] whitespace-nowrap">Phone Number</Label>
-                                <Input id="phone" defaultValue={user?.telphone} className="text-[#007AFF] border-gray-300 h-[42px] text-[13px] rounded-[6px] focus-visible:ring-1 focus-visible:ring-gray-400 w-full" />
+                                <Input id="phone" defaultValue={user?.profile.phoneNumber ?? undefined} className="text-[#007AFF] border-gray-300 h-[42px] text-[13px] rounded-[6px] focus-visible:ring-1 focus-visible:ring-gray-400 w-full" />
 
                                 <Label htmlFor="gender" className="text-gray-600 font-normal text-[13px]">Gender</Label>
-                                <Select defaultValue={user?.gender || "female"}>
+                                <Select defaultValue={user?.profile.gender || "female"}>
                                     <SelectTrigger className="w-full border-gray-300 text-gray-500 font-normal h-[42px] text-[13px] rounded-[6px] focus:ring-1 focus:ring-gray-400">
                                         <SelectValue placeholder="Select gender" />
                                     </SelectTrigger>
@@ -203,7 +207,7 @@ export function VendorEditProfileModal({ customTrigger }: { customTrigger?: Reac
                                     <textarea
                                         className="w-full min-h-[140px] p-4 rounded-[8px] border border-gray-300 text-[13px] focus:outline-none focus:ring-1 focus:ring-gray-400 resize-none font-sf-pro-text text-gray-600"
                                         placeholder="Tell us about your business"
-                                        defaultValue={user?.description || ""}
+                                        defaultValue={user?.profile.description || ""}
                                     />
                                 </div>
                             </div>

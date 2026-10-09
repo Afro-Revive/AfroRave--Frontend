@@ -15,7 +15,9 @@ export default function TicketsTab({ setStep, setActiveTabState, showError }: IT
   useEffect(() => {
     const formParam = searchParams.get('form')
 
-    if (formParam === 'create' || formParam === 'promocode' || formParam === 'upgrades') {
+    // Upgrades are no longer a feature. ?form=upgrades falls through to the
+    // create form below instead of rendering an empty tab.
+    if (formParam === 'create' || formParam === 'promocode') {
       setCurrentForm(formParam)
     } else if (searchParams.get('tab') === 'tickets') {
       setSearchParams({ tab: 'tickets', form: 'create' })
@@ -27,9 +29,11 @@ export default function TicketsTab({ setStep, setActiveTabState, showError }: IT
     setCurrentForm(form)
   }
 
-  function renderThemeTab() {
-    setActiveTabState('theme')
-    searchParams.delete('form')
+  // Promo codes hand straight on to the publish preview. The theme step that
+  // used to sit between them is gone, and routing to it rendered a blank page.
+  // setActiveTabState replaces the whole query, so `form` is dropped with it.
+  function goToPublish() {
+    setActiveTabState('publish')
   }
 
   if (!eventId && !guideActive) {
@@ -38,12 +42,12 @@ export default function TicketsTab({ setStep, setActiveTabState, showError }: IT
 
   if (currentForm === 'promocode') {
     setStep(2.5)
-    return <PromoCodeForm handleFormChange={renderThemeTab} />
+    return <PromoCodeForm handleFormChange={goToPublish} />
   }
 
   // if (currentForm === 'upgrades') {
   //   setStep(2.5)
-  //   return <UpgradeForm renderThemeTab={renderThemeTab} />
+  //   return <UpgradeForm renderThemeTab={goToPublish} />
   // }
 
   if (currentForm === 'create') {

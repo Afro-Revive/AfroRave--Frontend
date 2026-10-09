@@ -1,7 +1,7 @@
 import { CalendarIcon } from '@/components/icons/calendar'
 import { DashboardCardSkeleton, DashboardCards } from '@/components/shared/dashboard-cards'
 import { getRoutePath } from '@/config/get-route-path'
-import { useGetVendorAvailableEvents } from '@/hooks/use-event-mutations'
+import { useGetVendorAvailableEvents } from '@/hooks/use-vendor-mutation'
 import { AddFilterBUtton } from '@/pages/creators/standalone/components/add-filter-btn'
 import { Bookmark } from 'lucide-react'
 import { Link } from 'react-router-dom'
@@ -16,16 +16,17 @@ function useProfileCompletion() {
   if (!user) return 0
   let score = 0
   if (user.profile.firstName) score++
-  if (user.businessName || user.companyName) score++
-  if (user.telphone) score++
+  if (user.profile.businessName || user.profile.companyName) score++
+  if (user.profile.phoneNumber) score++
   if (user.email) score++
-  if (user.gender) score++
-  if (user.portfolio) score++
-  const hasSocials = user.socialLinks && Object.values(user.socialLinks).some(link => !!link)
+  if (user.profile.gender) score++
+  if (user.profile.businessData?.portfolio.webUrl || user.profile.businessData?.portfolio.fileUrl) score++
+  const socials = user.profile.businessData?.socials
+  const hasSocials = socials && Object.values(socials).some(link => !!link)
   if (hasSocials) score++
-  if (user.description) score++
-  if (user.profilePicture) score++
-  if (user.gallery && user.gallery.length > 0) score++
+  if (user.profile.description) score++
+  if (user.profile.profilePicture) score++
+  if (user.profile.gallery && user.profile.gallery.length > 0) score++
   return (score / 10) * 100
 }
 
@@ -121,6 +122,7 @@ function DiscoverCard({ eventId, image, name, startDate, availableSlots, status 
   return (
     <Link to={getRoutePath('vendor_event_details', { eventId })}>
       <DashboardCards
+        eventId={eventId}
         image={image}
         name={name}
         startDate={startDate}

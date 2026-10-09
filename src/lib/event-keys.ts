@@ -13,4 +13,9 @@ export const eventKeys = {
   vendors: (eventId: string) => [...eventKeys.detail(eventId), 'vendors'] as const,
   vendorAvailable: () => [...eventKeys.all, 'vendor', 'available'] as const,
   resaleListings: (eventId: string) => [...eventKeys.detail(eventId), 'resale-listings'] as const,
+  vendorSlots: (eventId: string) => [...eventKeys.detail(eventId), 'vendor-slots'] as const,
+  vendorApplications: (eventId: string) => [...eventKeys.detail(eventId), 'vendor-applications'] as const,
+  vendorSlotById: (vendorId: string) => [...eventKeys.all, 'vendor', 'slot', vendorId] as const,
+  organizerVendorListings: (eventVendorId: string) => [...eventKeys.all, 'vendor', 'slot', eventVendorId, 'applications'] as const,
+  analytics: (eventId: string) => [...eventKeys.detail(eventId), 'analytics'] as const,
 }

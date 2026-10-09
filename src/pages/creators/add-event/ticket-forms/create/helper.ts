@@ -99,7 +99,8 @@ export function addTicket(
         ? { ...base, days_valid: '' }
         : base
 
-  form.setValue('whenToStart', 'at-a-scheduled-date', { shouldDirty: true })
+  form.setValue('whenToStart', 'immediately', { shouldDirty: true })
+  // Still prefilled, so switching to a scheduled start opens on a sane date.
   form.setValue(
     'scheduledDate',
     {
