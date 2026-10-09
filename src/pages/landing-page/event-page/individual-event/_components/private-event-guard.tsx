@@ -52,22 +52,19 @@ function PrivateEventAccess({
     return <>{children}</>;
   }
 
-  // The status refetches after a request; until it lands, the click counts.
-  if (access?.status === "Pending" || requestAccess.isSuccess) {
+  // Organisers don't deny — a request they don't approve stays pending, so a
+  // Denied status reads as pending too. The status refetches after a request;
+  // until it lands, the click counts.
+  if (
+    access?.status === "Pending" ||
+    access?.status === "Denied" ||
+    requestAccess.isSuccess
+  ) {
     return (
       <AccessNotice
         title="Your request is pending"
         body="The organiser is reviewing your request. We'll email you once you're approved."
         action={<RequestButton disabled>Request sent</RequestButton>}
-      />
-    );
-  }
-
-  if (access?.status === "Denied") {
-    return (
-      <AccessNotice
-        title="Your request wasn't approved"
-        body="The organiser didn't approve your request to attend this event."
       />
     );
   }
