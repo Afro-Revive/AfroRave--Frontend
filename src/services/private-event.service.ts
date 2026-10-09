@@ -59,7 +59,11 @@ class PrivateEventService {
         eventId: string,
         data: { pause: boolean },
     ): Promise<void> {
-        const response = await api.patch(`/api/PrivateEvent/${eventId}/pause-applications`, data);
+        // pause is a query param that defaults to true server-side, so sending
+        // it in the body meant every call paused and resume never landed.
+        const response = await api.patch(`/api/PrivateEvent/${eventId}/pause-applications`, null, {
+            params: { pause: data.pause },
+        });
         return response.data;
     }
 
