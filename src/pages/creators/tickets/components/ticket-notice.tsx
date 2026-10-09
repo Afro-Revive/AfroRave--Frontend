@@ -26,7 +26,7 @@ export function TicketNotice({
   return null
 }
 
-function NoticeCard({
+export function NoticeCard({
   icon: Icon,
   title,
   notes,
@@ -37,7 +37,7 @@ function NoticeCard({
 }) {
   return (
     <div className='w-full flex flex-col gap-1.5 rounded-xl bg-deep-red/12 px-5 py-4'>
-      <p className='flex items-center gap-2 font-work-sans text-sm font-bold text-deep-red'>
+      <p className='flex items-center gap-2 font-inter-tight text-sm font-bold text-deep-red'>
         <Icon className='size-4 shrink-0' />
         {title}
       </p>

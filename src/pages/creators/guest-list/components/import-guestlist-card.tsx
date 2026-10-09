@@ -272,7 +272,7 @@ function CategoryPill({
   )
 }
 
-function SelectCircle({
+export function SelectCircle({
   isSelected,
   label,
   onToggle,
@@ -301,7 +301,7 @@ function SelectCircle({
   )
 }
 
-function PageArrow({
+export function PageArrow({
   label,
   disabled,
   onClick,

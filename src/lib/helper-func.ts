@@ -1,5 +1,11 @@
 import { useEffect, useState } from 'react'
-import { format, parseISO, differenceInCalendarDays } from 'date-fns'
+import {
+  format,
+  parseISO,
+  differenceInCalendarDays,
+  differenceInMinutes,
+  formatDistanceToNowStrict,
+} from 'date-fns'
 import type { EventDetailData, UserTicketTicketDetails } from '@/types'
 
 function generateRandomString(length = 10) {
@@ -301,6 +307,27 @@ export function formatEventDate(dateString: string): string {
 export function formatShortDate(dateString: string): string {
   try {
     return format(parseISO(dateString), 'MMMM d, yyyy')
+  } catch {
+    return dateString
+  }
+}
+
+/**
+ * How long ago something happened, for activity lists.
+ * Today: '2 hours ago'. The day before: 'Yesterday'. Older: '23 Sep 2026'.
+ */
+export function formatTimeAgo(dateString: string): string {
+  try {
+    const date = parseISO(dateString)
+    const days = differenceInCalendarDays(new Date(), date)
+
+    if (days <= 0) {
+      // Also catches a timestamp slightly ahead of this clock.
+      if (differenceInMinutes(new Date(), date) < 1) return 'Just now'
+      return formatDistanceToNowStrict(date, { addSuffix: true })
+    }
+    if (days === 1) return 'Yesterday'
+    return format(date, 'd MMM yyyy')
   } catch {
     return dateString
   }

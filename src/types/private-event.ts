@@ -20,6 +20,13 @@ export interface AccessRequestData{
     status: "Pending" | "Approved" | "Denied";
     requestedDate: string;
     decidedDate: string | null;
+    // currently doesnt exist in the backend but will be added soon. Shaped like
+    // EventOrdersData; until it arrives, approved fans show "No orders made".
+    order?: {
+        orderCode: string;
+        cost: number;
+        items: { ticketName: string; quantity: number }[];
+    } | null;
 }
 
 export type AccessRequestResponse = ApiResponse<AccessRequestData>;

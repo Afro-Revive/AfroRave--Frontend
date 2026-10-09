@@ -16,6 +16,7 @@ type AccessRequestParams = {
   status?: AccessRequestData['status']
   pageNumber?: number
   pageSize?: number
+  search?: string
 }
 
 /**
@@ -105,11 +106,11 @@ export function useBatchUpdateAccessRequests(eventId: string) {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (data: { requestIds: string[]; decision: 'Approve' | 'Deny' }) =>
+    mutationFn: (data: { requestIds: string[]; decision: 'Approved' | 'Deny' }) =>
       privateEventService.batchUpdateAccessRequests(eventId, data),
     onSuccess: (_, { requestIds, decision }) => {
       const count = requestIds.length
-      const verb = decision === 'Approve' ? 'approved' : 'denied'
+      const verb = decision === 'Approved' ? 'approved' : 'denied'
 
       toast.success(count === 1 ? `Request ${verb}.` : `${count} requests ${verb}.`)
       // Requests move between status filters, so every page and filter is stale.

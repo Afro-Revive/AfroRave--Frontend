@@ -27,6 +27,7 @@ class PrivateEventService {
             status?: AccessRequestData["status"];
             pageNumber?: number;
             pageSize?: number;
+            search?: string;
         },
     ): Promise<AccessRequestResponse> {
         const response = await api.get(`/api/PrivateEvent/${eventId}/access-requests`, { params });
@@ -38,7 +39,7 @@ class PrivateEventService {
         eventId: string,
         data: {
             requestIds: string[];
-            decision: "Approve" | "Deny";
+            decision: "Approved" | "Deny";
         },
     ): Promise<void> {
         const response = await api.patch(`/api/PrivateEvent/${eventId}/access-requests`, data);
