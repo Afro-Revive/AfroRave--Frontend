@@ -11,7 +11,10 @@ import {
   useGetEventResaleListings,
 } from "@/hooks/use-event-mutations";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useCreateCart, useUpdateCartQuantity } from "@/hooks/use-cart";
+import { useClearCart, useCreateCart, useUpdateCartQuantity } from "@/hooks/use-cart";
+import { useNavigate, useParams } from "react-router-dom";
+import { getRoutePath } from "@/config/get-route-path";
+import { ConfirmOverlay } from "@/components/reusable/confirm-overlay";
 
 import { useAfroStore, useCartStore } from "@/stores";
 import type {
@@ -48,6 +51,14 @@ export default function TicketSection({ eventId }: ITicketProps) {
 
   const hasResale = resaleListings.length > 0;
 
+  // The route's :eventId is the event's custom URL, which the cart is keyed by.
+  const { eventId: eventSlug = "" } = useParams();
+  const navigate = useNavigate();
+  // Adding a ticket here moves the fan into the cart. Leaving the cart clears
+  // it, so a cart only ever holds one event's tickets.
+  const openCart = () =>
+    navigate(getRoutePath("event_cart", { eventId: eventSlug }));
+
   // Never leave the resale tab mounted once its listings are gone.
   const showResale = isSales && hasResale;
   const isTabLoading = showResale ? isResaleListingsLoading : isLoading;
@@ -76,7 +87,7 @@ export default function TicketSection({ eventId }: ITicketProps) {
         // the separators so the last row has no trailing border.
         <div className="w-full flex flex-col overflow-hidden rounded-md bg-gunmetal-gray divide-y divide-mid-dark-gray">
           {(showResale ? resaleListings : tickets).map((ticket) => (
-            <TicketCard key={ticket.cartKey} ticket={ticket} />
+            <TicketCard key={ticket.cartKey} ticket={ticket} onAdd={openCart} />
           ))}
         </div>
       )}
@@ -85,7 +96,7 @@ export default function TicketSection({ eventId }: ITicketProps) {
 }
 
 /** Also used by the cart so both surfaces stay identical. */
-export function TicketCard({ ticket }: ITicketCard) {
+export function TicketCard({ ticket, onAdd }: ITicketCard) {
   const {
     cartKey,
     ticketId,
@@ -112,16 +123,44 @@ export function TicketCard({ ticket }: ITicketCard) {
 
   const createCartMutation = useCreateCart();
   const updateQuantityMutation = useUpdateCartQuantity();
+  const { mutateAsync: clearCart } = useClearCart();
+  const { eventId: eventSlug = "" } = useParams();
+  const [isReplacingCart, setIsReplacingCart] = useState(false);
+
+  function addToCart() {
+    createCartMutation.mutate({
+      eventSlug,
+      item: {
+        cartKey,
+        ticketId,
+        listingId,
+        quantity: 1,
+        purchaseLimit: maxPerBuyer,
+      },
+    });
+    onAdd?.();
+  }
 
   function createCart() {
-    createCartMutation.mutate({
-      cartKey,
-      ticketId,
-      listingId,
-      quantity: 1,
-      purchaseLimit: maxPerBuyer,
-    });
-    useCartStore.getState().openCart();
+    // A cart left behind for another event (a closed tab, say) is never mixed
+    // with this one: the fan chooses to replace it or keep it.
+    const { items, eventSlug: cartSlug } = useCartStore.getState();
+    if (items.length > 0 && cartSlug && cartSlug !== eventSlug) {
+      setIsReplacingCart(true);
+      return;
+    }
+    addToCart();
+  }
+
+  async function replaceCart() {
+    setIsReplacingCart(false);
+    try {
+      // Awaited, so the old cart is gone before the new ticket goes in.
+      await clearCart();
+    } catch {
+      // useClearCart has already shown the error, and the browser's copy is cleared first.
+    }
+    addToCart();
   }
 
   function updateCart(quantity: number) {
@@ -191,9 +230,11 @@ export function TicketCard({ ticket }: ITicketCard) {
             )}
 
             <TicketButton
-              action={() =>
-                ticketCount > 0 ? updateCart(ticketCount + 1) : createCart()
-              }
+              action={() => {
+                if (ticketCount === 0) return createCart();
+                updateCart(ticketCount + 1);
+                onAdd?.();
+              }}
               Icon={Plus}
               disabled={atLimit}
               isLoading={
@@ -204,6 +245,18 @@ export function TicketCard({ ticket }: ITicketCard) {
         )}
       </div>
     </div>
+
+    {isReplacingCart && (
+      <ConfirmOverlay
+        fixed
+        title="Replace your cart?"
+        message="Your cart has tickets for another event. You can only buy tickets for one event at a time."
+        confirmText="Replace"
+        cancelText="Keep cart"
+        onConfirm={replaceCart}
+        onCancel={() => setIsReplacingCart(false)}
+      />
+    )}
 
     <BaseModal
       open={showDetails}
@@ -335,4 +388,6 @@ interface ITicketButton {
 
 interface ITicketCard {
   ticket: PurchasableTicket;
+  /** Called after adding a ticket: the event page uses it to open the cart. */
+  onAdd?: () => void;
 }

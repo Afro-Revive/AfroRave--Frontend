@@ -199,6 +199,8 @@ export function useLogin(options?: { onSuccess?: () => void }) {
                   : { ticketId, quantity },
               ),
             )
+            // The server has just reserved the tickets: start the checkout countdown.
+            useCartStore.getState().startReservation()
             await queryClient.invalidateQueries({ queryKey: cartKeys.lists() })
           } finally {
             useCartStore.getState().setSyncing(false)

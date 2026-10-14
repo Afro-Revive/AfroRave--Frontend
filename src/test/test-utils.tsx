@@ -1,14 +1,15 @@
 /**
  * Shared helpers for route-level tests.
  *
- * `renderRoute` mounts the app's real route tree (`AppRoutes` from application.tsx) inside a
- * MemoryRouter, so tests exercise the same route table the app ships rather than a copy.
+ * `renderRoute` mounts the app's real route table (`appRoutes` from application.tsx) in a
+ * memory router, so tests exercise the same routes the app ships rather than a copy. It's
+ * a data router like the app's, so pages that use useBlocker render here too.
  */
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render } from '@testing-library/react'
 import { HelmetProvider } from 'react-helmet-async'
-import { MemoryRouter } from 'react-router-dom'
-import { AppRoutes } from '@/application'
+import { RouterProvider, createMemoryRouter } from 'react-router-dom'
+import { appRoutes } from '@/application'
 import { WishlistProvider } from '@/contexts/wishlist-context'
 import { useAfroStore } from '@/stores'
 import type { User } from '@/types/auth'
@@ -58,18 +59,18 @@ export function renderRoute(path: string) {
     },
   })
 
+  const router = createMemoryRouter(appRoutes, { initialEntries: [path] })
+
   // Mirrors the provider stack in main.tsx — pages call Helmet and the wishlist context.
   const view = render(
     <HelmetProvider>
       <WishlistProvider>
         <QueryClientProvider client={queryClient}>
-          <MemoryRouter initialEntries={[path]}>
-            <AppRoutes />
-          </MemoryRouter>
+          <RouterProvider router={router} />
         </QueryClientProvider>
       </WishlistProvider>
     </HelmetProvider>,
   )
 
-  return { ...view, queryClient }
+  return { ...view, queryClient, router }
 }

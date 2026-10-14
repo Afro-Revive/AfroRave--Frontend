@@ -93,6 +93,8 @@ URL by hand. It calls `getRoutePath('key', params)` from
 | `/fans/my-tickets` | `fans/my-tickets` | user dashboard | Yes |
 | `/fans/my-tickets/:eventId` | `fans/my-tickets/individual-active-tickets` | user dashboard | Yes |
 | `/fans/listed-tickets` | `fans/listed-tickets` | user dashboard | Yes |
+| `/fans/events/:eventId/cart` | `landing-page/event-page/cart` | none (full screen) | No |
+| `/fans/events/:eventId/checkout` | `landing-page/checkout` | none (full screen) | No (it shows the login form) |
 | `/fans/payment-confirmation` | `landing-page/payment-confirmation` | none | No |
 | `/complete-profile?token=…` | `fans/complete-profile` | none | No (the token is the proof) |
 | `/reset-password?token=…` | `auth/reset-password` | none | No |
@@ -196,7 +198,6 @@ IndividualEventPage (index.tsx)        loads the event with useGetEventByCustomU
 └── EventDetails (event-details.tsx)
     ├── EventDetailsSection            left column, pinned on desktop: flyer, date, venue
     ├── EventBookmarkButton            logged-in only; save to or remove from watchlist
-    ├── Cart (event-page/cart)         cart + checkout modals (see below)
     ├── EventDescription
     ├── PrivateEventGuard              public events → tickets; private → access card
     │   └── TicketSection (sections/tickets.tsx)
@@ -222,12 +223,18 @@ The cart is the most involved fan flow. The rules:
 1. **The browser cart is the single source of truth.** `useCartStore` (saved to `localStorage` as `afro-cart`) holds every line. Fans can fill a cart without an account.
 2. **Adding** goes through `useCreateCart` and `useUpdateCartQuantity` (`hooks/use-cart.ts`). Both write to the store.
 3. **Logging in syncs the cart.** `useLogin` sends the local cart to the server with `cartService.syncCart`, including resale lines (`listingId`, `resellTicketId`), and waits for that before navigating.
-4. **Cart modal:** `event-page/cart/index.tsx` opens `CartContainer`. Continue syncs to the server, then opens the checkout modal. Both modals ask "are you sure?" before closing, and closing clears the cart.
-5. **Checkout** (`checkout/index.tsx`):
+4. **One event per cart.** The store records the cart's `eventSlug`. On the event page, adding a ticket takes the fan to the cart page. If the saved cart holds another event's tickets (say, from a closed tab), the fan is asked to replace them first.
+5. **Cart page** (`/fans/events/:eventId/cart`, `event-page/cart/index.tsx`): a full-screen page with `CartContainer`, styled like the modal it replaced. Continue syncs to the server, then goes to the checkout page.
+6. **Checkout page** (`/fans/events/:eventId/checkout`, `checkout/index.tsx`). It has no layout, so it brings its own `AuthProvider` and `<AuthModal />`.
    - Signed out: shows `UserLoginForm` with `onLoginSuccess={() => {}}` so the fan stays in checkout.
-   - Signed in: shows `CheckoutSummary` with the promo code, the totals accordion, and a reservation countdown.
-6. **Paying:** `CheckoutSummary` sends the fan to Paystack, with the callback set to `${origin}/fans/payment-confirmation`.
-7. **Payment confirmation** (`payment-confirmation/index.tsx`) reads Paystack's reference from the URL, calls `useProcessCheckout`, and shows success or failure. `useProcessCheckout` clears the local cart when it succeeds.
+   - Signed in: shows `CheckoutSummary` with the promo code, the totals accordion, and a 15-minute countdown.
+   - **The countdown** starts the moment the server reserves the tickets: when `useSyncCartToServer` succeeds (Continue on the cart page) and when `useLogin` syncs the cart (logging in at checkout). Each sync restarts it. The start is saved in the store, so a refresh carries on counting. The summary only displays it.
+   - **Extending:** in the last two minutes, while the reservation still exists, a "Need more time?" link appears. `useExtendReservation` fetches the fan's server cart (`GET /api/Cart`), calls `POST /api/Cart/{cartId}/extend-reservation` for every line, since each line has its own reservation, and restarts the countdown.
+   - **Expiry:** when the countdown reaches zero, the server has already deleted the cart and would reject payment. The summary clears the browser's cart and says the tickets were released. The empty cart then sends the fan back to the event page, without the "are you sure?" step. A refresh or Back onto an expired checkout does the same.
+7. **Leaving asks first.** `useCheckoutFlowGuard` (`hooks/use-checkout-flow-guard.ts`) uses React Router's `useBlocker`. Any way out of the cart or checkout (the ✕, a link, the browser's Back) shows "Exit Cart?" or "Exit Checkout?", and confirming clears the cart. Moving between this event's cart and checkout isn't blocked, and neither is the redirect to Paystack. `useBlocker` needs a data router, which is why `application.tsx` uses `createBrowserRouter`.
+8. **Refresh and empty carts.** A refresh keeps the fan on the cart or checkout page, because the cart and promo code are saved. An empty cart, or one for another event, sends the fan back to the event page.
+9. **Paying:** `CheckoutSummary` sends the fan to Paystack, with the callback set to `${origin}/fans/payment-confirmation`.
+10. **Payment confirmation** (`payment-confirmation/index.tsx`) reads Paystack's reference from the URL, calls `useProcessCheckout`, and shows success or failure. `useProcessCheckout` clears the local cart when it succeeds.
 
 `lib/purchasable-tickets.ts` turns normal tickets and resale listings into one
 shape (`PurchasableTicket`), so the ticket list and cart can treat both alike.
@@ -315,7 +322,7 @@ refreshes that event's tickets, promo codes and analytics.
 | Store | Saved in the browser? | Holds |
 |---|---|---|
 | `useAfroStore` | Yes (`afro-store-v1`) | The user, tokens, `isAuthenticated`, `isFan`, `isCreator`, `isVendor` |
-| `useCartStore` | Yes (`afro-cart`) | Cart lines, the applied promo code, whether a sync is running |
+| `useCartStore` | Yes (`afro-cart`, version 2) | Cart lines, the event they belong to (`eventSlug`), the applied promo code, when the checkout countdown started, and whether a sync is running |
 
 Use a store only for state many pages share. Server data belongs in TanStack
 Query, not in a store.

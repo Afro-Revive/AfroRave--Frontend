@@ -1,7 +1,14 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { Suspense, lazy } from 'react'
-import { Route, BrowserRouter as Router, Routes } from 'react-router-dom'
+import {
+  Outlet,
+  Route,
+  RouterProvider,
+  createBrowserRouter,
+  createRoutesFromElements,
+  type RouteObject,
+} from 'react-router-dom'
 import { Toaster } from 'sonner'
 import { OrganizerAuthGuard } from './components/auth/organizer-auth-guard'
 import { LoadingFallback } from './components/loading-fallback'
@@ -27,6 +34,8 @@ const SlotDetailsPage = lazy(() => import('./pages/vendor/slots/slot-details'))
 const CompleteProfilePage = lazy(() => import('./pages/fans/complete-profile'))
 const ResetPasswordPage = lazy(() => import('./pages/auth/reset-password'))
 const PaymentConfirmationPage = lazy(() => import('./pages/landing-page/payment-confirmation'))
+const EventCartPage = lazy(() => import('./pages/landing-page/event-page/cart'))
+const EventCheckoutPage = lazy(() => import('./pages/landing-page/checkout'))
 
 // Create a client
 const queryClient = new QueryClient({
@@ -38,13 +47,28 @@ const queryClient = new QueryClient({
   },
 })
 
-export function AppRoutes() {
+/**
+ * Runs once around every page: what used to sit beside <Routes> when the app
+ * used <BrowserRouter>.
+ */
+function AppShell() {
   useScrollToTop()
   useTokenRefresh()
 
   return (
     <>
-    <Routes>
+      <Outlet />
+      <CreatorGuideOverlay />
+    </>
+  )
+}
+
+/**
+ *  A data router, so pages can use useBlocker — the cart and
+ * checkout pages use it to confirm before the fan leaves.
+ */
+export const appRoutes: RouteObject[] = createRoutesFromElements(
+  <Route element={<AppShell />}>
       <Route element={<IndexLayout />}>
         {routes.map((route) => (
           <Route key={route.path} path={route.path} element={route.element} />
@@ -120,6 +144,24 @@ export function AppRoutes() {
       />
 
       <Route
+        path={getRoutePath('event_cart', { eventId: ':eventId' })}
+        element={
+          <Suspense fallback={<LoadingFallback />}>
+            <EventCartPage />
+          </Suspense>
+        }
+      />
+
+      <Route
+        path={getRoutePath('event_checkout', { eventId: ':eventId' })}
+        element={
+          <Suspense fallback={<LoadingFallback />}>
+            <EventCheckoutPage />
+          </Suspense>
+        }
+      />
+
+      <Route
         path={getRoutePath('payment_confirmation')}
         element={
           <Suspense fallback={<LoadingFallback />}>
@@ -127,18 +169,15 @@ export function AppRoutes() {
           </Suspense>
         }
       />
-    </Routes>
-    <CreatorGuideOverlay />
-    </>
-  )
-}
+  </Route>,
+)
+
+const router = createBrowserRouter(appRoutes)
 
 export default function Application() {
   return (
     <QueryClientProvider client={queryClient}>
-      <Router>
-        <AppRoutes />
-      </Router>
+      <RouterProvider router={router} />
       <ReactQueryDevtools initialIsOpen={false} />
       <Toaster position='top-right' richColors closeButton duration={4000} />
     </QueryClientProvider>

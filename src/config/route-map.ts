@@ -14,6 +14,9 @@ export const ROUTE_PATHS = {
   home: '/fans',
   events: '/fans/events',
   individual_event: '/fans/events/:eventId',
+  // Buying: the cart, then checkout, each a full-screen page of its own.
+  event_cart: '/fans/events/:eventId/cart',
+  event_checkout: '/fans/events/:eventId/checkout',
   resell: '/fans/resell',
   about_us: '/fans/about-us',
   blog: '/fans/blog',
@@ -100,6 +103,8 @@ export interface RouteParams {
   home: never
   events: never
   individual_event: { eventId: string | number }
+  event_cart: { eventId: string | number }
+  event_checkout: { eventId: string | number }
   resell: never
   about_us: never
   blog: never

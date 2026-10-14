@@ -1,6 +1,6 @@
 import { X } from "lucide-react";
 import { formatNaira } from "@/lib/format-price";
-import { useCheckoutCart } from "@/hooks/use-cart";
+import { useCheckoutCart, useExtendReservation } from "@/hooks/use-cart";
 import {
   useGetEventResaleListings,
   useGetEventTickets,
@@ -30,6 +30,37 @@ import { RenderEventImage } from "@/components/shared/render-event-flyer";
 import { useEffect, useMemo, useState } from "react";
 import TotalAccordion from "@/pages/landing-page/_component/totalPrice-accordion";
 import { InitializePaymentResponse } from "@/types/cart";
+import { toast } from "sonner";
+
+/** How long the server holds the tickets once the cart is synced. */
+const RESERVATION_SECONDS = 15 * 60;
+
+/** The extend option appears for the last two minutes, while the reservation still exists. */
+const EXTEND_FROM_SECONDS = 2 * 60;
+
+/**
+ * Seconds left of the reservation. Display only: the clock is started where
+ * the server reserves the tickets (the cart sync and login), and restarted by
+ * an extension. Null until it has started.
+ */
+function useReservationCountdown(totalSeconds: number) {
+  const startedAt = useCartStore((state) => state.reservationStartedAt);
+  const [now, setNow] = useState(() => Date.now());
+
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  if (!startedAt) return null;
+
+  const elapsed = Math.floor((now - startedAt) / 1000);
+  const remaining = Math.max(totalSeconds - elapsed, 0);
+
+  const m = String(Math.floor(remaining / 60)).padStart(2, "0");
+  const s = String(remaining % 60).padStart(2, "0");
+  return { display: `${m}:${s}`, remaining, expired: remaining <= 0 };
+}
 
 export default function CheckoutSummary({
   event,
@@ -106,30 +137,44 @@ export default function CheckoutSummary({
       },
     );
   }
-  function useCountdown(seconds: number) {
-    const [remaining, setRemaining] = useState(seconds);
+  const countdown = useReservationCountdown(RESERVATION_SECONDS);
+  const { mutate: extendReservation, isPending: isExtending } =
+    useExtendReservation();
+  const isExpired = countdown?.expired ?? false;
+  // Only while the reservation still exists: an expired one can't be extended.
+  const canExtend =
+    countdown !== null &&
+    !countdown.expired &&
+    countdown.remaining <= EXTEND_FROM_SECONDS;
 
-    useEffect(() => {
-      if (remaining <= 0) return;
-      const id = setInterval(() => setRemaining((s) => s - 1), 1000);
-      return () => clearInterval(id);
-    }, [remaining]);
-
-    const m = String(Math.floor(remaining / 60)).padStart(2, "0");
-    const s = String(remaining % 60).padStart(2, "0");
-    return { display: `${m}:${s}`, expired: remaining <= 0 };
-  }
-  // Countdown timer for 15 minutes
-  const { display, expired } = useCountdown(15 * 60);
+  // Once the reservation ends the server deletes the cart and would reject
+  // payment. Release the browser's copy too: an empty cart sends the checkout
+  // page back to the event, without the leave prompt.
+  useEffect(() => {
+    if (!isExpired) return;
+    useCartStore.getState().clearLocal();
+    toast.info("Your reservation expired and your tickets were released.");
+  }, [isExpired]);
 
   return (
     <div className="max-w-3xl w-full flex flex-col overflow-auto gap-5 md:gap-10 pb-6">
-      {isAuthenticated && (
-        <p className="text-xs text-center font-input-mono text-white">
-          {expired
-            ? "Your session has expired"
-            : `Please checkout within ${display} minutes`}
-        </p>
+      {isAuthenticated && countdown && !countdown.expired && (
+        <div className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1">
+          <p className="text-xs text-center font-input-mono text-white">
+            {`Please checkout within ${countdown.display} minutes`}
+          </p>
+
+          {canExtend && (
+            <button
+              type="button"
+              onClick={() => extendReservation()}
+              disabled={isExtending}
+              className="text-xs font-input-mono text-tech-blue underline underline-offset-2 hover:text-tech-blue/80 disabled:opacity-50"
+            >
+              {isExtending ? "Extending..." : "Need more time?"}
+            </button>
+          )}
+        </div>
       )}
       <div className="w-full flex flex-col md:flex-row items-stretch gap-4">
         <div className="flex flex-col flex-1 gap-4 md:gap-0 md:justify-between">
