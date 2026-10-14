@@ -107,61 +107,103 @@ export const genderOptions: { value: string; label: string }[] = [
   { value: "other", label: "Other" },
 ];
 
+/** Nigeria's 36 states and the FCT, for the State select when the country is Nigeria. */
+export const nigerianStates: { value: string; label: string }[] = [
+  { value: "Abia", label: "Abia" },
+  { value: "Adamawa", label: "Adamawa" },
+  { value: "Akwa Ibom", label: "Akwa Ibom" },
+  { value: "Anambra", label: "Anambra" },
+  { value: "Bauchi", label: "Bauchi" },
+  { value: "Bayelsa", label: "Bayelsa" },
+  { value: "Benue", label: "Benue" },
+  { value: "Borno", label: "Borno" },
+  { value: "Cross River", label: "Cross River" },
+  { value: "Delta", label: "Delta" },
+  { value: "Ebonyi", label: "Ebonyi" },
+  { value: "Edo", label: "Edo" },
+  { value: "Ekiti", label: "Ekiti" },
+  { value: "Enugu", label: "Enugu" },
+  { value: "Federal Capital Territory", label: "FCT (Abuja)" },
+  { value: "Gombe", label: "Gombe" },
+  { value: "Imo", label: "Imo" },
+  { value: "Jigawa", label: "Jigawa" },
+  { value: "Kaduna", label: "Kaduna" },
+  { value: "Kano", label: "Kano" },
+  { value: "Katsina", label: "Katsina" },
+  { value: "Kebbi", label: "Kebbi" },
+  { value: "Kogi", label: "Kogi" },
+  { value: "Kwara", label: "Kwara" },
+  { value: "Lagos", label: "Lagos" },
+  { value: "Nasarawa", label: "Nasarawa" },
+  { value: "Niger", label: "Niger" },
+  { value: "Ogun", label: "Ogun" },
+  { value: "Ondo", label: "Ondo" },
+  { value: "Osun", label: "Osun" },
+  { value: "Oyo", label: "Oyo" },
+  { value: "Plateau", label: "Plateau" },
+  { value: "Rivers", label: "Rivers" },
+  { value: "Sokoto", label: "Sokoto" },
+  { value: "Taraba", label: "Taraba" },
+  { value: "Yobe", label: "Yobe" },
+  { value: "Zamfara", label: "Zamfara" },
+];
+
+/** Shown as the code alone (+234); the comment on each line names the country. */
 export const africanCountryCodes: { value: string; label: string }[] = [
-  { value: "+213", label: "Algeria (+213)" },
-  { value: "+244", label: "Angola (+244)" },
-  { value: "+229", label: "Benin (+229)" },
-  { value: "+267", label: "Botswana (+267)" },
-  { value: "+226", label: "Burkina Faso (+226)" },
-  { value: "+257", label: "Burundi (+257)" },
-  { value: "+237", label: "Cameroon (+237)" },
-  { value: "+238", label: "Cape Verde (+238)" },
-  { value: "+236", label: "Central African Republic (+236)" },
-  { value: "+235", label: "Chad (+235)" },
-  { value: "+269", label: "Comoros (+269)" },
-  { value: "+242", label: "Congo - Brazzaville (+242)" },
-  { value: "+243", label: "Congo - Kinshasa (+243)" },
-  { value: "+225", label: "Côte d’Ivoire (+225)" },
-  { value: "+253", label: "Djibouti (+253)" },
-  { value: "+20", label: "Egypt (+20)" },
-  { value: "+240", label: "Equatorial Guinea (+240)" },
-  { value: "+291", label: "Eritrea (+291)" },
-  { value: "+268", label: "Eswatini (+268)" },
-  { value: "+251", label: "Ethiopia (+251)" },
-  { value: "+241", label: "Gabon (+241)" },
-  { value: "+220", label: "Gambia (+220)" },
-  { value: "+233", label: "Ghana (+233)" },
-  { value: "+224", label: "Guinea (+224)" },
-  { value: "+245", label: "Guinea-Bissau (+245)" },
-  { value: "+254", label: "Kenya (+254)" },
-  { value: "+266", label: "Lesotho (+266)" },
-  { value: "+231", label: "Liberia (+231)" },
-  { value: "+218", label: "Libya (+218)" },
-  { value: "+261", label: "Madagascar (+261)" },
-  { value: "+265", label: "Malawi (+265)" },
-  { value: "+223", label: "Mali (+223)" },
-  { value: "+222", label: "Mauritania (+222)" },
-  { value: "+230", label: "Mauritius (+230)" },
-  { value: "+212", label: "Morocco (+212)" },
-  { value: "+258", label: "Mozambique (+258)" },
-  { value: "+264", label: "Namibia (+264)" },
-  { value: "+227", label: "Niger (+227)" },
-  { value: "+234", label: "Nigeria (+234)" },
-  { value: "+250", label: "Rwanda (+250)" },
-  { value: "+239", label: "São Tomé & Príncipe (+239)" },
-  { value: "+221", label: "Senegal (+221)" },
-  { value: "+248", label: "Seychelles (+248)" },
-  { value: "+232", label: "Sierra Leone (+232)" },
-  { value: "+252", label: "Somalia (+252)" },
-  { value: "+27", label: "South Africa (+27)" },
-  { value: "+211", label: "South Sudan (+211)" },
-  { value: "+249", label: "Sudan (+249)" },
-  { value: "+255", label: "Tanzania (+255)" },
-  { value: "+228", label: "Togo (+228)" },
-  { value: "+216", label: "Tunisia (+216)" },
-  { value: "+256", label: "Uganda (+256)" },
-  { value: "+260", label: "Zambia (+260)" },
-  { value: "+263", label: "Zimbabwe (+263)" },
+  { value: "+213", label: "+213" }, // Algeria
+  { value: "+244", label: "+244" }, // Angola
+  { value: "+229", label: "+229" }, // Benin
+  { value: "+267", label: "+267" }, // Botswana
+  { value: "+226", label: "+226" }, // Burkina Faso
+  { value: "+257", label: "+257" }, // Burundi
+  { value: "+237", label: "+237" }, // Cameroon
+  { value: "+238", label: "+238" }, // Cape Verde
+  { value: "+236", label: "+236" }, // Central African Republic
+  { value: "+235", label: "+235" }, // Chad
+  { value: "+269", label: "+269" }, // Comoros
+  { value: "+242", label: "+242" }, // Congo - Brazzaville
+  { value: "+243", label: "+243" }, // Congo - Kinshasa
+  { value: "+225", label: "+225" }, // Côte d’Ivoire
+  { value: "+253", label: "+253" }, // Djibouti
+  { value: "+20", label: "+20" }, // Egypt
+  { value: "+240", label: "+240" }, // Equatorial Guinea
+  { value: "+291", label: "+291" }, // Eritrea
+  { value: "+268", label: "+268" }, // Eswatini
+  { value: "+251", label: "+251" }, // Ethiopia
+  { value: "+241", label: "+241" }, // Gabon
+  { value: "+220", label: "+220" }, // Gambia
+  { value: "+233", label: "+233" }, // Ghana
+  { value: "+224", label: "+224" }, // Guinea
+  { value: "+245", label: "+245" }, // Guinea-Bissau
+  { value: "+254", label: "+254" }, // Kenya
+  { value: "+266", label: "+266" }, // Lesotho
+  { value: "+231", label: "+231" }, // Liberia
+  { value: "+218", label: "+218" }, // Libya
+  { value: "+261", label: "+261" }, // Madagascar
+  { value: "+265", label: "+265" }, // Malawi
+  { value: "+223", label: "+223" }, // Mali
+  { value: "+222", label: "+222" }, // Mauritania
+  { value: "+230", label: "+230" }, // Mauritius
+  { value: "+212", label: "+212" }, // Morocco
+  { value: "+258", label: "+258" }, // Mozambique
+  { value: "+264", label: "+264" }, // Namibia
+  { value: "+227", label: "+227" }, // Niger
+  { value: "+234", label: "+234" }, // Nigeria
+  { value: "+250", label: "+250" }, // Rwanda
+  { value: "+239", label: "+239" }, // São Tomé & Príncipe
+  { value: "+221", label: "+221" }, // Senegal
+  { value: "+248", label: "+248" }, // Seychelles
+  { value: "+232", label: "+232" }, // Sierra Leone
+  { value: "+252", label: "+252" }, // Somalia
+  { value: "+27", label: "+27" }, // South Africa
+  { value: "+211", label: "+211" }, // South Sudan
+  { value: "+249", label: "+249" }, // Sudan
+  { value: "+255", label: "+255" }, // Tanzania
+  { value: "+228", label: "+228" }, // Togo
+  { value: "+216", label: "+216" }, // Tunisia
+  { value: "+256", label: "+256" }, // Uganda
+  { value: "+260", label: "+260" }, // Zambia
+  { value: "+263", label: "+263" }, // Zimbabwe
 ];
 
 export const vendorCheckboxData = [

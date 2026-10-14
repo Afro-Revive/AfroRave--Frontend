@@ -322,5 +322,4 @@ or changes:
 - **Organizer guest allowance:** an endpoint for the real "used / total" numbers.
 - **Vendor slot pause:** a status endpoint.
 - **Attendee list:** an endpoint returning individual attendees.
-- **Resale marketplace:** an endpoint listing every resale ticket.
 - **Invite status values:** a confirmed list, so the invites table can colour each status properly.
