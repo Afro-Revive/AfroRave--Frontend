@@ -64,7 +64,7 @@ export default function Header() {
             )}
 
             {!isAuthenticated && <LoginButton />}
-            <NavSheet />
+            { !isAuthenticated && <NavSheet /> }
           </div>
         )}
       </nav>
