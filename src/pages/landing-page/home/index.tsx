@@ -1,21 +1,15 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import {
-  addDays,
-  endOfDay,
-  isToday,
-  isWithinInterval,
-  startOfDay,
-} from "date-fns";
 import { ArrowRight } from "lucide-react";
 import { SEO } from "@/components/seo";
 import { CategoryBlock } from "@/components/shared/category-block";
 import { getRoutePath } from "@/config/get-route-path";
 import { useGetAllEvents } from "@/hooks/use-event-mutations";
 import { app_store_links } from "@/layouts/root-layout/footer";
+import { thisWeekRange } from "@/lib/helper-func";
 import { cn } from "@/lib/utils";
 import type { PaginatedResponse } from "@/types";
-import type { EventData } from "@/types/event";
+import type { EventData, EventListParams } from "@/types/event";
 
 export default function LandingPage() {
   return (
@@ -101,34 +95,35 @@ const DISCOVER_FILTERS = [
 
 type DiscoverFilter = (typeof DISCOVER_FILTERS)[number]["key"];
 
+/** How many events the home page row shows. */
+const DISCOVER_LIMIT = 8;
+
+/**
+ * Every chip filters on the server. A function rather than a constant, so
+ * "This Week" is worked out from today each time, not from when the page loaded.
+ */
+function discoverParams(filter: DiscoverFilter): EventListParams {
+  switch (filter) {
+    case "concert":
+      return { category: "concert", pageSize: DISCOVER_LIMIT };
+    case "resale":
+      return { hasResaleTickets: true, pageSize: DISCOVER_LIMIT };
+    case "week":
+      return { ...thisWeekRange(), pageSize: DISCOVER_LIMIT };
+    default:
+      return { pageSize: DISCOVER_LIMIT };
+  }
+}
+
 function DiscoverEventsSection() {
   const [activeFilter, setActiveFilter] = useState<DiscoverFilter>("all");
-  const { data: allEventResponse, isPending } = useGetAllEvents();
+  const { data: allEventResponse, isPending, isFetching } = useGetAllEvents(
+    discoverParams(activeFilter),
+  );
 
-  const filteredEvents = useMemo(() => {
-    const events =
-      (allEventResponse?.data as PaginatedResponse<EventData> | undefined)
-        ?.items ?? [];
-
-    if (activeFilter === "all") return events;
-
-    const now = new Date();
-    const weekEnd = endOfDay(addDays(now, 7));
-
-    return events.filter((event) => {
-      if (activeFilter === "resale") return !!event.hasResaleTickets;
-      if (activeFilter === "concert") {
-        return /concert|festival|music|live/i.test(event.eventName);
-      }
-
-      const start = new Date(event.startDate);
-      if (isNaN(start.getTime())) return false;
-      return (
-        isToday(start) ||
-        isWithinInterval(start, { start: startOfDay(now), end: weekEnd })
-      );
-    });
-  }, [allEventResponse, activeFilter]);
+  const filteredEvents =
+    (allEventResponse?.data as PaginatedResponse<EventData> | undefined)
+      ?.items ?? [];
 
   return (
     <section className="flex flex-col gap-6 ">
@@ -155,19 +150,24 @@ function DiscoverEventsSection() {
         ))}
       </div>
 
-      {/* Gutter on the row, so it scrolls away after the first card. */}
-
+      <div
+        aria-busy={isFetching}
+        className={cn(
+          "transition-opacity",
+          isFetching && !isPending && "opacity-60",
+        )}
+      >
         <CategoryBlock
-        data={filteredEvents.map((e) => ({
-          ...e,
-          desktopMedia: e.metadata.desktopMedia,
-        }))}
-        showLocation
-        isLoading={isPending}
-        homePage
-        rowClassName="pl-6 xl:pl-15 md:pl-10 tablet:pl-12"
-      />
-      
+          data={filteredEvents.map((e) => ({
+            ...e,
+            desktopMedia: e.metadata.desktopMedia,
+          }))}
+          showLocation
+          isLoading={isPending}
+          homePage
+          rowClassName="pl-6 xl:pl-15 md:pl-10 tablet:pl-12"
+        />
+      </div>
     </section>
   );
 }

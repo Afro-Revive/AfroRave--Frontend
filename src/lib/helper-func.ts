@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
 import {
+  addDays,
+  endOfMonth,
   format,
   parseISO,
   differenceInCalendarDays,
@@ -310,6 +312,29 @@ export function formatShortDate(dateString: string): string {
   } catch {
     return dateString
   }
+}
+
+/** A date as 'YYYY-MM-DD' by the viewer's calendar, the events API's date format. */
+export function toApiDate(date: Date): string {
+  return format(date, 'yyyy-MM-dd')
+}
+
+/** Today through the seventh day from now, as the events API's date range. */
+export function thisWeekRange(): { startDate: string; endDate: string } {
+  const today = new Date()
+  return { startDate: toApiDate(today), endDate: toApiDate(addDays(today, 7)) }
+}
+
+/**
+ * A month (0–11) as a full-month range for the events API. Fans only browse
+ * upcoming events, so a month that has already passed this year means next
+ * year's: in October, "Jan" is next January.
+ */
+export function upcomingMonthRange(month: number): { startDate: string; endDate: string } {
+  const today = new Date()
+  const year = month < today.getMonth() ? today.getFullYear() + 1 : today.getFullYear()
+  const firstDay = new Date(year, month, 1)
+  return { startDate: toApiDate(firstDay), endDate: toApiDate(endOfMonth(firstDay)) }
 }
 
 /**

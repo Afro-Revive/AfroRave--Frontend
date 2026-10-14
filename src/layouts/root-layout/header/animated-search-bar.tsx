@@ -13,21 +13,13 @@ import { Calendar } from '@/components/ui/calendar'
 import { cn } from '@/lib/utils'
 import { useNavigate } from 'react-router-dom'
 import { getRoutePath } from '@/config/get-route-path'
+import { eventCategories } from '@/pages/creators/edit-event/constant'
 
 interface AnimatedSearchBarProps {
     isOpen: boolean
     onClose: () => void
 }
 
-const categories = [
-    'Concerts & Festivals',
-    'Arts & Performance',
-    'Children',
-    'Sports',
-    'Career & Business',
-    'Comedy',
-    'Culture & Religion',
-]
 
 export function AnimatedSearchBar({ isOpen, onClose }: AnimatedSearchBarProps) {
     const inputRef = useRef<HTMLInputElement>(null)
@@ -37,7 +29,8 @@ export function AnimatedSearchBar({ isOpen, onClose }: AnimatedSearchBarProps) {
     const [filterType, setFilterType] = useState<string>('category')
     const [filterOpen, setFilterOpen] = useState(false)
     const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined)
-    const [selectedCategories, setSelectedCategories] = useState<string[]>([])
+    // One category: the events API filters by a single, exact category.
+    const [selectedCategory, setSelectedCategory] = useState('')
     const [minPrice, setMinPrice] = useState('')
     const [maxPrice, setMaxPrice] = useState('')
 
@@ -54,10 +47,9 @@ export function AnimatedSearchBar({ isOpen, onClose }: AnimatedSearchBarProps) {
         setFilterOpen(false)
     }
 
+    // Picking the selected category again clears it.
     const toggleCategory = (cat: string) => {
-        setSelectedCategories(prev =>
-            prev.includes(cat) ? prev.filter(c => c !== cat) : [...prev, cat]
-        )
+        setSelectedCategory(prev => (prev === cat ? '' : cat))
     }
 
     const applyAndNavigate = (overrideDate?: Date) => {
@@ -73,8 +65,8 @@ export function AnimatedSearchBar({ isOpen, onClose }: AnimatedSearchBarProps) {
             params.set('date', `${y}-${m}-${d}`)
         }
 
-        if (filterType === 'category' && selectedCategories.length > 0) {
-            params.set('category', selectedCategories.join(','))
+        if (filterType === 'category' && selectedCategory) {
+            params.set('category', selectedCategory)
         }
 
         if (filterType === 'price') {
@@ -204,19 +196,22 @@ export function AnimatedSearchBar({ isOpen, onClose }: AnimatedSearchBarProps) {
                                 {filterType === 'category' && (
                                     <div className="p-4 flex flex-col gap-3 w-[260px]">
                                         <p className="text-xs font-semibold text-white/60 uppercase tracking-wider">Category</p>
-                                        <div className="flex flex-wrap gap-2">
-                                            {categories.map(cat => (
+                                        {/* 32 categories: scroll inside the popover rather than run off the screen. */}
+                                        <div className="flex flex-wrap gap-2 max-h-60 overflow-y-auto">
+                                            {eventCategories.map(({ value: cat, label }) => (
                                                 <button
                                                     key={cat}
+                                                    type="button"
+                                                    aria-pressed={selectedCategory === cat}
                                                     onClick={() => toggleCategory(cat)}
                                                     className={cn(
                                                         'px-3 py-1.5 rounded-full text-xs font-medium border transition-all',
-                                                        selectedCategories.includes(cat)
+                                                        selectedCategory === cat
                                                             ? 'bg-white text-black border-white'
                                                             : 'bg-transparent text-white/70 border-white/20 hover:border-white/50 hover:text-white'
                                                     )}
                                                 >
-                                                    {cat}
+                                                    {label}
                                                 </button>
                                             ))}
                                         </div>

@@ -52,7 +52,7 @@ export function CategoryBlock({
               // Fixed tracks rather than fractional columns, so a wider screen
               // buys more cards instead of bigger ones. Track widths mirror
               // CARD_WIDTH.
-              'grid grid-cols-2 tablet:grid-cols-[repeat(auto-fill,16rem)] md:grid-cols-[repeat(auto-fill,18rem)] justify-center gap-4 tablet:gap-5 md:gap-5':
+              'grid grid-cols-2 tablet:grid-cols-[repeat(auto-fill,16rem)] md:grid-cols-[repeat(auto-fill,18rem)] gap-4 tablet:gap-5 md:gap-5':
                 display === 'grid',
             },
             // Padding set here scrolls away with the content, unlike padding on

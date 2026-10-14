@@ -1,10 +1,3 @@
-import {
-  addDays,
-  endOfDay,
-  isToday,
-  isWithinInterval,
-  startOfDay,
-} from "date-fns";
 import { IoLogoInstagram } from "react-icons/io5";
 import { FaXTwitter, FaYoutube } from "react-icons/fa6";
 import type { IconType } from "react-icons";
@@ -14,7 +7,7 @@ import {
   BaseSelect,
   type ICustomSelectProps,
 } from "@/components/reusable/base-select";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useGetAllEvents } from "@/hooks/use-event-mutations";
 import { CategoryBlock } from "@/components/shared/category-block";
 import {
@@ -25,8 +18,15 @@ import {
 } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { app_store_links } from "@/layouts/root-layout/footer";
-import type { EventData } from "@/types/event";
+import type { EventData, EventListParams } from "@/types/event";
 import type { PaginatedResponse } from "@/types";
+import { Pagination } from "@/components/shared/pagination";
+import {
+  thisWeekRange,
+  toApiDate,
+  upcomingMonthRange,
+} from "@/lib/helper-func";
+import { eventCategories } from "@/pages/creators/edit-event/constant";
 
 const MONTH_ABBRS = [
   "jan",
@@ -42,38 +42,7 @@ const MONTH_ABBRS = [
   "nov",
   "dec",
 ];
-
-/** Map category label to slug keywords for matching against event names */
-const CATEGORY_KEYWORDS: Record<string, string[]> = {
-  "concerts-and-festivals": ["concert", "festival", "music", "live"],
-  "arts-and-performance": [
-    "art",
-    "perform",
-    "theatre",
-    "theater",
-    "dance",
-    "show",
-  ],
-  children: ["child", "kid", "family", "youth"],
-  sports: ["sport", "football", "basketball", "athletics", "game", "match"],
-  "career-and-business": [
-    "career",
-    "business",
-    "conference",
-    "summit",
-    "networking",
-    "workshop",
-  ],
-  comedy: ["comedy", "stand-up", "standup", "laugh"],
-  "culture-and-religion": [
-    "culture",
-    "cultural",
-    "religion",
-    "religious",
-    "heritage",
-    "tradition",
-  ],
-};
+const EVENTS_PAGE_SIZE = 12;
 
 /**
  * Toggle filters that sit alongside the selects. `when` values are mutually
@@ -85,66 +54,40 @@ const QUICK_FILTERS = [
   { param: "when", value: "week", label: "This Week" },
 ] as const;
 
-function filterEvents(
-  events: EventData[],
+/**
+ * The date filters, each a range on its own. They're one at a time: setting
+ * one clears the others, so there is only ever one range to send.
+ */
+const DATE_PARAMS = ["when", "month", "date"] as const;
+
+function setDateFilter(
+  next: URLSearchParams,
+  param: (typeof DATE_PARAMS)[number],
+  value: string | null,
+) {
+  DATE_PARAMS.forEach((p) => next.delete(p));
+  if (value) next.set(param, value);
+}
+
+/** The selected date filter as the events API's startDate and endDate. */
+function toDateRange(
   params: URLSearchParams,
-): EventData[] {
-  const q = params.get("q")?.toLowerCase().trim() ?? "";
-  const exactDate = params.get("date") ?? "";
-  const month = params.get("month") ?? "";
-  const categorySlug = params.get("category") ?? "";
-  const when = params.get("when") ?? "";
-  const resaleOnly = params.get("resale") === "true";
+): Pick<EventListParams, "startDate" | "endDate"> {
+  const when = params.get("when");
+  if (when === "tonight") {
+    const today = toApiDate(new Date());
+    return { startDate: today, endDate: today };
+  }
+  if (when === "week") return thisWeekRange();
 
-  // Computed once for the whole pass rather than per event.
-  const now = new Date();
-  const weekEnd = endOfDay(addDays(now, 7));
+  const month = MONTH_ABBRS.indexOf(params.get("month") ?? "");
+  if (month >= 0) return upcomingMonthRange(month);
 
-  return events.filter((event) => {
-    if (when) {
-      const start = new Date(event.startDate);
-      if (isNaN(start.getTime())) return false;
+  // From the header search's date picker, already 'YYYY-MM-DD'.
+  const date = params.get("date");
+  if (date) return { startDate: date, endDate: date };
 
-      if (when === "tonight" && !isToday(start)) return false;
-      if (
-        when === "week" &&
-        !isWithinInterval(start, { start: startOfDay(now), end: weekEnd })
-      ) {
-        return false;
-      }
-    }
-
-    if (resaleOnly && !event.hasResaleTickets) return false;
-
-    if (q) {
-      const matchesName = event.eventName.toLowerCase().includes(q);
-      const matchesVenue = event.venue.toLowerCase().includes(q);
-      if (!matchesName && !matchesVenue) return false;
-    }
-
-    if (exactDate) {
-      if (!event.startDate.startsWith(exactDate)) return false;
-    }
-
-    if (month) {
-      const eventDate = new Date(event.startDate);
-      if (!isNaN(eventDate.getTime())) {
-        const eventMonth = MONTH_ABBRS[eventDate.getMonth()];
-        if (eventMonth !== month) return false;
-      }
-    }
-
-    if (categorySlug) {
-      const keywords = CATEGORY_KEYWORDS[categorySlug] ?? [];
-      if (keywords.length > 0) {
-        const name = event.eventName.toLowerCase();
-        const hasMatch = keywords.some((kw) => name.includes(kw));
-        if (!hasMatch) return false;
-      }
-    }
-
-    return true;
-  });
+  return {};
 }
 
 export default function EventCategoryBlocks() {
@@ -157,17 +100,56 @@ export default function EventCategoryBlocks() {
   // Sync BaseSelect state with URL params
   const selectedCategory = searchParams.get("category") ?? "";
   const selectedMonth = searchParams.get("month") ?? "";
-  const { data: allEventResponse, isPending: isLoadingAllEvent } =
-    useGetAllEvents();
+  const search = searchParams.get("q")?.trim() ?? "";
+  const page = Math.max(1, Number(searchParams.get("page")) || 1);
 
-  const allEvents = allEventResponse?.data as
+  // Every filter runs on the server, so the server's page is the page shown.
+  const {
+    data: allEventResponse,
+    isPending: isLoadingAllEvent,
+    isFetching,
+  } = useGetAllEvents({
+    search: search || undefined,
+    category: selectedCategory || undefined,
+    hasResaleTickets: searchParams.get("resale") === "true" ? true : undefined,
+    ...toDateRange(searchParams),
+    pageNumber: page,
+    pageSize: EVENTS_PAGE_SIZE,
+  });
+
+  const response = allEventResponse?.data as
     | PaginatedResponse<EventData>
     | undefined;
+  const events = response?.items ?? [];
+  const totalCount = response?.totalCount ?? events.length;
+  const totalPages = response?.totalPages ?? 1;
 
-  const filteredEvents = useMemo(
-    () => filterEvents(allEvents?.items ?? [], searchParams),
-    [allEvents, searchParams],
-  );
+  /**
+   * Every filter change starts again from page 1. `page` is only ever kept
+   * when the page itself is what changed.
+   */
+  const updateParams = (change: (next: URLSearchParams) => void) => {
+    const next = new URLSearchParams(searchParams);
+    change(next);
+    next.delete("page");
+    setSearchParams(next);
+  };
+
+  const goToPage = (nextPage: number) => {
+    const next = new URLSearchParams(searchParams);
+    if (nextPage > 1) next.set("page", String(nextPage));
+    else next.delete("page");
+    setSearchParams(next);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  // A page past the end (an old link, or fewer results after a refresh) steps
+  // back to the last page that exists.
+  useEffect(() => {
+    if (!isFetching && page > totalPages) goToPage(totalPages);
+    // goToPage is recreated each render; page and totalPages drive this.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isFetching, page, totalPages]);
 
   const activeFilters = [
     searchParams.get("q"),
@@ -180,10 +162,17 @@ export default function EventCategoryBlocks() {
 
   /** Clicking an active quick filter clears it, so each button toggles. */
   const toggleQuickFilter = (param: string, value: string) => {
-    const next = new URLSearchParams(searchParams);
-    if (next.get(param) === value) next.delete(param);
-    else next.set(param, value);
-    setSearchParams(next);
+    updateParams((next) => {
+      const isActive = next.get(param) === value;
+
+      if (param === "when") {
+        setDateFilter(next, "when", isActive ? null : value);
+      } else if (isActive) {
+        next.delete(param);
+      } else {
+        next.set(param, value);
+      }
+    });
   };
 
   const clearFilters = () => {
@@ -219,10 +208,10 @@ export default function EventCategoryBlocks() {
               items={category_list.items}
               value={selectedCategory}
               onChange={(value) => {
-                const next = new URLSearchParams(searchParams);
-                if (value) next.set("category", value);
-                else next.delete("category");
-                setSearchParams(next);
+                updateParams((next) => {
+                  if (value) next.set("category", value);
+                  else next.delete("category");
+                });
               }}
               triggerClassName="rounded-full hover:border-deep-red md:w-1/5 w-full px-5"
             />
@@ -233,12 +222,7 @@ export default function EventCategoryBlocks() {
               items={date_list.items}
               value={selectedMonth}
               onChange={(value) => {
-                const next = new URLSearchParams(searchParams);
-                if (value) next.set("month", value);
-                else next.delete("month");
-                // Clear exact date when month is chosen (they'd conflict)
-                next.delete("date");
-                setSearchParams(next);
+                updateParams((next) => setDateFilter(next, "month", value || null));
               }}
               triggerClassName="rounded-full hover:border-deep-red md:w-1/5 w-full px-5"
             />
@@ -275,23 +259,42 @@ export default function EventCategoryBlocks() {
           </div>
 
           {/* Show result count only when there's an active text search */}
-          {searchParams.get("q") && (
+          {search && (
             <p className="text-xs text-white/40">
-              {filteredEvents.length} result
-              {filteredEvents.length !== 1 ? "s" : ""} for &ldquo;
-              {searchParams.get("q")}&rdquo;
+              {totalCount} result
+              {totalCount !== 1 ? "s" : ""} for &ldquo;
+              {search}&rdquo;
             </p>
           )}
         </div>
 
-        <CategoryBlock
-          data={filteredEvents.map((e) => ({
-            ...e,
-            desktopMedia: e.metadata.desktopMedia,
-          }))}
-          showLocation={true}
-          isLoading={isLoadingAllEvent}
-          display="grid"
+        {/* Dimmed, not replaced, while a new filter or page loads. */}
+        <div
+          aria-busy={isFetching}
+          className={cn(
+            "transition-opacity",
+            isFetching && !isLoadingAllEvent && "opacity-60",
+          )}
+        >
+          <CategoryBlock
+            data={events.map((e) => ({
+              ...e,
+              desktopMedia: e.metadata.desktopMedia,
+            }))}
+            showLocation={true}
+            isLoading={isLoadingAllEvent}
+            display="grid"
+          />
+        </div>
+
+        <Pagination
+          page={page}
+          totalPages={totalPages}
+          totalCount={totalCount}
+          onPageChange={goToPage}
+          itemLabel={{ one: "event", other: "events" }}
+          isLoading={isFetching}
+          tone="dark"
         />
       </div>
     </section>
@@ -522,15 +525,6 @@ function AdSlideButton({ button }: { button: NonNullable<AdSlide["button"]> }) {
 
 const category_list: ICustomSelectProps = {
   width: 368,
-  defaultValue: "sports",
   placeholder: "All Events",
-  items: [
-    { value: "concerts-and-festivals", label: "Concerts & Festivals" },
-    { value: "arts-and-performance", label: "Arts & Performance" },
-    { value: "children", label: "Children" },
-    { value: "sports", label: "Sports" },
-    { value: "career-and-business", label: "Career & Business" },
-    { value: "comedy", label: "Comedy" },
-    { value: "culture-and-religion", label: "Culture & Religion" },
-  ],
+  items: eventCategories,
 };

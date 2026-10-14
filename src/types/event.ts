@@ -89,6 +89,26 @@ export interface EventData {
 
 export type EventsResponse = ApiResponse<EventData>
 
+/** Query params for GET /api/Event, the public list of published events. */
+export interface EventListParams {
+  pageNumber?: number
+  pageSize?: number
+  /** Matches the event name and venue. */
+  search?: string
+  /** One category, matched exactly (case-insensitive): 'concert', not 'Concerts & Festivals'. */
+  category?: string
+  hasResaleTickets?: boolean
+  /** Ended events are left out unless this is true. */
+  includeEnded?: boolean
+  /**
+   * 'YYYY-MM-DD'. Events starting on or between startDate and endDate.
+   * Requested from the backend, not confirmed live yet: until it is, the
+   * server ignores both and date filters return every event.
+   */
+  startDate?: string
+  endDate?: string
+}
+
 // Detailed Event Data for GET /api/Event/{eventId}
 export interface EventDetailData {
   eventId: string

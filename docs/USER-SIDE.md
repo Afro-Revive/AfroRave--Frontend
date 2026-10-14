@@ -182,12 +182,33 @@ chips filter the events shown), `ResaleSection`, `BecomeCreatorSection` and
 ### Event discovery (`landing-page/event-page`)
 
 - `index.tsx` renders `EventCategoryBlocks`.
-- `event-category-blocks.tsx` reads the filters from the URL: `q`, `date`, `month`, `category`, `when` (`tonight` or `week`) and `resale`. It filters `useGetAllEvents()` in the browser with `filterEvents()`.
+- `event-category-blocks.tsx` reads the filters from the URL: `q`, `category`, `resale`, `date`, `month`, `when` (`tonight` or `week`) and `page`. Changing any filter resets `page`.
 - The header search (`layouts/root-layout/header/animated-search-bar.tsx`) builds those same URL parameters and navigates here.
 
-> Filtering happens in the browser, on the one page of events the API returns.
-> The search bar also sets `minPrice` and `maxPrice`, but `filterEvents()`
-> ignores them.
+**Server or browser?** `useGetAllEvents(params)` calls `GET /api/Event`, which
+takes `pageNumber`, `pageSize`, `search`, `category`, `hasResaleTickets` and
+`includeEnded`.
+
+| Filter | Where it runs |
+|---|---|
+| `q` → `search` (name and venue) | Server |
+| `category` (one value from `eventCategories`, matched exactly) | Server |
+| `resale` → `hasResaleTickets` | Server |
+| `page` → `pageNumber`, 12 per page | Server |
+| `when`, `month`, `date` → `startDate` + `endDate` | Server, **once the backend supports it**. `toDateRange()` turns the one selected date filter into a `YYYY-MM-DD` range: Tonight is today to today, This Week is today to today+7, a month is its first to last day (next year's if it has passed), and a picked date is that day to that day. Until the backend accepts these params, it ignores them and date filters show every event. |
+
+Date filters are one at a time: picking Tonight, This Week, a month or a date
+clears whichever was set before (`setDateFilter()`), so there's a single range
+to send.
+
+The `/fans` home page chips work the same way, all on the server: Concert
+(`category: 'concert'`), Resale (`hasResaleTickets`) and This Week
+(`thisWeekRange()`).
+
+> Categories come from the organizer list (`eventCategories` in
+> `pages/creators/edit-event/constant.ts`), so a filter matches what was saved.
+> The search bar still sets `minPrice` and `maxPrice`, but the API has no price
+> filter, so they're ignored.
 
 ### One event (`event-page/individual-event`)
 

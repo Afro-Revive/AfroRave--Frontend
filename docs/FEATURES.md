@@ -12,16 +12,16 @@ Last checked against the code on the `prod` branch, October 2026.
 
 | | Critical (High) | Medium | Low | **Overall, weighted by priority** |
 |---|---|---|---|---|
-| **Fans** | 13 / 17 done | 8 / 10 | 1 / 4 | **75%** |
+| **Fans** | 14 / 17 done | 8 / 11 | 1 / 4 | **77%** |
 | **Organizers** | 12 / 13 done | 17 / 22 | 3 / 18 | **72%** |
-| **Fans + Organizers** | **25 / 30 done (83%)** | 25 / 32 | 4 / 22 | **73%** |
+| **Fans + Organizers** | **26 / 30 done (87%)** | 25 / 33 | 4 / 22 | **74%** |
 | Vendors (in progress on the `vendors` branch) | 2 / 4 done | 0 / 3 | — | 33% |
 
 **How the overall % is worked out:**
 - A High feature counts 3 times as much as a Low one, and a Medium one twice as much.
 - Only fully working features score.
-- If half-working ("Partial") features get half credit, fans and organizers reach 77%.
-- **Critical features only:** 83% are fully done, or 87% with half credit for the partly working ones.
+- If half-working ("Partial") and "Awaiting backend" features get half credit, fans and organizers reach 78%.
+- **Critical features only:** 87% are fully done, or 88% with half credit for the partly working ones.
 
 Most of the gap is Low priority: small buttons, drag handles and extra tools.
 **All the main journeys work end to end.**
@@ -30,7 +30,7 @@ Most of the gap is Low priority: small buttons, drag handles and extra tools.
 
 ### Critical features still to do
 
-Only **5 critical features** are left on the fan and organizer sides. Ranked by
+Only **4 critical features** are left on the fan and organizer sides. Ranked by
 how much they block launch:
 
 | # | Feature | Area | Status | What's needed |
@@ -38,8 +38,7 @@ how much they block launch:
 | 1 | Privacy Policy, Refund Policy, Terms and Conditions | Fans | 🚧 Coming soon | **Content.** Needed before taking real payments: payment providers and app stores ask for them. |
 | 2 | Accept an invite from the email link | Fans | ⛔ Not working | **Frontend.** A page for the invite link. The backend calls and hooks are ready. Without it, invite-only tickets don't reach guests. |
 | 3 | Organizer bank details (Settings → Save) | Organizers | ⛔ Not working | **Backend, then frontend.** The Save button has no action, so organizers can't set where their money goes. The API can list banks and check an account number, but has no endpoint to save an organizer's payout account yet. |
-| 4 | Events page shows every event | Fans | 🟡 Partial | **Backend + frontend.** The events endpoint has no paging, so discovery and filters only see the first batch of events. |
-| 5 | QR code for entry | Fans | 🟡 Partial | **Mobile app.** The QR is in the mobile app; the web app's app store links point nowhere until the apps are published. |
+| 4 | QR code for entry | Fans | 🟡 Partial | **Mobile app.** The QR is in the mobile app; the web app's app store links point nowhere until the apps are published. |
 
 Vendors have 2 more on the `vendors` branch: **Register For Slot** and
 **slot checkout**.
@@ -63,6 +62,7 @@ Vendors have 2 more on the `vendors` branch: **Register For Slot** and
 | 🧪 **Mock** | The screen exists but shows sample data, not real data. |
 | 🚧 **Coming soon** | A placeholder page that says "Coming Soon". |
 | ⛔ **Not working** | A button or link that does nothing, or only pretends to. |
+| 🔵 **Awaiting backend** | Done on the frontend. The backend side has been requested but isn't confirmed live yet. |
 
 There are three kinds of people on AfroRevive:
 
@@ -81,7 +81,8 @@ Within each table, rows run from High to Low priority.
 | Feature | Priority | Status | Notes |
 |---|---|---|---|
 | Fans home page (`/fans`) | 🔴 High | ✅ Working | Hero, discover events with category chips, resale, become a creator, and mobile app sections. |
-| Events page (`/fans/events`) | 🔴 High | 🟡 Partial | Category, month, "Resale", "Tonight" and "This Week" filters all work, but only on the first page of events the server sends back. |
+| Events page (`/fans/events`) | 🔴 High | ✅ Working | Search, category and "Resale" are filtered by the server, 12 events per page. |
+| Date filters: "Tonight", "This Week", month, a picked date | 🟠 Medium | 🔵 Awaiting backend | On the events page and the `/fans` "This Week" chip. The frontend sends them as `startDate` and `endDate`. **Until the backend supports those, date filters show every event.** |
 | Event page (`/fans/events/:customUrl`) | 🔴 High | ✅ Working | Details, description, map with directions, organizer contacts. |
 | Private events | 🔴 High | ✅ Working | Tickets are hidden behind a "Request access" card. Fans see their request as pending until the organizer approves it. Signed-out fans are asked to log in first. |
 | Search bar in the header | 🟠 Medium | 🟡 Partial | Search by text, date and category works. The **min/max price filter is ignored**. |
@@ -276,6 +277,7 @@ pretends to. Rows run from High to Low priority.
 | Fans support (`/fans/support`) | Contact form Send | 🟠 Medium | ⛔ Not working | Shows a success message but sends nothing. |
 | Organizer website | Contact Us Submit | 🟠 Medium | ⛔ Not working | Logs to the console only. |
 | Organizer settings | Delete Account | 🟠 Medium | ⛔ Not working | No action. |
+| Events page and `/fans` chips | "Tonight", "This Week", month, picked date | 🟠 Medium | 🔵 Awaiting backend | Show every event until the backend supports `startDate` and `endDate`. |
 | Fans header search | Min and max price | 🟠 Medium | ⛔ Not working | The values are sent but never used to filter. |
 | Event guestlist page | Selecting a whole category | 🟠 Medium | ⛔ Not working | Only individual guests can be picked. |
 | Analytics | Attendee List tab | 🟠 Medium | 🚧 Coming soon | |
@@ -315,7 +317,7 @@ Things the frontend is ready for, or has worked around, until an endpoint exists
 or changes:
 
 - **Organizer bank details:** an endpoint to save an organizer's payout account (critical). Listing banks and checking an account already exist.
-- **Event discovery:** `/api/Event` has no paging parameters, so filters only search the first page of results (critical).
+- **Event dates (requested):** `startDate` and `endDate` (`YYYY-MM-DD`) on `/api/Event`, returning events that start on or between them. The frontend already sends them for "Tonight", "This Week", a month and a picked date. Until they're live, those filters show every event.
 - **Support messages:** there is no endpoint to send them to.
 - **Access requests:** the list endpoint needs a `search` parameter, and order details for approved fans.
 - **Private event status for signed-out fans:** `isApplicationPaused` and `isApplicationEnded` on the public event, so they can be told before logging in.
