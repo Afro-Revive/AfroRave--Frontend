@@ -11,14 +11,12 @@ import {
   transformProfileFromResponse,
   transformProfileToUpdateRequest,
 } from "@/lib/profile-transforms";
-import { africanCountryCodes } from "@/pages/creators/add-event/constant";
+import { africanCountryCodes, nigerianStates } from "@/pages/creators/add-event/constant";
 import { ProfileSchema, defaultProfileValues } from "@/schema/profile-shema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect, useState } from "react";
+import { useEffect} from "react";
 import { useForm } from "react-hook-form";
 import type { z } from "zod";
-import { motion, AnimatePresence } from "framer-motion";
-import { X } from "lucide-react";
 import { UserProfileData } from "@/types";
 import AccountSidebar from "@/layouts/user-dashboard-layout/sidebar";
 import { LoadingFallback } from "@/components/loading-fallback";
@@ -27,7 +25,6 @@ import { LoadingFallback } from "@/components/loading-fallback";
 export default function ProfileTab() {
   const { data: profileData, isLoading: isLoadingProfile } = useUserProfile();
   const updateProfileMutation = useUpdateUserProfile();
-  const [showBanner, setShowBanner] = useState(false);
   const form = useForm<z.infer<typeof ProfileSchema>>({
     resolver: zodResolver(ProfileSchema),
     defaultValues: defaultProfileValues,
@@ -38,15 +35,19 @@ export default function ProfileTab() {
   useEffect(() => {
     if (profileData) {
       const transformedData = transformProfileFromResponse(profile);
-      form.reset(transformedData);
+      form.reset({
+        ...transformedData,
+        state: matchNigerianState(transformedData.country, transformedData.state),
+      });
     }
   }, [profileData, profile, form]);
+
+  const isNigeria = form.watch("country") === "nigeria";
 
   async function onSubmit(values: z.infer<typeof ProfileSchema>) {
     try {
       const updateRequest = transformProfileToUpdateRequest(values);
       await updateProfileMutation.mutateAsync(updateRequest);
-      setShowBanner(true);
     } catch (error) {
       console.error("Failed to update profile:", error);
     }
@@ -77,32 +78,6 @@ export default function ProfileTab() {
       <AccountSidebar />
       <div className="w-full flex-1 flex flex-col justify-center items-center px-4 md:px-0 pt-8">
         <div className="w-full max-w-[550px]  md:ml-[280px] flex justify-center flex-col ">
-          {/* Green Notification Banner */}
-          <AnimatePresence>
-            {showBanner && (
-              <motion.div
-                initial={{ x: 100, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                exit={{ opacity: 0, x: 50 }}
-                transition={{ duration: 0.8, ease: "easeOut" }}
-                className="w-full bg-[#D4F4DD] rounded-[4px] px-5 py-[14px] flex items-center justify-between mb-6"
-              >
-                <p className="text-[#1F1F1F] text-[13px] font-ibm-plex-mono font-medium">
-                  User profile has been successfully completed. You can now{" "}
-                  <span className="underline cursor-pointer">
-                    view your tickets
-                  </span>
-                </p>
-                <button
-                  onClick={() => setShowBanner(false)}
-                  className="text-[#1F1F1F] hover:text-[#1F1F1F]/70 transition-colors"
-                  aria-label="Close banner"
-                >
-                  <X className="w-4 h-4" strokeWidth={2} />
-                </button>
-              </motion.div>
-            )}
-          </AnimatePresence>
 
           <h2 className="text-xl font-extrabold font-inter tracking-wide text-white mb-4">
             Profile
@@ -290,7 +265,10 @@ export default function ProfileTab() {
                   <div className="relative w-full">
                     <label className={insetLabelStyle}>Country</label>
                     <BaseSelect
-                      onChange={(value) => field.onChange(value)}
+                      onChange={(value) => {
+                        if (value !== field.value) form.setValue("state", "");
+                        field.onChange(value);
+                      }}
                       placeholder=""
                       value={field.value as string}
                       items={[
@@ -310,12 +288,22 @@ export default function ProfileTab() {
                 {(field) => (
                   <div className="relative w-full">
                     <label className={insetLabelStyle}>State</label>
-                    <Input
-                      {...field}
-                      placeholder=""
-                      className={labeledInputStyle}
-                      value={field.value as string}
-                    />
+                    {isNigeria ? (
+                      <BaseSelect
+                        onChange={(value) => field.onChange(value)}
+                        placeholder=""
+                        value={field.value as string}
+                        items={nigerianStates}
+                        triggerClassName={labeledSelectStyle}
+                      />
+                    ) : (
+                      <Input
+                        {...field}
+                        placeholder=""
+                        className={labeledInputStyle}
+                        value={field.value as string}
+                      />
+                    )}
                   </div>
                 )}
               </FormField>
@@ -387,3 +375,21 @@ const days = Array.from({ length: 31 }, (_, i) => ({
   value: (i + 1).toString(),
   label: (i + 1).toString(),
 }));
+
+/**
+ * States saved before the State select existed were typed freely ("lagos",
+ * "Abuja"). Match them to the list so the select shows them; anything that
+ * doesn't match is left as typed.
+ */
+function matchNigerianState(country: string, state: string): string {
+  if (country !== "nigeria" || !state) return state;
+
+  const typed = state.trim().toLowerCase();
+  if (typed === "abuja" || typed === "fct") return "Federal Capital Territory";
+
+  const match = nigerianStates.find(
+    (option) =>
+      option.value.toLowerCase() === typed || option.label.toLowerCase() === typed,
+  );
+  return match?.value ?? state;
+}
