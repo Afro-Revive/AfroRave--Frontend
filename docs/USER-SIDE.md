@@ -184,12 +184,39 @@ chips filter the events shown), `ResaleSection`, `BecomeCreatorSection` and
 ### Event discovery (`landing-page/event-page`)
 
 - `index.tsx` renders `EventCategoryBlocks`.
-- `event-category-blocks.tsx` reads the filters from the URL: `q`, `date`, `month`, `category`, `when` (`tonight` or `week`) and `resale`. It filters `useGetAllEvents()` in the browser with `filterEvents()`.
+- `event-category-blocks.tsx` reads the filters from the URL: `q`, `category`, `resale`, `date`, `month`, `when` (`tonight` or `week`), `minPrice`, `maxPrice` and `page`. Changing any filter resets `page`.
 - The header search (`layouts/root-layout/header/animated-search-bar.tsx`) builds those same URL parameters and navigates here.
 
-> Filtering happens in the browser, on the one page of events the API returns.
-> The search bar also sets `minPrice` and `maxPrice`, but `filterEvents()`
-> ignores them.
+**Server or browser?** `useGetAllEvents(params)` calls `GET /api/Event`, which
+takes `pageNumber`, `pageSize`, `search`, `category`, `hasResaleTickets`,
+`includeEnded`, `date`, `startDate`, `endDate`, `minPrice` and `maxPrice`.
+
+| Filter | Where it runs |
+|---|---|
+| `q` → `search` (name and venue) | Server |
+| `category` (one value from `eventCategories`, matched exactly) | Server |
+| `resale` → `hasResaleTickets` | Server |
+| `page` → `pageNumber`, 12 per page | Server |
+| `when`, `month`, `date` → `date`, or `startDate` + `endDate` | Server. `toDateFilter()` turns the one selected date filter into `YYYY-MM-DD` params: Tonight and a picked date are a single `date`; This Week is today to today+7, and a month is its first to last day (next year's if it has passed). The server returns events *running* on those days, so a two-day event matches either day. |
+| `minPrice`, `maxPrice` | Server. `toPriceRange()` ignores anything that isn't a price of 0 or more, and swaps the two if min is above max. An event matches if any of its tickets is in the range; free events count as ₦0. |
+
+Date filters are one at a time: picking Tonight, This Week, a month or a date
+clears whichever was set before (`setDateFilter()`), so there's only one to
+send.
+
+Under the filter row, a "Results From" line names what's active, with the
+count once it loads: `Results From “afro” in Concert · This Week · ₦5,000 and
+up · 4 events`. `dateFilterLabel()` and `priceFilterLabel()` word the date and
+price filters. Resale isn't listed.
+
+The `/fans` home page chips work the same way, all on the server: Concert
+(`category: 'concert'`), Resale (`hasResaleTickets`) and This Week
+(`thisWeekRange()`).
+
+> Categories come from the organizer list (`eventCategories` in
+> `pages/creators/edit-event/constant.ts`), so a filter matches what was saved.
+> The price filter seems to compare prices before the booking fee, while fans
+> see them with it; that's with the backend to confirm.
 
 ### One event (`event-page/individual-event`)
 

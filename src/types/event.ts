@@ -89,6 +89,33 @@ export interface EventData {
 
 export type EventsResponse = ApiResponse<EventData>
 
+/** Query params for GET /api/Event, the public list of published events. */
+export interface EventListParams {
+  pageNumber?: number
+  pageSize?: number
+  /** Matches the event name and venue. */
+  search?: string
+  /** One category, matched exactly (case-insensitive): 'concert', not 'Concerts & Festivals'. */
+  category?: string
+  hasResaleTickets?: boolean
+  /** Ended events are left out unless this is true. */
+  includeEnded?: boolean
+  /**
+   * 'YYYY-MM-DD'. Events running that day: one that spans it counts, not only
+   * one that starts on it.
+   */
+  date?: string
+  /**
+   * 'YYYY-MM-DD'. Events running at any point between the two: one that
+   * overlaps the range counts. Sent together, they win over `date`.
+   */
+  startDate?: string
+  endDate?: string
+  // Naira. Events with at least one ticket priced in the range; free events count as 0.
+  minPrice?: number
+  maxPrice?: number
+}
+
 // Detailed Event Data for GET /api/Event/{eventId}
 export interface EventDetailData {
   eventId: string

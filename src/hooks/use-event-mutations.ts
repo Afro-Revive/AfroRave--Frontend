@@ -6,8 +6,9 @@ import type {
   CreateThemeRequest,
   CreateTicketRequest,
   CreateVendorRequest,
+  EventListParams,
 } from '@/types'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 
 // Event mutations
@@ -411,10 +412,15 @@ export function useGetEventVendors(eventId?: string) {
   })
 }
 
-export function useGetAllEvents() {
+/** Published events for fans, filtered and paged by the server. */
+export function useGetAllEvents(params?: EventListParams) {
   return useQuery({
-    queryKey: eventKeys.lists(),
-    queryFn: () => eventService.getAllEvents(),
+    // Params in the key so each filter and page has its own cache entry.
+    queryKey: [...eventKeys.lists(), params ?? {}],
+    queryFn: () => eventService.getAllEvents(params),
+    // Keep the current events on screen while the next filter or page loads,
+    // instead of flashing back to skeletons.
+    placeholderData: keepPreviousData,
   })
 }
 
