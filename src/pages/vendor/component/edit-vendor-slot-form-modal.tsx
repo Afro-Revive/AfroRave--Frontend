@@ -18,6 +18,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { useUpdateVendor } from "@/hooks/use-event-mutations";
 import type { VendorSlot } from "@/types/vendor";
+import { parseApiDate } from "@/lib/helper-func";
 import { useEventSelectorStore } from "@/stores";
 import {
   africanCountryCodes,
@@ -119,7 +120,8 @@ function slotToFormValues(slot: VendorSlot, isRevenue: boolean): FormValues {
     endDate: serviceData?.endDate ?? "",
     startTime: parseTime(serviceData?.startTime, EMPTY_FORM.startTime),
     stopTime: parseTime(serviceData?.stopTime, EMPTY_FORM.stopTime),
-    applicationDeadline: deadline ? new Date(deadline) : undefined,
+    // Stored in UTC; read as UTC so the picker shows the day that was chosen.
+    applicationDeadline: deadline ? parseApiDate(deadline) : undefined,
     email: contact?.email ?? "",
     phone: parsePhone(contact?.phoneNumbers),
     hideSocialLinks: slot.vendorDetails.hideSocialLinks ?? false,
