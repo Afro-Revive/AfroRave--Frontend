@@ -120,7 +120,6 @@ export function useCheckoutCart() {
     mutationFn: ({ promoCodeId, callbackUrl }: { promoCodeId: string; callbackUrl: string }) => cartService.initialzePayment(promoCodeId, callbackUrl),
     mutationKey: cartKeys.checkout(),
     onSuccess: () => {
-      toast.success('Checkout successful.')
       queryClient.invalidateQueries({ queryKey: cartKeys.lists() })
     },
     onError: () => toast.error('Failed to checkout.'),

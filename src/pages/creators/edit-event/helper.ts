@@ -1,5 +1,5 @@
 import type { EventDetailData } from '@/types'
-import { toVisibility } from '@/lib/helper-func'
+import { parseApiDate, toVisibility } from '@/lib/helper-func'
 import { africanTimezones } from './constant'
 
 export function convertTime(time: string) {
@@ -62,14 +62,16 @@ export function transformEventToSchema(event: EventDetailData) {
     // fallback for events saved before that field existed.
     poster_url: event.posterUrl || event.eventDetails.desktopMedia?.flyer || '',
     time_zone: getAfricanTimezoneByOffset(eventDate.timezone)?.value,
+    // Event days are plain calendar days ('2026-10-20'): parseApiDate keeps
+    // the day, where new Date reads it as UTC midnight and can land a day off.
     start_date: {
-      date: new Date(eventDate.startDate),
+      date: parseApiDate(eventDate.startDate),
       hour: convertTime(eventDate.startTime).hour,
       minute: convertTime(eventDate.startTime).minute,
       period: convertTime(eventDate.startTime).period as 'AM' | 'PM',
     },
     end_date: {
-      date: new Date(eventDate.endDate),
+      date: parseApiDate(eventDate.endDate),
       hour: convertTime(eventDate.endTime).hour,
       minute: convertTime(eventDate.endTime).minute,
       period: convertTime(eventDate.endTime).period as 'AM' | 'PM',

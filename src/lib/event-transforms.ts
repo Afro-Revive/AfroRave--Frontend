@@ -6,6 +6,8 @@ import type {
   CreateTicketRequest,
 } from '@/types'
 import type { z } from 'zod'
+import { format } from 'date-fns'
+import { toApiDateTime, type FormDateTime } from '@/lib/helper-func'
 import type { ThemeAndBannerSchema } from '@/pages/creators/add-event/schemas/theme-schema'
 
 /**
@@ -49,10 +51,9 @@ export function transformEventDetailsToCreateRequest(
     return `${hour24.toString().padStart(2, '0')}:${minute}`
   }
 
-  // Format date to YYYY-MM-DD
-  const formatDate = (date: Date): string => {
-    return date.toISOString().split('T')[0]
-  }
+  // The picked calendar day as YYYY-MM-DD. Not toISOString: that's the UTC day,
+  // which east of UTC (Lagos) is the day before.
+  const formatDate = (date: Date): string => format(date, 'yyyy-MM-dd')
 
   // Convert timezone to UTC offset format
   const timezoneOffset = convertTimezoneToUTCOffset(formData.time_zone)
@@ -163,19 +164,6 @@ export function transformTicketsToCreateRequest(
   formData: z.infer<typeof unifiedTicketFormSchema>,
   eventId: string,
 ): CreateTicketRequest[] {
-  // Convert time format from 12-hour to 24-hour
-  const convertTo24Hour = (hour: string, minute: string, period: 'AM' | 'PM'): string => {
-    let hour24 = Number.parseInt(hour, 10)
-    if (period === 'PM' && hour24 !== 12) hour24 += 12
-    if (period === 'AM' && hour24 === 12) hour24 = 0
-    return `${hour24.toString().padStart(2, '0')}:${minute}`
-  }
-
-  // Format date to YYYY-MM-DD
-  const formatDate = (date: Date): string => {
-    return date.toISOString().split('T')[0]
-  }
-
   // Map ticket types from form schema to API literal types
   const mapTicketType = (ticketType: string): 'Single' | 'Group' | 'MultiDay' => {
     switch (ticketType) {
@@ -224,33 +212,9 @@ export function transformTicketsToCreateRequest(
     eventId,
     ticketDetails: {
       saleImmediately: formData.whenToStart === 'immediately',
+      // The organizer's local date and time, sent as UTC.
       saleBegins: formData.scheduledDate
-        ? `${formatDate((formData.scheduledDate as { date: Date; hour: string; minute: string; period: 'AM' | 'PM' }).date)}T${convertTo24Hour(
-            (
-              formData.scheduledDate as {
-                date: Date
-                hour: string
-                minute: string
-                period: 'AM' | 'PM'
-              }
-            ).hour,
-            (
-              formData.scheduledDate as {
-                date: Date
-                hour: string
-                minute: string
-                period: 'AM' | 'PM'
-              }
-            ).minute,
-            (
-              formData.scheduledDate as {
-                date: Date
-                hour: string
-                minute: string
-                period: 'AM' | 'PM'
-              }
-            ).period,
-          )}`
+        ? toApiDateTime(formData.scheduledDate as FormDateTime)
         : '',
       allowResell:
         ticket.invite_only || ticket.ticketType === 'group_ticket'

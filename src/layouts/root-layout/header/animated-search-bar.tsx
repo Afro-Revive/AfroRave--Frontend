@@ -161,13 +161,13 @@ export function AnimatedSearchBar({ isOpen, onClose }: AnimatedSearchBarProps) {
                                         }}
                                         classNames={{
                                             caption_label: 'text-sm font-medium text-white',
-                                            head_cell: 'text-white/40 rounded-md w-8 font-normal text-[0.8rem]',
-                                            day: 'size-8 p-0 font-normal aria-selected:opacity-100 text-white hover:bg-white/10 rounded-md',
-                                            day_selected: 'bg-white !text-black hover:bg-white hover:text-black focus:bg-white focus:text-black',
-                                            day_today: 'bg-white/10 text-white',
-                                            day_outside: 'text-white/20 aria-selected:text-white/20',
-                                            day_disabled: 'text-white/20 opacity-50',
-                                            nav_button: 'size-7 bg-transparent p-0 opacity-60 hover:opacity-100 text-white hover:bg-white/10 rounded',
+                                            weekday: 'text-white/40 rounded-md flex-1 font-normal text-[0.8rem] select-none',
+                                            day_button: 'rounded-md hover:bg-white/10 hover:text-white data-[selected-single=true]:bg-white data-[selected-single=true]:text-black',
+                                            today: 'bg-white/10 text-white rounded-md',
+                                            outside: 'text-white/20',
+                                            disabled: 'text-white/20 opacity-50',
+                                            button_previous: 'inline-flex items-center justify-center size-8 p-0 opacity-60 hover:opacity-100 text-white hover:bg-white/10 rounded',
+                                            button_next: 'inline-flex items-center justify-center size-8 p-0 opacity-60 hover:opacity-100 text-white hover:bg-white/10 rounded',
                                         }}
                                     />
                                 )}

@@ -51,7 +51,7 @@ export function BaseDatePicker({
           mode="single"
           selected={dateValue}
           onSelect={onChange}
-          initialFocus
+          autoFocus
         />
       </PopoverContent>
     </Popover>

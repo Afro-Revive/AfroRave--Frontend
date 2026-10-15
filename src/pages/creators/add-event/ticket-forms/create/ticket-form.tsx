@@ -333,7 +333,6 @@ DESCRIBE WHAT THIS TICKET INCLUDES.`}
               hour_name="scheduledDate.hour"
               minute_name="scheduledDate.minute"
               period_name="scheduledDate.period"
-              flow="row"
             />
           </OnlyShowIf>
         </OnlyShowIf>
