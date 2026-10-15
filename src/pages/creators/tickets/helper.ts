@@ -1,3 +1,4 @@
+import { parseApiDate } from '@/lib/helper-func'
 import type { TicketData } from '@/types'
 import type { UnifiedTicketForm } from '../add-event/schemas/ticket-schema'
 import type { TicketType } from '../add-event/ticket-forms/create/helper'
@@ -86,7 +87,8 @@ function scheduling(ticket: TicketData) {
 export function formatShortDate(value?: string | null): string {
   if (!value) return '—'
 
-  const date = new Date(value)
+  // API timestamps are UTC without a zone ('2026-10-14T16:56:02.8').
+  const date = parseApiDate(value)
   if (Number.isNaN(date.getTime())) return '—'
 
   return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })

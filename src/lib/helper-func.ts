@@ -165,9 +165,21 @@ export function copyToClipboard(text: string) {
   document.body.removeChild(textarea)
 }
 
+/**
+ * Parses a date from the API. Its timestamps are UTC but arrive without a zone
+ * ('2026-10-15T13:12:13.7' means 13:12 UTC, 2:12pm in Lagos), so those are read
+ * as UTC. Date-only values ('2026-10-18', an event's day) and strings that
+ * already carry 'Z' or an offset are parsed as they are.
+ */
+export function parseApiDate(value: string): Date {
+  const hasTime = value.includes('T')
+  const hasZone = /(z|[+-]\d{2}:?\d{2})$/i.test(value)
+  return parseISO(hasTime && !hasZone ? `${value}Z` : value)
+}
+
 export function formatJoinedDate(dateString: string): string {
   try {
-    const date = parseISO(dateString)
+    const date = parseApiDate(dateString)
     return `Joined ${format(date, 'MMMM yyyy')}`
   } catch (error) {
     console.error('Error parsing date:', error)
@@ -227,7 +239,12 @@ export function formatEventTime(timeString: string): string {
 }
 
 export function formatTimeLong(timeString: string): string {
-  const [hourStr, minuteStr] = timeString.split(':')
+  // A full timestamp is UTC: convert it to the viewer's time first. A bare
+  // time ('20:00', an event's start) is already local to the event.
+  const time = timeString.includes('T')
+    ? format(parseApiDate(timeString), 'HH:mm')
+    : timeString
+  const [hourStr, minuteStr] = time.split(':')
   const hour = parseInt(hourStr, 10)
   if (isNaN(hour)) return timeString
   const period = hour < 12 ? 'AM' : 'PM'
@@ -270,7 +287,7 @@ export function formatTimezone(offset: string | number): string {
 
 export function formatDateLong(dateString: string): string {
   try {
-    const date = parseISO(dateString)
+    const date = parseApiDate(dateString)
     const day = format(date, 'd')
     const suffix =
       day === '1' || day === '21' || day === '31'
@@ -288,7 +305,7 @@ export function formatDateLong(dateString: string): string {
 
 export function formatEventDate(dateString: string): string {
   try {
-    const date = parseISO(dateString)
+    const date = parseApiDate(dateString)
     const day = format(date, 'd')
     const suffix =
       day === '1' || day === '21' || day === '31'
@@ -306,7 +323,7 @@ export function formatEventDate(dateString: string): string {
 
 export function formatShortDate(dateString: string): string {
   try {
-    return format(parseISO(dateString), 'MMMM d, yyyy')
+    return format(parseApiDate(dateString), 'MMMM d, yyyy')
   } catch {
     return dateString
   }
@@ -318,7 +335,7 @@ export function formatShortDate(dateString: string): string {
  */
 export function formatTimeAgo(dateString: string): string {
   try {
-    const date = parseISO(dateString)
+    const date = parseApiDate(dateString)
     const days = differenceInCalendarDays(new Date(), date)
 
     if (days <= 0) {
@@ -340,7 +357,7 @@ export function formatTimeAgo(dateString: string): string {
  */
 export function relativeDateGroup(dateString: string): string {
   try {
-    const days = differenceInCalendarDays(new Date(), parseISO(dateString))
+    const days = differenceInCalendarDays(new Date(), parseApiDate(dateString))
     if (days <= 0) return 'Today'
     if (days === 1) return 'Yesterday'
     if (days <= 7) return '7 Days Ago'
@@ -354,7 +371,7 @@ export function relativeDateGroup(dateString: string): string {
 /** Compact date for list rows: '2026-08-26T09:00:00' -> 'Aug 26'. */
 export function formatMonthDay(dateString: string): string {
   try {
-    return format(parseISO(dateString), 'MMM d')
+    return format(parseApiDate(dateString), 'MMM d')
   } catch {
     return dateString
   }
@@ -366,7 +383,7 @@ export function monthNumberToName(month: number | string): string {
 
 
 export function daysUntilEvent(startDate: string): number {
-  return differenceInCalendarDays(parseISO(startDate), new Date())
+  return differenceInCalendarDays(parseApiDate(startDate), new Date())
 }
 
 /** Tickets a user actually bought for an event, summed across every ticket type and order. */

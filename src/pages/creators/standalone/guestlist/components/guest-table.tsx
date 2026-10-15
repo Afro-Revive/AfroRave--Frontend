@@ -17,6 +17,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { parseApiDate } from '@/lib/helper-func'
 import type { GuestListData } from '@/types/guestlist'
 import { EllipsisVertical, FolderMinus, LoaderCircle, Search, Trash2 } from 'lucide-react'
 import {
@@ -205,7 +206,8 @@ function formatCategories(categoryNames?: string[]): string {
 }
 
 function formatDateAdded(dateAdded: string): string {
-  const date = new Date(dateAdded)
+  // API timestamps are UTC without a zone ('2026-10-08T14:44:09.7').
+  const date = parseApiDate(dateAdded)
 
   if (Number.isNaN(date.getTime())) return '—'
 
