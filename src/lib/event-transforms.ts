@@ -6,6 +6,7 @@ import type {
   CreateTicketRequest,
 } from '@/types'
 import type { z } from 'zod'
+import { format } from 'date-fns'
 import { toApiDateTime, type FormDateTime } from '@/lib/helper-func'
 import type { ThemeAndBannerSchema } from '@/pages/creators/add-event/schemas/theme-schema'
 
@@ -50,10 +51,9 @@ export function transformEventDetailsToCreateRequest(
     return `${hour24.toString().padStart(2, '0')}:${minute}`
   }
 
-  // Format date to YYYY-MM-DD
-  const formatDate = (date: Date): string => {
-    return date.toISOString().split('T')[0]
-  }
+  // The picked calendar day as YYYY-MM-DD. Not toISOString: that's the UTC day,
+  // which east of UTC (Lagos) is the day before.
+  const formatDate = (date: Date): string => format(date, 'yyyy-MM-dd')
 
   // Convert timezone to UTC offset format
   const timezoneOffset = convertTimezoneToUTCOffset(formData.time_zone)

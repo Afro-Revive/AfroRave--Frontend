@@ -271,7 +271,6 @@ export default function EventDetailsTab({
             minute_name="start_date.minute"
             period_name="start_date.period"
             date_label="START DATE"
-            time_label="START TIME"
           />
 
           <DateForm
@@ -282,7 +281,6 @@ export default function EventDetailsTab({
             minute_name="end_date.minute"
             period_name="end_date.period"
             date_label="END DATE"
-            time_label="END TIME"
           />
         </div>
 
