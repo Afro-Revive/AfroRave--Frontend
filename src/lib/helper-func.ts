@@ -177,6 +177,50 @@ export function parseApiDate(value: string): Date {
   return parseISO(hasTime && !hasZone ? `${value}Z` : value)
 }
 
+/** A form's date picker plus its 12-hour time inputs. */
+export interface FormDateTime {
+  date: Date
+  hour: string
+  minute: string
+  period: 'AM' | 'PM'
+}
+
+/**
+ * The date and time an organizer typed, in their own zone, as the UTC
+ * timestamp the API stores: 6:00 PM on 20 Oct in Lagos is
+ * '2026-10-20T17:00:00.000Z'.
+ */
+export function toApiDateTime({ date, hour, minute, period }: FormDateTime): string {
+  const hour12 = Number(hour) % 12
+  const hour24 = period === 'PM' ? hour12 + 12 : hour12
+
+  return new Date(
+    date.getFullYear(),
+    date.getMonth(),
+    date.getDate(),
+    hour24,
+    Number(minute),
+  ).toISOString()
+}
+
+/**
+ * The reverse of toApiDateTime: a stored UTC timestamp as the form's local
+ * date and 12-hour time. Null when the value can't be parsed.
+ */
+export function fromApiDateTime(value: string): FormDateTime | null {
+  const date = parseApiDate(value)
+  if (Number.isNaN(date.getTime())) return null
+
+  const hours = date.getHours()
+
+  return {
+    date,
+    hour: String(hours % 12 || 12).padStart(2, '0'),
+    minute: String(date.getMinutes()).padStart(2, '0'),
+    period: hours >= 12 ? 'PM' : 'AM',
+  }
+}
+
 export function formatJoinedDate(dateString: string): string {
   try {
     const date = parseApiDate(dateString)

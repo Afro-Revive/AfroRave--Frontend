@@ -7,40 +7,12 @@ import type {
   useUpdatePromoCode,
 } from '@/hooks/use-event-mutations'
 import { defaultPromoCodeValues } from '../../schemas/promo-code-schema'
+import { fromApiDateTime, toApiDateTime } from '@/lib/helper-func'
 
 interface IHelperFunctionProps {
   form: UseFormReturn<{ promoCodes: TPromoCodeSchema }>
   setCurrentPromoCode: (value: boolean) => void
   setEditingPromoId: (id: string | null) => void
-}
-
-function toISODateTime(dateObj: {
-  date: Date
-  hour: string
-  minute: string
-  period: 'AM' | 'PM'
-}): string {
-  const year = dateObj.date.getFullYear()
-  const month = dateObj.date.getMonth()
-  const day = dateObj.date.getDate()
-
-  let hour = Number(dateObj.hour)
-  const minute = Number(dateObj.minute)
-
-  if (hour === 12 && dateObj.period === 'AM') {
-    hour = 0
-  } else if (hour !== 12 && dateObj.period === 'PM') {
-    hour += 12
-  }
-
-  const formattedDate = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(
-    2,
-    '0',
-  )} ${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}:00`
-
-  console.log(formattedDate)
-
-  return formattedDate
 }
 
 export function populatePromoCodeJson(form: IHelperFunctionProps['form']) {
@@ -51,8 +23,9 @@ export function populatePromoCodeJson(form: IHelperFunctionProps['form']) {
     discountType: 'Percentage',
     discountValue: Number(formData.discount),
     discountUsage: Number(formData.usageLimit),
-    startDate: toISODateTime(formData.startDate),
-    endDate: toISODateTime(formData.endDate),
+    // The organizer's local dates and times, sent as UTC.
+    startDate: toApiDateTime(formData.startDate),
+    endDate: toApiDateTime(formData.endDate),
     promoCodedetails: {
       tickets: Array.isArray(formData.tickets)
         ? formData.tickets.map((ticket) => ({ id: ticket.id }))
@@ -141,18 +114,9 @@ export function handleEditPromoCode(
     discount: String(promoCode.discountValue),
     usageLimit: String(promoCode.discountUsage),
     tickets: promoCode.promoDetails.tickets,
-    startDate: {
-      date: new Date(promoCode.startDate),
-      hour: String(new Date(promoCode.startDate).getHours()),
-      minute: String(new Date(promoCode.startDate).getMinutes()),
-      period: new Date(promoCode.startDate).getHours() > 12 ? ('PM' as const) : ('AM' as const),
-    },
-    endDate: {
-      date: new Date(promoCode.endDate),
-      hour: String(new Date(promoCode.endDate).getHours()),
-      minute: String(new Date(promoCode.endDate).getMinutes()),
-      period: new Date(promoCode.endDate).getHours() > 12 ? ('PM' as const) : ('AM' as const),
-    },
+    // Stored in UTC; the form shows the organizer's local time.
+    startDate: fromApiDateTime(promoCode.startDate) ?? defaultPromoCodeValues.startDate,
+    endDate: fromApiDateTime(promoCode.endDate) ?? defaultPromoCodeValues.endDate,
     conditions: {
       spend: { minimum: promoCode.isMinimunSpend, amount: String(promoCode.minimumSpend) },
       tickets: {

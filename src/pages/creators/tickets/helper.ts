@@ -1,4 +1,4 @@
-import { parseApiDate } from '@/lib/helper-func'
+import { fromApiDateTime, parseApiDate } from '@/lib/helper-func'
 import type { TicketData } from '@/types'
 import type { UnifiedTicketForm } from '../add-event/schemas/ticket-schema'
 import type { TicketType } from '../add-event/ticket-forms/create/helper'
@@ -63,24 +63,14 @@ function scheduling(ticket: TicketData) {
     return { ...base, whenToStart: 'immediately' as const, scheduledDate: undefined }
   }
 
-  const date = new Date(saleBegins)
+  // Stored in UTC; the form shows the organizer's local time.
+  const scheduledDate = fromApiDateTime(saleBegins)
 
-  if (Number.isNaN(date.getTime())) {
+  if (!scheduledDate) {
     return { ...base, whenToStart: 'immediately' as const, scheduledDate: undefined }
   }
 
-  const hours = date.getHours()
-
-  return {
-    ...base,
-    whenToStart: 'at-a-scheduled-date' as const,
-    scheduledDate: {
-      date,
-      hour: String(hours % 12 || 12).padStart(2, '0'),
-      minute: String(date.getMinutes()).padStart(2, '0'),
-      period: (hours >= 12 ? 'PM' : 'AM') as 'AM' | 'PM',
-    },
-  }
+  return { ...base, whenToStart: 'at-a-scheduled-date' as const, scheduledDate }
 }
 
 /** "12 Oct 2026", or a dash for a missing or unparseable date. */

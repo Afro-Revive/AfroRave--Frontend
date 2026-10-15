@@ -19,6 +19,7 @@ import {
   useGetEventPromoCodes,
   useGetEventTickets,
 } from '@/hooks/use-event-mutations'
+import { parseApiDate } from '@/lib/helper-func'
 import type { PromoCodeData, TicketData } from '@/types'
 import type { PaginatedResponse } from '@/types/api'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -220,7 +221,8 @@ function PromoCodeCard({ promocode, onDelete, isLoading = false }: { promocode: 
 
   const formatDate = (dateStr: string) => {
     if (!dateStr) return null
-    return new Date(dateStr).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+    // Stored in UTC; shown on the organizer's local day.
+    return parseApiDate(dateStr).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
   }
 
   return (
