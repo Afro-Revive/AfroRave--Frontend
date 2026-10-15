@@ -7,7 +7,9 @@ import {
   BaseSelect,
   type ICustomSelectProps,
 } from "@/components/reusable/base-select";
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
+import { format, parseISO } from "date-fns";
+import { formatNaira } from "@/lib/format-price";
 import { useGetAllEvents } from "@/hooks/use-event-mutations";
 import { CategoryBlock } from "@/components/shared/category-block";
 import {
@@ -69,15 +71,12 @@ function setDateFilter(
   if (value) next.set(param, value);
 }
 
-/** The selected date filter as the events API's startDate and endDate. */
-function toDateRange(
+/** The selected date filter as the events API's params: one day, or a range. */
+function toDateFilter(
   params: URLSearchParams,
-): Pick<EventListParams, "startDate" | "endDate"> {
+): Pick<EventListParams, "date" | "startDate" | "endDate"> {
   const when = params.get("when");
-  if (when === "tonight") {
-    const today = toApiDate(new Date());
-    return { startDate: today, endDate: today };
-  }
+  if (when === "tonight") return { date: toApiDate(new Date()) };
   if (when === "week") return thisWeekRange();
 
   const month = MONTH_ABBRS.indexOf(params.get("month") ?? "");
@@ -85,9 +84,77 @@ function toDateRange(
 
   // From the header search's date picker, already 'YYYY-MM-DD'.
   const date = params.get("date");
-  if (date) return { startDate: date, endDate: date };
+  if (date) return { date };
 
   return {};
+}
+
+/**
+ * The selected date filter in words: 'Tonight', 'This Week', 'November',
+ * 'January 2027' or 'Fri, Oct 16'. Empty when there isn't one.
+ */
+function dateFilterLabel(params: URLSearchParams): string {
+  const when = params.get("when");
+  if (when === "tonight") return "Tonight";
+  if (when === "week") return "This Week";
+
+  const thisYear = new Date().getFullYear();
+
+  const month = MONTH_ABBRS.indexOf(params.get("month") ?? "");
+  if (month >= 0) {
+    // A month that has passed means next year's, so name the year.
+    const first = parseISO(upcomingMonthRange(month).startDate);
+    return format(first, first.getFullYear() === thisYear ? "MMMM" : "MMMM yyyy");
+  }
+
+  const date = params.get("date");
+  if (date) {
+    const day = parseISO(date);
+    if (Number.isNaN(day.getTime())) return date;
+    return format(day, day.getFullYear() === thisYear ? "EEE, MMM d" : "EEE, MMM d, yyyy");
+  }
+
+  return "";
+}
+
+/**
+ * The price range in words: '₦5,000 – ₦20,000', '₦5,000 and up',
+ * 'Up to ₦20,000' or 'Free'. Empty when there isn't one.
+ */
+function priceFilterLabel({
+  minPrice,
+  maxPrice,
+}: Pick<EventListParams, "minPrice" | "maxPrice">): string {
+  if (maxPrice === 0) return "Free";
+  if (minPrice !== undefined && maxPrice !== undefined) {
+    return `${formatNaira(minPrice)} – ${formatNaira(maxPrice)}`;
+  }
+  if (minPrice !== undefined) return `${formatNaira(minPrice)} and up`;
+  if (maxPrice !== undefined) return `Up to ${formatNaira(maxPrice)}`;
+  return "";
+}
+
+/** A price from the URL in naira, or undefined when it's missing or not a price. */
+function toPrice(value: string | null): number | undefined {
+  if (!value) return undefined;
+  const price = Number(value);
+  return Number.isFinite(price) && price >= 0 ? price : undefined;
+}
+
+/**
+ * The header search's price range. Typed the wrong way round, it's swapped
+ * rather than matching nothing.
+ */
+function toPriceRange(
+  params: URLSearchParams,
+): Pick<EventListParams, "minPrice" | "maxPrice"> {
+  const min = toPrice(params.get("minPrice"));
+  const max = toPrice(params.get("maxPrice"));
+
+  if (min !== undefined && max !== undefined && min > max) {
+    return { minPrice: max, maxPrice: min };
+  }
+  return { minPrice: min, maxPrice: max };
 }
 
 export default function EventCategoryBlocks() {
@@ -99,9 +166,20 @@ export default function EventCategoryBlocks() {
 
   // Sync BaseSelect state with URL params
   const selectedCategory = searchParams.get("category") ?? "";
+  // The URL holds the value ('concert'); fans read the label ('Concert').
+  const categoryLabel = selectedCategory
+    ? (eventCategories.find(({ value }) => value === selectedCategory)?.label ??
+      selectedCategory)
+    : "";
   const selectedMonth = searchParams.get("month") ?? "";
   const search = searchParams.get("q")?.trim() ?? "";
   const page = Math.max(1, Number(searchParams.get("page")) || 1);
+  const priceRange = toPriceRange(searchParams);
+
+  // What the results are from, in words, after the search and category.
+  const filterLabels = [dateFilterLabel(searchParams), priceFilterLabel(priceRange)].filter(
+    Boolean,
+  );
 
   // Every filter runs on the server, so the server's page is the page shown.
   const {
@@ -112,7 +190,8 @@ export default function EventCategoryBlocks() {
     search: search || undefined,
     category: selectedCategory || undefined,
     hasResaleTickets: searchParams.get("resale") === "true" ? true : undefined,
-    ...toDateRange(searchParams),
+    ...toDateFilter(searchParams),
+    ...priceRange,
     pageNumber: page,
     pageSize: EVENTS_PAGE_SIZE,
   });
@@ -158,6 +237,8 @@ export default function EventCategoryBlocks() {
     searchParams.get("category"),
     searchParams.get("when"),
     searchParams.get("resale"),
+    searchParams.get("minPrice"),
+    searchParams.get("maxPrice"),
   ].filter(Boolean);
 
   /** Clicking an active quick filter clears it, so each button toggles. */
@@ -258,12 +339,25 @@ export default function EventCategoryBlocks() {
             )}
           </div>
 
-          {/* Show result count only when there's an active text search */}
-          {search && (
+          {/* What the results are from: the search, category, date and price. */}
+          {(search || categoryLabel || filterLabels.length > 0) && (
             <p className="text-xs text-white/40">
-              {totalCount} result
-              {totalCount !== 1 ? "s" : ""} for &ldquo;
-              {search}&rdquo;
+              Results From{" "}
+              {search && (
+                <span className="text-white/70">&ldquo;{search}&rdquo;</span>
+              )}
+              {search && categoryLabel && " in "}
+              {categoryLabel && (
+                <span className="text-white/70">{categoryLabel}</span>
+              )}
+              {filterLabels.map((label, index) => (
+                <Fragment key={label}>
+                  {(index > 0 || search || categoryLabel) && " · "}
+                  <span className="text-white/70">{label}</span>
+                </Fragment>
+              ))}
+              {!isLoadingAllEvent &&
+                ` · ${totalCount} ${totalCount === 1 ? "event" : "events"}`}
             </p>
           )}
         </div>

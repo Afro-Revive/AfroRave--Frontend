@@ -101,12 +101,19 @@ export interface EventListParams {
   /** Ended events are left out unless this is true. */
   includeEnded?: boolean
   /**
-   * 'YYYY-MM-DD'. Events starting on or between startDate and endDate.
-   * Requested from the backend, not confirmed live yet: until it is, the
-   * server ignores both and date filters return every event.
+   * 'YYYY-MM-DD'. Events running that day: one that spans it counts, not only
+   * one that starts on it.
+   */
+  date?: string
+  /**
+   * 'YYYY-MM-DD'. Events running at any point between the two: one that
+   * overlaps the range counts. Sent together, they win over `date`.
    */
   startDate?: string
   endDate?: string
+  // Naira. Events with at least one ticket priced in the range; free events count as 0.
+  minPrice?: number
+  maxPrice?: number
 }
 
 // Detailed Event Data for GET /api/Event/{eventId}
