@@ -147,9 +147,8 @@ export default function CheckoutSummary({
     !countdown.expired &&
     countdown.remaining <= EXTEND_FROM_SECONDS;
 
-  // Once the reservation ends the server deletes the cart and would reject
-  // payment. Release the browser's copy too: an empty cart sends the checkout
-  // page back to the event, without the leave prompt.
+  // Once the reservation is expired, clear the local cart and inform the user
+  // that their tickets were released
   useEffect(() => {
     if (!isExpired) return;
     useCartStore.getState().clearLocal();
