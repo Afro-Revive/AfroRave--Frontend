@@ -293,7 +293,7 @@ function EventDetailsForm({
           <FormField form={form} name="website_url" label="Website URL">
             {(field) => (
               <Input
-                placeholder="Enter your website URL."
+                placeholder="Enter your website URL (optional)."
                 className="bg-transparent"
                 {...field}
                 value={field.value == null ? "" : String(field.value)}

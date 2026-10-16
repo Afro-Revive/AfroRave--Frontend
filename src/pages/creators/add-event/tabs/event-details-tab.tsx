@@ -207,7 +207,7 @@ export default function EventDetailsTab({
           )}
         </FormFieldWithCounter>
 
-        <FormFieldWithCounter
+        {/* <FormFieldWithCounter
           name="TERMS(REFUND POLICY)"
           field_name="terms_refund_policy"
           form={form}
@@ -221,12 +221,12 @@ export default function EventDetailsTab({
               value={field.value == null ? "" : String(field.value)}
             />
           )}
-        </FormFieldWithCounter>
+        </FormFieldWithCounter> */}
 
         <FormFieldWithAbsoluteText
           form={form}
           name="custom_url"
-          label="CUSTOM URL"
+          label="URL"
           text="afrorevive/events/"
         >
           {(field) => (
@@ -310,7 +310,7 @@ export default function EventDetailsTab({
               <FormField form={form} name="website_url" label="Website URL">
                 {(field) => (
                   <Input
-                    placeholder="Enter your website URL."
+                    placeholder="Enter your website URL (optional)."
                     {...field}
                     value={field.value == null ? "" : String(field.value)}
                   />

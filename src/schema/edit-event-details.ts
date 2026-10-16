@@ -33,7 +33,13 @@ export const EditEventDetailsSchema = z.object({
     period: z.enum(['AM', 'PM']),
   }),
   email: z.string().email(),
-  website_url: z.string().min(7, { message: 'Provide a valid link.' }),
+  // Optional: left empty, it's fine; filled in, it has to look like a link.
+  website_url: z
+    .string()
+    .optional()
+    .refine((value) => !value?.trim() || value.trim().length >= 7, {
+      message: 'Provide a valid link.',
+    }),
   socials: z.object({
     instagram: z.string().optional(),
     x: z.string().optional(),
