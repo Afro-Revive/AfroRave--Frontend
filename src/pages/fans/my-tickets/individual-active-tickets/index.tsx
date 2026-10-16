@@ -17,6 +17,7 @@ import {
   formatTimeLong,
   formatTimezone,
   getEventSocialLinks,
+  isGroupTicket,
   toAbsoluteUrl,
   type EventSocials as EventSocialsData,
   type EventSocialPlatform,
@@ -57,8 +58,7 @@ type EnrichedOrder = {
  */
 function groupSizeOf(ticket: UserTicketTicketDetails): number | undefined {
   const size = ticket.groupSize ?? 0;
-  const isGroup = ticket.ticketType === "Group" || size > 1;
-  return isGroup && size > 1 ? size : undefined;
+  return isGroupTicket(ticket) && size > 1 ? size : undefined;
 }
 
 export default function IndividualActiveTicketsPage() {

@@ -1,5 +1,6 @@
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { formatNaira } from "@/lib/format-price";
+import { isGroupTicket } from "@/lib/helper-func";
 import { cn } from "@/lib/utils";
 import { UserTicketTicketDetails } from "@/types";
 import { TicketCard } from "../components/ticket-card";
@@ -229,6 +230,9 @@ export default function TicketResaleModal({
                         handleTicketIncrement(ticket.ticketId, ticket.totalQuantity)
                       }
                       onDecrement={() => handleTicketDecrement(ticket.ticketId)}
+                      unavailableReason={
+                        isGroupTicket(ticket) ? "Group tickets can't be resold" : undefined
+                      }
                     />
                   );
                 })}

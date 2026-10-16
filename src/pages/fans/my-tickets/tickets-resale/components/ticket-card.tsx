@@ -12,6 +12,8 @@ interface TicketCardProps {
   onSelect: () => void;
   onIncrement: () => void;
   onDecrement: () => void;
+  /** Why this ticket can't be sold. Set, the card is faded and can't be picked. */
+  unavailableReason?: string;
 }
 
 export function TicketCard({
@@ -24,29 +26,42 @@ export function TicketCard({
   onSelect,
   onIncrement,
   onDecrement,
+  unavailableReason,
 }: TicketCardProps) {
+  const isUnavailable = Boolean(unavailableReason);
+
   return (
     <button
       type="button"
       onClick={onSelect}
+      disabled={isUnavailable}
       className={cn(
         "w-full rounded-[8px] border px-4 py-3 flex items-center gap-3 text-left transition-all",
-        isSelected
-          ? "border-system-black bg-system-black/5"
-          : "border-black/10 hover:border-black/30",
+        isUnavailable
+          ? "border-black/10 cursor-not-allowed"
+          : isSelected
+            ? "border-system-black bg-system-black/5"
+            : "border-black/10 hover:border-black/30",
       )}
     >
-      <TransformedTicket color="#ae0d0d" />
-      <div className="flex flex-col gap-0.5 flex-1">
-        <p className="text-sm font-semibold font-sf-pro-display capitalize">
-          {ticketName}
-        </p>
-        <p className="text-xs text-black/40 font-sf-pro-display">
-          {formatNaira(ticketPrice)} · {ticketQuantity} available
-        </p>
+      {/* Only the ticket fades, so the reason stays readable. */}
+      <div className={cn("flex flex-1 items-center gap-3", isUnavailable && "opacity-30")}>
+        <TransformedTicket color="#ae0d0d" />
+        <div className="flex flex-col gap-0.5 flex-1">
+          <p className="text-sm font-semibold font-sf-pro-display capitalize">
+            {ticketName}
+          </p>
+          <p className="text-xs text-black/40 font-sf-pro-display">
+            {formatNaira(ticketPrice)} · {ticketQuantity} available
+          </p>
+        </div>
       </div>
 
-      {isSelected ? (
+      {isUnavailable ? (
+        <span className="max-w-[45%] text-right text-[11px] leading-tight text-light-red font-sf-pro-display">
+          {unavailableReason}
+        </span>
+      ) : isSelected ? (
         <div
           className="flex items-center gap-2"
           onClick={(e) => e.stopPropagation()}

@@ -455,6 +455,16 @@ export function daysUntilEvent(startDate: string): number {
   return differenceInCalendarDays(parseApiDate(startDate), new Date())
 }
 
+/**
+ * One ticket that admits several people. Group tickets can't be resold. Falls
+ * back to the size when the API omits ticketType.
+ */
+export function isGroupTicket(
+  ticket: Pick<UserTicketTicketDetails, 'ticketType' | 'groupSize'>,
+): boolean {
+  return ticket.ticketType === 'Group' || (ticket.groupSize ?? 0) > 1
+}
+
 /** Tickets a user actually bought for an event, summed across every ticket type and order. */
 export function totalTicketsPurchased(ticketDetails: UserTicketTicketDetails[]): number {
   return ticketDetails.reduce(
