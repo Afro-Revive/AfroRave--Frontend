@@ -1,5 +1,4 @@
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { useState, useEffect } from 'react'
+import { useEffect, type ComponentType } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import EventSelect from '@/components/shared/vendor-select'
 import { useEventSelectorStore } from '@/stores'
@@ -14,11 +13,36 @@ import OverviewTab from './tabs/overview-tab'
 import PromoCodesTab from './tabs/promo-codes-tab'
 import VendorsTab from './tabs/vendors-tab'
 
-const defaultTab = 'overview'
+/**
+ * The analytics tabs, picked by ?tab=. The creator sidebar's ANALYTICS group
+ * links to each one, so the page has no tab list of its own.
+ */
+const ANALYTICS_TABS = [
+  { value: 'overview', title: 'Overview', component: OverviewTab },
+  { value: 'insights', title: 'Audience Insights', component: InsightsTab },
+  { value: 'vendors', title: 'Vendors', component: VendorsTab },
+  { value: 'orders', title: 'Orders', component: OrdersTab },
+  { value: 'attendee-list', title: 'Attendee List', component: AttendeeListTab },
+  { value: 'promo-codes', title: 'Promo Codes', component: PromoCodesTab },
+] as const satisfies readonly {
+  value: string
+  title: string
+  component: ComponentType<IAnalyticsTabProps>
+}[]
+
+export type AnalyticsTab = (typeof ANALYTICS_TABS)[number]['value']
+
+const DEFAULT_TAB: AnalyticsTab = 'overview'
 
 export default function RealtimePage() {
-  const [activeTab, setActiveTab] = useState<string>(defaultTab)
   const [searchParams, setSearchParams] = useSearchParams()
+  const requestedTab = ANALYTICS_TABS.find((tab) => tab.value === searchParams.get('tab'))
+
+  // A missing or unknown tab lands on Overview, in the URL too, so the
+  // sidebar marks where you are.
+  useEffect(() => {
+    if (!requestedTab) setSearchParams({ tab: DEFAULT_TAB }, { replace: true })
+  }, [requestedTab, setSearchParams])
 
   const { selectedEventId } = useEventSelectorStore()
   const {
@@ -36,65 +60,24 @@ export default function RealtimePage() {
     hasEvent: Boolean(selectedEventId),
   }
 
-  useEffect(() => {
-    const tabParam = searchParams.get('tab')
-
-    if (tabParam && chartTabValues.includes(tabParam)) {
-      setActiveTab(tabParam)
-    } else {
-      setActiveTab(defaultTab)
-      setSearchParams({ tab: defaultTab })
-    }
-  }, [searchParams])
-
-  function handleTabChange(currentTab: string) {
-    setActiveTab(currentTab)
-    setSearchParams({ tab: currentTab })
-  }
+  const activeTab = requestedTab ?? ANALYTICS_TABS[0]
+  const ActiveTab = activeTab.component
 
   return (
-    <Tabs
-      value={activeTab}
-      onValueChange={handleTabChange}
-      className='w-full h-full flex flex-col lg:flex-row gap-1 overflow-hidden'>
-      <TabsList className='lg:w-[208px] h-fit lg:min-h-full flex flex-row lg:flex-col justify-start items-start lg:py-14 px-0 lg:bg-secondary-white rounded-none overflow-x-scroll scrollbar-none'>
-        {chartTabs.map((item) => (
-          <div key={item.section} className='w-full flex flex-col'>
-            <p className='py-5 px-3 font-medium font-sf-pro-display text-black'>{item.section}</p>
-            <div className='flex lg:flex-col'>
-              {item.tabs.map((tab) => (
-                <TabsTrigger
-                  key={tab.value}
-                  value={tab.value}
-                  className='w-full lg:min-h-[60px] flex justify-start rounded-none text-mid-dark-gray data-[state=active]:text-black bg-transparent border-l-2 border-l-transparent data-[state=active]:border-l-[4px] data-[state=active]:border-l-deep-red data-[state=active]:bg-deep-red/15 data-[state=active]:shadow-none'>
-                  {tab.name}
-                </TabsTrigger>
-              ))}
-            </div>
-          </div>
-        ))}
-      </TabsList>
-
-      <div className='w-full h-full flex flex-col'>
-        <ChartHeader />
-        <div className='w-full h-full pt-10 pb-14 px-5'>
-          {chartTabs.flatMap((section) =>
-            section.tabs.map((tab) => (
-              <TabsContent key={tab.value} value={tab.value}>
-                <tab.component {...tabProps} />
-              </TabsContent>
-            )),
-          )}
-        </div>
+    <div className='w-full h-full flex flex-col overflow-hidden'>
+      <ChartHeader title={activeTab.title} />
+      <div className='w-full h-full pt-10 pb-14 px-5'>
+        <ActiveTab {...tabProps} />
       </div>
-    </Tabs>
+    </div>
   )
 }
 
-function ChartHeader() {
+/** The open tab's name, since there's no tab list beside it to show which. */
+function ChartHeader({ title }: { title: string }) {
   return (
-    <div className='w-full flex items-center justify-between bg-white h-14 px-8 border-l border-light-gray'>
-      <div className='flex items-center gap-3' />
+    <div className='w-full flex items-center justify-between gap-4 bg-white h-14 px-8 border-l border-light-gray'>
+      <h1 className='font-work-sans text-lg font-bold text-black'>{title}</h1>
 
       <div className='flex items-center gap-8'>
         <ExportButton />
@@ -102,37 +85,4 @@ function ChartHeader() {
       </div>
     </div>
   )
-}
-
-const chartTabs: IChartTabs[] = [
-  {
-    section: 'Event',
-    tabs: [
-      { value: 'overview', name: 'Overview', component: OverviewTab },
-      { value: 'vendors', name: 'Vendors', component: VendorsTab },
-    ],
-  },
-  {
-    section: 'Tickets',
-    tabs: [
-      { value: 'orders', name: 'Orders', component: OrdersTab },
-      { value: 'attendee-list', name: 'Attendee List', component: AttendeeListTab },
-      { value: 'promo-codes', name: 'Promo Codes', component: PromoCodesTab },
-    ],
-  },
-  {
-    section: 'Audience',
-    tabs: [{ value: 'insights', name: 'Insights', component: InsightsTab }],
-  },
-]
-
-const chartTabValues = chartTabs.flatMap((section) => section.tabs.map((tab) => tab.value))
-
-interface IChartTabs {
-  section: string
-  tabs: {
-    value: string
-    name: string
-    component: React.ComponentType<IAnalyticsTabProps>
-  }[]
 }

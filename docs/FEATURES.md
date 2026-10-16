@@ -189,7 +189,7 @@ Within each table, rows run from High to Low priority.
 
 | Feature | Priority | Status | Notes |
 |---|---|---|---|
-| Overview, Vendors, Orders, Promo Codes, Insights tabs | 🔴 High | ✅ Working | Real data from the analytics endpoint. |
+| Overview, Audience Insights, Vendors, Orders, Promo Codes | 🔴 High | ✅ Working | Real data from the analytics endpoint. Opened from the sidebar's ANALYTICS group, where Orders, Attendee List and Promo Codes sit in a Tickets accordion. |
 | Attendee List tab | 🟠 Medium | 🚧 Coming soon | Needs an endpoint that returns individual attendees. |
 | Export button | ⚪ Low | ⛔ Not working | Does nothing. |
 | Reports (`/creators/reports`) | ⚪ Low | 🚧 Coming soon | No longer linked from anywhere. |

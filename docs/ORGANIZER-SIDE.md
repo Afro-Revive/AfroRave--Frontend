@@ -124,9 +124,13 @@ CreatorDashboardLayout
     ├── CreatorSidebar             hidden on /creators/events (that page is full width)
     │   ├── SelectedEventCard      the selected event: name, date, visibility,
     │   │                          Copy Link, View Event
-    │   ├── EVENTS                 Event Details, and Audience (private events only)
-    │   ├── TICKETS                Your Tickets, Guest List, Promo Codes
-    │   ├── ANALYTICS              Realtime
+    │   ├── EVENTS                 Event Details, Audience (private events only), Guest List
+    │   ├── TICKETS                Your Tickets, Promo Codes
+    │   ├── ANALYTICS              Overview, Audience Insights, Vendors, and a Tickets
+    │   │                          accordion (Orders, Attendee List, Promo Codes). Each
+    │   │                          opens /creators/realtime?tab=…; the page has no tab
+    │   │                          list of its own. Links with a ?tab= are only active
+    │   │                          when the tab matches (isPathActive in base-sidebar).
     │   ├── VENDOR                 Revenue Vendor, Service Vendor (each lists its slots)
     │   ├── TOOLS                  Access Control, Seating Maps
     │   └── footer: "Your Events"  back to the dashboard

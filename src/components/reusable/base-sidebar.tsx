@@ -21,8 +21,23 @@ import {
 } from "lucide-react";
 import { stripUnderscores } from "@/lib/helper-func";
 
-function isPathActive(pathname: string, path: string) {
-  return pathname === path || pathname.startsWith(`${path}/`);
+/**
+ * Whether a link is the current page. A link with a query (the analytics tabs,
+ * '/creators/realtime?tab=orders') also needs each of its params to match, or
+ * every tab of one page would light up together.
+ */
+function isPathActive(
+  { pathname, search }: { pathname: string; search: string },
+  path: string,
+) {
+  const [linkPath, linkQuery] = path.split("?");
+  const onPath = pathname === linkPath || pathname.startsWith(`${linkPath}/`);
+  if (!onPath || !linkQuery) return onPath;
+
+  const current = new URLSearchParams(search);
+  return [...new URLSearchParams(linkQuery)].every(
+    ([key, value]) => current.get(key) === value,
+  );
 }
 
 export function BaseSideBar({
@@ -56,9 +71,9 @@ export function BaseSideBar({
       {sidebar_links?.map((item) => {
         const isActive = item.links.some(
           (link) =>
-            isPathActive(location.pathname, link.path) ||
+            isPathActive(location, link.path) ||
             link.subLinks?.some((sub) =>
-              isPathActive(location.pathname, sub.path),
+              isPathActive(location, sub.path),
             ),
         );
         return (
@@ -193,11 +208,11 @@ function AccordionSidebarMenuItem({
       defaultOpen={defaultOpen}
     >
       {links.map((item) => {
-        const isActiveLink = isPathActive(location.pathname, item.path);
+        const isActiveLink = isPathActive(location, item.path);
 
         if (item.subLinks && item.subLinks.length > 0) {
           const isSubActive = item.subLinks.some((sub) =>
-            isPathActive(location.pathname, sub.path),
+            isPathActive(location, sub.path),
           );
 
           return (
@@ -213,7 +228,7 @@ function AccordionSidebarMenuItem({
             >
               {item.subLinks.map((sub) => {
                 const isActiveSubLink = isPathActive(
-                  location.pathname,
+                  location,
                   sub.path,
                 );
 
