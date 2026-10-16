@@ -225,7 +225,7 @@ IndividualEventPage (index.tsx)        loads the event with useGetEventByCustomU
 └── EventDetails (event-details.tsx)
     ├── EventDetailsSection            left column, pinned on desktop: flyer, date, venue
     ├── EventBookmarkButton            logged-in only; save to or remove from watchlist
-    ├── EventDescription
+    ├── EventDescription               rich text, sanitized (see below)
     ├── PrivateEventGuard              public events → tickets; private → access card
     │   └── TicketSection (sections/tickets.tsx)
     │         Tickets / Resale tabs, + and − per ticket, invite-only padlock,
@@ -242,6 +242,16 @@ IndividualEventPage (index.tsx)        loads the event with useGetEventByCustomU
   - **Paused:** "Requests are paused".
   - **Ended:** "Requests have closed".
   - **Not requested:** the request card, which sends the request with `useRequestAccess`.
+
+**The description** (`components/reusable/show-more-text.tsx`, also on the cart
+page): organizers write it in a rich text editor, so it can be HTML with
+headings, bold, italic, underline, strikethrough, code, links, lists, quotes,
+code blocks and dividers. It's passed through DOMPurify (`sanitizeRichText` in
+`lib/rich-text.ts`), which keeps only the tags the editor makes and, on links,
+only the address; every link is forced to open in a new tab with
+`rel="noopener noreferrer nofollow"`, and `javascript:` links are dropped. So
+nothing an organizer types can run on a fan's screen. Long ones are clipped to a few lines with a fade until **Read more**.
+Older plain-text descriptions still show as before, line breaks and all.
 
 ### Cart and checkout
 

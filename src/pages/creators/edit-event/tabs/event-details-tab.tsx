@@ -7,7 +7,8 @@ import { FormFieldWithAbsoluteText } from "@/components/shared/field-with-absolu
 import { FormFieldWithCounter } from "@/components/shared/field-with-counter";
 import { FormBase } from "@/components/reusable";
 import { BaseSelect } from "@/components/reusable";
-import { Textarea } from "@/components/ui/textarea";
+import { RichTextEditor } from "@/components/reusable/rich-text-editor";
+import { richTextLength } from "@/lib/rich-text";
 import { useUpdateEvent, usePublishEvent } from "@/hooks/use-event-mutations";
 import {
   EditEventDetailsSchema,
@@ -195,13 +196,16 @@ function EventDetailsForm({
         field_name="description"
         form={form}
         maxLength={2000}
+        count={(value) => richTextLength(value as string)}
       >
         {(field) => (
-          <Textarea
+          <RichTextEditor
+            id="description"
             placeholder="Enter event description."
-            className="w-full h-[272px] text-black bg-transparent px-3 py-[11px] rounded-[4px] border border-mid-dark-gray/50 text-sm font-sf-pro-display"
-            {...field}
-            value={field.value == null ? "" : String(field.value)}
+            value={field.value as string}
+            onChange={field.onChange}
+            onBlur={field.onBlur}
+            className="bg-transparent"
           />
         )}
       </FormFieldWithCounter>

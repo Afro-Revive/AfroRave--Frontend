@@ -11,6 +11,7 @@ export function FormFieldWithCounter<T extends FieldValues>({
   maxLength,
   description,
   showMessage,
+  count = (value) => String(value || '').length,
 }: {
   form: UseFormReturn<T>
   field_name: Path<T>
@@ -20,6 +21,8 @@ export function FormFieldWithCounter<T extends FieldValues>({
   maxLength: number
   description?: string
   showMessage?: boolean
+  /** How many characters the value counts as. Rich text counts its text, not its tags. */
+  count?: (value: unknown) => number
 }) {
   return (
     <FormField
@@ -35,7 +38,7 @@ export function FormFieldWithCounter<T extends FieldValues>({
               {name}
             </Label>
             <p className='font-light'>
-              {String(field.value || '').length}/{maxLength}
+              {count(field.value)}/{maxLength}
             </p>
           </div>
           {children(field)}

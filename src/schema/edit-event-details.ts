@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { richTextLength } from '@/lib/rich-text'
 
 export const EditEventDetailsSchema = z.object({
   name: z.string().max(85, {
@@ -9,7 +10,10 @@ export const EditEventDetailsSchema = z.object({
   }),
   category: z.string().min(3, { message: 'Provide a valid category.' }),
   venue: z.string().min(3, { message: 'Provide a venue.' }),
-  description: z.string().max(2000, { message: 'Description must not exceed 2000 characters.' }),
+  // Rich text: the limit counts what readers see, not the HTML tags.
+  description: z.string().refine((value) => richTextLength(value) <= 2000, {
+    message: 'Description must not exceed 2000 characters.',
+  }),
   terms_refund_policy: z.string().max(250, { message: 'Terms must not exceed 250 characters.' }).optional(),
   custom_url: z.string().min(3, { message: 'URL too short.' }),
   poster_url: z.string().min(1, { message: 'Add an event poster.' }),

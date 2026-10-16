@@ -5,7 +5,8 @@ import {
 import { DateForm } from "@/components/shared/date-form";
 import { FormFieldWithAbsoluteText } from "@/components/shared/field-with-absolute-text";
 import { FormFieldWithCounter } from "@/components/shared/field-with-counter";
-import { Textarea } from "@/components/ui/textarea";
+import { RichTextEditor } from "@/components/reusable/rich-text-editor";
+import { richTextLength } from "@/lib/rich-text";
 import { useCreateEvent } from "@/hooks/use-event-mutations";
 import { toDashCase } from "@/lib/helper-func";
 import { transformEventDetailsToCreateRequest } from "@/lib/event-transforms";
@@ -196,13 +197,15 @@ export default function EventDetailsTab({
           field_name="description"
           form={form}
           maxLength={2000}
+          count={(value) => richTextLength(value as string)}
         >
           {(field) => (
-            <Textarea
+            <RichTextEditor
+              id="description"
               placeholder="Enter event description."
-              className="w-full h-[272px] text-black bg-white px-3 py-[11px] rounded-[4px] border border-mid-dark-gray/50 text-sm font-sf-pro-display"
-              {...field}
-              value={field.value == null ? "" : String(field.value)}
+              value={field.value as string}
+              onChange={field.onChange}
+              onBlur={field.onBlur}
             />
           )}
         </FormFieldWithCounter>

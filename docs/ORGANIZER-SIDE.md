@@ -180,6 +180,7 @@ A wizard driven by `?tab=` in the URL:
 | 3 | `publish` | `tabs/publish-tab.tsx` | Shows a summary (tickets, promo codes, whether resale is on). **Publish** calls `usePublishEvent`, which refreshes the dashboard list. |
 
 - **`useEventStore`** carries the new event's id between steps. It's cleared when the wizard closes, so the next event starts fresh.
+- **The description is rich text.** `components/reusable/rich-text-editor.tsx` (Tiptap, react-icons Remix toolbar) offers headings (H2, H3), bold, italic, underline, strikethrough, inline code, links, bullet and numbered lists, quotes, code blocks, dividers and undo/redo, and saves HTML. Links open in a new tab; a click while editing doesn't follow them. Older plain-text descriptions open as paragraphs (`toRichText` in `lib/rich-text.ts`). The 2000 limit and the counter count visible text, not tags (`richTextLength`). Edit event uses the same editor.
 - **Old links:** `?tab=theme` (the removed theme step) redirects to `publish`.
 - **The ticket form:**
   - `ticket-forms/create/ticket-form.tsx` with `ticket-format-picker.tsx`.
