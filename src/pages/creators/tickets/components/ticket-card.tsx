@@ -65,11 +65,13 @@ export function TicketCard({
     ? ({ Single: 'Single Ticket', Group: 'Group Ticket', MultiDay: 'Multi Day' } as const)[ticketType]
     : null
 
+  console.log(ticket)
+
   return (
     <>
       <TicketSummaryCard
         name={ticket.ticketName}
-        price={ticket.price}
+        price={ticket.basePrice}
         typeLabel={typeBadge ?? 'Ticket'}
         accessLabel={accessType}
         isInviteOnly={isInviteOnly}

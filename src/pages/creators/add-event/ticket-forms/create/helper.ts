@@ -16,6 +16,7 @@ export interface SavedTicket {
   ticketName: string
   ticketType: string
   invite_only?: boolean
+  basePrice: number
   price: number
   quantity?: number
   description?: string
@@ -231,6 +232,7 @@ export function transformTicketsResponse(
     ticketName: ticket.ticketName,
     ticketType: 'single_ticket',
     invite_only: false,
+    basePrice: ticket.basePrice,
     price: ticket.price,
     quantity: ticket.quantity,
     description: ticket.description,

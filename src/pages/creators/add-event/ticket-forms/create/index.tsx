@@ -147,7 +147,7 @@ export default function CreateTicketForm({
               <TicketSummaryCard
                 key={`created-${ticket.ticketId}-${idx}`}
                 name={ticket.ticketName}
-                price={ticket.price}
+                price={ticket.basePrice}
                 typeLabel={ticket.ticketType.replace("_", " ")}
                 // SavedTicket carries no accessType, so it's derived the same
                 // way transformTicketsToCreateRequest does when it builds one.
