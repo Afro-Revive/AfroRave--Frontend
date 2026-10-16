@@ -35,6 +35,7 @@ export function TicketFormatPicker({
   header = 'Choose Ticket Format',
   description = 'Select how this ticket admits guests. You can add more ticket types after this one.',
   hiddenFormats = [],
+  layout = 'list',
 }: {
   selected: TicketFormat | null
   header?: string
@@ -42,10 +43,16 @@ export function TicketFormatPicker({
   onSelect: (format: TicketFormat) => void
   /** Formats the event can't offer — a private event has no group tickets. */
   hiddenFormats?: TicketFormat[]
+  /**
+   * 'list' stacks the formats, each with a ticket icon. 'grid' puts them side
+   * by side from tablet width up, without the icon, and stacks them on phones.
+   */
+  layout?: 'list' | 'grid'
 }) {
   const formats = TICKET_FORMATS.filter(
     ({ value }) => !hiddenFormats.includes(value),
   )
+  const isGrid = layout === 'grid'
 
   return (
     <div className='w-full flex flex-col gap-4'>
@@ -58,7 +65,16 @@ export function TicketFormatPicker({
         </p>
       </div>
 
-      <div role='radiogroup' className='w-full flex flex-col gap-4'>
+      <div
+        role='radiogroup'
+        className={cn(
+          'w-full gap-4',
+          isGrid
+            ? // One line from tablet up; two columns when a format is hidden,
+              // so a private event doesn't leave an empty slot.
+              cn('grid grid-cols-1', formats.length === 2 ? 'md:grid-cols-2' : 'md:grid-cols-3')
+            : 'flex flex-col',
+        )}>
         {formats.map(({ value, name, caption }) => {
           const isSelected = selected === value
 
@@ -71,13 +87,16 @@ export function TicketFormatPicker({
               onClick={() => onSelect(value)}
               className={cn(
                 'w-full flex items-start gap-3 rounded-lg border p-4 text-left transition-colors',
+                isGrid && 'h-full',
                 isSelected
                   ? 'border-deep-red'
                   : 'border-black/10 hover:border-black/30',
               )}>
-              <span className='shrink-0 pt-0.5'>
-                <BsTicketPerforated size={20} color='#AE0D0D' />
-              </span>
+              {!isGrid && (
+                <span className='shrink-0 pt-0.5'>
+                  <BsTicketPerforated size={20} color='#AE0D0D' />
+                </span>
+              )}
 
               <span className='flex flex-col gap-1'>
                 <span

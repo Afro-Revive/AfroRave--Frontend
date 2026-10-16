@@ -63,7 +63,7 @@ export function TicketSummaryCard({
           <BsTicketPerforated size={20} color='#AE0D0D' className='rotate-90' />
 
           <div className='flex flex-col gap-1 ml-2'>
-            <p className='capitalize md:text-sm text-xs font-semibold font-work-sans leading-[100%] text-black'>
+            <p className='capitalize md:text-sm text-xs font-semibold font-inter-tight leading-[100%] text-black'>
               {name}
             </p>
             <p className='capitalize md:text-xs text-[10px] font-medium font-inter-tight leading-[100%] text-[#949494]'>
