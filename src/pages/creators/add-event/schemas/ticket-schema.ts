@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { richTextLength } from '@/lib/rich-text'
 
 const scheduledStartSchema = z.object({
   whenToStart: z.enum(['immediately', 'at-a-scheduled-date'], {
@@ -44,10 +45,11 @@ const ticketBaseFields = z.object({
   ),
   price: z.string().optional(),
   purchase_limit: z.string(),
+  // Rich text: both limits count what readers see, not the HTML tags.
   description: z
     .string()
-    .min(10, { message: 'Description too short.' })
-    .max(2000, { message: 'Description too long.' }),
+    .refine((value) => richTextLength(value) >= 10, { message: 'Description too short.' })
+    .refine((value) => richTextLength(value) <= 2000, { message: 'Description too long.' }),
 })
 
 const singleTicketObject = ticketBaseFields.extend({

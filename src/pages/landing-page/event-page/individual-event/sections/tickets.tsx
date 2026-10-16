@@ -1,4 +1,5 @@
 import { TicketTab } from "../../_components/ticket-tab";
+import { RichTextContent } from "@/components/reusable/rich-text-content";
 import { formatNaira } from "@/lib/format-price";
 import { type LucideIcon, Plus, Minus, LoaderCircle, Lock } from "lucide-react";
 import { BiGroup } from "react-icons/bi";
@@ -294,7 +295,7 @@ export function TicketCard({ ticket, onAdd }: ITicketCard) {
             <p className="font-inter-tight font-bold text-2xl text-white">
               Description
             </p>
-          <p className="text-sm whitespace-pre-line text-white/80">{description}</p>
+            <RichTextContent value={description} className="text-sm text-white/80" />
           </div>
         ) : (
           <p className="text-sm text-white">

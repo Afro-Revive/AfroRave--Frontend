@@ -188,6 +188,7 @@ A wizard driven by `?tab=` in the URL:
   - **Access:** paid, free or invite-only.
   - **Sales:** online or at the door.
   - **Advanced:** sales start immediately (the default) or at a date; resale allowed (the default) or not.
+  - **Description:** the same rich text editor as the event description. Its 10–2000 limit counts visible text. Organizer ticket cards show it with `RichTextContent`.
   - Validated by `schemas/ticket-schema.ts`.
 - **`lib/event-transforms.ts` translates forms into API requests.** For example, `transformTicketsToCreateRequest` maps `single_ticket` to `Single`, and always sends `allowResell: false` for invite-only and group tickets.
 

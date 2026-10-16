@@ -252,6 +252,9 @@ only the address; every link is forced to open in a new tab with
 `rel="noopener noreferrer nofollow"`, and `javascript:` links are dropped. So
 nothing an organizer types can run on a fan's screen. Long ones are clipped to a few lines with a fade until **Read more**.
 Older plain-text descriptions still show as before, line breaks and all.
+Ticket descriptions are rich text too, shown in full in the ticket's details
+modal by `RichTextContent` (`components/reusable/rich-text-content.tsx`), with the
+same sanitizing.
 
 ### Cart and checkout
 

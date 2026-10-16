@@ -1,4 +1,5 @@
 import { TicketSummaryCard } from '@/components/shared/ticket-summary-card'
+import { RichTextContent } from '@/components/reusable/rich-text-content'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -126,7 +127,10 @@ export function TicketCard({
                   ) : isDetailError ? (
                     <p className='text-sm text-red-400 font-sf-pro-display italic'>Failed to load details.</p>
                   ) : description ? (
-                    <p className='font-sf-pro-display text-[14px] text-black leading-relaxed'>{description}</p>
+                    <RichTextContent
+                      value={description}
+                      className='font-sf-pro-display text-[14px] text-black leading-relaxed'
+                    />
                   ) : (
                     <p className='text-sm text-gray-400 font-sf-pro-display italic'>No description provided.</p>
                   )}
