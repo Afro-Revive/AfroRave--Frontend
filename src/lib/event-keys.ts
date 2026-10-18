@@ -7,6 +7,8 @@ export const eventKeys = {
   detail: (id: string) => [...eventKeys.details(), id] as const,
   detailUrl: (customUrl: string) => [...eventKeys.details(), customUrl] as const,
   organizer: () => [...eventKeys.all, 'organizer'] as const,
+  /** The create-event mutation, so a button outside its form can tell it's running. */
+  create: () => [...eventKeys.all, 'create'] as const,
   trending: () => [...eventKeys.all, 'trending'] as const,
   tickets: (eventId: string) => [...eventKeys.detail(eventId), 'tickets'] as const,
   promoCodes: (eventId: string) => [...eventKeys.detail(eventId), 'promocodes'] as const,

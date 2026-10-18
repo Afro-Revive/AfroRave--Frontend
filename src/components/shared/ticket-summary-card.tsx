@@ -24,6 +24,8 @@ export function TicketSummaryCard({
   onEdit,
   onDelete,
   onSendInvite,
+  usedQuantity,
+  availableQuantity,
   invitesSent,
   isSelected = false,
   isUpdating = false,
@@ -44,6 +46,8 @@ export function TicketSummaryCard({
   /** Invites sent so far. Shown on invite-only tickets only. */
   invitesSent?: number
   /** Highlighted as the ticket whose details are showing below. */
+  usedQuantity?: number
+  availableQuantity?: number
   isSelected?: boolean
   isUpdating?: boolean
   isDeleting?: boolean
@@ -66,9 +70,19 @@ export function TicketSummaryCard({
             <p className='capitalize md:text-sm text-xs font-semibold font-inter-tight leading-[100%] text-black'>
               {name}
             </p>
-            <p className='capitalize md:text-xs text-[10px] font-medium font-inter-tight leading-[100%] text-[#949494]'>
+            <div className='flex flex-row gap-2 items-center'>
+             <p className='capitalize md:text-xs text-[10px] font-medium font-inter-tight leading-[100%] text-soft-gray'>
               {formatNaira(price, { free: true })}
             </p>
+            {
+              availableQuantity !== undefined && usedQuantity !== undefined && (
+                <p className='capitalize text-xs font-medium font-inter-tight leading-[100%] text-soft-gray'>
+                  {usedQuantity} / {availableQuantity} sold
+                </p>
+              )
+            }
+            </div>
+          
           </div>
         </div>
 

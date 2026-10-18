@@ -174,6 +174,8 @@ export interface TicketData {
   basePrice: number
   salesPrice: number
   resalePrice: number
+  soldQuantity: number
+  usedQuantity: number
   fee: number
   feePercentage: number
   quantity: number

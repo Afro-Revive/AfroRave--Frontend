@@ -65,7 +65,7 @@ export function TicketCard({
     ? ({ Single: 'Single Ticket', Group: 'Group Ticket', MultiDay: 'Multi Day' } as const)[ticketType]
     : null
 
-  console.log(ticket)
+  console.log("ticket", ticket)
 
   return (
     <>
@@ -79,6 +79,8 @@ export function TicketCard({
         // Others keep the detail popup — there's nothing per-ticket to list.
         onClick={isInviteOnly ? onSelect : () => setDetailOpen(true)}
         isSelected={isSelected}
+        usedQuantity={ticket.usedQuantity}
+        availableQuantity={ticket.availableQuantity}
         onDelete={onDelete}
         onEdit={onEdit}
         onSendInvite={onSendInvite}

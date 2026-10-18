@@ -21,8 +21,11 @@ import {
 } from "@/schema/edit-event-details";
 import { useEventStore } from "@/stores";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect } from "react";
+import { useEffect, type RefObject } from "react";
 import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
+import { getRoutePath } from "@/config/get-route-path";
+import { EVENT_DETAILS_FORM_ID } from "../constant";
 import { PosterUploadField } from "../component/poster-upload-field";
 import { VisibilityField } from "../component/visibility-field";
 import { SelectField } from "../component/select-field";
@@ -32,15 +35,18 @@ import { TabContainer } from "../component/tab-ctn";
 interface IEventDetailsTab {
   setStep: (step: number) => void;
   setActiveTabState: (tab: string) => void;
+  savingDraft?: RefObject<boolean>;
 }
 
 export default function EventDetailsTab({
   setStep,
   setActiveTabState,
+  savingDraft,
 }: IEventDetailsTab) {
   const { setEventId, setEventData, setVisibility } = useEventStore();
 
   const createEventMutation = useCreateEvent();
+  const navigate = useNavigate();
 
   const form = useForm<EventDetailsSchema>({
     resolver: zodResolver(EditEventDetailsSchema),
@@ -90,6 +96,10 @@ export default function EventDetailsTab({
 
   async function onSubmit(values: EventDetailsSchema) {
     const eventData = transformEventDetailsToCreateRequest(values);
+    // Save As Drafts (in the page header) submits this form too: the same
+    // checks and the same create.
+    const isDraft = savingDraft?.current ?? false;
+    if (savingDraft) savingDraft.current = false;
 
     // Before the mutation: its onSuccess switches to the tickets tab, which
     // reads this to decide whether group tickets are on offer. Setting it
@@ -99,18 +109,24 @@ export default function EventDetailsTab({
     await createEventMutation.mutateAsync(eventData, {
       onSuccess: (data) => {
         setEventId(data.eventId);
-        setActiveTabState("tickets");
+        setEventData(eventData);
+        if (isDraft) navigate(getRoutePath("standalone"));
+        else setActiveTabState("tickets");
       },
     });
-
-    setEventData(eventData);
   }
 
   return (
     <TabContainer<EventDetailsSchema>
+      id={EVENT_DETAILS_FORM_ID}
       className="w-full  flex flex-col lg:flex-row items-start gap-24 xl:gap-48 space-y-0"
       form={form}
       onSubmit={onSubmit}
+      // A draft that failed the checks isn't still pending when Continue is
+      // pressed next.
+      actionOnError={() => {
+        if (savingDraft) savingDraft.current = false;
+      }}
     >
       {/* Sticks below the dashboard header, which stays on screen too. */}
       <div className="shrink-0 max-lg:self-center lg:sticky lg:top-[calc(var(--dashboard-header-height,0px)+1.5rem)]">

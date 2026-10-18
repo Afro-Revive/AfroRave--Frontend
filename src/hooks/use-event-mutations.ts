@@ -16,6 +16,7 @@ export function useCreateEvent() {
   const queryClient = useQueryClient()
 
   return useMutation({
+    mutationKey: eventKeys.create(),
     mutationFn: (data: CreateEventRequest) => eventService.createEvent(data),
     onSuccess: (data) => {
       toast.success('Event created successfully!')
