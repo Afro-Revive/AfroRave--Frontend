@@ -112,7 +112,8 @@ export default function EventDetailsTab({
       form={form}
       onSubmit={onSubmit}
     >
-      <div className="shrink-0 max-lg:self-center lg:sticky lg:top-6">
+      {/* Sticks below the dashboard header, which stays on screen too. */}
+      <div className="shrink-0 max-lg:self-center lg:sticky lg:top-[calc(var(--dashboard-header-height,0px)+1.5rem)]">
         <PosterUploadField form={form} name="poster_url" />
       </div>
 

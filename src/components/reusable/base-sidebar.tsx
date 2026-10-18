@@ -53,6 +53,7 @@ export function BaseSideBar({
   children,
   headerItem,
   footerItem,
+  sticky = false,
 }: IBaseSidebar) {
   const location = useLocation();
   const isMobile = useIsMobile();
@@ -97,7 +98,7 @@ export function BaseSideBar({
       <div
         className={cn(
           "fixed inset-x-0 bottom-0 z-40 bg-white flex flex-col overflow-y-auto",
-          "top-16 transition-all duration-300 ease-in-out",
+          "top-(--dashboard-header-height,4rem) transition-all duration-300 ease-in-out",
           openMobile
             ? "opacity-100 translate-y-0 pointer-events-auto"
             : "opacity-0 -translate-y-2 pointer-events-none",
@@ -143,15 +144,28 @@ export function BaseSideBar({
         collapsible={effectiveCollapsible}
         className={cn(
           className,
-          "min-h-screen h-fit bg-white border-r-[0.5px] border-r-gray-200",
+          "min-h-[93vh] bg-white border-r-[0.5px] border-r-gray-200",
           "transition-[width] duration-300 ease-in-out",
           // `invisible` keeps the hidden links out of the tab order while collapsed
           isCollapsed
             ? "w-0 min-w-0 overflow-hidden border-r-0 invisible"
             : "lg:w-[320px] xl:w-95 w-70 visible",
+          // Held under the header and as tall as the rest of the screen, so all
+          // of it, footer included, is always in view. self-start stops the row
+          // it sits in from stretching it to the page's height, which would
+          // leave sticky nothing to stick within.
+          sticky &&
+            "sticky top-(--dashboard-header-height,0px) self-start h-[calc(100svh-var(--dashboard-header-height,0px))] min-h-0",
         )}
       >
-        <SidebarContent className={cn(contentClassName, "flex flex-col h-full")}>
+        <SidebarContent
+          className={cn(
+            contentClassName,
+            "flex flex-col h-full",
+            // The sidebar itself never scrolls; only the links do, and only if
+            // the open sections don't fit, so "Your Events" stays at the bottom.
+            sticky && "overflow-hidden",
+          )}>
           {collapsibleOnDesktop && (
             <div className="hidden md:flex justify-end px-4 pb-2">
               <button
@@ -166,7 +180,8 @@ export function BaseSideBar({
             </div>
           )}
 
-          <SidebarGroup className="px-0 flex-1">
+          <SidebarGroup
+            className={cn("px-0 flex-1", sticky && "min-h-0 overflow-y-auto scrollbar-none")}>
             <SidebarGroupLabel className="sr-only">
               Application
             </SidebarGroupLabel>
@@ -302,4 +317,5 @@ interface IBaseSidebar {
   /** Rendered above the link groups. */
   headerItem?: React.ReactNode;
   footerItem?: React.ReactNode;
+  sticky?: boolean;
 }

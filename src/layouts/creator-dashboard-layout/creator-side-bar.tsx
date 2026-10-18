@@ -159,7 +159,8 @@ export default function CreatorSidebar() {
 
   return (
     <BaseSideBar
-      className="pt-8 sticky top-0"
+      className="pt-8"
+      sticky
       sidebar_links={creator_sidebar_links}
       headerItem={<SelectedEventCard eventId={openEventId} />}
       collapsibleOnMobile={true}
