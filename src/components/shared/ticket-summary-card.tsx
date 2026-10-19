@@ -33,6 +33,7 @@ export function TicketSummaryCard({
   isSelected = false,
   isUpdating = false,
   isDeleting = false,
+  className,
 }: {
   name: string;
   price: number;
@@ -45,7 +46,8 @@ export function TicketSummaryCard({
   groupSize?: number;
   /** Omit where the ticket can only be removed. */
   onEdit?: () => void;
-  onDelete: () => void;
+  /** Omit, with onEdit, for a read-only card with no menu (the publish summary). */
+  onDelete?: () => void;
   /** Only reaches the menu on an invite-only ticket. */
   onSendInvite?: () => void;
   /** Invites sent so far. Shown on invite-only tickets only. */
@@ -56,6 +58,8 @@ export function TicketSummaryCard({
   isSelected?: boolean;
   isUpdating?: boolean;
   isDeleting?: boolean;
+  /** Extra classes for the card, e.g. a white background on a dark page. */
+  className?: string;
 }) {
   return (
     <div className="w-full flex flex-col">
@@ -67,6 +71,7 @@ export function TicketSummaryCard({
           "w-full flex items-center justify-between border px-3 py-[11px] shadow-[0px_2px_10px_2px_#0000001A] rounded-[5px] transition-colors",
           isSelected ? "border-deep-red" : "border-mid-dark-gray/30",
           onClick && "cursor-pointer",
+          className,
         )}
       >
         <div className="flex flex-row gap-1 items-center">
@@ -132,23 +137,25 @@ export function TicketSummaryCard({
             </span>
           )}
 
-          <ActionPopover
-            isDeleting={isDeleting}
-            isUpdating={isUpdating}
-            onEdit={onEdit}
-            onDelete={onDelete}
-            editLabel="Edit Ticket"
-            extraActions={
-              isInviteOnly && onSendInvite ? (
-                <ActionPopoverItem
-                  onClick={onSendInvite}
-                  disabled={isUpdating || isDeleting}
-                >
-                  Send Invite
-                </ActionPopoverItem>
-              ) : undefined
-            }
-          />
+          {onDelete && (
+            <ActionPopover
+              isDeleting={isDeleting}
+              isUpdating={isUpdating}
+              onEdit={onEdit}
+              onDelete={onDelete}
+              editLabel="Edit Ticket"
+              extraActions={
+                isInviteOnly && onSendInvite ? (
+                  <ActionPopoverItem
+                    onClick={onSendInvite}
+                    disabled={isUpdating || isDeleting}
+                  >
+                    Send Invite
+                  </ActionPopoverItem>
+                ) : undefined
+              }
+            />
+          )}
         </div>
       </div>
     </div>
