@@ -16,6 +16,8 @@ export interface SavedTicket {
   ticketName: string
   ticketType: string
   invite_only?: boolean
+  accessType?: 'Free' | 'Paid' | 'Invite'
+  groupSize?: number
   basePrice: number
   price: number
   quantity?: number
@@ -230,7 +232,9 @@ export function transformTicketsResponse(
   return (ticketInformation.items).map((ticket) => ({
     ticketId: ticket.ticketId,
     ticketName: ticket.ticketName,
-    ticketType: 'single_ticket',
+    ticketType: ticket.ticketType,
+    accessType: ticket.accessType,
+    groupSize: ticket.groupSize,
     invite_only: false,
     basePrice: ticket.basePrice,
     price: ticket.price,

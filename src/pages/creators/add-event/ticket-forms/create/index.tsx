@@ -149,12 +149,10 @@ export default function CreateTicketForm({
                 name={ticket.ticketName}
                 price={ticket.basePrice}
                 typeLabel={ticket.ticketType.replace("_", " ")}
-                // SavedTicket carries no accessType, so it's derived the same
-                // way transformTicketsToCreateRequest does when it builds one.
-                accessLabel={
-                  ticket.invite_only ? "Invite" : ticket.price > 0 ? "Paid" : "Free"
-                }
+                accessLabel={ticket.accessType}
                 isInviteOnly={ticket.invite_only}
+                isGroupTicket={ticket.ticketType === "Group"}
+                groupSize={ticket.groupSize}
                 onEdit={() => handleEditTicketWrapper(ticket)}
                 onDelete={() => handleDeleteTicketWrapper(ticket.ticketId)}
                 isUpdating={updateTicketMutation.isPending}
