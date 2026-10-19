@@ -1,4 +1,5 @@
 import { eventKeys } from '@/lib/event-keys'
+import { apiErrorMessage } from '@/lib/api-error'
 import { eventService } from '@/services/event.service'
 import type {
   CreateEventRequest,
@@ -26,7 +27,7 @@ export function useCreateEvent() {
     },
     onError: (error) => {
       console.error('Failed to create event:', error)
-      toast.error('Failed to create event. Please try again.')
+      toast.error(apiErrorMessage(error, 'Failed to create event. Please try again.'))
     },
   })
 }
