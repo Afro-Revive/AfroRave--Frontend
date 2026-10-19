@@ -34,10 +34,11 @@ import { TicketFormatPicker, type TicketFormat } from "./ticket-format-picker";
 import { ContinueButton } from "../../component/continue-button";
 
 export default function CreateTicketForm({
-  handleFormChange,
+  onContinue,
   showError,
 }: {
-  handleFormChange: (form: string) => void;
+  /** Leaves the tickets step for Publish. */
+  onContinue: () => void;
   showError: () => void;
 }) {
   const [editingTicketId, setEditingTicketId] = useState<string | null>(null);
@@ -121,8 +122,7 @@ export default function CreateTicketForm({
 
   // const handleFillSampleData = () => fillCurrentFormWithSampleData(currentTicketType, form)
 
-  const handleSubmit = () => onSubmit(eventId, handleFormChange);
-
+  const handleSubmit = () => onSubmit(eventId, onContinue);
   return (
     <div className="w-full flex flex-col gap-8">
       <TabContainer<TForm>
@@ -198,7 +198,7 @@ export default function CreateTicketForm({
 
         <ContinueButton
           disabled={savedTickets.length === 0}
-          onClick={() => handleFormChange("promocode")}
+          onClick={onContinue}
         />
       </TabContainer>
 

@@ -3,7 +3,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { getRoutePath } from '@/config/get-route-path'
 import { cn } from '@/lib/utils'
 import { useEventStore } from '@/stores'
-import { Info } from 'lucide-react'
+// import { Info } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useIsMutating } from '@tanstack/react-query'
@@ -15,7 +15,6 @@ import PublishTab from './tabs/publish-tab'
 import TicketsTab from './tabs/tickets-tab'
 import { OnlyShowIf } from '@/lib/environment'
 import { BiArrowBack } from "react-icons/bi";
-import { ApplyPromoCodePopover } from './component/apply-promo-popover'
 
 export default function AddEventPage() {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -39,7 +38,6 @@ export default function AddEventPage() {
 
   useEffect(() => {
     const tabParam = searchParams.get('tab')
-    const formParam = searchParams.get('form')
 
     // The theme step is gone. An old link to it lands on publish, which is
     // where the theme step used to lead, rather than on a tab with no content.
@@ -50,11 +48,11 @@ export default function AddEventPage() {
 
     if (tabParam === 'event-details' || tabParam === 'tickets' || tabParam === 'publish') {
       setActiveTab(tabParam)
-      RenderHeadline(tabParam, setHeading, setDescription, formParam)
+      RenderHeadline(tabParam, setHeading, setDescription)
     } else if (!tabParam) {
       setActiveTab('event-details')
       setSearchParams({ tab: 'event-details' })
-      RenderHeadline('event-details', setHeading, setDescription, null)
+      RenderHeadline('event-details', setHeading, setDescription)
     }
   }, [searchParams, setSearchParams])
 
@@ -157,10 +155,7 @@ export default function AddEventPage() {
           value={tab.value}
           className='w-full h-fit max-w-screen overflow-x-hidden bg-white'>
           <div className='w-full h-fit flex flex-col items-center'>
-            {/** Nav */}
-            <TabNav activeTab={activeTab} formParam={searchParams.get('form')} />
-
-            <section className='w-full flex flex-col gap-10 px-5 md:px-14'>
+            <section className='w-full flex flex-col gap-10 px-5 md:px-14 pt-6 md:pt-8'>
               <div className='flex flex-col gap-6 '>
                 <div className='flex flex-col gap-2 text-black font-sf-pro-display'>
                   <p className='font-black text-2xl md:text-4xl uppercase'>{heading}</p>
@@ -172,15 +167,6 @@ export default function AddEventPage() {
                   <MoreTabDetails />
                 </OnlyShowIf>
 
-                <OnlyShowIf condition={activeTab === 'tickets' && searchParams.get('form') === 'promocode'}>
-                  <div className='flex items-start gap-2 text-charcoal'>
-                    <span className='text-sm'>ⓘ</span>
-                    <div className='flex flex-col'>
-                      <p className='text-sm font-bold font-sf-pro-display'>You can come back to this later</p>
-                      <p className='text-xs font-sf-pro-display text-charcoal/70'>No worries if you're not ready to complete this step now. You can always return to it at anytime from your dashboard.</p>
-                    </div>
-                  </div>
-                </OnlyShowIf>
               </div>
 
               {tab.element}
@@ -214,16 +200,6 @@ function CustomTabTriggers({
   )
 }
 
-function TabNav({ activeTab, formParam }: ITabNav) {
-  return (
-    <div className='w-full h-fit flex items-center justify-between py-3 px-5 md:px-8 md:py-4'>
-      <div className='flex gap-3'>
-        {activeTab === 'tickets' && formParam === 'promocode' && <ApplyPromoCodePopover />}
-      </div>
-    </div>
-  )
-}
-
 function MoreTabDetails({ type = 'error' }: { type?: 'error' | 'theme' }) {
   return (
     <div
@@ -231,7 +207,7 @@ function MoreTabDetails({ type = 'error' }: { type?: 'error' | 'theme' }) {
         'text-deep-red': type === 'error',
         'text-charcoal': type === 'theme',
       })}>
-      <div className='flex items-center gap-2'>
+      {/* <div className='flex items-center gap-2'>
         <Info size={16} className='text-inherit' />
         <p className='text-sm font-medium leading-[100%] font-sf-pro-display'>
           {type === 'error' ? 'Changes will be lost' : 'You can come back to this later'}
@@ -241,7 +217,7 @@ function MoreTabDetails({ type = 'error' }: { type?: 'error' | 'theme' }) {
         {type === 'error'
           ? 'If you leave now any changes will not be saved.'
           : `No worries if you’re not ready to complete this step now. You can always return to it at anytime from your dashboard.`}
-      </p>
+      </p> */}
     </div>
   )
 }
@@ -250,14 +226,8 @@ function RenderHeadline(
   activeTab: string,
   setHeading: (heading: string) => void,
   setDescription: (description: string) => void,
-  formParam?: string | null,
 ) {
   if (activeTab === 'tickets') {
-    if (formParam === 'promocode') {
-      setHeading('GO BEYOND THE BASICS!')
-      setDescription('Enhance your ticketing power with flexible, fan-friendly features')
-      return
-    }
     setHeading('CREATE YOUR TICKETS!')
     setDescription('Create different ticket types, set prices, and start your journey to a sold-out event!')
     return
@@ -274,11 +244,6 @@ function RenderHeadline(
   setHeading('BUILD YOUR STAGE!')
   setDescription('Your moment starts here! tell us about your event')
   return
-}
-
-interface ITabNav {
-  activeTab: string
-  formParam?: string | null
 }
 
 interface IEditTabProps {

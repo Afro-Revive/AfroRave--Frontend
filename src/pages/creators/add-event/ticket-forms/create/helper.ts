@@ -218,9 +218,9 @@ export function fillCurrentFormWithSampleData(
   form.setValue('ticket', sampleTicket, { shouldDirty: true })
 }
 
-export function onSubmit(eventId: string | null, handleFormChange: (form: string) => void) {
+export function onSubmit(eventId: string | null, onContinue: () => void) {
   if (!eventId) return
-  handleFormChange('promocode')
+  onContinue()
 }
 
 export function transformTicketsResponse(
