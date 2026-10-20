@@ -143,7 +143,7 @@ function EventTickets({ eventId, accessType }: IEventTickets) {
     <CreatorPageContainer>
       <TicketsHeader filter={filter} onFilterChange={setFilter} />
 
-      <div className='w-full flex flex-col gap-6 px-5 md:px-14 py-6 md:py-8'>
+      <div className='w-full flex flex-col gap-6 px-5 py-6 md:py-8'>
         <TicketNotice filter={filter} isPrivateEvent={isPrivateEvent} />
 
         {/* Inline composer, same shape as the create-event flow: the format
