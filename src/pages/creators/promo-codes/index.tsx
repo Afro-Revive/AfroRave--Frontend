@@ -1,3 +1,4 @@
+import { SidebarToggle } from '@/components/shared/sidebar-toggle'
 import { FormBase } from '@/components/reusable'
 import { Button } from '@/components/ui/button'
 import {
@@ -133,9 +134,12 @@ function EventPromoCodes({ eventId, eventName }: { eventId: string; eventName: s
       <div className='w-full flex flex-col gap-10 md:gap-14 pt-6 px-4 md:p-14'>
         <div className='flex flex-col gap-[13px]'>
           <div className='flex items-center justify-between gap-2 flex-wrap'>
-            <p className='font-sf-pro-display font-black text-base md:text-xl text-black'>
-              Promo Codes
-            </p>
+            <div className='flex items-center gap-4'>
+              <SidebarToggle />
+              <p className='font-sf-pro-display font-black text-base md:text-xl text-black'>
+                Promo Codes
+              </p>
+            </div>
 
             <Button
               type='button'

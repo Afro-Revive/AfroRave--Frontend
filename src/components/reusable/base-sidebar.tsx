@@ -20,6 +20,7 @@ import {
   PanelLeftOpen,
 } from "lucide-react";
 import { stripUnderscores } from "@/lib/helper-func";
+import { useSidebarToggleCount } from "@/components/shared/sidebar-toggle";
 
 /**
  * Whether a link is the current page. A link with a query (the analytics tabs,
@@ -59,8 +60,12 @@ export function BaseSideBar({
   const isMobile = useIsMobile();
   const { openMobile, setOpenMobile, open, toggleSidebar } = useSidebar();
 
-  // On desktop the sidebar slides away entirely; a floating button brings it back.
+  // On desktop the sidebar slides away entirely. Its toggle sits beside each
+  // page's title (SidebarToggle); a page without one gets the sidebar's own
+  // buttons instead, so it can still be collapsed and brought back.
   const isCollapsed = collapsibleOnDesktop && !open;
+  const pageHasToggle = useSidebarToggleCount((state) => state.count > 0);
+  const showOwnToggles = collapsibleOnDesktop && !pageHasToggle;
 
   const effectiveCollapsible =
     collapsibleOnMobile && isMobile ? "offcanvas" : collapsible;
@@ -126,7 +131,7 @@ export function BaseSideBar({
 
   return (
     <>
-      {isCollapsed && (
+      {isCollapsed && showOwnToggles && (
         <button
           type="button"
           onClick={toggleSidebar}
@@ -166,7 +171,7 @@ export function BaseSideBar({
             // the open sections don't fit, so "Your Events" stays at the bottom.
             sticky && "overflow-hidden",
           )}>
-          {collapsibleOnDesktop && (
+          {showOwnToggles && (
             <div className="hidden md:flex justify-end px-4 pb-2">
               <button
                 type="button"

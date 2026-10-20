@@ -1,3 +1,4 @@
+import { SidebarToggle } from '@/components/shared/sidebar-toggle'
 import { useEffect, type ComponentType } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import EventSelect from '@/components/shared/vendor-select'
@@ -77,7 +78,10 @@ export default function RealtimePage() {
 function ChartHeader({ title }: { title: string }) {
   return (
     <div className='w-full flex items-center justify-between gap-4 bg-white h-14 px-8 border-l border-light-gray'>
-      <h1 className='font-work-sans text-lg font-bold text-black'>{title}</h1>
+      <div className='flex items-center gap-4'>
+        <SidebarToggle />
+        <h1 className='font-work-sans text-lg font-bold text-black'>{title}</h1>
+      </div>
 
       <div className='flex items-center gap-8'>
         <ExportButton />
