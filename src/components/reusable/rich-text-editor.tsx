@@ -36,6 +36,28 @@ function toSavedHtml(editor: Editor): string {
   return editor.isEmpty ? '' : editor.getHTML().replace(/(<p><\/p>)+$/, '')
 }
 
+/**
+ * Everything in StarterKit is on: paragraphs, bold, italic, underline,
+ * strikethrough, inline code, code blocks, quotes, dividers, bullet and
+ * numbered lists, links, undo/redo. Only these two need settings. Built once:
+ * useEditor compares extensions by identity, so new ones every render made it
+ * re-apply its options each time.
+ */
+const EXTENSIONS = [
+  StarterKit.configure({
+    // The event name is the page's heading, so descriptions start at h2.
+    heading: { levels: [2, 3] },
+    link: {
+      // A click while editing places the cursor instead of leaving the page.
+      openOnClick: false,
+      autolink: true,
+      linkOnPaste: true,
+      defaultProtocol: 'https',
+      HTMLAttributes: { target: '_blank', rel: 'noopener noreferrer nofollow' },
+    },
+  }),
+]
+
 /** A link address as typed, with https:// added when there's no scheme. */
 function toHref(typed: string): string {
   const url = typed.trim()
@@ -66,23 +88,7 @@ export function RichTextEditor({
   className?: string
 }) {
   const editor = useEditor({
-    // Everything in StarterKit is on: paragraphs, bold, italic, underline,
-    // strikethrough, inline code, code blocks, quotes, dividers, bullet and
-    // numbered lists, links, undo/redo. Only these two need settings.
-    extensions: [
-      StarterKit.configure({
-        // The event name is the page's heading, so descriptions start at h2.
-        heading: { levels: [2, 3] },
-        link: {
-          // A click while editing places the cursor instead of leaving the page.
-          openOnClick: false,
-          autolink: true,
-          linkOnPaste: true,
-          defaultProtocol: 'https',
-          HTMLAttributes: { target: '_blank', rel: 'noopener noreferrer nofollow' },
-        },
-      }),
-    ],
+    extensions: EXTENSIONS,
     content: toRichText(value),
     editorProps: {
       attributes: {
@@ -102,7 +108,10 @@ export function RichTextEditor({
   // replaces what's in the editor. Typing doesn't come back through here: the
   // value it sends is already what the editor holds.
   useEffect(() => {
-    if (!editor) return
+    // useEditor can swap in a fresh editor (it treats one not yet attached to
+    // the page as destroyed); this render still holds the old one. The fresh
+    // one starts from the current value, and the next render compares again.
+    if (!editor || editor.isDestroyed) return
 
     // Compared as saved, so the editor's own trailing paragraph doesn't read
     // as a change and reset it mid-typing.
