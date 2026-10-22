@@ -159,8 +159,16 @@ log in.
 | Option | What it does |
 |---|---|
 | `withVideo: true` | Shows the video panel. Used by the fans header login. |
-| `notice: '…'` | Turns the modal full screen with a green bar across the top. The private-event card uses this. |
+| `notice: '…'` | Turns the modal full screen with a green bar across the top of the login form. The private-event card and the invite page use this. |
+| `signupNotice: '…'` | The same bar for the sign-up form, when it needs different wording. The invite page uses it to say only the invited email can accept. |
 | `stayOnPage: true` | After login the user stays where they were, instead of going to their dashboard. |
+
+Opening or switching forms only changes `?login=` / `?signup=`. The page's other
+query params stay, so a page that needs its query (an invite's `?token=`) still
+has it after logging in.
+
+`useLogout({ stayOnPage: true })` logs out without leaving the page. The invite
+page uses it when someone is signed in with the wrong email.
 
 **The session:**
 - The logged-in user and tokens live in `useAfroStore` (`src/stores/index.ts`), saved to `localStorage` under `afro-store-v1`.

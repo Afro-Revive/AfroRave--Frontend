@@ -31,6 +31,7 @@ export function AuthModal() {
     switchToSignup,
     showAuthVideo,
     authNotice,
+    signupNotice,
     stayOnPage,
   } = useAuth();
   const isMobile = useIsMobile();
@@ -84,8 +85,9 @@ export function AuthModal() {
 
   // A notice is a full-width bar across the top of the screen, so the modal
   // goes full screen like the video layout, with the form centred below it.
-  const showNoticeBar =
-    !!authNotice && authType === "login" && !showForgotPassword && !showVideoPanel;
+  // Login and signup can each have their own.
+  const notice = authType === "login" ? authNotice : signupNotice;
+  const showNoticeBar = !!notice && !showForgotPassword && !showVideoPanel;
 
   const getModalSize = () => {
     if (showVideoPanel || showNoticeBar) return "full";
@@ -178,7 +180,7 @@ export function AuthModal() {
             role="status"
             className="w-full shrink-0 bg-green/25 px-4 py-4 text-center font-sf-pro-text text-xs md:text-sm text-green"
           >
-            {authNotice}
+            {notice}
           </p>
         </OnlyShowIf>
 
@@ -195,6 +197,10 @@ export function AuthModal() {
               // Mobile only: a card so the form stays readable over the video.
               "w-full max-w-md rounded-2xl p-6 shadow-2xl md:max-w-none md:rounded-none md:bg-none md:p-0 md:shadow-none":
                 showVideoPanel,
+              // Centred under a notice, the signup form (w-full, unlike the
+              // fixed-width login) has nothing to fill, so it's given the
+              // width it has in the regular small modal.
+              "w-full sm:max-w-[415px]": showNoticeBar && authType === "signup",
             })}
           >
           <AnimatePresence mode="wait" initial={false}>

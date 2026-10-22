@@ -229,7 +229,11 @@ export function useLogin(options?: { onSuccess?: () => void }) {
 }
 
 // Logout Hook
-export function useLogout() {
+/**
+ * stayOnPage skips the landing-page redirect, for a page that carries on
+ * signed out (an invite asking for a different account).
+ */
+export function useLogout(options?: { stayOnPage?: boolean }) {
   const queryClient = useQueryClient()
   const clearAuth = useAfroStore((state) => state.clearAuth)
   const navigate = useNavigate()
@@ -252,7 +256,7 @@ export function useLogout() {
 
       // Navigate after clearing — auth guard will now redirect to the correct
       // landing page for the account type (fixed in AuthGuard) so there's no conflict
-      navigate(destination, { replace: true })
+      if (!options?.stayOnPage) navigate(destination, { replace: true })
       authToasts.logoutSuccess()
     },
     onError: (error: unknown) => {
