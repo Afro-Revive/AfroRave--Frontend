@@ -56,7 +56,9 @@ src/
 │   └── component/             create/edit slot modals, vendor profile modal
 ├── layouts/
 │   ├── creator-dashboard-layout/   header, sidebar, selected-event card
-│   └── creators-landing-page-layout/
+│   └── creators-landing-page-layout/   the creators website: the new header, sidebar and
+│                                       footer (creators-*), and the old ones blog and the
+│                                       waitlist still use
 └── components/shared/
     ├── dashboard-cards.tsx         the event card on the dashboard
     ├── ticket-summary-card.tsx     the ticket card used on the Tickets page and in the wizard
@@ -312,6 +314,30 @@ revenue and service. The sidebar uses it to list slots under each vendor type.
 
 ---
 
+### Creators website (`/home`, `/about-us`, `/contact-us`)
+
+The public organizer site, redesigned in October 2026. The layout
+(`layouts/creators-landing-page-layout/index.tsx`) gives these three pages the
+new header (`REDESIGNED_PAGES`); blog and the waitlist (`/`) keep the old header
+and footer.
+
+```
+CreatorsLandingPageLayout
+├── CreatorsHeader          logo; LOG IN (Organizer / Vendor) on desktop; menu button
+│   └── BaseSheet → CreatorsSidebarMenu
+│         Organizer and Vendor log ins (or Dashboard once signed in), Home,
+│         About Us, Contact Us, Get The Afrorevive App, socials
+├── AuthModal
+└── page, each ending with CreatorsFooter (tone 'light' or 'dark'):
+    the AFROREVIVE wordmark, socials, links, copyright
+```
+
+| Page | Sections | Notes |
+|---|---|---|
+| Home | `home/sections/creators-hub.tsx` | Organizer and Vendor open sign up for that role. The background video is `HERO_VIDEO_SRC`; `play()` is called with `?.catch`, since some browsers (and jsdom) return nothing from it. |
+| About Us | `about-us/sections/`: `about-hero`, `what-we-offer` (offer cards and stats), `team` (initials set by hand), `work-with-us-banner` | |
+| Contact Us | `contact-us/section/get-in-touch.tsx`, schema in `get-in-touch-schema.ts` | Sends `{ name, email, category, subject, message }` to `POST /api/Support` with `useSendSupportMessage` (`hooks/use-support-mutations.ts`). The service category is both the category and the subject. The form clears only once the message is sent. |
+
 ## 7. Hooks the organizer side uses
 
 | File | Hooks |
@@ -322,6 +348,7 @@ revenue and service. The sidebar uses it to list slots under each vendor type.
 | `use-private-event-mutations.ts` | `useGetAccessRequests`, `useBatchUpdateAccessRequests`, `useUpdateApplicationStatus`, `useUpdateApplicationDeadline`, `useEndApplication`, `useGetViewerAccessStatus` |
 | `use-vendor-mutation.ts` | `useVendorSlotsByType`, `useGetAllVendorSlots`, `useGetVendorSlotById`, `useVendorApplicationsByType`, `useAcceptVendorApplication`, `useRejectVendorApplication` |
 | `use-profile-mutations.ts` | `useOrganizerProfile`, `useUpdateOrganizerProfile`, `useOrganizerNotifications`, `useMarkNotificationAsRead` |
+| `use-support-mutations.ts` | `useSendSupportMessage` (the creators website's Contact Us) |
 
 **Refreshing after a change:**
 - Mutations refresh the queries they affect.

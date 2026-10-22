@@ -13,14 +13,14 @@ Last checked against the code on the `prod` branch, October 2026.
 | | Critical (High) | Medium | Low | **Overall, weighted by priority** |
 |---|---|---|---|---|
 | **Fans** | 14 / 17 done | 10 / 11 | 1 / 4 | **82%** |
-| **Organizers** | 12 / 13 done | 19 / 24 | 4 / 17 | **75%** |
-| **Fans + Organizers** | **26 / 30 done (87%)** | 29 / 35 | 5 / 21 | **78%** |
+| **Organizers** | 12 / 13 done | 20 / 24 | 4 / 17 | **77%** |
+| **Fans + Organizers** | **26 / 30 done (87%)** | 30 / 35 | 5 / 21 | **79%** |
 | Vendors (in progress on the `vendors` branch) | 2 / 4 done | 0 / 3 | — | 33% |
 
 **How the overall % is worked out:**
 - A High feature counts 3 times as much as a Low one, and a Medium one twice as much.
 - Only fully working features score.
-- If half-working ("Partial") and "Awaiting backend" features get half credit, fans and organizers reach 80%.
+- If half-working ("Partial") and "Awaiting backend" features get half credit, fans and organizers reach 81%.
 - **Critical features only:** 87% are fully done, or 88% with half credit for the partly working ones.
 
 Most of the gap is Low priority: small buttons, drag handles and extra tools.
@@ -123,7 +123,7 @@ Within each table, rows run from High to Low priority.
 | Profile | 🟠 Medium | ✅ Working | Name, gender, state, country, date of birth. |
 | Wallet: payout history | 🟠 Medium | ✅ Working | |
 | Settings: change password, log out | 🟠 Medium | ✅ Working | |
-| Support contact form (`/fans/support`) | 🟠 Medium | ⛔ Not working | Shows "Thanks — we will get back to you", but **the message is not sent anywhere**. The API now has `POST /api/Support` for it. |
+| Support contact form (`/fans/support`) | 🟠 Medium | ⛔ Not working | Shows "Thanks — we will get back to you", but **the message is not sent anywhere**. The API now has `POST /api/Support`, and the organizer website's Contact Us already sends to it with `useSendSupportMessage`. |
 
 ### Information pages
 
@@ -150,9 +150,7 @@ tables further down says where it stands today.
 | Bank details: Save | 🔴 High | Wire Save to `/api/Profile/organizer/bank-account`. |
 | Promo Codes page restyle | 🟠 Medium | Bring the layout in line with the other redesigned tabs (Your Tickets, Event Details, Guest List). |
 | Vendor pages restyle (Revenue Vendor, Service Vendor) | 🟠 Medium | Same, including the page title header with the sidebar toggle. They're the last pages still using the sidebar's own floating button. |
-| Creators homepage (`/home`) | 🟠 Medium | Update the organizer website's home page. |
 | Attendee List tab | 🟠 Medium | Build it on `GET /api/Event/{eventId}/attendees`. |
-| Contact Us (organizer website) | 🟠 Medium | Send the form to `POST /api/Support`. |
 | Event guestlist: select a whole category | 🟠 Medium | Frontend only. |
 | Guest allowance card | ⚪ Low | Real numbers from `GET /api/Guestlist/allowance`. |
 | Promo code drag handle | ⚪ Low | Build it or remove it. |
@@ -264,8 +262,8 @@ notifications, and a report download (see §5).
 
 | Feature | Priority | Status | Notes |
 |---|---|---|---|
-| Creators home (`/home`) and About Us | 🟠 Medium | ✅ Working | Sign up and log in buttons open the auth modal. |
-| Contact Us (`/contact-us`) | 🟠 Medium | ⛔ Not working | The form only logs to the browser console. The API now has `POST /api/Support` for it. |
+| Creators home (`/home`) and About Us | 🟠 Medium | ✅ Working | Redesigned in October 2026. Home: "All-in-one hub for creators", with Organizer and Vendor buttons that open sign up for that role, over a background video. About Us: who Afrorevive is, what organizers and vendors get, the team, and Work With Us. The header's menu is a slide-out sidebar with Organizer and Vendor log ins, the pages, and the app. |
+| Contact Us (`/contact-us`) | 🟠 Medium | ✅ Working | Redesigned as "Get in touch". The form (name, email, service category, message) is sent to the support team through `POST /api/Support`. |
 | Waitlist page (`/`) | ⚪ Low | ✅ Working | Joins the newsletter. Also shows the vendor registration callout. |
 | Blog (`/blog`) | ⚪ Low | 🚧 Coming soon | |
 
@@ -301,7 +299,6 @@ pretends to. Rows run from High to Low priority.
 | Fans footer, home page and mobile menu | App Store / Google Play badges | 🔴 High | ⛔ Not linked | Link to `#`. Waiting for the apps to be published. Fans need the app for their QR code. |
 | Ticket detail page | QR code ("download the app") | 🔴 High | ⛔ Not linked | Depends on the app store links above. |
 | Fans support (`/fans/support`) | Contact form Send | 🟠 Medium | ⛔ Not working | Shows a success message but sends nothing. |
-| Organizer website | Contact Us Submit | 🟠 Medium | ⛔ Not working | Logs to the console only. |
 | Organizer settings | Delete Account | 🟠 Medium | ⛔ Not working | No action. |
 | Event guestlist page | Selecting a whole category | 🟠 Medium | ⛔ Not working | Only individual guests can be picked. |
 | Analytics | Attendee List tab | 🟠 Medium | 🚧 Coming soon | |
@@ -348,7 +345,7 @@ or changes:
 Swagger list (checked October 2026), but nothing in the app calls them yet:
 
 - **Organizer bank details (critical):** `GET`, `POST` and `PUT /api/Profile/organizer/bank-account` read and save an organizer's payout account.
-- **Support messages:** `POST /api/Support`, for the fans support form and the organizer website's Contact Us.
+- **Support messages:** `POST /api/Support`. The organizer website's Contact Us uses it (`useSendSupportMessage`); the fans support form still needs wiring to the same hook.
 - **Attendee list:** `GET /api/Event/{eventId}/attendees` (analytics variants too).
 - **Ticket order:** `PATCH /api/Event/{eventId}/tickets/reorder`. Tickets also carry `displayOrder` and `sortOrder`.
 - **Organizer guest allowance:** `GET /api/Guestlist/allowance` for the real "used / total" numbers.

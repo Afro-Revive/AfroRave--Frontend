@@ -38,6 +38,12 @@ For what the app can do today, see [docs/FEATURES.md](docs/FEATURES.md).
   - Ticket menus can edit a ticket and send invites.
 - **Rich text descriptions** for events and tickets: headings, bold, italic, underline, strikethrough, code, links, lists, quotes, code blocks and dividers. Fans see them sanitized.
 - **Create event header:** a Dashboard link, and **Save As Drafts**, which creates the event if it isn't yet and goes to the dashboard.
+- **Creators website redesign** (`/home`, `/about-us`, `/contact-us`):
+  - A new header whose menu is a slide-out sidebar, like the fans one: Organizer and Vendor log ins, Home, About Us, Contact Us, and the app.
+  - A new footer with the AFROREVIVE wordmark across the page.
+  - **Home:** "All-in-one hub for creators", with Organizer and Vendor sign up buttons over a background video.
+  - **About Us:** "Built for the culture", what organizers and vendors get, the team, and Work With Us.
+  - **Contact Us** is now "Get in touch", and **its messages reach the support team** (`POST /api/Support`). Before, the form only logged to the console.
 - **Invite-only tickets:**
   - Send invites from your guestlist, or to a new guest, who is saved to the guestlist too.
   - See the invites sent and their status.
