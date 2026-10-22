@@ -71,6 +71,7 @@ export interface UserTicketTicketDetails {
   price: number
   totalQuantity: number
   ticketType?: 'Single' | 'Group' | 'MultiDay'
+  accessType?: 'Free' | 'Paid' | 'Invite'
   groupSize?: number
   purchaseHistory: {
     orderId: string

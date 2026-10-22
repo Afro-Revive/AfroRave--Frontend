@@ -67,6 +67,7 @@ For what the app can do today, see [docs/FEATURES.md](docs/FEATURES.md).
   - Ticket sales **start immediately** by default.
   - **Ticket resale is on by default.** Untick it to turn it off. Invite-only and group tickets never allow it.
 - **Publishing** refreshes the dashboard list straight away.
+- **My Tickets:** invite-only tickets can't be resold or transferred, and group tickets can't be resold. They're faded in the Resell and Transfer lists, and when one is the event's only ticket, its button is off.
 - **Sign-up** no longer redirects. The form stays open and clears itself.
 - **Complete profile** (`/complete-profile`) works without being logged in. It reads the account from `/api/Auth/me?token=…`, so the email link works on any device.
 - **Prices:** amounts with kobo always show two decimals (`₦8,013.60`). Whole amounts stay as they were (`₦7,420`).

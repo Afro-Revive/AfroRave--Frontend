@@ -465,6 +465,27 @@ export function isGroupTicket(
   return ticket.ticketType === 'Group' || (ticket.groupSize ?? 0) > 1
 }
 
+/**
+ * A ticket the organizer sent to one guest's email. It's tied to that guest,
+ * so it can't be resold or transferred.
+ */
+export function isInviteOnlyTicket(ticket: Pick<UserTicketTicketDetails, 'accessType'>): boolean {
+  return ticket.accessType === 'Invite'
+}
+
+/** Why a ticket can't be listed for resale, or undefined when it can. */
+export function resaleBlockedReason(ticket: UserTicketTicketDetails): string | undefined {
+  if (isInviteOnlyTicket(ticket)) return "Invite-only tickets can't be resold"
+  if (isGroupTicket(ticket)) return "Group tickets can't be resold"
+  return undefined
+}
+
+/** Why a ticket can't be transferred, or undefined when it can. */
+export function transferBlockedReason(ticket: UserTicketTicketDetails): string | undefined {
+  if (isInviteOnlyTicket(ticket)) return "Invite-only tickets can't be transferred"
+  return undefined
+}
+
 /** Tickets a user actually bought for an event, summed across every ticket type and order. */
 export function totalTicketsPurchased(ticketDetails: UserTicketTicketDetails[]): number {
   return ticketDetails.reduce(

@@ -285,6 +285,19 @@ shape (`PurchasableTicket`), so the ticket list and cart can treat both alike.
 | `tickets-resale/modals/ticket-resale.tsx` | Resell: choose tickets, then set prices (`useTicketResale`). |
 | `tickets-transfer/index.tsx` | Transfer: choose tickets, then enter recipients. Each recipient is verified first (`useTransferTickets`). |
 
+**Tickets that can't be resold or transferred.** `resaleBlockedReason()` and
+`transferBlockedReason()` (`lib/helper-func.ts`) say why, or return nothing
+when a ticket is allowed:
+
+| Ticket | Resell | Transfer |
+|---|---|---|
+| Invite-only (`accessType: 'Invite'`) | No | No |
+| Group (`isGroupTicket()`) | No | Yes |
+
+- **In the modals,** a blocked ticket is faded, can't be picked, and shows the reason.
+- **With only one ticket for the event,** a blocked ticket turns the Resell or Transfer button off, with the reason as its tooltip. With more than one, the buttons stay on and the modals do the blocking.
+- **An ended event** turns both buttons off.
+
 ### Accepting an invite (`fans/accept-invite`)
 
 An organizer's invite email links to `/fans/invite/accept?token=…`. The route

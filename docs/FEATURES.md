@@ -105,9 +105,9 @@ Within each table, rows run from High to Low priority.
 |---|---|---|---|
 | My Tickets: active and past | 🔴 High | ✅ Working | |
 | Ticket detail page | 🔴 High | ✅ Working | Orders for the event, with receipts. |
-| Resell tickets | 🔴 High | ✅ Working | Pick tickets, set your price, list them. |
+| Resell tickets | 🔴 High | ✅ Working | Pick tickets, set your price, list them. Invite-only and group tickets can't be resold: they're faded in the list, and Resell is off when they're the only ticket. |
 | QR code for entry | 🔴 High | 🟡 Partial | The web app says "Download the app to view your QR code", but the app store buttons don't go anywhere yet. |
-| Transfer tickets | 🟠 Medium | ✅ Working | Checks the recipient's account exists before sending. |
+| Transfer tickets | 🟠 Medium | ✅ Working | Checks the recipient's account exists before sending. Invite-only tickets can't be transferred. |
 | Listed tickets (active, sold, expired) | 🟠 Medium | ✅ Working | Edit the price or cancel a listing. |
 | Ticket upgrades | — | Removed | Dropped as a feature in July 2026. Not counted. |
 

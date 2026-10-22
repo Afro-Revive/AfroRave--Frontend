@@ -18,7 +18,9 @@ import {
   formatTimezone,
   getEventSocialLinks,
   isGroupTicket,
+  resaleBlockedReason,
   toAbsoluteUrl,
+  transferBlockedReason,
   type EventSocials as EventSocialsData,
   type EventSocialPlatform,
 } from "@/lib/helper-func";
@@ -61,6 +63,8 @@ function groupSizeOf(ticket: UserTicketTicketDetails): number | undefined {
   return isGroupTicket(ticket) && size > 1 ? size : undefined;
 }
 
+const EVENT_ENDED = "This event has already ended";
+
 export default function IndividualActiveTicketsPage() {
   const { eventId } = useParams<{ eventId: string }>();
   const navigate = useNavigate();
@@ -94,6 +98,9 @@ export default function IndividualActiveTicketsPage() {
 
   const ticketDetails: UserTicketTicketDetails[] =
     ticketEvent?.ticketDetails ?? [];
+  // With one ticket, a blocked ticket turns its button off. With more, the
+  // buttons stay on and the modals fade whichever can't be resold or sent.
+  const onlyTicket = ticketDetails.length === 1 ? ticketDetails[0] : undefined;
 
   const ordersById = new Map<string, EnrichedOrder>();
   for (const ticket of ticketDetails) {
@@ -212,7 +219,16 @@ export default function IndividualActiveTicketsPage() {
               onSell={() => setResaleOpen(true)}
               onTransfer={() => setTransferOpen(true)}
               onUpgrade={() => {}}
-              disabled={isPastEvent}
+              sellDisabledReason={
+                isPastEvent
+                  ? EVENT_ENDED
+                  : onlyTicket && resaleBlockedReason(onlyTicket)
+              }
+              transferDisabledReason={
+                isPastEvent
+                  ? EVENT_ENDED
+                  : onlyTicket && transferBlockedReason(onlyTicket)
+              }
             />
 
             <AnimatePresence>
@@ -364,13 +380,17 @@ export interface otherActionProps {
   onSell: () => void;
   onTransfer: () => void;
   onUpgrade: () => void;
-  disabled?: boolean;
+  /** Why Resell is off. Set, the button is disabled with this as its tooltip. */
+  sellDisabledReason?: string;
+  /** The same for Transfer. */
+  transferDisabledReason?: string;
 }
 
 function OtherActions({
   onSell,
   onTransfer,
-  disabled = false,
+  sellDisabledReason,
+  transferDisabledReason,
 }: otherActionProps) {
   const actions = [
     {
@@ -378,12 +398,14 @@ function OtherActions({
       name: "Resell",
       description: "Sell tickets at your own price",
       action: onSell,
+      disabledReason: sellDisabledReason,
     },
     {
       icon: "/assets/resell/transfer_icon.svg",
       name: "Transfer",
       description: "Send tickets and items to anyone",
       action: onTransfer,
+      disabledReason: transferDisabledReason,
     },
     // {
     //   icon: "/assets/dashboard/upgrade.png",
@@ -400,11 +422,11 @@ function OtherActions({
           key={item.name}
           type="button"
           onClick={item.action}
-          disabled={disabled}
-          title={disabled ? "This event has already ended" : undefined}
+          disabled={!!item.disabledReason}
+          title={item.disabledReason}
           className={cn(
             "w-fit h-fit flex flex-col justify-between gap-1 p-2 bg-tech-blue rounded-[10px] text-left",
-            disabled && "opacity-40 cursor-not-allowed",
+            item.disabledReason && "opacity-40 cursor-not-allowed",
           )}
         >
           <div className="flex flex-col gap-2">
