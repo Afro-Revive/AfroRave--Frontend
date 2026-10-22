@@ -36,7 +36,8 @@ src/
 │   │   └── guestlist/         Guestlist tab: the account-wide guest list
 │   ├── add-event/             /creators/add-event — the create-event wizard
 │   │   ├── tabs/              event-details, tickets, publish (theme-tab.tsx is unused)
-│   │   ├── ticket-forms/      ticket form (create/), promo code form
+│   │   ├── ticket-forms/      ticket form (create/); promo-code-form/ holds the fields the
+│   │   │                      Promo Codes page uses (no longer a wizard step)
 │   │   ├── schemas/           zod schemas for tickets, promo codes, …
 │   │   └── component/         fields shared with other pages: price, poster, visibility, …
 │   ├── edit-event/            /creators/edit/:eventId — event details, visibility, poster
@@ -59,6 +60,7 @@ src/
 └── components/shared/
     ├── dashboard-cards.tsx         the event card on the dashboard
     ├── ticket-summary-card.tsx     the ticket card used on the Tickets page and in the wizard
+    ├── sidebar-toggle.tsx          the sidebar's collapse button, beside each page's title
     └── creator-guide-overlay.tsx   the first-time "how to create an event" guide
 ```
 
@@ -138,7 +140,9 @@ CreatorDashboardLayout
 ```
 
 - The sidebar is built on `components/reusable/base-sidebar.tsx`.
-- It collapses on desktop and becomes a full-screen overlay on mobile.
+- **It stays put.** With `sticky`, it fills the screen below the header (`--dashboard-header-height`) and stays still while the page scrolls. It doesn't scroll itself, so the Your Events footer is always in view.
+- **Collapsing** (desktop only) is done by `SidebarToggle` (`components/shared/sidebar-toggle.tsx`), which sits beside each page's title: Event Details, Your Tickets, Analytics, Guest List, Audience and Promo Codes. A page without one (the vendor pages, for now) still needs a way back, so the sidebar shows its own floating button only when `useSidebarToggleCount` says no toggle is on screen.
+- On mobile it's a full-screen overlay opened from the header's menu button.
 - The Audience link only appears when the open event is private (`toVisibility(event.accessType) === 'private'`).
 
 The organizer **Settings modal** is
@@ -180,10 +184,17 @@ A wizard driven by `?tab=` in the URL:
 | Step | `tab` | Component | What happens |
 |---|---|---|---|
 | 1 | `event-details` | `tabs/event-details-tab.tsx` | Creates the event (`useCreateEvent`). Saves its id in `useEventStore`. |
-| 2 | `tickets` (`&form=create` or `&form=promocode`) | `tabs/tickets-tab.tsx` → `ticket-forms/create`, then `promo-code-form` | Adds tickets, then promo codes. |
-| 3 | `publish` | `tabs/publish-tab.tsx` | Shows a summary (tickets, promo codes, whether resale is on). **Publish** calls `usePublishEvent`, which refreshes the dashboard list. |
+| 2 | `tickets` (`&form=create`) | `tabs/tickets-tab.tsx` → `ticket-forms/create` | Adds tickets. Saved ones are listed as `TicketSummaryCard`s with their real format, access and group size, at the price before fees. |
+| 3 | `publish` | `tabs/publish-tab.tsx` | A preview in the fan page's style: `FlyerCard`, the description (clamped, with Read more), `ContactSection` titled "Contact details", and the tickets as `TicketSummaryCard`s without menus. **Publish** calls `usePublishEvent`, which refreshes the dashboard list. |
 
+- **Promo codes aren't a step any more.** Organizers make them on the Promo Codes page. An old `?form=promocode` or `?form=upgrades` link lands on the ticket form.
 - **`useEventStore`** carries the new event's id between steps. It's cleared when the wizard closes, so the next event starts fresh.
+- **The header** has a **Dashboard** link (leaves; the open form isn't saved) and **Save As Drafts**:
+  - On Event Info before the event exists, it submits that form by id (`EVENT_DETAILS_FORM_ID`), so it runs the same checks as Continue. A `savingDraft` ref tells the form's submit to end on the dashboard instead of the next step.
+  - Once the event exists, everything is already saved as it goes and stays unpublished, so it only shows a toast and goes to the dashboard.
+  - It reads `useIsMutating({ mutationKey: eventKeys.create() })` to show SAVING… while the form it doesn't own is creating the event.
+- **Errors:** if creating fails, the toast shows the server's reason (`apiErrorMessage` in `lib/api-error.ts`: a field's validation message, then the response message, then its title).
+- **Event Info fields:** the website URL is optional, the custom URL field is labelled "URL", and the refund terms field is commented out.
 - **The description is rich text.** `components/reusable/rich-text-editor.tsx` (Tiptap, react-icons Remix toolbar) offers headings (H2, H3), bold, italic, underline, strikethrough, inline code, links, bullet and numbered lists, quotes, code blocks, dividers and undo/redo, and saves HTML. Links open in a new tab; a click while editing doesn't follow them. Older plain-text descriptions open as paragraphs (`toRichText` in `lib/rich-text.ts`). The 2000 limit and the counter count visible text, not tags (`richTextLength`). Edit event uses the same editor.
 - **Old links:** `?tab=theme` (the removed theme step) redirects to `publish`.
 - **The ticket form:**
@@ -198,8 +209,8 @@ A wizard driven by `?tab=` in the URL:
 
 ### Edit event (`edit-event/`)
 
-One page, `tabs/event-details-tab.tsx`:
-- **Details form:** the same fields as creation.
+One page, `tabs/event-details-tab.tsx`, under an "Event Details" header with the sidebar toggle:
+- **Details form:** the same fields as creation, website URL optional. Saving (`useUpdateEvent`) refreshes the event, the events dashboard, the public page (cached by custom URL) and the fan lists.
 - **Visibility picker:** public ↔ private. A public event can't be made private.
 - **Poster** (`component/poster-image-field.tsx`): reads `posterUrl` from the event.
 
@@ -207,13 +218,18 @@ One page, `tabs/event-details-tab.tsx`:
 
 ```
 TicketsPage → SelectedEventGate → EventTickets
-├── TicketsHeader          "Your Tickets" + All / Invite-Only / Door filter
+├── TicketsHeader          "Your Tickets" + sidebar toggle + All / Invite-Only / Door filter
 ├── TicketNotice           how invite-only works, or the private event rules
-├── SummaryCard            net sales and tickets issued (useGetEventAnalytics);
-│                          View Analytics
+├── TicketFormatPicker     "Add Tickets", above the list. layout='grid' puts the formats
+│                          side by side without the ticket icon; private events
+│                          hide group tickets
 ├── TicketForm             reused from add-event to create or edit a ticket
-├── TicketCard (each)      built on shared TicketSummaryCard; menu: Edit / Delete /
-│                          Send Invite (invite-only); invites-sent count
+├── TicketCard (each)      built on shared TicketSummaryCard: price before fees, sold /
+│                          available, group size on the group icon; menu: Edit /
+│                          Delete / Send Invite (invite-only); invites-sent count
+├── SummaryCard            net sales and tickets sold / total, from the event's
+│                          eventStat (useGetEvent), as on its dashboard card;
+│                          View Analytics
 ├── TicketInvitesTable     when an invite-only ticket is selected
 │   └── or EventOrdersTable   otherwise: every order for the event
 └── SendInvitesModal       two tabs:
@@ -246,7 +262,7 @@ Hooks live in `use-guestlist-mutations.ts`; query keys are in
 ### Promo codes (`promo-codes/index.tsx`)
 
 - Lists the event's codes (`useGetEventPromoCodes`).
-- Creating a code reuses `PromoCodeFormFields` from the wizard.
+- Creating a code uses `PromoCodeFormFields` from `add-event/ticket-forms/promo-code-form/`, which is now only this page's form.
 - Each row opens a details modal, and its menu deletes the code.
 
 ### Audience (`audience/`), private events only
@@ -268,13 +284,15 @@ AudiencePage (reads :eventId, checks the event is private)
 
 ### Analytics (`realtime/`)
 
-Tabs, in sections, chosen with `?tab=`:
+The page has no tab list of its own. The sidebar's ANALYTICS group opens each
+tab with `?tab=`:
 
-| Section | Tabs |
+| Sidebar link | Tab |
 |---|---|
-| Event | Overview, Vendors |
-| Tickets | Orders, Attendee List ("Coming Soon"), Promo Codes |
-| Audience | Insights |
+| Overview | Overview |
+| Audience Insights | Insights |
+| Vendors | Vendors |
+| Tickets (accordion) | Orders, Attendee List ("Coming Soon"), Promo Codes |
 
 - All tabs share one request, `useGetEventAnalytics(selectedEventId)`, and use `components/analytics-state.tsx` for loading, error and empty states.
 - The charts are reusable components in `components/reusable/charts/` (bar, line, pie) built on recharts.
@@ -308,7 +326,8 @@ revenue and service. The sidebar uses it to list slots under each vendor type.
 **Refreshing after a change:**
 - Mutations refresh the queries they affect.
 - Event keys nest under `eventKeys.detail(id)`, so a ticket change also refreshes that event's analytics.
-- Publishing refreshes the organizer's event list.
+- The events dashboard reads its own list (`eventKeys.organizer()`, `GET /api/Event/organizer`), separate from the fans' `eventKeys.lists()`. Creating, editing and publishing an event refresh both.
+- Editing also refreshes the public page, which is cached by custom URL (`eventKeys.detailUrl`), and trending.
 - Access-request changes refresh every page and filter of that event's requests.
 
 ---
@@ -321,4 +340,5 @@ revenue and service. The sidebar uses it to list slots under each vendor type.
   - Don't put zod `.default()` on a schema used with `zodResolver`. Pass defaults through `defaultValues` instead; `.default()` breaks the form's types.
   - Read fields that change rendering with `form.watch()`, not `form.getValues()`, which won't re-render.
 - **Unused files:** 11 organizer files nothing imports, mostly the theme step, upgrades and the first create-event design (`theme-tab.tsx`, `upgrade-form.tsx`, `ticket-modal.tsx`, `standalone-modal.tsx`, …). The full list, with what to do about each, is in [DEAD-CODE.md](./DEAD-CODE.md).
-- **The first-time guide** (`components/shared/creator-guide-overlay.tsx`) still has a "Theme & Media" step for the removed theme tab.
+- **The first-time guide** (`components/shared/creator-guide-overlay.tsx`) moves the wizard to each step's `?tab=`, so `GUIDE_STEPS` has to match the wizard's tabs. Adding or removing a step means updating both.
+- **The rich text editor** (`components/reusable/rich-text-editor.tsx`): Tiptap's `useEditor` treats an editor whose view isn't mounted as destroyed, so the value sync checks `editor.isDestroyed` first, and the extensions are built once at module level. Rebuilding them every render replaced the editor and crashed the Event Details page.

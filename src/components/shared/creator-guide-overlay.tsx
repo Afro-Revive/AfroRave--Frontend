@@ -11,8 +11,8 @@ const GUIDE_STEPS = [
     step: '01',
     tab: 'event-details',
     title: 'Event Details',
-    description: 'Start by giving your event a name, date, venue and category. Everything fans need to know at a glance.',
-    hint: 'Fill in the form above and hit "Next Step" when you\'re done.',
+    description: 'Start by giving your event a name, date, venue, category and poster. Everything fans need to know at a glance.',
+    hint: 'Use a high resolution poster so it looks sharp on every screen, then hit "Continue".',
   },
   {
     step: '02',
@@ -23,13 +23,6 @@ const GUIDE_STEPS = [
   },
   {
     step: '03',
-    tab: 'theme',
-    title: 'Theme & Media',
-    description: 'Upload your event flyer and banner. This is what fans see first — make it count.',
-    hint: 'Use high resolution images for the best result on all screen sizes.',
-  },
-  {
-    step: '04',
     tab: 'publish',
     title: 'Publish',
     description: "You're almost there! Review your event details one last time, then go live for fans to discover.",

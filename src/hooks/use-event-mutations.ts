@@ -24,6 +24,8 @@ export function useCreateEvent() {
       console.log('Event created:', data)
       // Invalidate and refetch events list
       queryClient.invalidateQueries({ queryKey: eventKeys.lists() })
+      // The new draft belongs on the organizer's events dashboard too.
+      queryClient.invalidateQueries({ queryKey: eventKeys.organizer() })
     },
     onError: (error) => {
       console.error('Failed to create event:', error)
@@ -44,6 +46,11 @@ export function useUpdateEvent() {
       // Invalidate and refetch specific event and events list
       queryClient.invalidateQueries({ queryKey: eventKeys.detail(variables.eventId) })
       queryClient.invalidateQueries({ queryKey: eventKeys.lists() })
+      // The organizer's events dashboard has its own list, so it's refreshed too.
+      queryClient.invalidateQueries({ queryKey: eventKeys.organizer() })
+      // The public page (View Event) is cached by custom URL, not id.
+      queryClient.invalidateQueries({ queryKey: eventKeys.detailUrl(variables.data.customUrl) })
+      queryClient.invalidateQueries({ queryKey: eventKeys.trending() })
     },
     onError: (error) => {
       console.error('Failed to update event:', error)
