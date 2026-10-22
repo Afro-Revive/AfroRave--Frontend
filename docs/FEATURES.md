@@ -12,16 +12,16 @@ Last checked against the code on the `prod` branch, October 2026.
 
 | | Critical (High) | Medium | Low | **Overall, weighted by priority** |
 |---|---|---|---|---|
-| **Fans** | 14 / 17 done | 10 / 11 | 1 / 4 | **82%** |
+| **Fans** | 15 / 17 done | 10 / 11 | 1 / 4 | **86%** |
 | **Organizers** | 12 / 13 done | 17 / 22 | 3 / 18 | **72%** |
-| **Fans + Organizers** | **26 / 30 done (87%)** | 27 / 33 | 4 / 22 | **76%** |
+| **Fans + Organizers** | **27 / 30 done (90%)** | 27 / 33 | 4 / 22 | **78%** |
 | Vendors (in progress on the `vendors` branch) | 2 / 4 done | 0 / 3 | — | 33% |
 
 **How the overall % is worked out:**
 - A High feature counts 3 times as much as a Low one, and a Medium one twice as much.
 - Only fully working features score.
-- If half-working ("Partial") and "Awaiting backend" features get half credit, fans and organizers reach 79%.
-- **Critical features only:** 87% are fully done, or 88% with half credit for the partly working ones.
+- If half-working ("Partial") and "Awaiting backend" features get half credit, fans and organizers reach 81%.
+- **Critical features only:** 90% are fully done, or 92% with half credit for the partly working ones.
 
 Most of the gap is Low priority: small buttons, drag handles and extra tools.
 **All the main journeys work end to end.**
@@ -30,15 +30,14 @@ Most of the gap is Low priority: small buttons, drag handles and extra tools.
 
 ### Critical features still to do
 
-Only **4 critical features** are left on the fan and organizer sides. Ranked by
+Only **3 critical features** are left on the fan and organizer sides. Ranked by
 how much they block launch:
 
 | # | Feature | Area | Status | What's needed |
 |---|---|---|---|---|
 | 1 | Privacy Policy, Refund Policy, Terms and Conditions | Fans | 🚧 Coming soon | **Content.** Needed before taking real payments: payment providers and app stores ask for them. |
-| 2 | Accept an invite from the email link | Fans | ⛔ Not working | **Frontend.** A page for the invite link. The backend calls and hooks are ready. Without it, invite-only tickets don't reach guests. |
-| 3 | Organizer bank details (Settings → Save) | Organizers | ⛔ Not working | **Backend, then frontend.** The Save button has no action, so organizers can't set where their money goes. The API can list banks and check an account number, but has no endpoint to save an organizer's payout account yet. |
-| 4 | QR code for entry | Fans | 🟡 Partial | **Mobile app.** The QR is in the mobile app; the web app's app store links point nowhere until the apps are published. |
+| 2 | Organizer bank details (Settings → Save) | Organizers | ⛔ Not working | **Backend, then frontend.** The Save button has no action, so organizers can't set where their money goes. The API can list banks and check an account number, but has no endpoint to save an organizer's payout account yet. |
+| 3 | QR code for entry | Fans | 🟡 Partial | **Mobile app.** The QR is in the mobile app; the web app's app store links point nowhere until the apps are published. |
 
 Vendors have 2 more on the `vendors` branch: **Register For Slot** and
 **slot checkout**.
@@ -95,7 +94,7 @@ Within each table, rows run from High to Low priority.
 | Add tickets to cart without an account | 🔴 High | ✅ Working | The cart is saved in the browser and synced when the fan logs in. |
 | Resale tickets on the event page | 🔴 High | ✅ Working | A "Resale" tab appears when other fans are reselling tickets. |
 | Checkout and payment (Paystack) | 🔴 High | ✅ Working | Paystack redirects back to `/fans/payment-confirmation`, which confirms the order. |
-| Accept an invite from an email link | 🔴 High | ⛔ Not working | The backend calls exist, but **there is no page for the invite link to open**. |
+| Accept an invite from an email link | 🔴 High | ✅ Working | `/fans/invite/accept?token=…`. Signed-out guests get the login, with a bar saying to use the invited email; signed in with another email, they're told to log out. A free invite is issued on Accept. A paid one is accepted, then paid on Paystack, then issued by the payment webhook, or by the page verifying the payment if the webhook hasn't yet. New fans sign up and verify their email, then log in to accept. |
 | Purchase limits | 🟠 Medium | ✅ Working | Fans can't add more than a ticket's purchase limit. |
 | Invite-only tickets on the event page | 🟠 Medium | ✅ Working | Shown with a padlock. They can't be bought, only received by invite. |
 | Promo codes at checkout | 🟠 Medium | ✅ Working | Validated as you type, and the discount is applied to the total. |
@@ -269,7 +268,6 @@ pretends to. Rows run from High to Low priority.
 
 | Where | Button or link | Priority | Status | What happens |
 |---|---|---|---|---|
-| Invite email | Accept invite link | 🔴 High | ⛔ Not working | There is no page for the link to open. |
 | Organizer settings | Bank details SAVE | 🔴 High | ⛔ Not working | No action. |
 | Fans footer | Privacy, Refund, Terms | 🔴 High | 🚧 Coming soon | Open a "Coming Soon" page. |
 | Fans footer, home page and mobile menu | App Store / Google Play badges | 🔴 High | ⛔ Not linked | Link to `#`. Waiting for the apps to be published. Fans need the app for their QR code. |

@@ -41,6 +41,10 @@ export interface InviteTicketByTokenData{
     isFree: boolean
     status: string
     isExpired: boolean
+    organizerName: string
+    companyName: string
+    authorizationUrl: string
+    reference: string
 }
 
 export interface InviteOnlyTicketAudienceData{
@@ -79,4 +83,23 @@ export interface EventOrdersData{
 export type EventOrdersResponse = ApiResponse<EventOrdersData[]>
 export type InviteOnlyTicketAudienceResponse = ApiResponse<InviteOnlyTicketAudienceData[]>
 export type InviteTicketByTokenResponse = ApiResponse<InviteTicketByTokenData>
+/**
+ * What accepting an invite returns. A free invite is issued there and then
+ * (requiresPayment false). A paid one becomes PaymentPending with 5 days to
+ * pay, and comes with its Paystack checkout (authorizationUrl, reference).
+ * Verifying that payment answers in the same shape.
+ */
+export interface AcceptInviteTicketData {
+  requiresPayment: boolean
+  price: number
+  /** The invite's new status: 'Issued' when free, 'PaymentPending' when paid. */
+  status: string
+  /** Why, for the guest: "Payment required to issue ticket. You have 5 days…". */
+  message: string
+  userTicketId: string | null
+  reference: string | null
+  authorizationUrl: string | null
+}
+
+export type AcceptInviteTicketResponse = ApiResponse<AcceptInviteTicketData>
 export type InviteTicketResponse = ApiResponse<InviteTicketData[]>

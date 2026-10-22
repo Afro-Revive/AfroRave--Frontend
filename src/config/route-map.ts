@@ -37,6 +37,8 @@ export const ROUTE_PATHS = {
   account: '/fans/account',
   settings: '/fans/settings', // Added settings route
   my_tickets: '/fans/my-tickets',
+  /** The invite email's link lands here with ?token=. */
+  accept_invite: '/fans/invite/accept',
   active_tickets: '/fans/my-tickets/:eventId',
   listed_tickets: '/fans/listed-tickets',
 
@@ -125,6 +127,7 @@ export interface RouteParams {
   account: never
   settings: never
   my_tickets: never
+  accept_invite: never
   active_tickets: { eventId: string | number }
   listed_tickets: never
 
