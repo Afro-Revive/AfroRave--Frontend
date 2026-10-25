@@ -1,5 +1,5 @@
 import type { ApiResponse } from "@/types/api";
-import { CategoryResponse, CreateGuestRequest, EventCheckinListResponse, EventGuestlistConfigResponse, GuestListData, GuestListResponse } from "@/types/guestlist";
+import { CategoryResponse, CreateGuestRequest, EventCheckinListResponse, EventGuestlistConfigResponse, GuestListAllowanceResponse, GuestListData, GuestListResponse } from "@/types/guestlist";
 import api from "./http.service";
 
 class GuestListService {
@@ -91,6 +91,12 @@ class GuestListService {
     // Remove Guest from category
     async removeGuestFromCategory(guestId: string, categoryId: string): Promise<void> {
         const response = await api.delete(`/api/GuestList/categories/${categoryId}/guests/${guestId}`);
+        return response.data;
+    }
+
+    // Get Organizer Guest List allowance
+    async getGuestListAllowance(): Promise<GuestListAllowanceResponse>{
+        const response = await api.get('/api/GuestList/allowance');
         return response.data;
     }
 }
