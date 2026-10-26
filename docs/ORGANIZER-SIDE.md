@@ -148,14 +148,22 @@ CreatorDashboardLayout
 - The Audience link only appears when the open event is private (`toVisibility(event.accessType) === 'private'`).
 
 The organizer **Settings modal** is
-`standalone/components/creator-settings-modal.tsx`, opened from the header
-menu. It has three tabs:
+`standalone/components/creator-settings-modal.tsx`, opened from the avatar
+menu (`components/reusable/creator-menu-button.tsx`). It has three tabs; the
+first two are their own components:
 
-| Tab | Contents | Data |
-|---|---|---|
-| Profile | Name, company, phone, gender, website, bank details | `useOrganizerProfile`, `useUpdateOrganizerProfile` |
-| Inbox | Notifications | `useOrganizerNotifications`, `useMarkNotificationAsRead` |
-| Account | Change password, order notifications, log out, delete account | |
+| Tab | Component | Contents | Data |
+|---|---|---|---|
+| Account | `creator-account-tab.tsx` | User information, personal details (gender, birthday, country, state, phone) and business details, laid out like the fans account page | `useOrganizerProfile`, `useUpdateOrganizerProfile` → `PATCH /api/profile/organizer` |
+| Payout | `creator-payout-tab.tsx` | Total revenue, early payout (an amount the organizer picks), the bank account form, payout history | `useOrganizerWallet`, `useOrganizerEarlyPayout`, `useOrganizerBankAccount`, `useSaveOrganizerBankAccount`, `useOrganizerPayoutHistory`, `useGetNigerianBanks`, `useVerifyBankAccount` |
+| Settings | in the modal | Change password (current, new, confirm), email notifications (one checkbox, not saved yet), log out | `ChangePasswordSchema` from `fans/settings/zod-schema.ts`, `useChangeOrganizerPassword` → `PATCH /api/profile/organizer/change-password` |
+
+- **Shared field style:** the boxed field with an inset label (`settings-inset-field.tsx`) and its input, select and dark-dropdown classes (`settings-field-classes.ts`), shared by Account and Payout.
+- **The Account tab** fills in from the saved organizer profile (name, gender, birthday via `fromDateOfBirth` in `lib/helper-func.ts`, phone, company, website, country, state) and saves the phone as `phoneNumber`. Its dropdowns use the same dark list as the bank select.
+- **The bank form** checks the account as it's typed: once a bank is chosen and the number is 10 digits, `useVerifyBankAccount` runs (debounced; a slower answer for an older number is ignored), the account name fills in, and Save is enabled. A saved account loads already confirmed.
+- **The bank list** (`useGetNigerianBanks`) is a cached query, fresh for a day. It used to be a mutation, which isn't cached, so the select came back empty after its tab remounted.
+- **The Inbox tab** is commented out for now, along with its notification code.
+- **The avatar menu** is non-modal (`modal={false}`): a modal menu locks the page, and opening Settings from it could leave that lock behind, so the avatar stopped opening.
 
 ---
 
@@ -347,7 +355,8 @@ CreatorsLandingPageLayout
 | `use-invite-ticket-mutations.ts` | `useGetTicketInvites`, `useSendTicketInvites`, `useGetEventOrders`, `useGetInviteOnlyTicketAudience`, `useUpdateInviteEmail` |
 | `use-private-event-mutations.ts` | `useGetAccessRequests`, `useBatchUpdateAccessRequests`, `useUpdateApplicationStatus`, `useUpdateApplicationDeadline`, `useEndApplication`, `useGetViewerAccessStatus` |
 | `use-vendor-mutation.ts` | `useVendorSlotsByType`, `useGetAllVendorSlots`, `useGetVendorSlotById`, `useVendorApplicationsByType`, `useAcceptVendorApplication`, `useRejectVendorApplication` |
-| `use-profile-mutations.ts` | `useOrganizerProfile`, `useUpdateOrganizerProfile`, `useOrganizerNotifications`, `useMarkNotificationAsRead` |
+| `use-profile-mutations.ts` | `useOrganizerProfile`, `useUpdateOrganizerProfile`, `useOrganizerNotifications`, `useMarkNotificationAsRead`, `useChangeOrganizerPassword`, `useOrganizerWallet`, `useOrganizerBankAccount`, `useSaveOrganizerBankAccount`, `useOrganizerPayoutHistory`, `useOrganizerEarlyPayout` |
+| `use-payments.ts` | `useGetNigerianBanks` (cached query), `useVerifyBankAccount` |
 | `use-support-mutations.ts` | `useSendSupportMessage` (the creators website's Contact Us) |
 
 **Refreshing after a change:**

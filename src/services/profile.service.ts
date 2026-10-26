@@ -1,6 +1,9 @@
 import type {
+  BankDetailsRequest,
+  BankDetailsResponse,
   NotificationResponse,
   OrganizerProfileResponse,
+  OrganizerWalletResponse,
   PayoutHistoryResponse,
   UpdateUserProfileRequest,
   UserProfileResponse,
@@ -84,9 +87,14 @@ class ProfileService {
     firstName: string
     lastName: string
     companyName: string
-    telphone: string
+    /** The endpoint also takes telephone / phone / contactPhone; this one is enough. */
+    phoneNumber: string
     gender: string
     website: string
+    /** YYYY-MM-DD. */
+    dateOfBirth: string
+    country: string
+    state: string
   }>): Promise<OrganizerProfileResponse> {
     const response = await api.patch('/api/profile/organizer', data)
     return response.data
@@ -118,12 +126,72 @@ class ProfileService {
   }
 
   /**
+   * Change Organizer Password
+   */
+  async changeOrganizerPassword(data: { currentPassword: string; newPassword: string; confirmNewPassword: string }): Promise<void> {
+    const response = await api.patch('/api/profile/organizer/change-password', data)
+    return response.data
+  }
+
+  /**
    * Get User Payout History
    */
   async getPayoutHistory(): Promise<PayoutHistoryResponse> {
     const response = await api.get('/api/profile/user/payout-history')
     return response.data
   }
+
+  /**
+   * Save Organizer Payout Bank Account`
+   */
+  async savePayout(data: BankDetailsRequest): Promise<void> {
+    const response = await api.post('/api/profile/organizer/bank-account', data)
+    return response.data
+  }
+
+  /**
+   * Get Organizer Payout Bank Account
+   */
+  async getPayout(): Promise<BankDetailsResponse> {
+    const response = await api.get('/api/profile/organizer/bank-account')
+    return response.data
+  }
+
+  /**
+   * Update Organizer Payout Bank Account
+   */
+  async updatePayout(data: BankDetailsRequest): Promise<void> {
+    const response = await api.put('/api/profile/organizer/bank-account', data)
+    return response.data
+  }
+
+  /**
+   * Get Organizer Wallet (total revenue, and what can be paid out now)
+   */
+  async getOrganizerWallet(): Promise<OrganizerWalletResponse> {
+    const response = await api.get('/api/profile/organizer/wallet')
+    return response.data
+  }
+
+  /**
+   * Get Organizer Payout History (paginated)
+   */
+  async getOrganizerPayoutHistory(params?: {
+    pageNumber?: number
+    pageSize?: number
+  }): Promise<PayoutHistoryResponse> {
+    const response = await api.get('/api/profile/organizer/payout-history', { params })
+    return response.data
+  }
+
+  /**
+   * Request an early payout from the organizer's wallet
+   */
+  async withdrawOrganizerFunds(data: WithdrawFundsRequest): Promise<void> {
+    const response = await api.post('/api/profile/organizer/wallet/withdraw', data)
+    return response.data
+  }
+   
 }
 // Export service instance
 export const profileService = new ProfileService()

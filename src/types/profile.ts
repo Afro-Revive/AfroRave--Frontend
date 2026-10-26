@@ -113,14 +113,38 @@ export type VendorProfileResponse = ApiResponse<VendorProfileData>
 // Organizer Profile Data for GET /api/Profile/organizer
 export interface OrganizerProfileData {
   organizerId: string
+  userId: string
+  firstName: string
+  lastName: string
+  companyName: string
+  telphone: string
+  gender: string
   businessName: string
   description: string
   contactEmail: string
+  email: string
   contactPhone: string
+  phoneNumber: string
+  telephone: string
+  dateOfBirth: string
+  birthday: string
+  dob: string
   website: string
   businessCategory: string
   services: string
   location: string
+  state?: string | null
+  country?: string | null
+  bankName?: string | null
+  bankCode?: string | null
+  accountNumber?: string | null
+  accountName?: string | null
+  balance: number
+  walletBalance: number
+  amountInWallet: number
+  totalRevenue: number
+  accountType: string
+  userType: string
   createdDate: string
 }
 
@@ -160,6 +184,26 @@ export interface NotificationData {
   createdDate: string
 }
 
+export interface BankDetailsRequest{
+  bankName: string
+  bankCode: string
+  accountNumber: string
+  accountName: string
+}
+
+export type BankDetailsResponse = ApiResponse<BankDetailsRequest>
+
+/** GET /api/Profile/organizer/wallet: what the organizer has earned and can be paid. */
+export interface OrganizerWalletData {
+  balance: number
+  walletBalance: number
+  /** What can be paid out now. */
+  amountInWallet: number
+  /** Everything earned from tickets and vendor slots. */
+  totalRevenue: number
+}
+
+export type OrganizerWalletResponse = ApiResponse<OrganizerWalletData>
 // ApiResponse already wraps the payload (and may paginate it) — the element type
 // goes in, not an array of them.
 export type NotificationResponse = ApiResponse<NotificationData>

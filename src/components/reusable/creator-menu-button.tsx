@@ -56,7 +56,10 @@ export function CreatorMenuButton({ user, variant = 'light', onSettingsClick }: 
 
   return (
     <>
-      <DropdownMenu>
+      {/* Non-modal: a modal menu locks the page (pointer-events: none on the
+          body), and opening the Settings dialog from it could leave that lock
+          behind, so the avatar stopped opening the menu again. */}
+      <DropdownMenu modal={false}>
         <DropdownMenuTrigger asChild>
           <Button
             className={`py-2 px-3 h-10 w-10 transition-colors border flex items-center justify-center gap-[5px] rounded-full group ${
@@ -74,7 +77,7 @@ export function CreatorMenuButton({ user, variant = 'light', onSettingsClick }: 
             </span>
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent className='w-56' align='end' forceMount>
+        <DropdownMenuContent className='w-56' align='end'>
           <DropdownMenuLabel className='font-normal'>
             <div className='flex flex-col space-y-1'>
               <p className='text-sm font-medium leading-none'>
@@ -84,9 +87,9 @@ export function CreatorMenuButton({ user, variant = 'light', onSettingsClick }: 
             </div>
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={handleDashboardClick}>Dashboard</DropdownMenuItem>
-          <DropdownMenuItem onClick={() => onSettingsClick ? onSettingsClick() : setSettingsOpen(true)}>Settings</DropdownMenuItem>
-          <DropdownMenuItem onClick={handleLogout}>Log out</DropdownMenuItem>
+          <DropdownMenuItem onSelect={handleDashboardClick}>Dashboard</DropdownMenuItem>
+          <DropdownMenuItem onSelect={() => onSettingsClick ? onSettingsClick() : setSettingsOpen(true)}>Settings</DropdownMenuItem>
+          <DropdownMenuItem onSelect={handleLogout}>Log out</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 
