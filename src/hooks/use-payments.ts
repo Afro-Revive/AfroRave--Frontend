@@ -1,5 +1,5 @@
 import { paymentService } from "@/services/payments.service";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
 
 export function useVerifyBankAccount() {
@@ -11,11 +11,20 @@ export function useVerifyBankAccount() {
     })
 }
 
-export function useGetNigerianBanks() {
-    return useMutation({
-        mutationKey: ['get-nigerian-banks'],
-        mutationFn: async () => {
-            return await paymentService.getNigerianBanks();
-        },
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+/**
+ * The list of Nigerian banks, cached. It used to be a mutation, whose result
+ * isn't cached: it lived only in the component that ran it.
+ * `enabled` lets a caller wait (e.g. until
+ * its modal opens).
+ */
+export function useGetNigerianBanks(options?: { enabled?: boolean }) {
+    return useQuery({
+        queryKey: ['nigerian-banks'],
+        queryFn: () => paymentService.getNigerianBanks(),
+        staleTime: DAY_MS,
+        gcTime: DAY_MS,
+        enabled: options?.enabled ?? true,
     })
 }

@@ -170,6 +170,18 @@ export interface BankDetailsRequest{
 }
 
 export type BankDetailsResponse = ApiResponse<BankDetailsRequest>
+
+/** GET /api/Profile/organizer/wallet: what the organizer has earned and can be paid. */
+export interface OrganizerWalletData {
+  balance: number
+  walletBalance: number
+  /** What can be paid out now. */
+  amountInWallet: number
+  /** Everything earned from tickets and vendor slots. */
+  totalRevenue: number
+}
+
+export type OrganizerWalletResponse = ApiResponse<OrganizerWalletData>
 // ApiResponse already wraps the payload (and may paginate it) — the element type
 // goes in, not an array of them.
 export type NotificationResponse = ApiResponse<NotificationData>

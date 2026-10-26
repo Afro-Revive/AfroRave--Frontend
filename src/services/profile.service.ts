@@ -3,6 +3,7 @@ import type {
   BankDetailsResponse,
   NotificationResponse,
   OrganizerProfileResponse,
+  OrganizerWalletResponse,
   PayoutHistoryResponse,
   UpdateUserProfileRequest,
   UserProfileResponse,
@@ -160,6 +161,33 @@ class ProfileService {
    */
   async updatePayout(data: BankDetailsRequest): Promise<void> {
     const response = await api.put('/api/profile/organizer/bank-account', data)
+    return response.data
+  }
+
+  /**
+   * Get Organizer Wallet (total revenue, and what can be paid out now)
+   */
+  async getOrganizerWallet(): Promise<OrganizerWalletResponse> {
+    const response = await api.get('/api/profile/organizer/wallet')
+    return response.data
+  }
+
+  /**
+   * Get Organizer Payout History (paginated)
+   */
+  async getOrganizerPayoutHistory(params?: {
+    pageNumber?: number
+    pageSize?: number
+  }): Promise<PayoutHistoryResponse> {
+    const response = await api.get('/api/profile/organizer/payout-history', { params })
+    return response.data
+  }
+
+  /**
+   * Request an early payout from the organizer's wallet
+   */
+  async withdrawOrganizerFunds(data: WithdrawFundsRequest): Promise<void> {
+    const response = await api.post('/api/profile/organizer/wallet/withdraw', data)
     return response.data
   }
    

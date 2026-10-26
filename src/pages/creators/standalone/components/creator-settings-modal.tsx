@@ -15,16 +15,14 @@ import { ChangePasswordSchema, type ChangePasswordValues } from "@/pages/fans/se
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 // import { useOrganizerNotifications } from "@/hooks/use-profile-mutations"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { ChevronLeft, Eye, EyeOff, LogOut, X } from "lucide-react"
-import { useGetNigerianBanks } from "@/hooks/use-payments"
-import { useEffect, useState } from "react"
+import { Eye, EyeOff, LogOut, X } from "lucide-react"
+import { useState } from "react"
 // import { formatMonthDay, relativeDateGroup } from "@/lib/helper-func"
 import { useLogout } from '@/hooks/use-auth'
 import { useChangeOrganizerPassword } from '@/hooks/use-profile-mutations'
 // import type { PaginatedResponse } from "@/types/api"
-import { NigerianBanksResponse } from "@/types/payments"
 import { CreatorAccountTab } from "./creator-account-tab"
+import { CreatorPayoutTab } from "./creator-payout-tab"
 
 interface CreatorSettingsModalProps {
     open?: boolean
@@ -37,14 +35,6 @@ interface CreatorSettingsModalProps {
 export function CreatorSettingsModal({ open, onOpenChange, customTrigger }: CreatorSettingsModalProps) {
     const logoutMutation = useLogout()
     const changePasswordMutation = useChangeOrganizerPassword()
-
-    // Sub-view. Nothing opens it while the Payout tab is empty; it's kept for
-    // when payouts are built.
-    const [showBankDetails, setShowBankDetails] = useState(false)
-
-    // Bank details
-    const {mutate: fetchBanks, data: banksData } = useGetNigerianBanks()
-    const NIGERIAN_BANKS = banksData?.data as NigerianBanksResponse[] | undefined || []
 
     // Inbox
     // const [inboxFilter, setInboxFilter] = useState<'all' | 'unread'>('all')
@@ -66,6 +56,7 @@ export function CreatorSettingsModal({ open, onOpenChange, customTrigger }: Crea
     //     }))
     // }, [notificationsData, locallyRead])
 
+    // Settings
     // Not saved anywhere yet: there's no endpoint for it.
     const [emailNotifications, setEmailNotifications] = useState(true)
 
@@ -78,11 +69,6 @@ export function CreatorSettingsModal({ open, onOpenChange, customTrigger }: Crea
     const [showCurrentPw, setShowCurrentPw] = useState(false)
     const [showNewPw, setShowNewPw] = useState(false)
     const [showConfirmPw, setShowConfirmPw] = useState(false)
-
-    // The bank list, for the bank details screen.
-    useEffect(() => {
-        fetchBanks()
-    }, [fetchBanks])
 
     // const unreadCount = notifications.filter(n => !n.viewed).length
     // const visibleNotifications = inboxFilter === 'unread'
@@ -129,58 +115,6 @@ export function CreatorSettingsModal({ open, onOpenChange, customTrigger }: Crea
                     <DialogDescription>Manage your account details, payouts and settings.</DialogDescription>
                 </div>
 
-                {showBankDetails ? (
-                    /* ── BANK DETAILS sub-view ── */
-                    <div className="flex flex-col w-full h-full">
-                        <div className="flex items-center gap-3 px-5 py-4 border-b border-gray-100 shrink-0">
-                            <button
-                                type="button"
-                                onClick={() => setShowBankDetails(false)}
-                                className="text-black hover:text-black/70 transition-colors">
-                                <ChevronLeft className="w-5 h-5" />
-                            </button>
-                            <p className="text-[15px] font-medium font-sf-pro-display text-black">Bank Details</p>
-                            <DialogClose asChild>
-                                <button
-                                    type="button"
-                                    className="ml-auto h-8 w-8 bg-black/5 hover:bg-black/10 rounded-full flex items-center justify-center transition-colors">
-                                    <X className="h-4 w-4 stroke-[2.5px]" />
-                                </button>
-                            </DialogClose>
-                        </div>
-
-                        <div className="flex flex-col flex-1 overflow-y-auto px-6 py-5 gap-0">
-                            <BankDetailRow label="Payment Method" value="Bank Transfer" />
-                            <BankDetailRow label="Currency" value="Naira (₦)" />
-
-                            <p className="text-[13px] font-medium text-black font-sf-pro-display pt-5 pb-3">Account Information</p>
-
-                            <Select>
-                                <SelectTrigger className="w-full border-gray-200 text-gray-400 font-normal h-[42px] text-[13px] rounded-[6px] focus:ring-1 focus:ring-gray-400 mb-3">
-                                    <SelectValue placeholder="Bank Name" />
-                                </SelectTrigger>
-                                <SelectContent className="bg-white">
-                                    {NIGERIAN_BANKS.map(bank => (
-                                        <SelectItem key={bank.code} value={bank.code}>
-                                            {bank.name}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-
-                            <Input placeholder="Account Number" className="border-gray-200 h-[42px] text-[13px] rounded-[6px] focus-visible:ring-1 focus-visible:ring-gray-400 mb-3" />
-                            <Input placeholder="Account Name" disabled className="border-gray-200 h-[42px] text-[13px] rounded-[6px] bg-gray-50 text-gray-400 cursor-not-allowed" />
-
-                            <div className="mt-auto pt-6">
-                                <Button className="w-full bg-deep-red hover:bg-deep-red/80 text-white h-[44px] rounded-[6px] font-medium text-[14px] uppercase tracking-wide">
-                                    SAVE
-                                </Button>
-                            </div>
-                        </div>
-                    </div>
-
-                ) : (
-                    /* ── MAIN TABS view ── */
                     <Tabs defaultValue="account" className="w-full flex flex-col overflow-hidden">
                         <div className="flex justify-between items-center w-full pt-4 pb-2 shrink-0 border-b border-gray-300 px-6">
                             <TabsList className="bg-transparent gap-6 h-10 p-0 justify-start w-auto">
@@ -213,11 +147,9 @@ export function CreatorSettingsModal({ open, onOpenChange, customTrigger }: Crea
                             <CreatorAccountTab />
                         </TabsContent>
 
-                        {/* ── PAYOUT TAB: empty until payouts are built ── */}
-                        <TabsContent value="payout" className="flex flex-col items-center justify-center w-full px-6 py-16 flex-1">
-                            <p className="text-[13px] text-gray-400 font-sf-pro-display text-center">
-                                Payout details will appear here.
-                            </p>
+                        {/* ── PAYOUT TAB: its own component ── */}
+                        <TabsContent value="payout" className="flex flex-col w-full px-6 pt-6 pb-6 overflow-y-auto flex-1">
+                            <CreatorPayoutTab />
                         </TabsContent>
 
                         {/* ── INBOX TAB ── */}
@@ -387,18 +319,8 @@ export function CreatorSettingsModal({ open, onOpenChange, customTrigger }: Crea
                             </button>
                         </TabsContent>
                     </Tabs>
-                )}
             </DialogContent>
         </Dialog>
-    )
-}
-
-function BankDetailRow({ label, value }: { label: string; value: string }) {
-    return (
-        <div className="flex items-center justify-between py-3 border-b border-gray-100">
-            <p className="text-[13px] text-gray-500 font-inter-tight">{label}</p>
-            <p className="text-[13px] text-black font-inter-tight">{value}</p>
-        </div>
     )
 }
 
