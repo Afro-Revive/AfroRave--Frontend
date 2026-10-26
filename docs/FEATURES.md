@@ -13,8 +13,8 @@ Last checked against the code on the `prod` branch, October 2026.
 | | Critical (High) | Medium | Low | **Overall, weighted by priority** |
 |---|---|---|---|---|
 | **Fans** | 14 / 17 done | 10 / 11 | 1 / 4 | **82%** |
-| **Organizers** | 12 / 13 done | 20 / 24 | 4 / 17 | **77%** |
-| **Fans + Organizers** | **26 / 30 done (87%)** | 30 / 35 | 5 / 21 | **79%** |
+| **Organizers** | 12 / 13 done | 20 / 24 | 5 / 16 | **79%** |
+| **Fans + Organizers** | **26 / 30 done (87%)** | 30 / 35 | 6 / 20 | **80%** |
 | Vendors (in progress on the `vendors` branch) | 2 / 4 done | 0 / 3 | — | 33% |
 
 **How the overall % is worked out:**
@@ -23,7 +23,7 @@ Last checked against the code on the `prod` branch, October 2026.
 - If half-working ("Partial") and "Awaiting backend" features get half credit, fans and organizers reach 81%.
 - **Critical features only:** 87% are fully done, or 88% with half credit for the partly working ones.
 
-Most of the gap is Low priority: small buttons, drag handles and extra tools.
+Most of the gap is Low priority: small buttons and extra tools.
 **All the main journeys work end to end.**
 - **Fans:** discover → buy → manage tickets → resell or transfer → get paid.
 - **Organizers:** create → sell → invite → approve → track.
@@ -148,12 +148,9 @@ tables further down says where it stands today.
 | Work | Priority | What's needed |
 |---|---|---|
 | Bank details: Save | 🔴 High | Wire Save to `/api/Profile/organizer/bank-account`. |
-| Promo Codes page restyle | 🟠 Medium | Bring the layout in line with the other redesigned tabs (Your Tickets, Event Details, Guest List). |
 | Vendor pages restyle (Revenue Vendor, Service Vendor) | 🟠 Medium | Same, including the page title header with the sidebar toggle. They're the last pages still using the sidebar's own floating button. |
 | Attendee List tab | 🟠 Medium | Build it on `GET /api/Event/{eventId}/attendees`. |
 | Event guestlist: select a whole category | 🟠 Medium | Frontend only. |
-| Guest allowance card | ⚪ Low | Real numbers from `GET /api/Guestlist/allowance`. |
-| Promo code drag handle | ⚪ Low | Build it or remove it. |
 | Analytics Export | ⚪ Low | Frontend only. |
 | Door tickets | ⚪ Low | Not built yet: how fans see them, and the organizer's "Sell On Mobile App". |
 | ~~Ticket reordering~~ | ⚪ Low | **On `prod` instead**, with `PATCH /api/Event/{eventId}/tickets/reorder`. |
@@ -236,14 +233,13 @@ notifications, and a report download (see §5).
 | Account guestlist (dashboard Guestlist tab) | 🟠 Medium | ✅ Working | Categories, search, sort, 20 per page, add guest, CSV upload. |
 | Event guestlist (`/creators/guest-list`) | 🟠 Medium | 🟡 Partial | Add guests one by one or import them from your guestlist. **Selecting a whole category isn't wired.** |
 | Delete a guest, remove a guest from a category | ⚪ Low | ✅ Working | |
-| Guest allowance card ("0 / 500") | ⚪ Low | 🧪 Mock | The numbers are fixed. The API now has `GET /api/Guestlist/allowance` for them. |
+| Guest allowance card | ⚪ Low | ✅ Working | Uses live account and category limits from `GET /api/GuestList/allowance`, including the active category's usage. |
 
 ### Promo codes (`/creators/promo-codes`)
 
 | Feature | Priority | Status | Notes |
 |---|---|---|---|
-| Create, view and delete promo codes | 🟠 Medium | ✅ Working | |
-| Drag handle on each promo code | ⚪ Low | ⛔ Not working | It looks draggable, but does nothing. |
+| Create, view, edit and delete promo codes | 🟠 Medium | ✅ Working | The redesigned page shows summary cards, usage and redemption data, promo-code cards, and applied promo codes for the event. |
 
 ### Vendor management
 
@@ -307,8 +303,6 @@ pretends to. Rows run from High to Low priority.
 | Fans social links | YouTube icon | ⚪ Low | ⛔ Not linked | Goes to the home page instead of YouTube. |
 | Tickets page | Door ticket "Sell On Mobile App" | ⚪ Low | ⛔ Not working | No action. |
 | Tickets page (private event) | "Drag tickets to change the order" notice | ⚪ Low | ⛔ Not working | Reordering isn't built. |
-| Promo codes page | Drag handle on each code | ⚪ Low | ⛔ Not working | No action. |
-| Guestlist tab | Guest allowance card | ⚪ Low | 🧪 Mock | Fixed "0 / 500". |
 | Audience page | Search | ⚪ Low | ⛔ Not working | The backend has no search parameter. |
 | Analytics | Export | ⚪ Low | ⛔ Not working | No action. |
 | Organizer settings | Order notifications | ⚪ Low | ⛔ Not working | Not saved. |
@@ -348,5 +342,4 @@ Swagger list (checked October 2026), but nothing in the app calls them yet:
 - **Support messages:** `POST /api/Support`. The organizer website's Contact Us uses it (`useSendSupportMessage`); the fans support form still needs wiring to the same hook.
 - **Attendee list:** `GET /api/Event/{eventId}/attendees` (analytics variants too).
 - **Ticket order:** `PATCH /api/Event/{eventId}/tickets/reorder`. Tickets also carry `displayOrder` and `sortOrder`.
-- **Organizer guest allowance:** `GET /api/Guestlist/allowance` for the real "used / total" numbers.
 - **Invite status values:** `GET /api/InviteTicket/statuses`: Queued, Sent, Accepted, PaymentPending, Issued, Expired, Cancelled.
