@@ -159,6 +159,7 @@ first two are their own components:
 | Settings | in the modal | Change password (current, new, confirm), email notifications (one checkbox, not saved yet), log out | `ChangePasswordSchema` from `fans/settings/zod-schema.ts`, `useChangeOrganizerPassword` → `PATCH /api/profile/organizer/change-password` |
 
 - **Shared field style:** the boxed field with an inset label (`settings-inset-field.tsx`) and its input, select and dark-dropdown classes (`settings-field-classes.ts`), shared by Account and Payout.
+- **The Account tab** fills in from the saved organizer profile (name, gender, birthday via `fromDateOfBirth` in `lib/helper-func.ts`, phone, company, website, country, state) and saves the phone as `phoneNumber`. Its dropdowns use the same dark list as the bank select.
 - **The bank form** checks the account as it's typed: once a bank is chosen and the number is 10 digits, `useVerifyBankAccount` runs (debounced; a slower answer for an older number is ignored), the account name fills in, and Save is enabled. A saved account loads already confirmed.
 - **The bank list** (`useGetNigerianBanks`) is a cached query, fresh for a day. It used to be a mutation, which isn't cached, so the select came back empty after its tab remounted.
 - **The Inbox tab** is commented out for now, along with its notification code.

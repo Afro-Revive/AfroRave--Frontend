@@ -39,7 +39,7 @@ For what the app can do today, see [docs/FEATURES.md](docs/FEATURES.md).
 - **Rich text descriptions** for events and tickets: headings, bold, italic, underline, strikethrough, code, links, lists, quotes, code blocks and dividers. Fans see them sanitized.
 - **Create event header:** a Dashboard link, and **Save As Drafts**, which creates the event if it isn't yet and goes to the dashboard.
 - **Organizer settings** now has **Account**, **Payout** and **Settings** tabs:
-  - **Account:** user information, personal details (gender, birthday, country, state, phone) and business details, in the fans account page's field style.
+  - **Account:** user information, personal details (gender, birthday, country, state, phone) and business details, in the fans account page's field style, filled in from your saved profile.
   - **Payout:** total revenue, a bank account that's checked with the bank before it saves, an early payout of an amount you choose, and payout history.
   - **Settings:** change password with a confirmation (on the organizer endpoint), email notifications as one checkbox, and log out.
 - **Creators website redesign** (`/home`, `/about-us`, `/contact-us`):

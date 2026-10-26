@@ -13,14 +13,14 @@ Last checked against the code on the `prod` branch, October 2026.
 | | Critical (High) | Medium | Low | **Overall, weighted by priority** |
 |---|---|---|---|---|
 | **Fans** | 14 / 17 done | 10 / 11 | 1 / 4 | **82%** |
-| **Organizers** | 13 / 13 done | 22 / 27 | 4 / 16 | **80%** |
-| **Fans + Organizers** | **27 / 30 done (90%)** | 32 / 38 | 5 / 20 | **81%** |
+| **Organizers** | 13 / 13 done | 23 / 27 | 4 / 16 | **82%** |
+| **Fans + Organizers** | **27 / 30 done (90%)** | 33 / 38 | 5 / 20 | **82%** |
 | Vendors (in progress on the `vendors` branch) | 2 / 4 done | 0 / 3 | — | 33% |
 
 **How the overall % is worked out:**
 - A High feature counts 3 times as much as a Low one, and a Medium one twice as much.
 - Only fully working features score.
-- If half-working ("Partial") and "Awaiting backend" features get half credit, fans and organizers reach 83%.
+- If half-working ("Partial") and "Awaiting backend" features get half credit, fans and organizers reach 84%.
 - **Critical features only:** 90% are fully done, or 92% with half credit for the partly working ones.
 
 Most of the gap is Low priority: small buttons and extra tools.
@@ -223,7 +223,7 @@ Three tabs: **Account**, **Payout** and **Settings**.
 | Payout: total revenue | 🟠 Medium | ✅ Working | From `GET /api/Profile/organizer/wallet`. Until a bank account is saved, it says to add one for auto payouts. |
 | Payout: early payout | 🟠 Medium | ✅ Working | "Request an early payout" pays out an amount the organizer chooses, up to what's available, to the saved account (`POST /api/Profile/organizer/wallet/withdraw`). |
 | Payout: history | 🟠 Medium | ✅ Working | Paged, newest first, with status (`GET /api/Profile/organizer/payout-history`). |
-| Account: user information, personal details, business details | 🟠 Medium | 🟡 Partial | Laid out like the fans account page: name, email (read-only), gender, birthday, country, state, phone, company and website. `PATCH /api/Profile/organizer` now exists, but the phone is sent as `telphone`, which the endpoint doesn't take, and gender and birthday aren't filled in from the saved profile yet. |
+| Account: user information, personal details, business details | 🟠 Medium | ✅ Working | Laid out like the fans account page: name, email (read-only), gender, birthday, country, state, phone, company and website, all filled in from the saved organizer profile and saved with `PATCH /api/Profile/organizer`. |
 | Settings: change password, log out | 🟠 Medium | ✅ Working | Current, new and confirm new password, checked by the same schema as the fans page, on `PATCH /api/profile/organizer/change-password`. |
 | Delete Account | 🟠 Medium | ⛔ Not working | Not in the modal any more; the backend has no endpoint for an organizer to delete their own account. App stores require it. |
 | Inbox: notifications, mark as read | ⚪ Low | ⛔ Not working | The Inbox tab is switched off (commented out) for now. |
