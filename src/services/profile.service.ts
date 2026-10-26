@@ -1,4 +1,6 @@
 import type {
+  BankDetailsRequest,
+  BankDetailsResponse,
   NotificationResponse,
   OrganizerProfileResponse,
   PayoutHistoryResponse,
@@ -128,6 +130,31 @@ class ProfileService {
     const response = await api.get('/api/profile/user/payout-history')
     return response.data
   }
+
+  /**
+   * Save Organizer Payout Bank Account`
+   */
+  async savePayout(data: BankDetailsRequest): Promise<void> {
+    const response = await api.post('/api/profile/organizer/bank-account', data)
+    return response.data
+  }
+
+  /**
+   * Get Organizer Payout Bank Account
+   */
+  async getPayout(): Promise<BankDetailsResponse> {
+    const response = await api.get('/api/profile/organizer/bank-account')
+    return response.data
+  }
+
+  /**
+   * Update Organizer Payout Bank Account
+   */
+  async updatePayout(data: BankDetailsRequest): Promise<void> {
+    const response = await api.put('/api/profile/organizer/bank-account', data)
+    return response.data
+  }
+   
 }
 // Export service instance
 export const profileService = new ProfileService()

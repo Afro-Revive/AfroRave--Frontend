@@ -162,6 +162,14 @@ export interface NotificationData {
   createdDate: string
 }
 
+export interface BankDetailsRequest{
+  bankName: string
+  bankCode: string
+  accountNumber: string
+  accountName: string
+}
+
+export type BankDetailsResponse = ApiResponse<BankDetailsRequest>
 // ApiResponse already wraps the payload (and may paginate it) — the element type
 // goes in, not an array of them.
 export type NotificationResponse = ApiResponse<NotificationData>
