@@ -87,6 +87,10 @@ class ProfileService {
     telphone: string
     gender: string
     website: string
+    /** YYYY-MM-DD, as the user profile takes it. */
+    dateOfBirth: string
+    country: string
+    state: string
   }>): Promise<OrganizerProfileResponse> {
     const response = await api.patch('/api/profile/organizer', data)
     return response.data

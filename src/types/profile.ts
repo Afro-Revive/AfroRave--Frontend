@@ -121,6 +121,8 @@ export interface OrganizerProfileData {
   businessCategory: string
   services: string
   location: string
+  state?: string | null
+  country?: string | null
   createdDate: string
 }
 
