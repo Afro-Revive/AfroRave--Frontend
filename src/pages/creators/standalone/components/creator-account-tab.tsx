@@ -1,5 +1,6 @@
 import { date_list } from "@/components/constants";
 import { BaseSelect } from "@/components/reusable/base-select";
+import { fromDateOfBirth } from "@/lib/helper-func";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -14,7 +15,13 @@ import { useAfroStore } from "@/stores";
 import type { OrganizerProfileData } from "@/types/profile";
 import { useEffect, useState } from "react";
 import { InsetField } from "./settings-inset-field";
-import { INSET_INPUT_CLASS, INSET_SELECT_CLASS } from "./settings-field-classes";
+import {
+  DARK_SELECT_CONTENT_CLASS,
+  DARK_SELECT_ITEM_CLASS,
+  INSET_INPUT_CLASS,
+  INSET_SELECT_CLASS,
+  SELECT_OPEN_STEADY_CLASS,
+} from "./settings-field-classes";
 
 /**
  * The organizer settings modal's Account tab: user information, personal
@@ -47,8 +54,22 @@ export function CreatorAccountTab() {
   useEffect(() => {
     const profile = profileData?.data as OrganizerProfileData | undefined;
     if (!profile) return;
-    if (profile.businessName) setCompanyName(profile.businessName);
-    if (profile.contactPhone) setPhone(splitPhone(profile.contactPhone));
+    if (profile.firstName) setFirstName(profile.firstName);
+    if (profile.lastName) setLastName(profile.lastName);
+    // The select's options are lower case ("female").
+    if (profile.gender) setGender(profile.gender.toLowerCase());
+    const birthday = fromDateOfBirth(
+      profile.dateOfBirth || profile.birthday || profile.dob,
+    );
+    if (birthday) setBirthday(birthday);
+    const savedPhone =
+      profile.phoneNumber ||
+      profile.telephone ||
+      profile.contactPhone ||
+      profile.telphone;
+    if (savedPhone) setPhone(splitPhone(savedPhone));
+    if (profile.businessName || profile.companyName)
+      setCompanyName(profile.businessName || profile.companyName);
     if (profile.website) setWebsite(profile.website);
     if (profile.country) setCountry(profile.country);
     if (profile.state) setState(profile.state);
@@ -64,7 +85,7 @@ export function CreatorAccountTab() {
       dateOfBirth: toDateOfBirth(birthday),
       country: country || undefined,
       state: state || undefined,
-      telphone: phone.digits ? `${phone.countryCode}${phone.digits}` : "",
+      phoneNumber: phone.digits ? `${phone.countryCode}${phone.digits}` : "",
       companyName,
       website,
     });
@@ -95,7 +116,9 @@ export function CreatorAccountTab() {
         </InsetField>
       </div>
 
-      <h3 className="text-base text-black font-bold font-inter mt-6 mb-3">User Information</h3>
+      <h3 className="text-base text-black font-bold font-inter mt-6 mb-3">
+        User Information
+      </h3>
       <div className="w-full flex flex-col gap-3">
         <InsetField label="First Name">
           <Input
@@ -131,7 +154,8 @@ export function CreatorAccountTab() {
             value={gender}
             onChange={setGender}
             items={GENDERS}
-            triggerClassName={INSET_SELECT_CLASS}
+            triggerClassName={`${INSET_SELECT_CLASS} ${SELECT_OPEN_STEADY_CLASS}`}
+            {...DARK_SELECT_LIST}
           />
         </InsetField>
 
@@ -149,7 +173,8 @@ export function CreatorAccountTab() {
               value={birthday.month}
               onChange={(month) => setBirthday((prev) => ({ ...prev, month }))}
               items={date_list.items}
-              triggerClassName={INSET_SELECT_CLASS}
+              triggerClassName={`${INSET_SELECT_CLASS} ${SELECT_OPEN_STEADY_CLASS}`}
+              {...DARK_SELECT_LIST}
             />
           </InsetField>
           <InsetField label="Day">
@@ -159,7 +184,8 @@ export function CreatorAccountTab() {
               value={birthday.day}
               onChange={(day) => setBirthday((prev) => ({ ...prev, day }))}
               items={DAYS}
-              triggerClassName={INSET_SELECT_CLASS}
+              triggerClassName={`${INSET_SELECT_CLASS} ${SELECT_OPEN_STEADY_CLASS}`}
+              {...DARK_SELECT_LIST}
             />
           </InsetField>
           <InsetField label="Year">
@@ -169,7 +195,8 @@ export function CreatorAccountTab() {
               value={birthday.year}
               onChange={(year) => setBirthday((prev) => ({ ...prev, year }))}
               items={YEARS}
-              triggerClassName={INSET_SELECT_CLASS}
+              triggerClassName={`${INSET_SELECT_CLASS} ${SELECT_OPEN_STEADY_CLASS}`}
+              {...DARK_SELECT_LIST}
             />
           </InsetField>
         </div>
@@ -185,7 +212,8 @@ export function CreatorAccountTab() {
                 setCountry(value);
               }}
               items={COUNTRIES}
-              triggerClassName={INSET_SELECT_CLASS}
+              triggerClassName={`${INSET_SELECT_CLASS} ${SELECT_OPEN_STEADY_CLASS}`}
+              {...DARK_SELECT_LIST}
             />
           </InsetField>
 
@@ -196,7 +224,8 @@ export function CreatorAccountTab() {
                 value={state}
                 onChange={setState}
                 items={nigerianStates}
-                triggerClassName={INSET_SELECT_CLASS}
+                triggerClassName={`${INSET_SELECT_CLASS} ${SELECT_OPEN_STEADY_CLASS}`}
+                {...DARK_SELECT_LIST}
               />
             ) : (
               <Input
@@ -217,7 +246,8 @@ export function CreatorAccountTab() {
                 setPhone((prev) => ({ ...prev, countryCode }))
               }
               items={africanCountryCodes}
-              triggerClassName={`${INSET_SELECT_CLASS} !pt-0 !items-center`}
+              triggerClassName={`${INSET_SELECT_CLASS} ${SELECT_OPEN_STEADY_CLASS} !pt-0 !items-center`}
+              {...DARK_SELECT_LIST}
             />
           </div>
           <InsetField label="Phone Number">
@@ -243,7 +273,6 @@ export function CreatorAccountTab() {
     </div>
   );
 }
-
 
 /**
  * "+2348012345678" → { "+234", "8012345678" }. The same split the fans page
@@ -272,6 +301,13 @@ function toDateOfBirth({
   if (monthIndex < 0) return undefined;
   return `${year}-${String(monthIndex + 1).padStart(2, "0")}-${day.padStart(2, "0")}`;
 }
+
+// The payout tab's bank list style: a dark grey list that reads on this white
+// modal, where BaseSelect's default see-through list doesn't.
+const DARK_SELECT_LIST = {
+  contentClassName: DARK_SELECT_CONTENT_CLASS,
+  itemClassName: DARK_SELECT_ITEM_CLASS,
+};
 
 const GENDERS = [
   { value: "male", label: "Male" },

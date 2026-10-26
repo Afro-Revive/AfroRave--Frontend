@@ -87,10 +87,11 @@ class ProfileService {
     firstName: string
     lastName: string
     companyName: string
-    telphone: string
+    /** The endpoint also takes telephone / phone / contactPhone; this one is enough. */
+    phoneNumber: string
     gender: string
     website: string
-    /** YYYY-MM-DD, as the user profile takes it. */
+    /** YYYY-MM-DD. */
     dateOfBirth: string
     country: string
     state: string
