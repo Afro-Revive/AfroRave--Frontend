@@ -7,16 +7,21 @@ import {
     DialogDescription,
     DialogTrigger,
 } from "@/components/ui/dialog"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { FormBase, FormField } from "@/components/reusable/base-form"
+import { ChangePasswordSchema, type ChangePasswordValues } from "@/pages/fans/settings/zod-schema"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useForm } from "react-hook-form"
 // import { useOrganizerNotifications } from "@/hooks/use-profile-mutations"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ChevronLeft, Eye, EyeOff, LogOut, X } from "lucide-react"
 import { useGetNigerianBanks } from "@/hooks/use-payments"
 import { useEffect, useState } from "react"
 // import { formatMonthDay, relativeDateGroup } from "@/lib/helper-func"
-import { useLogout, useChangePassword } from '@/hooks/use-auth'
-import { formToasts } from '@/lib/toast'
+import { useLogout } from '@/hooks/use-auth'
+import { useChangeOrganizerPassword } from '@/hooks/use-profile-mutations'
 // import type { PaginatedResponse } from "@/types/api"
 import { NigerianBanksResponse } from "@/types/payments"
 import { CreatorAccountTab } from "./creator-account-tab"
@@ -31,7 +36,7 @@ interface CreatorSettingsModalProps {
 
 export function CreatorSettingsModal({ open, onOpenChange, customTrigger }: CreatorSettingsModalProps) {
     const logoutMutation = useLogout()
-    const changePasswordMutation = useChangePassword()
+    const changePasswordMutation = useChangeOrganizerPassword()
 
     // Sub-view. Nothing opens it while the Payout tab is empty; it's kept for
     // when payouts are built.
@@ -61,14 +66,18 @@ export function CreatorSettingsModal({ open, onOpenChange, customTrigger }: Crea
     //     }))
     // }, [notificationsData, locallyRead])
 
-    // Settings
-    const [orderNotification, setOrderNotification] = useState<'daily' | 'weekly' | 'disabled'>('disabled')
+    // Not saved anywhere yet: there's no endpoint for it.
+    const [emailNotifications, setEmailNotifications] = useState(true)
 
-    // Change password form state (Settings tab)
-    const [currentPassword, setCurrentPassword] = useState("")
-    const [newPassword, setNewPassword] = useState("")
+    // Change password (Settings tab): the same schema as the fans settings page.
+    const passwordForm = useForm<ChangePasswordValues>({
+        resolver: zodResolver(ChangePasswordSchema),
+        defaultValues: { currentPassword: "", newPassword: "", confirmPassword: "" },
+    })
+    // Show/hide is display only, so it stays plain state.
     const [showCurrentPw, setShowCurrentPw] = useState(false)
     const [showNewPw, setShowNewPw] = useState(false)
+    const [showConfirmPw, setShowConfirmPw] = useState(false)
 
     // The bank list, for the bank details screen.
     useEffect(() => {
@@ -93,20 +102,14 @@ export function CreatorSettingsModal({ open, onOpenChange, customTrigger }: Crea
         logoutMutation.mutate()
     }
 
-    const handleChangePasswordSubmit = () => {
-        if (!currentPassword || !newPassword) return
-        if (newPassword.length < 8) {
-            formToasts.weakPassword()
-            return
-        }
+    const handleChangePassword = (values: ChangePasswordValues) => {
         changePasswordMutation.mutate(
-            { currentPassword, newPassword },
             {
-                onSuccess: () => {
-                    setCurrentPassword("")
-                    setNewPassword("")
-                },
-            }
+                currentPassword: values.currentPassword,
+                newPassword: values.newPassword,
+                confirmNewPassword: values.confirmPassword,
+            },
+            { onSuccess: () => passwordForm.reset() },
         )
     }
 
@@ -306,53 +309,70 @@ export function CreatorSettingsModal({ open, onOpenChange, customTrigger }: Crea
                             <div className="w-full flex flex-col gap-3 pb-5 border-b border-gray-100">
                                 <p className="text-[13px] text-black font-sf-pro-display">Change Password</p>
 
-                                <PasswordInput
-                                    placeholder="Current Password"
-                                    value={currentPassword}
-                                    onChange={setCurrentPassword}
-                                    isVisible={showCurrentPw}
-                                    onToggleVisible={() => setShowCurrentPw(!showCurrentPw)}
-                                />
-                                <PasswordInput
-                                    placeholder="New Password"
-                                    value={newPassword}
-                                    onChange={setNewPassword}
-                                    isVisible={showNewPw}
-                                    onToggleVisible={() => setShowNewPw(!showNewPw)}
-                                />
+                                <FormBase
+                                    form={passwordForm}
+                                    onSubmit={handleChangePassword}
+                                    className="w-full flex flex-col gap-3">
+                                    <FormField form={passwordForm} name="currentPassword" className="w-full">
+                                        {(field) => (
+                                            <PasswordInput
+                                                placeholder="Current Password"
+                                                value={field.value as string}
+                                                onChange={field.onChange}
+                                                isVisible={showCurrentPw}
+                                                onToggleVisible={() => setShowCurrentPw(!showCurrentPw)}
+                                            />
+                                        )}
+                                    </FormField>
+                                    <FormField form={passwordForm} name="newPassword" className="w-full">
+                                        {(field) => (
+                                            <PasswordInput
+                                                placeholder="New Password"
+                                                value={field.value as string}
+                                                onChange={field.onChange}
+                                                isVisible={showNewPw}
+                                                onToggleVisible={() => setShowNewPw(!showNewPw)}
+                                            />
+                                        )}
+                                    </FormField>
+                                    <FormField form={passwordForm} name="confirmPassword" className="w-full">
+                                        {(field) => (
+                                            <PasswordInput
+                                                placeholder="Confirm New Password"
+                                                value={field.value as string}
+                                                onChange={field.onChange}
+                                                isVisible={showConfirmPw}
+                                                onToggleVisible={() => setShowConfirmPw(!showConfirmPw)}
+                                            />
+                                        )}
+                                    </FormField>
 
-                                <Button
-                                    onClick={handleChangePasswordSubmit}
-                                    disabled={changePasswordMutation.isPending || !currentPassword || !newPassword}
-                                    className="w-full bg-deep-red hover:bg-deep-red/80 text-white h-[44px] rounded-[6px] font-medium text-[14px] uppercase tracking-wide disabled:opacity-50">
-                                    {changePasswordMutation.isPending ? 'SAVING...' : 'CHANGE PASSWORD'}
-                                </Button>
+                                    <Button
+                                        type="submit"
+                                        disabled={changePasswordMutation.isPending}
+                                        className="w-full bg-black hover:bg-black/80 font-inter-tight text-white h-[44px] rounded-[6px] font-semibold text-sm tracking-wide disabled:opacity-50">
+                                        {changePasswordMutation.isPending ? 'Saving...' : 'Update Password'}
+                                    </Button>
+                                </FormBase>
                             </div>
 
-                            {/* Email Notifications */}
-                            <div className="w-full py-5 border-b border-gray-100">
-                                <p className="text-[13px] text-black font-sf-pro-display mb-3">Email Notifications</p>
-                                <div className="flex flex-col gap-3">
-                                    {[
-                                        { value: 'daily', label: 'receive daily order summary' },
-                                        { value: 'weekly', label: 'receive weekly order summary' },
-                                        { value: 'disabled', label: 'disable all order notifications' },
-                                    ].map(opt => (
-                                        <button
-                                            key={opt.value}
-                                            type="button"
-                                            onClick={() => setOrderNotification(opt.value as typeof orderNotification)}
-                                            className="flex items-center gap-3 text-left">
-                                            <div className="w-4 h-4 rounded-full border border-gray-300 flex items-center justify-center shrink-0">
-                                                {orderNotification === opt.value && (
-                                                    <div className="w-2 h-2 rounded-full bg-deep-red" />
-                                                )}
-                                            </div>
-                                            <span className="text-[13px] text-gray-700 font-sf-pro-display">{opt.label}</span>
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
+                            {/* Email Notifications: one on/off, the whole row toggles it. */}
+                            <label
+                                htmlFor="email-notifications"
+                                className="w-full flex items-start justify-between gap-4 py-5 border-b border-gray-100 cursor-pointer">
+                                <span className="flex flex-col gap-1">
+                                    <span className="text-[13px] text-gray-600 font-inter-tight">Email Notifications</span>
+                                    <span className="text-[13px] text-gray-500 font-inter-tight">
+                                        Receive Updates About Your Tickets And Trending Events
+                                    </span>
+                                </span>
+                                <Checkbox
+                                    id="email-notifications"
+                                    checked={emailNotifications}
+                                    onCheckedChange={(checked) => setEmailNotifications(checked === true)}
+                                    className="mt-0.5 data-[state=checked]:bg-deep-red data-[state=checked]:border-deep-red"
+                                />
+                            </label>
 
                             {/* Log Out */}
                             <button
@@ -399,7 +419,9 @@ function PasswordInput({
     onToggleVisible: () => void
 }) {
     return (
-        <div className="relative">
+        // w-full: FormField lines its field up with items-start, which would
+        // otherwise shrink the box to its content.
+        <div className="relative w-full">
             <Input
                 type={isVisible ? "text" : "password"}
                 placeholder={placeholder}

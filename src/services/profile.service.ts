@@ -124,6 +124,14 @@ class ProfileService {
   }
 
   /**
+   * Change Organizer Password
+   */
+  async changeOrganizerPassword(data: { currentPassword: string; newPassword: string; confirmNewPassword: string }): Promise<void> {
+    const response = await api.patch('/api/profile/organizer/change-password', data)
+    return response.data
+  }
+
+  /**
    * Get User Payout History
    */
   async getPayoutHistory(): Promise<PayoutHistoryResponse> {

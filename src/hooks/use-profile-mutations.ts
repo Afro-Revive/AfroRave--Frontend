@@ -1,3 +1,4 @@
+import { apiErrorMessage } from '@/lib/api-error'
 import { profileService } from '@/services/profile.service'
 import type { UpdateUserProfileRequest, WithdrawFundsRequest } from '@/types'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -122,6 +123,23 @@ export function useUpdateOrganizerProfile() {
   })
 }
 
+
+/**
+ * Changes an organizer's password, on the organizer endpoint.
+ */
+export function useChangeOrganizerPassword() {
+  return useMutation({
+    mutationFn: (data: { currentPassword: string; newPassword: string; confirmNewPassword: string }) =>
+      profileService.changeOrganizerPassword(data),
+    onSuccess: () => {
+      toast.success('Password changed successfully!')
+    },
+    onError: (error) => {
+      // The server says why: a wrong current password, most often.
+      toast.error(apiErrorMessage(error, 'Failed to change password. Please try again.'))
+    },
+  })
+}
 
 export function useChangePassword() {
   const queryClient = useQueryClient()
