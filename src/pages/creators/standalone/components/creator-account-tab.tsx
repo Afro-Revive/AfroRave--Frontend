@@ -13,6 +13,8 @@ import {
 import { useAfroStore } from "@/stores";
 import type { OrganizerProfileData } from "@/types/profile";
 import { useEffect, useState } from "react";
+import { InsetField } from "./settings-inset-field";
+import { INSET_INPUT_CLASS, INSET_SELECT_CLASS } from "./settings-field-classes";
 
 /**
  * The organizer settings modal's Account tab: user information, personal
@@ -242,30 +244,6 @@ export function CreatorAccountTab() {
   );
 }
 
-/** A field box with its label inset at the top, as on the fans account page. */
-function InsetField({
-  label,
-  muted = false,
-  children,
-}: {
-  label: string;
-  /** For a read-only field: the label goes grey to match. */
-  muted?: boolean;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="relative w-full">
-      <label
-        className={`absolute left-4 top-[10px] z-10 pointer-events-none text-[10px] font-sf-pro-display uppercase tracking-widest ${
-          muted ? "text-[#ACACAC]" : "text-mid-dark-gray"
-        }`}
-      >
-        {label}
-      </label>
-      {children}
-    </div>
-  );
-}
 
 /**
  * "+2348012345678" → { "+234", "8012345678" }. The same split the fans page
@@ -294,14 +272,6 @@ function toDateOfBirth({
   if (monthIndex < 0) return undefined;
   return `${year}-${String(monthIndex + 1).padStart(2, "0")}-${day.padStart(2, "0")}`;
 }
-
-// The fans account page's field style (src/pages/fans/account/tabs/profile-tab.tsx):
-// a 64px box with its label inset at the top. Dark text and grey borders here,
-// since this modal is white where the fans page is dark.
-const INSET_INPUT_CLASS =
-  "w-full h-[64px] rounded-[8px] border border-[#D9D9D9] bg-transparent px-4 pt-6 text-black text-sm font-sf-pro-display placeholder:text-black/30 focus:border-black/40 focus-visible:ring-0 focus-visible:ring-offset-0 transition-all tracking-wider";
-const INSET_SELECT_CLASS =
-  "w-full !h-[64px] rounded-[8px] border border-[#D9D9D9] bg-transparent px-4 pt-6 text-black text-sm font-sf-pro-display focus:border-black/40 focus:ring-0 focus:ring-offset-0 transition-all tracking-wider";
 
 const GENDERS = [
   { value: "male", label: "Male" },
