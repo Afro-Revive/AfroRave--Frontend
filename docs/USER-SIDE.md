@@ -349,7 +349,7 @@ refreshes that event's tickets, promo codes and analytics.
 | `use-cart.ts` | `useCreateCart`, `useUpdateCartQuantity`, `useDeleteCart`, `useClearCart`, `useSyncCartToServer`, `useCheckoutCart`, `useProcessCheckout`, `useValidatePromocode`, `useExtendReservation` |
 | `use-tickets-mutations.ts` | `useTicketResale`, `useGetUsersResaleTickets`, `useEditResaleListingPrice`, `useCancelResaleListing`, `useTransferTickets`, `useVerifyTransferRecipient` |
 | `use-profile-mutations.ts` | `useUserProfile`, `useUpdateUserProfile`, `useUserActiveTickets`, `useUserPastTickets`, `useWalletDetails`, `useWithdrawFunds`, `usePayoutHistory`, `useChangePassword` |
-| `use-payments.ts` | `useGetNigerianBanks`, `useVerifyBankAccount` |
+| `use-payments.ts` | `useGetNigerianBanks` (a cached query, fresh for a day, so the withdraw modal's bank list doesn't come back empty; `enabled` waits until the modal opens), `useVerifyBankAccount` |
 | `use-order-mutations.ts` | `useOrderReceiptDetails` |
 | `use-private-event-mutations.ts` | `useGetViewerAccessStatus`, `useRequestAccess` |
 | `use-newsletter.ts` | `useNewsletterSubscription` |

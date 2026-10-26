@@ -38,6 +38,10 @@ For what the app can do today, see [docs/FEATURES.md](docs/FEATURES.md).
   - Ticket menus can edit a ticket and send invites.
 - **Rich text descriptions** for events and tickets: headings, bold, italic, underline, strikethrough, code, links, lists, quotes, code blocks and dividers. Fans see them sanitized.
 - **Create event header:** a Dashboard link, and **Save As Drafts**, which creates the event if it isn't yet and goes to the dashboard.
+- **Organizer settings** now has **Account**, **Payout** and **Settings** tabs:
+  - **Account:** user information, personal details (gender, birthday, country, state, phone) and business details, in the fans account page's field style.
+  - **Payout:** total revenue, a bank account that's checked with the bank before it saves, an early payout of an amount you choose, and payout history.
+  - **Settings:** change password with a confirmation (on the organizer endpoint), email notifications as one checkbox, and log out.
 - **Creators website redesign** (`/home`, `/about-us`, `/contact-us`):
   - A new header whose menu is a slide-out sidebar, like the fans one: Organizer and Vendor log ins, Home, About Us, Contact Us, and the app.
   - A new footer with the AFROREVIVE wordmark across the page.
@@ -95,6 +99,8 @@ For what the app can do today, see [docs/FEATURES.md](docs/FEATURES.md).
 - **Saved ticket cards showed the price with fees**, not the price the organizer set.
 - **The Event Details page crashed** when the rich text editor was replaced under it.
 - **Editing an event didn't refresh the events dashboard** or the public event page, and a new draft could be missing from the dashboard.
+- **The avatar menu stopped opening** after it was closed, or after Settings was opened from it.
+- **Bank lists came back empty** after a while, in the organizer payout tab and the fans withdraw modal: the list wasn't cached. It's now kept for a day.
 - Mobile layouts for the dashboard tabs, price fields and ticket cards.
 
 ---
