@@ -113,16 +113,38 @@ export type VendorProfileResponse = ApiResponse<VendorProfileData>
 // Organizer Profile Data for GET /api/Profile/organizer
 export interface OrganizerProfileData {
   organizerId: string
+  userId: string
+  firstName: string
+  lastName: string
+  companyName: string
+  telphone: string
+  gender: string
   businessName: string
   description: string
   contactEmail: string
+  email: string
   contactPhone: string
+  phoneNumber: string
+  telephone: string
+  dateOfBirth: string
+  birthday: string
+  dob: string
   website: string
   businessCategory: string
   services: string
   location: string
   state?: string | null
   country?: string | null
+  bankName?: string | null
+  bankCode?: string | null
+  accountNumber?: string | null
+  accountName?: string | null
+  balance: number
+  walletBalance: number
+  amountInWallet: number
+  totalRevenue: number
+  accountType: string
+  userType: string
   createdDate: string
 }
 
