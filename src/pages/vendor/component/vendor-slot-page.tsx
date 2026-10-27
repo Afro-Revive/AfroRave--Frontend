@@ -127,7 +127,11 @@ export function VendorSlotPage({
               slot={slot}
               applications={applications}
             />
-            <VendorApplicationsList applications={applications} />
+            <VendorApplicationsList
+              applications={applications}
+              type={type}
+              slotId={slotId}
+            />
           </>
         ) : (
           // The whole form, open on the page like create, filled in to edit.

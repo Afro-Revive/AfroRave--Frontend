@@ -12,8 +12,12 @@ import {
 /** A slot's applications: filter pills with counts, a search and the rows. */
 export function VendorApplicationsList({
   applications,
+  type,
+  slotId,
 }: {
   applications: VendorSlotApplication[];
+  type: "Revenue" | "Service";
+  slotId: string;
 }) {
   const [filter, setFilter] = useState<ApplicationFilter>("all");
   const [search, setSearch] = useState("");
@@ -75,7 +79,12 @@ export function VendorApplicationsList({
 
       {visible.length > 0 ? (
         visible.map((application) => (
-          <IndividualVendorItem key={application.id} application={application} />
+          <IndividualVendorItem
+            key={application.id}
+            application={application}
+            type={type}
+            slotId={slotId}
+          />
         ))
       ) : (
         <div className="flex flex-col items-center gap-1 px-5 py-12 border-t border-black/10 text-center font-inter-tight">
