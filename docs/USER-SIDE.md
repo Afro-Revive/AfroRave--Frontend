@@ -53,6 +53,7 @@ src/
 │   ├── fans/                  Logged-in fan pages
 │   │   ├── account/           /fans/account — profile and wallet tabs
 │   │   ├── my-tickets/        Active/past tickets, ticket detail, resell, transfer
+│   │   ├── accept-invite/     /fans/invite/accept — where an invite email's link lands
 │   │   ├── listed-tickets/    Tickets the fan is reselling
 │   │   ├── settings/          Change password, log out
 │   │   └── complete-profile/  /complete-profile — reached from an email link
@@ -93,6 +94,7 @@ URL by hand. It calls `getRoutePath('key', params)` from
 | `/fans/my-tickets` | `fans/my-tickets` | user dashboard | Yes |
 | `/fans/my-tickets/:eventId` | `fans/my-tickets/individual-active-tickets` | user dashboard | Yes |
 | `/fans/listed-tickets` | `fans/listed-tickets` | user dashboard | Yes |
+| `/fans/invite/accept?token=…` | `fans/accept-invite` | root | No (it opens the login itself) |
 | `/fans/events/:eventId/cart` | `landing-page/event-page/cart` | none (full screen) | No |
 | `/fans/events/:eventId/checkout` | `landing-page/checkout` | none (full screen) | No (it shows the login form) |
 | `/fans/payment-confirmation` | `landing-page/payment-confirmation` | none | No |
@@ -159,8 +161,16 @@ log in.
 | Option | What it does |
 |---|---|
 | `withVideo: true` | Shows the video panel. Used by the fans header login. |
-| `notice: '…'` | Turns the modal full screen with a green bar across the top. The private-event card uses this. |
+| `notice: '…'` | Turns the modal full screen with a green bar across the top of the login form. The private-event card and the invite page use this. |
+| `signupNotice: '…'` | The same bar for the sign-up form, when it needs different wording. The invite page uses it to say only the invited email can accept. |
 | `stayOnPage: true` | After login the user stays where they were, instead of going to their dashboard. |
+
+Opening or switching forms only changes `?login=` / `?signup=`. The page's other
+query params stay, so a page that needs its query (an invite's `?token=`) still
+has it after logging in.
+
+`useLogout({ stayOnPage: true })` logs out without leaving the page. The invite
+page uses it when someone is signed in with the wrong email.
 
 **The session:**
 - The logged-in user and tokens live in `useAfroStore` (`src/stores/index.ts`), saved to `localStorage` under `afro-store-v1`.
@@ -288,6 +298,41 @@ shape (`PurchasableTicket`), so the ticket list and cart can treat both alike.
 | `tickets-resale/modals/ticket-resale.tsx` | Resell: choose tickets, then set prices (`useTicketResale`). |
 | `tickets-transfer/index.tsx` | Transfer: choose tickets, then enter recipients. Each recipient is verified first (`useTransferTickets`). |
 
+**Tickets that can't be resold or transferred.** `resaleBlockedReason()` and
+`transferBlockedReason()` (`lib/helper-func.ts`) say why, or return nothing
+when a ticket is allowed:
+
+| Ticket | Resell | Transfer |
+|---|---|---|
+| Invite-only (`accessType: 'Invite'`) | No | No |
+| Group (`isGroupTicket()`) | No | Yes |
+
+- **In the modals,** a blocked ticket is faded, can't be picked, and shows the reason.
+- **With only one ticket for the event,** a blocked ticket turns the Resell or Transfer button off, with the reason as its tooltip. With more than one, the buttons stay on and the modals do the blocking.
+- **An ended event** turns both buttons off.
+
+### Accepting an invite (`fans/accept-invite`)
+
+An organizer's invite email links to `/fans/invite/accept?token=…`. The route
+sits with the public pages because it needs the login modal, and it checks the
+user itself:
+
+1. **No token:** "This invite link is incomplete".
+2. **Signed out:** the login opens over the invite (`notice`, `signupNotice`, `stayOnPage`), so the guest lands back here with the token.
+3. **The invite** comes from `useGetInviteTicketByToken`. Expired or cancelled invites, and errors, show a message.
+4. **Wrong account:** signed in with an email other than the invited one, the guest sees Email Mismatch. "Log out and continue" uses `useLogout({ stayOnPage: true })`, so the login reopens here.
+5. **The invite:** "You're invited to {event}" with the event card. **Accept Ticket** calls `useAcceptInviteTicket`:
+   - `requiresPayment: false` (free): the ticket is issued, and the guest sees You're In.
+   - `requiresPayment: true` (paid): the Pay step. **Pay ₦…** goes to the Paystack `authorizationUrl`. The invite's status is now `PaymentPending`, so a reload comes back to Pay.
+6. **Back from Paystack** (`?reference=`): the payment webhook issues the ticket, so the invite read on arrival usually says `Issued`, and the guest sees You're In. If it doesn't yet, the page calls `useVerifyInviteTicketPayment` once as a backup, showing "Confirming your payment" until it answers:
+   - `Issued`: You're In. The reference is removed from the URL, so a refresh doesn't verify again.
+   - Anything else: back to Pay, with the server's reason and a **Check again** button that verifies again.
+
+You're In links to the ticket in My Tickets and to the app for the QR code.
+
+Invite statuses: `Queued`, `Sent`, `Accepted`, `PaymentPending`, `Issued`,
+`Expired`, `Cancelled`.
+
 ### Listed tickets (`fans/listed-tickets`)
 
 Active, sold and expired listings (`useGetUsersResaleTickets`).
@@ -353,7 +398,7 @@ refreshes that event's tickets, promo codes and analytics.
 | `use-order-mutations.ts` | `useOrderReceiptDetails` |
 | `use-private-event-mutations.ts` | `useGetViewerAccessStatus`, `useRequestAccess` |
 | `use-newsletter.ts` | `useNewsletterSubscription` |
-| `use-invite-ticket-mutations.ts` | `useGetInviteTicketByToken`, `useAcceptInviteTicket`. Ready, but no page uses them yet. |
+| `use-invite-ticket-mutations.ts` | `useGetInviteTicketByToken`, `useAcceptInviteTicket`, `useVerifyInviteTicketPayment` |
 
 ---
 

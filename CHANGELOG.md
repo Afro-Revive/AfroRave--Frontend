@@ -70,6 +70,11 @@ For what the app can do today, see [docs/FEATURES.md](docs/FEATURES.md).
   - **Request access** sends a request. Fans then see "pending" until they're approved, and approved fans see the tickets.
   - Signed-out fans are taken to login, with a green "Log in to request access" bar.
 - **Invite-only tickets** on the event page show a padlock instead of + and − buttons.
+- **Accept an invite** (`/fans/invite/accept?token=…`), where the invite email's link lands:
+  - Signed-out guests get the login, with a green bar on login and on sign-up saying only the invited email can accept.
+  - Signed in with another email, an **Email Mismatch** screen offers to log out and continue.
+  - Free invites go straight to **You're In** on Accept. Paid ones go Accept → Pay (Paystack) → You're In.
+  - Back from Paystack, the payment webhook issues the ticket. If it hasn't yet, the page verifies the payment itself, and offers **Check again** if that fails.
 
 ### Changed
 - **Edit event** is now a single Event Details page. Its Tickets, Theme and Settings tabs became separate pages or were removed.
@@ -81,6 +86,7 @@ For what the app can do today, see [docs/FEATURES.md](docs/FEATURES.md).
   - Ticket sales **start immediately** by default.
   - **Ticket resale is on by default.** Untick it to turn it off. Invite-only and group tickets never allow it.
 - **Publishing** refreshes the dashboard list straight away.
+- **My Tickets:** invite-only tickets can't be resold or transferred, and group tickets can't be resold. They're faded in the Resell and Transfer lists, and when one is the event's only ticket, its button is off.
 - **Sign-up** no longer redirects. The form stays open and clears itself.
 - **Complete profile** (`/complete-profile`) works without being logged in. It reads the account from `/api/Auth/me?token=…`, so the email link works on any device.
 - **Prices:** amounts with kobo always show two decimals (`₦8,013.60`). Whole amounts stay as they were (`₦7,420`).
