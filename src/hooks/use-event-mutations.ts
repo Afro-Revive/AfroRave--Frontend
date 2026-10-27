@@ -252,11 +252,14 @@ export function useUpdateVendor() {
   return useMutation({
     mutationFn: ({ vendorId, data }: { vendorId: string; data: CreateVendorRequest }) =>
       eventService.updateVendor(vendorId, data),
-    onSuccess: () => {
+    onSuccess: (_, { vendorId, data }) => {
       toast.success('Vendor updated successfully!')
       console.log('Vendor updated successfully')
       // Invalidate and refetch vendors list
       queryClient.invalidateQueries({ queryKey: eventKeys.lists() })
+      // The slot's own page and the sidebar's slot list show what was edited.
+      queryClient.invalidateQueries({ queryKey: eventKeys.vendorSlotById(vendorId) })
+      queryClient.invalidateQueries({ queryKey: eventKeys.vendorSlots(data.eventId) })
     },
     onError: (error) => {
       console.error('Failed to update vendor:', error)

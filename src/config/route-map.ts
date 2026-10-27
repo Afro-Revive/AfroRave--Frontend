@@ -60,8 +60,10 @@ export const ROUTE_PATHS = {
   revenue_vendor: '/creators/revenue-vendor',
   creator_not_found: '/creators/*',
   revenue_vendor_slot: '/creators/revenue-vendor/:slotId',
+  revenue_vendor_application: '/creators/revenue-vendor/:slotId/applications/:applicationId',
   service_vendor: '/creators/service-vendor',
   service_vendor_slot: '/creators/service-vendor/:slotId',
+  service_vendor_application: '/creators/service-vendor/:slotId/applications/:applicationId',
   individual_service_vendor: '/creators/service-vendor/:serviceId',
   seating_maps: '/creators/seating-maps',
 
@@ -155,6 +157,8 @@ export interface RouteParams {
   individual_service_vendor: { serviceId: string | number }
   revenue_vendor_slot: { slotId: string | number }
   service_vendor_slot: { slotId: string | number }
+  revenue_vendor_application: { slotId: string | number; applicationId: string | number }
+  service_vendor_application: { slotId: string | number; applicationId: string | number }
   vendor_not_found: never
   vendor_profile: never
   vendor_discover: never
