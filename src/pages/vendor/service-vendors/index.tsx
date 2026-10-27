@@ -1,11 +1,11 @@
-import { VendorItem } from "../component/vendor-item";
-import { AddFilterBUtton } from "@/pages/creators/standalone/components/add-filter-btn";
-import { ExportButton } from "../component/export-btn";
-import EventSelect from "@/components/shared/vendor-select";
+import { SidebarToggle } from "@/components/shared/sidebar-toggle";
 import { useVendorSlotsByType } from "@/hooks/use-vendor-mutation";
 import { useEventSelectorStore } from "@/stores";
 import CreateVendorSlot from "../component/create-vendor-slot-modal";
-import { formatShortDate, stripUnderscores } from "@/lib/helper-func";
+import {
+  VENDOR_HOW_IT_WORKS,
+  VendorHowItWorks,
+} from "../component/vendor-how-it-works";
 
 export default function ServiceVendorPage() {
   const { selectedEventId } = useEventSelectorStore();
@@ -14,50 +14,26 @@ export default function ServiceVendorPage() {
 
   return (
     <section className="w-full h-full flex flex-col items-center">
-      <div className="w-full flex flex-wrap items-center justify-between bg-white h-36 md:h-14 px-8 border-l border-light-gray">
-        <AddFilterBUtton />
+      <div className="w-full bg-white flex items-start gap-4 px-5 py-6">
+        <SidebarToggle />
 
-        <div className="flex items-center gap-2 md:gap-8">
-          <ExportButton />
-          <EventSelect />
-          <CreateVendorSlot type="Service" />
+        <div className="flex flex-col gap-1">
+          <p className="font-inter-tight text-2xl font-bold text-black">
+            Service Vendors
+          </p>
+          <p className="font-inter-tight text-sm text-black">
+            Post offers for the professional services your event needs and
+            review vendor applications.
+          </p>
         </div>
       </div>
 
-      <div className="w-full h-full flex flex-col pt-10 pb-14 px-5">
-        <div className="w-full h-full bg-white flex flex-col gap-2.5 rounded-[4px]">
-          {serviceSlots.length > 0 ? (
-            <div className="w-full h-full flex flex-col">
-              {serviceSlots.map((slot) => (
-                <VendorItem
-                  key={slot.vendorId}
-                  id={slot.vendorId}
-                  name={slot.vendorName}
-                  category={stripUnderscores(slot.category)}
-                  date={formatShortDate(
-                    slot.vendorDetails.serviceData?.applicationDeadline ?? "",
-                  )}
-                  // Backend doesn't return a slot status yet — replace when it does.
-                  status="Active"
-                  type="service"
-                />
-              ))}
-            </div>
-          ) : (
-            <div className="w-full h-full flex flex-col justify-center items-center gap-3">
-              <img
-                src="/public/assets/event/document.svg"
-                alt="Empty State"
-                className="w-12 h-12"
-              />
-              <p className="text-light-red text-xl font-sf-pro-display">
-                No Offers Created
-              </p>
-              <p className="text-soft-gray text-base font-sf-pro-display">
-                Create your first offer to start receiving applications
-              </p>
-            </div>
-          )}
+      {/* On the page background as on Event Details; the offers list stays a white card. */}
+      <div className="w-full flex flex-col gap-6 px-5 py-6 md:py-8">
+        <VendorHowItWorks {...VENDOR_HOW_IT_WORKS.Service} />
+        {/* The create form is open by default. */}
+        <div className="w-full">
+          <CreateVendorSlot type="Service" inline />
         </div>
       </div>
     </section>
