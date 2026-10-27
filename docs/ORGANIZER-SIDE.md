@@ -53,7 +53,7 @@ src/
 │   ├── revenue-vendor/        /creators/revenue-vendor (+ /:slotId)
 │   ├── service-vendors/       /creators/service-vendor (+ /:serviceId)
 │   ├── seating-maps/          /creators/seating-maps ("Coming Soon")
-│   └── component/             the slot form, the stall page, vendor profile modal
+│   └── component/             the slot form, the stall page, the applicant page
 ├── layouts/
 │   ├── creator-dashboard-layout/   header, sidebar, selected-event card
 │   └── creators-landing-page-layout/   the creators website: the new header, sidebar and
@@ -319,7 +319,7 @@ tab with `?tab=`:
 | `component/vendor-applications-list.tsx` | The applications, with status filter pills, search and `IndividualVendorItem` rows. |
 | `component/vendor-application-status.ts` | How each API status reads: `Pending` → Requested, `Acquired` (accepted, waiting on payment) → Pending, `Secured`, `Rejected`. |
 | `component/vendor-how-it-works.tsx` | The tinted note, and each type's copy (`VENDOR_HOW_IT_WORKS`), shared by the list and stall pages. |
-| `component/vendor-profile-modal.tsx` | Review an applicant, then accept or reject. |
+| `component/vendor-application-page.tsx` | One applicant's page (`/:slotId/applications/:applicationId` under each vendor route): contact links, about, gallery, and Accept / Reject while it's still a request. There's no single-application endpoint, so it's found in the slot's application list. |
 
 `useVendorSlotsByType(eventId)` fetches the slots once and splits them into
 revenue and service. The sidebar uses it to list slots under each vendor type.

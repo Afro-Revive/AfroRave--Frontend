@@ -146,6 +146,7 @@ tables further down says where it stands today.
 
 | Work | Priority | What's needed |
 |---|---|---|
+| End-to-end test the organizer vendor tabs | 🟠 Medium | **Once the `vendors` branch is done.** Run the whole flow with real vendors: create a stall and an offer, vendors apply, review each applicant's page, accept and reject, pause and resume, and the secured counts and net profit. Expect some edits. |
 | Attendee List tab | 🟠 Medium | Build it on `GET /api/Event/{eventId}/attendees`. |
 | Event guestlist: select a whole category | 🟠 Medium | Frontend only. |
 | Analytics Export | ⚪ Low | Frontend only. |
