@@ -13,8 +13,8 @@ Last checked against the code on the `prod` branch, October 2026.
 | | Critical (High) | Medium | Low | **Overall, weighted by priority** |
 |---|---|---|---|---|
 | **Fans** | 14 / 17 done | 10 / 11 | 1 / 4 | **82%** |
-| **Organizers** | 13 / 13 done | 23 / 27 | 4 / 16 | **82%** |
-| **Fans + Organizers** | **27 / 30 done (90%)** | 33 / 38 | 5 / 20 | **82%** |
+| **Organizers** | 13 / 13 done | 23 / 27 | 5 / 16 | **83%** |
+| **Fans + Organizers** | **27 / 30 done (90%)** | 33 / 38 | 6 / 20 | **82%** |
 | Vendors (in progress on the `vendors` branch) | 2 / 4 done | 0 / 3 | — | 33% |
 
 **How the overall % is worked out:**
@@ -146,7 +146,6 @@ tables further down says where it stands today.
 
 | Work | Priority | What's needed |
 |---|---|---|
-| Vendor pages restyle (Revenue Vendor, Service Vendor) | 🟠 Medium | Same, including the page title header with the sidebar toggle. They're the last pages still using the sidebar's own floating button. |
 | Attendee List tab | 🟠 Medium | Build it on `GET /api/Event/{eventId}/attendees`. |
 | Event guestlist: select a whole category | 🟠 Medium | Frontend only. |
 | Analytics Export | ⚪ Low | Frontend only. |
@@ -154,7 +153,7 @@ tables further down says where it stands today.
 | ~~Ticket reordering~~ | ⚪ Low | **On `prod` instead**, with `PATCH /api/Event/{eventId}/tickets/reorder`. |
 
 Still waiting on the backend, so not planned yet: Delete Account, Audience
-search and approved fans' orders, pausing a vendor slot, saving email
+search and approved fans' orders, saving email
 notifications, and a report download (see §5).
 
 ### Creating and editing events
@@ -248,12 +247,12 @@ Three tabs: **Account**, **Payout** and **Settings**.
 
 | Feature | Priority | Status | Notes |
 |---|---|---|---|
-| Create revenue slots (stalls) and service offers | 🟠 Medium | ✅ Working | |
-| Edit a slot | 🟠 Medium | ✅ Working | |
-| Slot pages listing applicants | 🟠 Medium | ✅ Working | |
+| Create revenue slots (stalls) and service offers | 🟠 Medium | ✅ Working | The Revenue Vendor and Service Vendor pages open with a how-it-works note and the form already open. The description is rich text, and the application deadline has a date and a time. After creating, the organizer lands on the new stall's page. |
+| Edit a slot | 🟠 Medium | ✅ Working | On the stall's page, the Stall Details tab (Offer Details for services) opens the same form, filled in. |
+| Slot pages listing applicants | 🟠 Medium | ✅ Working | Redesigned in October 2026: the how-it-works note, how long until applications close, a summary (net profit or budget, secured vendors, requests), and the applications list with status filters and search. |
 | Accept or reject a vendor application | 🟠 Medium | ✅ Working | |
 | Access Control (`/creators/access-control`) | 🟠 Medium | 🧪 Mock | Sample staff list. Its Download, event picker, Add Code and filter buttons do nothing. |
-| Pause a slot | ⚪ Low | ⛔ Not working | The button switches on screen only. Nothing is saved, because there is no endpoint yet. |
+| Pause a slot | ⚪ Low | ✅ Working | Pause / Resume Application in the stall page's header. |
 | Seating Maps (`/creators/seating-maps`) | ⚪ Low | 🚧 Coming soon | |
 | Season events (`/creators/season`) | — | Dropped | Season events were dropped. The page is still routed but not linked. Not counted. |
 
@@ -307,7 +306,6 @@ pretends to. Rows run from High to Low priority.
 | Audience page | Search | ⚪ Low | ⛔ Not working | The backend has no search parameter. |
 | Analytics | Export | ⚪ Low | ⛔ Not working | No action. |
 | Organizer settings | Email notifications checkbox | ⚪ Low | ⛔ Not working | Not saved. |
-| Vendor slot modal | Pause / resume slot | ⚪ Low | ⛔ Not working | Changes on screen only. |
 | Sidebar → Tools | Seating Maps | ⚪ Low | 🚧 Coming soon | |
 
 Vendor dashboard buttons (on the `vendors` branch, rechecked after merge):
@@ -333,7 +331,7 @@ or changes:
 - **Price filter (to confirm):** `minPrice` and `maxPrice` seem to compare ticket prices *before* the booking fee, while fans see prices with it. With `minPrice=50000`, a ticket shown as ₦51,410 (₦48,500 + fee) is left out. Confirm which price the filter should use.
 - **Access requests:** the list endpoint needs a `search` parameter, and order details for approved fans.
 - **Private event status for signed-out fans:** `isApplicationPaused` and `isApplicationEnded` on the public event, so they can be told before logging in.
-- **Vendor slot pause:** a status endpoint.
+- **New vendor slot's id:** creating a slot returns an id in a different format from the one the slot's own endpoint takes, so the app finds the new slot in the refreshed list to open its page. Returning the slot's `vendorId` would remove that step.
 - **Organizer account deletion:** the API only has an admin delete (`DELETE /api/Admin/users/{userId}`), nothing an organizer can call on their own account.
 
 **Now in the API, waiting on the frontend.** These endpoints are in the API's

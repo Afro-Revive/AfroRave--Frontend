@@ -53,7 +53,7 @@ src/
 │   ├── revenue-vendor/        /creators/revenue-vendor (+ /:slotId)
 │   ├── service-vendors/       /creators/service-vendor (+ /:serviceId)
 │   ├── seating-maps/          /creators/seating-maps ("Coming Soon")
-│   └── component/             create/edit slot modals, vendor profile modal
+│   └── component/             the slot form, the stall page, vendor profile modal
 ├── layouts/
 │   ├── creator-dashboard-layout/   header, sidebar, selected-event card
 │   └── creators-landing-page-layout/   the creators website: the new header, sidebar and
@@ -143,7 +143,7 @@ CreatorDashboardLayout
 
 - The sidebar is built on `components/reusable/base-sidebar.tsx`.
 - **It stays put.** With `sticky`, it fills the screen below the header (`--dashboard-header-height`) and stays still while the page scrolls. It doesn't scroll itself, so the Your Events footer is always in view.
-- **Collapsing** (desktop only) is done by `SidebarToggle` (`components/shared/sidebar-toggle.tsx`), which sits beside each page's title: Event Details, Your Tickets, Analytics, Guest List, Audience and Promo Codes. A page without one (the vendor pages, for now) still needs a way back, so the sidebar shows its own floating button only when `useSidebarToggleCount` says no toggle is on screen.
+- **Collapsing** (desktop only) is done by `SidebarToggle` (`components/shared/sidebar-toggle.tsx`), which sits beside each page's title: Event Details, Your Tickets, Analytics, Guest List, Audience, Promo Codes and the vendor pages. A page without one still needs a way back, so the sidebar shows its own floating button only when `useSidebarToggleCount` says no toggle is on screen.
 - On mobile it's a full-screen overlay opened from the header's menu button.
 - The Audience link only appears when the open event is private (`toVisibility(event.accessType) === 'private'`).
 
@@ -311,14 +311,23 @@ tab with `?tab=`:
 
 | File | What it does |
 |---|---|
-| `revenue-vendor/` | Revenue slots ("stalls") for the selected event; `/:slotId` lists that slot's applicants. |
-| `service-vendors/` | Service offers, laid out the same way. |
-| `component/create-vendor-slot-modal.tsx` | Create a slot or offer. |
-| `component/edit-vendor-slot-form-modal.tsx` | Edit one. |
+| `revenue-vendor/` | Revenue slots ("stalls") for the selected event: the how-it-works note and the create form, open on the page. `/:slotId` is that stall's page. |
+| `service-vendors/` | Service offers, laid out the same way. `/:serviceId` is that offer's page. |
+| `component/create-vendor-slot-modal.tsx` | The slot form, for both types. `inline` puts it on the page instead of behind a button and modal; `slot` opens it filled in and saves through update instead of create. |
+| `component/vendor-schema.ts` | The form's schema, its blank values (`EMPTY_VENDOR_FORM`), `slotToFormValues` for editing, and `deadlineToApi`, which turns the deadline's day and time into one UTC timestamp (11:59 PM if no time is picked). |
+| `component/vendor-slot-page.tsx` | One stall's or offer's page, used by both routes. The header has Pause / Resume Application and Create. The vendors tab shows the note, the deadline bar, `VendorSlotSummary` and `VendorApplicationsList`; the details tab is the slot form, inline and filled in. |
+| `component/vendor-applications-list.tsx` | The applications, with status filter pills, search and `IndividualVendorItem` rows. |
+| `component/vendor-application-status.ts` | How each API status reads: `Pending` → Requested, `Acquired` (accepted, waiting on payment) → Pending, `Secured`, `Rejected`. |
+| `component/vendor-how-it-works.tsx` | The tinted note, and each type's copy (`VENDOR_HOW_IT_WORKS`), shared by the list and stall pages. |
 | `component/vendor-profile-modal.tsx` | Review an applicant, then accept or reject. |
 
 `useVendorSlotsByType(eventId)` fetches the slots once and splits them into
 revenue and service. The sidebar uses it to list slots under each vendor type.
+
+After creating, the form opens the new stall's page. The create response's id
+isn't one `GET /api/Event/vendor/{id}` accepts, so for now the form refetches
+the event's slots and picks the new one: the one of this type that wasn't there
+before, preferring the name just typed.
 
 ---
 
@@ -350,11 +359,11 @@ CreatorsLandingPageLayout
 
 | File | Hooks |
 |---|---|
-| `use-event-mutations.ts` | `useCreateEvent`, `useUpdateEvent`, `usePublishEvent`, `useDeleteEvent`, `useGetEvent`, `useGetOrganizerEvents`, `useCreateTicket`, `useUpdateTicket`, `useDeleteTicket`, `useGetEventTickets`, `useCreatePromoCode`, `useDeletePromoCode`, `useGetEventPromoCodes`, `useGetEventAnalytics`, `useCreateVendor` |
+| `use-event-mutations.ts` | `useCreateEvent`, `useUpdateEvent`, `usePublishEvent`, `useDeleteEvent`, `useGetEvent`, `useGetOrganizerEvents`, `useCreateTicket`, `useUpdateTicket`, `useDeleteTicket`, `useGetEventTickets`, `useCreatePromoCode`, `useDeletePromoCode`, `useGetEventPromoCodes`, `useGetEventAnalytics`, `useCreateVendor`, `useUpdateVendor` |
 | `use-guestlist-mutations.ts` | `useGetOrganizerGuestList`, `useGetOrganizerCategories`, `useAddGuest`, `useDeleteGuest`, `useAddCategory`, `useRemoveGuestFromCategory`, `useBulkUploadGuests`, `useDownloadCSVTemplate`, `useGetEventGuestListConfig`, `useGetEventCheckinList`, `useAddGuestToEvent`, `useConfigureEventGuestList` |
 | `use-invite-ticket-mutations.ts` | `useGetTicketInvites`, `useSendTicketInvites`, `useGetEventOrders`, `useGetInviteOnlyTicketAudience`, `useUpdateInviteEmail` |
 | `use-private-event-mutations.ts` | `useGetAccessRequests`, `useBatchUpdateAccessRequests`, `useUpdateApplicationStatus`, `useUpdateApplicationDeadline`, `useEndApplication`, `useGetViewerAccessStatus` |
-| `use-vendor-mutation.ts` | `useVendorSlotsByType`, `useGetAllVendorSlots`, `useGetVendorSlotById`, `useVendorApplicationsByType`, `useAcceptVendorApplication`, `useRejectVendorApplication` |
+| `use-vendor-mutation.ts` | `useVendorSlotsByType`, `useGetAllVendorSlots`, `useGetVendorSlotById`, `useVendorApplicationsByType`, `useVendorApplicationsSlotsByType`, `useAcceptVendorApplication`, `useRejectVendorApplication`, `useToggleVendorApplications` (pause / resume) |
 | `use-profile-mutations.ts` | `useOrganizerProfile`, `useUpdateOrganizerProfile`, `useOrganizerNotifications`, `useMarkNotificationAsRead`, `useChangeOrganizerPassword`, `useOrganizerWallet`, `useOrganizerBankAccount`, `useSaveOrganizerBankAccount`, `useOrganizerPayoutHistory`, `useOrganizerEarlyPayout` |
 | `use-payments.ts` | `useGetNigerianBanks` (cached query), `useVerifyBankAccount` |
 | `use-support-mutations.ts` | `useSendSupportMessage` (the creators website's Contact Us) |

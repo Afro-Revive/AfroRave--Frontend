@@ -63,6 +63,7 @@ For what the app can do today, see [docs/FEATURES.md](docs/FEATURES.md).
   - Overview, Audience Insights, Vendors, Orders and Promo Codes, using reusable bar, line and pie charts built on `recharts`.
   - Opened from the sidebar's Analytics group, with Orders, Attendee List and Promo Codes in a Tickets accordion. The page has no tab list of its own.
   - Also linked from event cards and the tickets summary.
+- **Pause and resume a vendor stall's applications** from its page (`useToggleVendorApplications`). The button used to change on screen only.
 
 ### Added — fans
 - **Private event card:** shown instead of the tickets on a private event.
@@ -83,6 +84,11 @@ For what the app can do today, see [docs/FEATURES.md](docs/FEATURES.md).
 - **Sign-up** no longer redirects. The form stays open and clears itself.
 - **Complete profile** (`/complete-profile`) works without being logged in. It reads the account from `/api/Auth/me?token=…`, so the email link works on any device.
 - **Prices:** amounts with kobo always show two decimals (`₦8,013.60`). Whole amounts stay as they were (`₦7,420`).
+- **Vendor pages** (Revenue Vendor, Service Vendor):
+  - Both list pages have the titled header with the sidebar toggle, a how-it-works note, and the create form open on the page instead of behind a button.
+  - Each stall or offer has a redesigned page: Pause / Resume Application and Create in the header, a **Revenue Vendors** tab (the note, how long until applications close, a summary of net profit or budget, secured vendors and requests, and the applications with status filters and search) and a **Stall Details** tab that opens the full form, filled in, to edit it.
+  - The form uses the rich text editor for the description and the date-time picker for the application deadline, which is sent as one timestamp (11:59 PM if no time is picked). Category sits beside the stall count or service name, "slot" became "stall", and an 8% fee note shows under the stall price.
+  - After creating a stall, the organizer lands on its page.
 - **One API address:** set by `VITE_API_URL`. Staging is `dev.afrorevive.com`; production is `api.afrorevive.com`. The test logins built into the login form were removed.
 
 ### Removed
@@ -90,6 +96,7 @@ For what the app can do today, see [docs/FEATURES.md](docs/FEATURES.md).
 - The promo code step of create event, with the code only it used (its form, cards, helpers and the apply-promo popover).
 - The analytics page's own tab list. The sidebar replaces it.
 - The Charts page and the Reports link. Analytics replaces both.
+- The vendor list pages' filter, event picker and export bar, and the separate edit form and slot details modal. Create and edit share one form now.
 
 ### Fixed
 - **Ticket resale was never saved.** The ticket form always sent "no resale", whatever the organizer chose.
@@ -101,6 +108,8 @@ For what the app can do today, see [docs/FEATURES.md](docs/FEATURES.md).
 - **Editing an event didn't refresh the events dashboard** or the public event page, and a new draft could be missing from the dashboard.
 - **The avatar menu stopped opening** after it was closed, or after Settings was opened from it.
 - **Bank lists came back empty** after a while, in the organizer payout tab and the fans withdraw modal: the list wasn't cached. It's now kept for a day.
+- **The date-time picker didn't work inside modals.** The modal treated its popup as outside and blocked its clicks and inputs; it now renders inside the modal.
+- **Editing a vendor stall didn't refresh its page** or the sidebar's stall list.
 - Mobile layouts for the dashboard tabs, price fields and ticket cards.
 
 ---
