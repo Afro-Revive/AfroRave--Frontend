@@ -342,7 +342,7 @@ export interface VendorSlotData {
   slotName: string | null
   slotNumber: number | null
   price: number | null
-  applicationDeadline: Date | null
+  applicationDeadline: string | null
 }
 
 export interface VendorServiceData {
@@ -354,7 +354,7 @@ export interface VendorServiceData {
   stopTime: string | null
   startDate: string | null
   endDate: string | null
-  applicationDeadline: Date | null
+  applicationDeadline: string | null
 }
 
 export interface VendorContact {
