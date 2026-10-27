@@ -13,31 +13,30 @@ Last checked against the code on the `prod` branch, October 2026.
 | | Critical (High) | Medium | Low | **Overall, weighted by priority** |
 |---|---|---|---|---|
 | **Fans** | 15 / 17 done | 10 / 11 | 1 / 4 | **86%** |
-| **Organizers** | 12 / 13 done | 17 / 22 | 3 / 18 | **72%** |
-| **Fans + Organizers** | **27 / 30 done (90%)** | 27 / 33 | 4 / 22 | **78%** |
+| **Organizers** | 13 / 13 done | 23 / 27 | 5 / 16 | **83%** |
+| **Fans + Organizers** | **28 / 30 done (93%)** | 33 / 38 | 6 / 20 | **84%** |
 | Vendors (in progress on the `vendors` branch) | 2 / 4 done | 0 / 3 | — | 33% |
 
 **How the overall % is worked out:**
 - A High feature counts 3 times as much as a Low one, and a Medium one twice as much.
 - Only fully working features score.
-- If half-working ("Partial") and "Awaiting backend" features get half credit, fans and organizers reach 81%.
-- **Critical features only:** 90% are fully done, or 92% with half credit for the partly working ones.
+- If half-working ("Partial") and "Awaiting backend" features get half credit, fans and organizers reach 86%.
+- **Critical features only:** 93% are fully done, or 95% with half credit for the partly working ones.
 
-Most of the gap is Low priority: small buttons, drag handles and extra tools.
+Most of the gap is Low priority: small buttons and extra tools.
 **All the main journeys work end to end.**
 - **Fans:** discover → buy → manage tickets → resell or transfer → get paid.
 - **Organizers:** create → sell → invite → approve → track.
 
 ### Critical features still to do
 
-Only **3 critical features** are left on the fan and organizer sides. Ranked by
+Only **2 critical features** are left on the fan and organizer sides. Ranked by
 how much they block launch:
 
 | # | Feature | Area | Status | What's needed |
 |---|---|---|---|---|
 | 1 | Privacy Policy, Refund Policy, Terms and Conditions | Fans | 🚧 Coming soon | **Content.** Needed before taking real payments: payment providers and app stores ask for them. |
-| 2 | Organizer bank details (Settings → Save) | Organizers | ⛔ Not working | **Backend, then frontend.** The Save button has no action, so organizers can't set where their money goes. The API can list banks and check an account number, but has no endpoint to save an organizer's payout account yet. |
-| 3 | QR code for entry | Fans | 🟡 Partial | **Mobile app.** The QR is in the mobile app; the web app's app store links point nowhere until the apps are published. |
+| 2 | QR code for entry | Fans | 🟡 Partial | **Mobile app.** The QR is in the mobile app; the web app's app store links point nowhere until the apps are published. |
 
 Vendors have 2 more on the `vendors` branch: **Register For Slot** and
 **slot checkout**.
@@ -122,7 +121,7 @@ Within each table, rows run from High to Low priority.
 | Profile | 🟠 Medium | ✅ Working | Name, gender, state, country, date of birth. |
 | Wallet: payout history | 🟠 Medium | ✅ Working | |
 | Settings: change password, log out | 🟠 Medium | ✅ Working | |
-| Support contact form (`/fans/support`) | 🟠 Medium | ⛔ Not working | Shows "Thanks — we will get back to you", but **the message is not sent anywhere**. There is no support endpoint yet. |
+| Support contact form (`/fans/support`) | 🟠 Medium | ⛔ Not working | Shows "Thanks — we will get back to you", but **the message is not sent anywhere**. The API now has `POST /api/Support`, and the organizer website's Contact Us already sends to it with `useSendSupportMessage`. |
 
 ### Information pages
 
@@ -138,17 +137,37 @@ Within each table, rows run from High to Low priority.
 
 ## 2. Organizers
 
+### Left to do (`organizer-fixes` branch)
+
+Everything below is planned for the `organizer-fixes` branch, except **ticket
+reordering**, which will be built on the latest `prod`. Each item's row in the
+tables further down says where it stands today.
+
+| Work | Priority | What's needed |
+|---|---|---|
+| End-to-end test the organizer vendor tabs | 🟠 Medium | **Once the `vendors` branch is done.** Run the whole flow with real vendors: create a stall and an offer, vendors apply, review each applicant's page, accept and reject, pause and resume, and the secured counts and net profit. Expect some edits. |
+| Attendee List tab | 🟠 Medium | Build it on `GET /api/Event/{eventId}/attendees`. |
+| Event guestlist: select a whole category | 🟠 Medium | Frontend only. |
+| Analytics Export | ⚪ Low | Frontend only. |
+| Door tickets | ⚪ Low | Not built yet: how fans see them, and the organizer's "Sell On Mobile App". |
+| ~~Ticket reordering~~ | ⚪ Low | **On `prod` instead**, with `PATCH /api/Event/{eventId}/tickets/reorder`. |
+
+Still waiting on the backend, so not planned yet: Delete Account, Audience
+search and approved fans' orders, saving email
+notifications, and a report download (see §5).
+
 ### Creating and editing events
 
 | Feature | Priority | Status | Notes |
 |---|---|---|---|
-| Create event: details → tickets → promo codes → publish | 🔴 High | ✅ Working | |
+| Create event: details → tickets → publish | 🔴 High | ✅ Working | Promo codes are no longer a step; they're made on the Promo Codes page. The website URL is optional and the refund terms field is hidden. If creating fails, the server's reason is shown. |
 | Ticket types | 🔴 High | ✅ Working | Single, group or multi-day. Paid, free or invite-only. Sold online or at the door. |
-| Publish | 🔴 High | ✅ Working | The dashboard updates straight away. |
-| Edit event details, poster and visibility | 🔴 High | ✅ Working | A private event can be made public, but a public event can never be made private. |
+| Publish | 🔴 High | ✅ Working | The Publish step previews the event: flyer card, description, contact details and its tickets. The dashboard updates straight away. |
+| Edit event details, poster and visibility | 🔴 High | ✅ Working | A private event can be made public, but a public event can never be made private. Saving refreshes the events dashboard and the public event page straight away. |
+| Rich text descriptions (event and tickets) | 🟠 Medium | ✅ Working | Headings, bold, italic, underline, strikethrough, code, links, lists, quotes, code blocks and dividers. Fans see them cleaned of anything unsafe. |
+| Save As Drafts and Dashboard (create-event header) | 🟠 Medium | ✅ Working | On Event Info, Save As Drafts creates the event (same checks as Continue), then goes to the dashboard. After that, everything is already saved as it goes, so it just goes to the dashboard. Dashboard goes back without saving the form that's open. |
 | Sales start immediately or at a set date | 🟠 Medium | ✅ Working | Starts immediately by default. |
 | Ticket resale | 🟠 Medium | ✅ Working | On by default. Organizers can untick it. Always off for invite-only and group tickets. |
-| Edit the event name from the Publish summary | ⚪ Low | ⛔ Not working | The pencil icon next to the name does nothing. |
 
 ### Events dashboard (`/creators/events`)
 
@@ -157,22 +176,22 @@ Within each table, rows run from High to Low priority.
 | Event cards with status and visibility tags | 🔴 High | ✅ Working | Status: draft, upcoming, ongoing, sold out, ended. Visibility: public or private. |
 | Filter by status, and pagination | 🟠 Medium | ✅ Working | |
 | Card buttons: Manage / Edit Draft, Analytics, Tickets | 🟠 Medium | ✅ Working | Each one selects that event and opens its page. |
-| Sidebar event card | 🟠 Medium | ✅ Working | Shows the selected event, with Copy Link and View Event. |
+| Sidebar event card | 🟠 Medium | ✅ Working | Shows the selected event, with Copy Link and View Event. The sidebar stays put at screen height while the page scrolls, and its collapse button sits beside each page's title. |
 | "Report" on an ended event | ⚪ Low | 🟡 Partial | Opens Analytics. A real report download doesn't exist yet. |
-| First-time guide | ⚪ Low | 🟡 Partial | Step 3 still talks about "Theme & Media", which was removed from event creation. |
+| First-time guide | ⚪ Low | ✅ Working | Three steps, matching create event: Event Details (with the poster), Add Tickets, Publish. |
 
 ### Tickets (`/creators/tickets`)
 
 | Feature | Priority | Status | Notes |
 |---|---|---|---|
-| Ticket list with All / Invite-Only / Door filters | 🔴 High | ✅ Working | |
+| Ticket list with All / Invite-Only / Door filters | 🔴 High | ✅ Working | The Add Tickets format picker sits above the list. Cards show the price before fees, sold and available counts, and a group ticket's size on its icon. |
 | Edit and delete a ticket | 🔴 High | ✅ Working | |
 | Orders table | 🔴 High | ✅ Working | |
 | Invite-only: send invites | 🔴 High | ✅ Working | Pick guests from your guestlist, or add a new guest, who is saved to the guestlist too. |
-| Summary: net sales and tickets issued | 🟠 Medium | ✅ Working | Real numbers from analytics. View Analytics opens the analytics page. |
+| Summary: net sales and tickets issued | 🟠 Medium | ✅ Working | The same numbers as the event's card on the dashboard: net profit, and tickets sold out of the total. Below the ticket list. View Analytics opens the analytics page. |
 | Invite-only: invites sent, with status | 🟠 Medium | ✅ Working | |
 | Door tickets: "Sell On Mobile App" | ⚪ Low | ⛔ Not working | The button does nothing. Door sales happen in the mobile app. |
-| "Drag tickets to change the order fans view them" | ⚪ Low | ⛔ Not working | The notice on the page says this, but **ticket reordering isn't built**. |
+| "Drag tickets to change the order fans view them" | ⚪ Low | ⛔ Not working | The notice on the page says this, but **ticket reordering isn't built**. The API now has `PATCH /api/Event/{eventId}/tickets/reorder` for it. |
 
 ### Audience — private events only (`/creators/audience/:eventId`)
 
@@ -188,21 +207,26 @@ Within each table, rows run from High to Low priority.
 
 | Feature | Priority | Status | Notes |
 |---|---|---|---|
-| Overview, Vendors, Orders, Promo Codes, Insights tabs | 🔴 High | ✅ Working | Real data from the analytics endpoint. |
-| Attendee List tab | 🟠 Medium | 🚧 Coming soon | Needs an endpoint that returns individual attendees. |
+| Overview, Audience Insights, Vendors, Orders, Promo Codes | 🔴 High | ✅ Working | Real data from the analytics endpoint. Opened from the sidebar's ANALYTICS group, where Orders, Attendee List and Promo Codes sit in a Tickets accordion. |
+| Attendee List tab | 🟠 Medium | 🚧 Coming soon | The API now has `GET /api/Event/{eventId}/attendees`; the tab isn't built yet. |
 | Export button | ⚪ Low | ⛔ Not working | Does nothing. |
 | Reports (`/creators/reports`) | ⚪ Low | 🚧 Coming soon | No longer linked from anywhere. |
 
-### Organizer settings (gear menu → Settings)
+### Organizer settings (avatar menu → Settings)
+
+Three tabs: **Account**, **Payout** and **Settings**.
 
 | Feature | Priority | Status | Notes |
 |---|---|---|---|
-| Bank details: SAVE | 🔴 High | ⛔ Not working | The button has no action, so organizers can't save where their payouts go. |
-| Profile: name, company, phone, gender, website | 🟠 Medium | ✅ Working | |
-| Change password, log out | 🟠 Medium | ✅ Working | |
-| Delete Account | 🟠 Medium | ⛔ Not working | The button has no action. App stores require account deletion. |
-| Inbox: notifications, mark as read | ⚪ Low | ✅ Working | |
-| Order notifications (daily / weekly / off) | ⚪ Low | ⛔ Not working | Your choice is lost when the modal closes. It isn't saved. |
+| Payout: bank account | 🔴 High | ✅ Working | Choose the bank and type the account number; the account name fills in from the bank, and Save only works once the bank has confirmed it. Saved to `/api/Profile/organizer/bank-account`. |
+| Payout: total revenue | 🟠 Medium | ✅ Working | From `GET /api/Profile/organizer/wallet`. Until a bank account is saved, it says to add one for auto payouts. |
+| Payout: early payout | 🟠 Medium | ✅ Working | "Request an early payout" pays out an amount the organizer chooses, up to what's available, to the saved account (`POST /api/Profile/organizer/wallet/withdraw`). |
+| Payout: history | 🟠 Medium | ✅ Working | Paged, newest first, with status (`GET /api/Profile/organizer/payout-history`). |
+| Account: user information, personal details, business details | 🟠 Medium | ✅ Working | Laid out like the fans account page: name, email (read-only), gender, birthday, country, state, phone, company and website, all filled in from the saved organizer profile and saved with `PATCH /api/Profile/organizer`. |
+| Settings: change password, log out | 🟠 Medium | ✅ Working | Current, new and confirm new password, checked by the same schema as the fans page, on `PATCH /api/profile/organizer/change-password`. |
+| Delete Account | 🟠 Medium | ⛔ Not working | Not in the modal any more; the backend has no endpoint for an organizer to delete their own account. App stores require it. |
+| Inbox: notifications, mark as read | ⚪ Low | ⛔ Not working | The Inbox tab is switched off (commented out) for now. |
+| Email notifications (on / off) | ⚪ Low | ⛔ Not working | A single checkbox. It isn't saved: there's no endpoint for it. |
 
 ### Guest lists
 
@@ -211,25 +235,24 @@ Within each table, rows run from High to Low priority.
 | Account guestlist (dashboard Guestlist tab) | 🟠 Medium | ✅ Working | Categories, search, sort, 20 per page, add guest, CSV upload. |
 | Event guestlist (`/creators/guest-list`) | 🟠 Medium | 🟡 Partial | Add guests one by one or import them from your guestlist. **Selecting a whole category isn't wired.** |
 | Delete a guest, remove a guest from a category | ⚪ Low | ✅ Working | |
-| Guest allowance card ("0 / 500") | ⚪ Low | 🧪 Mock | The numbers are fixed. There is no endpoint for them yet. |
+| Guest allowance card | ⚪ Low | ✅ Working | Uses live account and category limits from `GET /api/GuestList/allowance`, including the active category's usage. |
 
 ### Promo codes (`/creators/promo-codes`)
 
 | Feature | Priority | Status | Notes |
 |---|---|---|---|
-| Create, view and delete promo codes | 🟠 Medium | ✅ Working | |
-| Drag handle on each promo code | ⚪ Low | ⛔ Not working | It looks draggable, but does nothing. |
+| Create, view, edit and delete promo codes | 🟠 Medium | ✅ Working | The redesigned page shows summary cards, usage and redemption data, promo-code cards, and applied promo codes for the event. |
 
 ### Vendor management
 
 | Feature | Priority | Status | Notes |
 |---|---|---|---|
-| Create revenue slots (stalls) and service offers | 🟠 Medium | ✅ Working | |
-| Edit a slot | 🟠 Medium | ✅ Working | |
-| Slot pages listing applicants | 🟠 Medium | ✅ Working | |
+| Create revenue slots (stalls) and service offers | 🟠 Medium | ✅ Working | The Revenue Vendor and Service Vendor pages open with a how-it-works note and the form already open. The description is rich text, and the application deadline has a date and a time. After creating, the organizer lands on the new stall's page. |
+| Edit a slot | 🟠 Medium | ✅ Working | On the stall's page, the Stall Details tab (Offer Details for services) opens the same form, filled in. |
+| Slot pages listing applicants | 🟠 Medium | ✅ Working | Redesigned in October 2026: the how-it-works note, how long until applications close, a summary (net profit or budget, secured vendors, requests), and the applications list with status filters and search. |
 | Accept or reject a vendor application | 🟠 Medium | ✅ Working | |
 | Access Control (`/creators/access-control`) | 🟠 Medium | 🧪 Mock | Sample staff list. Its Download, event picker, Add Code and filter buttons do nothing. |
-| Pause a slot | ⚪ Low | ⛔ Not working | The button switches on screen only. Nothing is saved, because there is no endpoint yet. |
+| Pause a slot | ⚪ Low | ✅ Working | Pause / Resume Application in the stall page's header. |
 | Seating Maps (`/creators/seating-maps`) | ⚪ Low | 🚧 Coming soon | |
 | Season events (`/creators/season`) | — | Dropped | Season events were dropped. The page is still routed but not linked. Not counted. |
 
@@ -237,8 +260,8 @@ Within each table, rows run from High to Low priority.
 
 | Feature | Priority | Status | Notes |
 |---|---|---|---|
-| Creators home (`/home`) and About Us | 🟠 Medium | ✅ Working | Sign up and log in buttons open the auth modal. |
-| Contact Us (`/contact-us`) | 🟠 Medium | ⛔ Not working | The form only logs to the browser console. |
+| Creators home (`/home`) and About Us | 🟠 Medium | ✅ Working | Redesigned in October 2026. Home: "All-in-one hub for creators", with Organizer and Vendor buttons that open sign up for that role, over a background video. About Us: who Afrorevive is, what organizers and vendors get, the team, and Work With Us. The header's menu is a slide-out sidebar with Organizer and Vendor log ins, the pages, and the app. |
+| Contact Us (`/contact-us`) | 🟠 Medium | ✅ Working | Redesigned as "Get in touch". The form (name, email, service category, message) is sent to the support team through `POST /api/Support`. |
 | Waitlist page (`/`) | ⚪ Low | ✅ Working | Joins the newsletter. Also shows the vendor registration callout. |
 | Blog (`/blog`) | ⚪ Low | 🚧 Coming soon | |
 
@@ -268,28 +291,20 @@ pretends to. Rows run from High to Low priority.
 
 | Where | Button or link | Priority | Status | What happens |
 |---|---|---|---|---|
-| Organizer settings | Bank details SAVE | 🔴 High | ⛔ Not working | No action. |
 | Fans footer | Privacy, Refund, Terms | 🔴 High | 🚧 Coming soon | Open a "Coming Soon" page. |
 | Fans footer, home page and mobile menu | App Store / Google Play badges | 🔴 High | ⛔ Not linked | Link to `#`. Waiting for the apps to be published. Fans need the app for their QR code. |
 | Ticket detail page | QR code ("download the app") | 🔴 High | ⛔ Not linked | Depends on the app store links above. |
 | Fans support (`/fans/support`) | Contact form Send | 🟠 Medium | ⛔ Not working | Shows a success message but sends nothing. |
-| Organizer website | Contact Us Submit | 🟠 Medium | ⛔ Not working | Logs to the console only. |
-| Organizer settings | Delete Account | 🟠 Medium | ⛔ Not working | No action. |
 | Event guestlist page | Selecting a whole category | 🟠 Medium | ⛔ Not working | Only individual guests can be picked. |
 | Analytics | Attendee List tab | 🟠 Medium | 🚧 Coming soon | |
 | Access Control | Download, event picker, Add Code, filter | 🟠 Medium | ⛔ Not working | Mock page. |
 | Fans footer | About Us, Blog, FAQ, Sell, Work With Us | ⚪ Low | 🚧 Coming soon | Open a "Coming Soon" page. |
 | Fans social links | YouTube icon | ⚪ Low | ⛔ Not linked | Goes to the home page instead of YouTube. |
-| Organizer dashboard | Guide step 3 "Theme & Media" | ⚪ Low | ⛔ Out of date | That step no longer exists. It lands on Publish. |
-| Create event → Publish | Pencil next to the event name | ⚪ Low | ⛔ Not working | No action. |
 | Tickets page | Door ticket "Sell On Mobile App" | ⚪ Low | ⛔ Not working | No action. |
 | Tickets page (private event) | "Drag tickets to change the order" notice | ⚪ Low | ⛔ Not working | Reordering isn't built. |
-| Promo codes page | Drag handle on each code | ⚪ Low | ⛔ Not working | No action. |
-| Guestlist tab | Guest allowance card | ⚪ Low | 🧪 Mock | Fixed "0 / 500". |
 | Audience page | Search | ⚪ Low | ⛔ Not working | The backend has no search parameter. |
 | Analytics | Export | ⚪ Low | ⛔ Not working | No action. |
-| Organizer settings | Order notifications | ⚪ Low | ⛔ Not working | Not saved. |
-| Vendor slot modal | Pause / resume slot | ⚪ Low | ⛔ Not working | Changes on screen only. |
+| Organizer settings | Email notifications checkbox | ⚪ Low | ⛔ Not working | Not saved. |
 | Sidebar → Tools | Seating Maps | ⚪ Low | 🚧 Coming soon | |
 
 Vendor dashboard buttons (on the `vendors` branch, rechecked after merge):
@@ -312,12 +327,16 @@ Vendor dashboard buttons (on the `vendors` branch, rechecked after merge):
 Things the frontend is ready for, or has worked around, until an endpoint exists
 or changes:
 
-- **Organizer bank details:** an endpoint to save an organizer's payout account (critical). Listing banks and checking an account already exist.
 - **Price filter (to confirm):** `minPrice` and `maxPrice` seem to compare ticket prices *before* the booking fee, while fans see prices with it. With `minPrice=50000`, a ticket shown as ₦51,410 (₦48,500 + fee) is left out. Confirm which price the filter should use.
-- **Support messages:** there is no endpoint to send them to.
 - **Access requests:** the list endpoint needs a `search` parameter, and order details for approved fans.
 - **Private event status for signed-out fans:** `isApplicationPaused` and `isApplicationEnded` on the public event, so they can be told before logging in.
-- **Organizer guest allowance:** an endpoint for the real "used / total" numbers.
-- **Vendor slot pause:** a status endpoint.
-- **Attendee list:** an endpoint returning individual attendees.
-- **Invite status values:** a confirmed list, so the invites table can colour each status properly.
+- **New vendor slot's id:** creating a slot returns an id in a different format from the one the slot's own endpoint takes, so the app finds the new slot in the refreshed list to open its page. Returning the slot's `vendorId` would remove that step.
+- **Organizer account deletion:** the API only has an admin delete (`DELETE /api/Admin/users/{userId}`), nothing an organizer can call on their own account.
+
+**Now in the API, waiting on the frontend.** These endpoints are in the API's
+Swagger list (checked October 2026), but nothing in the app calls them yet:
+
+- **Support messages:** `POST /api/Support`. The organizer website's Contact Us uses it (`useSendSupportMessage`); the fans support form still needs wiring to the same hook.
+- **Attendee list:** `GET /api/Event/{eventId}/attendees` (analytics variants too).
+- **Ticket order:** `PATCH /api/Event/{eventId}/tickets/reorder`. Tickets also carry `displayOrder` and `sortOrder`.
+- **Invite status values:** `GET /api/InviteTicket/statuses`: Queued, Sent, Accepted, PaymentPending, Issued, Expired, Cancelled.

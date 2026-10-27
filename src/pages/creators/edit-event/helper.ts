@@ -77,7 +77,8 @@ export function transformEventToSchema(event: EventDetailData) {
       period: convertTime(eventDate.endTime).period as 'AM' | 'PM',
     },
     email: event.eventDetails.eventContact.email,
-    website_url: event.eventDetails.eventContact.website,
+    // Optional, so an event saved without one comes back as null.
+    website_url: event.eventDetails.eventContact.website ?? '',
     socials: {
       instagram: event.eventDetails.socials.instagram,
       tiktok: event.eventDetails.socials.tiktok,

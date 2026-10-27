@@ -1,3 +1,4 @@
+import { SidebarToggle } from '@/components/shared/sidebar-toggle'
 import { useDebouncedValue } from '@/hooks/use-debounced-value'
 import {
   useAddGuestToEvent,
@@ -138,14 +139,18 @@ function EventGuestlist({ eventId }: { eventId: string }) {
 
   return (
     <CreatorPageContainer>
-      <div className='w-full bg-white flex flex-col gap-1 px-5 md:px-14 py-6'>
-        <p className='font-inter-tight text-2xl font-bold text-black'>Guestlist</p>
-        <p className='font-inter-tight text-sm text-black'>
-          Guests on this list are admitted by name at the door. No ticket is required.
-        </p>
+      <div className='w-full bg-white flex items-start gap-4 px-5 py-6'>
+        <SidebarToggle />
+
+        <div className='flex flex-col gap-1'>
+          <p className='font-inter-tight text-2xl font-bold text-black'>Guestlist</p>
+          <p className='font-inter-tight text-sm text-black'>
+            Guests on this list are admitted by name at the door. No ticket is required.
+          </p>
+        </div>
       </div>
 
-      <div className='w-full flex flex-col gap-6 px-5 md:px-14 py-6 md:py-8'>
+      <div className='w-full flex flex-col gap-6 px-5 py-6 md:py-8'>
         <AddGuestCard
           isSubmitting={addGuestToEvent.isPending}
           onSubmit={(values) =>

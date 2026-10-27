@@ -143,6 +143,30 @@ export function useAcceptVendorApplication() {
 }
 
 /**
+ * Pause or resume applications for a vendor slot. The slot's status (Active /
+ * Paused) comes back with the slot, so it's refetched afterwards.
+ */
+export function useToggleVendorApplications(eventVendorId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (pause: boolean) =>
+      pause
+        ? vendorService.pauseVendorApplications(eventVendorId)
+        : vendorService.resumeVendorApplications(eventVendorId),
+    onSuccess: (_, pause) => {
+      toast.success(pause ? "Applications paused." : "Applications resumed.");
+      queryClient.invalidateQueries({
+        queryKey: eventKeys.vendorSlotById(eventVendorId),
+      });
+    },
+    onError: (_, pause) =>
+      toast.error(
+        pause ? "Failed to pause applications." : "Failed to resume applications.",
+      ),
+  });
+}
+
+/**
  * Reject Vendor Application
  */
 

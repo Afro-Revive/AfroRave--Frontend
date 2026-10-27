@@ -11,4 +11,5 @@ export const guestlistKeys = {
   /** Nested under eventConfig, so saving the event's list refreshes this too. */
   checkinList: (eventId: string, search?: string) =>
     [...guestlistKeys.eventConfig(eventId), 'checkin-list', search ?? ''] as const,
+  allowance: () => [...guestlistKeys.all, 'allowance'] as const,
 }

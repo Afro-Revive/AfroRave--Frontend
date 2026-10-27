@@ -143,10 +143,41 @@ function EventTickets({ eventId, accessType }: IEventTickets) {
     <CreatorPageContainer>
       <TicketsHeader filter={filter} onFilterChange={setFilter} />
 
-      <div className='w-full flex flex-col gap-6 px-5 md:px-14 py-6 md:py-8'>
+      <div className='w-full flex flex-col gap-6 px-5 py-6 md:py-8'>
         <TicketNotice filter={filter} isPrivateEvent={isPrivateEvent} />
 
-        <SummaryCard eventId={eventId} />
+        {/* Inline composer, same shape as the create-event flow: the format
+            list stands by default and the form replaces it once one is picked.
+            No modal in either direction. */}
+        <OnlyShowIf condition={!isLoading && !error}>
+          {selectedType ? (
+            <FormBase form={ticketForm} onSubmit={() => {}} className='flex flex-col gap-5'>
+              <TicketForm
+                form={ticketForm}
+                type={selectedType}
+                isEditMode={!!editingTicketId}
+                onSubmit={() =>
+                  ticketForm.handleSubmit(
+                    editingTicketId ? handleUpdateTicket : handleCreateTicket,
+                    (errors) => console.log('Ticket validation errors:', errors),
+                  )()
+                }
+                isLoading={editingTicketId ? isUpdatingTicket : isCreatingTIcket}
+                onCancel={closeComposer}
+              />
+            </FormBase>
+          ) : (
+            <TicketFormatPicker
+              selected={null}
+              onSelect={handleSelectFormat}
+              header='Add Tickets'
+              description='Create Tickets for your event'
+              hiddenFormats={isPrivateEvent ? ['group_ticket'] : []}
+              layout='grid'
+            />
+          )}
+        </OnlyShowIf>
+
 
         <div className='flex flex-col gap-[13px]'>
           {(() => {
@@ -181,36 +212,7 @@ function EventTickets({ eventId, accessType }: IEventTickets) {
           })()}
         </div>
 
-        {/* Inline composer, same shape as the create-event flow: the format
-            list stands by default and the form replaces it once one is picked.
-            No modal in either direction. */}
-        <OnlyShowIf condition={!isLoading && !error}>
-          {selectedType ? (
-            <FormBase form={ticketForm} onSubmit={() => {}} className='flex flex-col gap-5'>
-              <TicketForm
-                form={ticketForm}
-                type={selectedType}
-                isEditMode={!!editingTicketId}
-                onSubmit={() =>
-                  ticketForm.handleSubmit(
-                    editingTicketId ? handleUpdateTicket : handleCreateTicket,
-                    (errors) => console.log('Ticket validation errors:', errors),
-                  )()
-                }
-                isLoading={editingTicketId ? isUpdatingTicket : isCreatingTIcket}
-                onCancel={closeComposer}
-              />
-            </FormBase>
-          ) : (
-            <TicketFormatPicker
-              selected={null}
-              onSelect={handleSelectFormat}
-              header='Add Tickets'
-              description='Create Tickets for your event'
-              hiddenFormats={isPrivateEvent ? ['group_ticket'] : []}
-            />
-          )}
-        </OnlyShowIf>
+        <SummaryCard eventId={eventId} />
 
         {/* A selected invite-only ticket shows who it's been sent to; otherwise
             the event's orders. */}

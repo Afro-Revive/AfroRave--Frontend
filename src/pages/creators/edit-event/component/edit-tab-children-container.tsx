@@ -1,8 +1,9 @@
 import { Button } from "@/components/ui/button";
-import { ChevronLeft } from "lucide-react";
+import { SidebarToggle } from "@/components/shared/sidebar-toggle";
 
+// handleBackClick and buttonText are still accepted but unused while the back
+// button above the title is commented out.
 export function TabChildrenContainer({
-  handleBackClick,
   isLoading,
   isPublishing,
   isUploading,
@@ -10,12 +11,11 @@ export function TabChildrenContainer({
   handleSaveEvent,
   handlePublishEvent,
   children,
-  buttonText,
 }: ITabChildrenProps) {
   return (
     <div className="w-full h-fit flex flex-col items-center">
       <div className="w-full md:flex max-md:flex max-md:flex-col md:items-center justify-between py-3 px-5 md:px-8 bg-white border-l border-[#e9e9e9]">
-        <Button
+        {/* <Button
           variant="ghost"
           className="w-fit h-fit hover:bg-black/10 !p-1 flex items-center gap-3"
           onClick={handleBackClick}
@@ -25,7 +25,19 @@ export function TabChildrenContainer({
           <span className="text-sm font-medium font-inter-tight text-black">
             {buttonText}
           </span>
-        </Button>
+        </Button> */}
+        <div className="flex items-start gap-4">
+          <SidebarToggle />
+
+          <div className="flex flex-col gap-2">
+            <p className="text-2xl font-bold font-inter-tight text-black capitalize">
+              Event Details
+            </p>
+            <p className="text-sm font-inter-tight text-black">
+              Update the information attendees see on your event page.
+            </p>
+          </div>
+        </div>
 
         <div className="flex items-center md:gap-8 gap-4 mt-3 md:mt-0">
           <Button

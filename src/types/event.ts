@@ -155,7 +155,13 @@ export interface EventDetailData {
     netProfit: number
     ticketSold: number
     totalTicket: number
+    totalDiscountValue: number
     activePromoCodes: number
+    confirmedVendors: number
+    pendingVendors: number
+    totalResale: number
+    usedPromocode: number
+    totalCheckedIn: number
   }
   isOnWatchlist?: boolean
 }
@@ -174,6 +180,8 @@ export interface TicketData {
   basePrice: number
   salesPrice: number
   resalePrice: number
+  soldQuantity: number
+  usedQuantity: number
   fee: number
   feePercentage: number
   quantity: number
@@ -226,9 +234,17 @@ export interface PromoCodeData {
   eventId: string
   eventName: string
   promoDetails: {
-    description: string
-    terms: string
-    restrictions: string
+    tickets: { id: string }[]
+    isMinimumSpend: boolean
+    minimumSpend: number
+    isMinimumTicket: boolean
+    minimumTicket: number
+    note: string | null
+    isPrivate: boolean
+    isPartnership: boolean
+    partnerName: string
+    commisionType: string
+    commission: number
   }
 }
 
@@ -326,7 +342,7 @@ export interface VendorSlotData {
   slotName: string | null
   slotNumber: number | null
   price: number | null
-  applicationDeadline: Date | null
+  applicationDeadline: string | null
 }
 
 export interface VendorServiceData {
@@ -338,7 +354,7 @@ export interface VendorServiceData {
   stopTime: string | null
   startDate: string | null
   endDate: string | null
-  applicationDeadline: Date | null
+  applicationDeadline: string | null
 }
 
 export interface VendorContact {
@@ -502,6 +518,18 @@ export interface VendorAvailableEventData {
 export type VendorAvailableEventsResponse = ApiResponse<VendorAvailableEventData[]>
 
 
+export interface AnalyticsPromoCode {
+  codeName: string
+  promoCode: string
+  uses: number
+  grossSales: number
+  discountPercentage: number
+  discountType: string
+  netSales: number
+  commissions: number
+  partnerName: string | null
+}
+
 export interface EventAnalyticsData {
     totalRevenue: number
     totalNetRevenue: number
@@ -522,6 +550,7 @@ export interface EventAnalyticsData {
     topPartner: string
     topPartnerComission: number
     topPartnerNetSales: number
+    promoCodes?: AnalyticsPromoCode[]
     audienceInsights: {
       ageGroups: {
         ageRange: string

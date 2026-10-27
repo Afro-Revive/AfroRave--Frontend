@@ -1,3 +1,4 @@
+import { SidebarToggle } from '@/components/shared/sidebar-toggle'
 import { cn } from '@/lib/utils'
 import { TICKET_FILTERS, type TicketFilter } from '../constant'
 
@@ -12,12 +13,16 @@ export function TicketsHeader({
   return (
     // This banner is the top of the page, so it carries the same horizontal
     // padding the body below uses and the two line up.
-    <div className='w-full bg-white flex flex-col gap-4 px-5 md:px-14 py-6'>
-      <div className='flex flex-col gap-1'>
-        <p className='font-work-sans text-2xl font-bold text-black'>Your Tickets</p>
-        <p className='font-work-sans text-sm text-mid-dark-gray'>
-          Create and manage the tickets available for this event.
-        </p>
+    <div className='w-full bg-white flex flex-col gap-4 px-5 py-6'>
+      <div className='flex items-start gap-4'>
+        <SidebarToggle />
+
+        <div className='flex flex-col gap-1'>
+          <p className='font-inter-tight text-2xl font-bold text-black'>Your Tickets</p>
+          <p className='font-inter-tight font-medium text-sm text-mid-dark-gray'>
+            Create and manage the tickets available for this event.
+          </p>
+        </div>
       </div>
 
       <div className='flex items-center gap-2 flex-wrap'>

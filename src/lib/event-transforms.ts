@@ -88,7 +88,8 @@ export function transformEventDetailsToCreateRequest(
       termsOfRefund: '', // This field is not in the form, can be added later
       eventContact: {
         email: formData.email,
-        website: formData.website_url,
+        // Optional, so an empty one is sent empty, like the socials.
+        website: formData.website_url?.trim() || '',
       },
       socials: {
         instagram: formData.socials.instagram || '',
@@ -147,7 +148,7 @@ export function transformCreateRequestToEventDetails(
       period: endTime.period,
     },
     email: eventData.eventDetails.eventContact.email,
-    website_url: eventData.eventDetails.eventContact.website,
+    website_url: eventData.eventDetails.eventContact.website ?? '',
     socials: {
       instagram: eventData.eventDetails.socials.instagram,
       x: eventData.eventDetails.socials.x,

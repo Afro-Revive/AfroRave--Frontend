@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { useVerifyBankAccount, useGetNigerianBanks } from "@/hooks/use-payments";
 import { NigerianBanksResponse, NigerianBankResolve } from "@/types/payments";
 import { useWithdrawFunds } from "@/hooks/use-profile-mutations";
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef } from "react";
 import { cn } from "@/lib/utils";
 
 interface WithdrawFundsModalProps {
@@ -31,15 +31,12 @@ export function WithdrawFundsModal({
   const [accountName, setAccountName] = useState("");
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const { mutate: fetchBanks, data: banksResponse } = useGetNigerianBanks();
+  // Loaded once the modal opens, then cached.
+  const { data: banksResponse } = useGetNigerianBanks({ enabled: isOpen });
   const { mutateAsync: verifyBankAccount } = useVerifyBankAccount();
     const { mutate: withdrawFunds } = useWithdrawFunds();
 
   const banks = (banksResponse?.data as NigerianBanksResponse[] | undefined) ?? [];
-
-  useEffect(() => {
-    if (isOpen) fetchBanks();
-  }, [isOpen, fetchBanks]);
 
   function resetVerify() {
     setVerifyStatus("idle");

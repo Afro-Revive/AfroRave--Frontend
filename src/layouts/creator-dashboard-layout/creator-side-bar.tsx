@@ -3,8 +3,7 @@ import { getRoutePath } from "@/config/get-route-path";
 import { CalendarIcon } from "@/components/icons/calendar";
 import { ChartIcon } from "@/components/icons/chart";
 import { VendorIcon } from "@/components/icons/vendor";
-import { ToolsIcon } from "@/components/icons/tools";
-
+// import { ToolsIcon } from "@/components/icons/tools";
 import { CreatorSettingsModal } from "@/pages/creators/standalone/components/creator-settings-modal";
 import { BiArrowBack } from "react-icons/bi";
 import { Ticket2 } from "iconsax-react";
@@ -16,12 +15,18 @@ import type { EventDetailData } from "@/types";
 import { Link, useLocation } from "react-router-dom";
 import { useEffect } from "react";
 import { SelectedEventCard } from "./selected-event-card";
+import type { AnalyticsTab } from "@/pages/creators/realtime";
 
 /** Derived rather than hardcoded so they track route-map. */
 const EVENT_SCOPED_PREFIXES = [
   getRoutePath("edit_event", { eventId: "" }),
   getRoutePath("audience", { eventId: "" }),
 ];
+
+/** A tab of the analytics page, which reads it from ?tab=. */
+function analyticsTab(tab: AnalyticsTab): string {
+  return `${getRoutePath("realtime")}?tab=${tab}`;
+}
 
 /**
  * The id of the event whose details are open, read off the URL. useParams is no
@@ -80,6 +85,7 @@ export default function CreatorSidebar() {
                   },
                 ]
               : []),
+                  { path: getRoutePath("guest_list"), name: "GUEST LIST" },
           ]
         : [],
     },
@@ -87,16 +93,30 @@ export default function CreatorSidebar() {
       trigger: { icon: <Ticket2 size={16} variant="Outline" />, text: "TICKETS" },
       links: [
         { path: getRoutePath("tickets"), name: "YOUR TICKETS" },
-        { path: getRoutePath("guest_list"), name: "GUEST LIST" },
+    
         { path: getRoutePath("promo_codes"), name: "PROMO CODES" },
       ],
     },
     {
+      // One page; each link opens one of its tabs (?tab=).
       trigger: { icon: <ChartIcon />, text: "ANALYTICS" },
       links: [
-        { path: getRoutePath("realtime"), name: "REALTIME" },
+        { path: analyticsTab("overview"), name: "OVERVIEW" },
+        { path: analyticsTab("insights"), name: "AUDIENCE INSIGHTS" },
+        { path: analyticsTab("vendors"), name: "VENDORS" },
+        {
+          path: analyticsTab("orders"),
+          name: "TICKETS",
+          subLinks: [
+            { path: analyticsTab("orders"), name: "ORDERS" },
+            { path: analyticsTab("attendee-list"), name: "ATTENDEE LIST" },
+            { path: analyticsTab("promo-codes"), name: "PROMO CODES" },
+          ],
+        },
       ],
     },
+    
+   
     {
       trigger: { icon: <VendorIcon />, text: "VENDOR" },
       links: [
@@ -128,18 +148,19 @@ export default function CreatorSidebar() {
         },
       ],
     },
-    {
-      trigger: { icon: <ToolsIcon />, text: "TOOLS" },
-      links: [
-        { path: getRoutePath("access_control"), name: "ACCESS CONTROL" },
-        { path: getRoutePath("seating_maps"), name: "SEATING MAPS" },
-      ],
-    },
+    // {
+    //   trigger: { icon: <ToolsIcon />, text: "TOOLS" },
+    //   links: [
+    //     { path: getRoutePath("access_control"), name: "ACCESS CONTROL" },
+    //     { path: getRoutePath("seating_maps"), name: "SEATING MAPS" },
+    //   ],
+    // },
   ];
 
   return (
     <BaseSideBar
-      className="pt-8 sticky top-0"
+      className="pt-8"
+      sticky
       sidebar_links={creator_sidebar_links}
       headerItem={<SelectedEventCard eventId={openEventId} />}
       collapsibleOnMobile={true}
@@ -171,6 +192,7 @@ export interface ICreatorSidebarLinks {
   links: {
     path: string;
     name: string;
-    subLinks?: { path: string; category: string; name: string }[];
+    /** Shown as a nested accordion. `category` is the vendor slot's, under its name. */
+    subLinks?: { path: string; category?: string; name: string }[];
   }[];
 }

@@ -27,13 +27,27 @@ For what the app can do today, see [docs/FEATURES.md](docs/FEATURES.md).
   - The Analytics and Tickets buttons on each card now select that event and open its page.
 - **New sidebar:**
   - A card at the top for the selected event, with Copy Link and View Event.
-  - Groups for Events, Tickets, Analytics, Vendor and Tools.
-  - Collapsible on desktop and full screen on mobile.
+  - Groups for Events (Event Details, Audience, Guest List), Tickets, Analytics, Vendor and Tools.
+  - It stays put at screen height while the page scrolls, with Your Events always in view.
+  - Collapsible on desktop, from a button beside each page's title, and full screen on mobile.
 - **Tickets page** (`/creators/tickets`):
   - Filters (All, Invite-Only, Door) and notices.
-  - A summary card with real net sales and tickets issued.
-  - Each ticket shows its format and its access type (for example "Invite-Only").
+  - An "Add Tickets" format picker above the ticket list.
+  - A summary card below the list with net sales and tickets sold, the same numbers as the event's card on the dashboard.
+  - Each ticket shows its format, its access type (for example "Invite-Only"), its price before fees, sold and available counts, and a group ticket's size on its icon.
   - Ticket menus can edit a ticket and send invites.
+- **Rich text descriptions** for events and tickets: headings, bold, italic, underline, strikethrough, code, links, lists, quotes, code blocks and dividers. Fans see them sanitized.
+- **Create event header:** a Dashboard link, and **Save As Drafts**, which creates the event if it isn't yet and goes to the dashboard.
+- **Organizer settings** now has **Account**, **Payout** and **Settings** tabs:
+  - **Account:** user information, personal details (gender, birthday, country, state, phone) and business details, in the fans account page's field style, filled in from your saved profile.
+  - **Payout:** total revenue, a bank account that's checked with the bank before it saves, an early payout of an amount you choose, and payout history.
+  - **Settings:** change password with a confirmation (on the organizer endpoint), email notifications as one checkbox, and log out.
+- **Creators website redesign** (`/home`, `/about-us`, `/contact-us`):
+  - A new header whose menu is a slide-out sidebar, like the fans one: Organizer and Vendor log ins, Home, About Us, Contact Us, and the app.
+  - A new footer with the AFROREVIVE wordmark across the page.
+  - **Home:** "All-in-one hub for creators", with Organizer and Vendor sign up buttons over a background video.
+  - **About Us:** "Built for the culture", what organizers and vendors get, the team, and Work With Us.
+  - **Contact Us** is now "Get in touch", and **its messages reach the support team** (`POST /api/Support`). Before, the form only logged to the console.
 - **Invite-only tickets:**
   - Send invites from your guestlist, or to a new guest, who is saved to the guestlist too.
   - See the invites sent and their status.
@@ -46,8 +60,10 @@ For what the app can do today, see [docs/FEATURES.md](docs/FEATURES.md).
   - Events can be public or private. A private event can later be made public, but never the other way round.
   - A new **Audience** page (`/creators/audience/:eventId`): approve access requests in bulk, see approved fans, and pause or resume requests.
 - **Analytics** (`/creators/realtime`), merged in from the analytics branch:
-  - Overview, Vendors, Orders, Promo Codes and Insights tabs, using reusable bar, line and pie charts built on `recharts`.
-  - Linked from event cards and the tickets summary.
+  - Overview, Audience Insights, Vendors, Orders and Promo Codes, using reusable bar, line and pie charts built on `recharts`.
+  - Opened from the sidebar's Analytics group, with Orders, Attendee List and Promo Codes in a Tickets accordion. The page has no tab list of its own.
+  - Also linked from event cards and the tickets summary.
+- **Pause and resume a vendor stall's applications** from its page (`useToggleVendorApplications`). The button used to change on screen only.
 
 ### Added — fans
 - **Private event card:** shown instead of the tickets on a private event.
@@ -63,7 +79,10 @@ For what the app can do today, see [docs/FEATURES.md](docs/FEATURES.md).
 ### Changed
 - **Edit event** is now a single Event Details page. Its Tickets, Theme and Settings tabs became separate pages or were removed.
 - **Create event:**
-  - The **theme step is gone**: promo codes lead straight to Publish, and old `?tab=theme` links land on Publish.
+  - The **theme and promo code steps are gone**: tickets lead straight to Publish. Old `?tab=theme` links land on Publish, and promo codes are made on the Promo Codes page.
+  - **Publish** is a preview of the event: flyer card, description, contact details and its tickets.
+  - The **website URL is optional** and the refund terms field is hidden. The custom URL field is labelled "URL".
+  - If creating the event fails, the **server's reason** is shown instead of a generic message.
   - Ticket sales **start immediately** by default.
   - **Ticket resale is on by default.** Untick it to turn it off. Invite-only and group tickets never allow it.
 - **Publishing** refreshes the dashboard list straight away.
@@ -71,17 +90,32 @@ For what the app can do today, see [docs/FEATURES.md](docs/FEATURES.md).
 - **Sign-up** no longer redirects. The form stays open and clears itself.
 - **Complete profile** (`/complete-profile`) works without being logged in. It reads the account from `/api/Auth/me?token=…`, so the email link works on any device.
 - **Prices:** amounts with kobo always show two decimals (`₦8,013.60`). Whole amounts stay as they were (`₦7,420`).
+- **Vendor pages** (Revenue Vendor, Service Vendor):
+  - Both list pages have the titled header with the sidebar toggle, a how-it-works note, and the create form open on the page instead of behind a button.
+  - Each stall or offer has a redesigned page: Pause / Resume Application and Create in the header, a **Revenue Vendors** tab (the note, how long until applications close, a summary of net profit or budget, secured vendors and requests, and the applications with status filters and search) and a **Stall Details** tab that opens the full form, filled in, to edit it.
+  - The form uses the rich text editor for the description and the date-time picker for the application deadline, which is sent as one timestamp (11:59 PM if no time is picked). Category sits beside the stall count or service name, "slot" became "stall", and an 8% fee note shows under the stall price.
+  - After creating a stall, the organizer lands on its page.
 - **One API address:** set by `VITE_API_URL`. Staging is `dev.afrorevive.com`; production is `api.afrorevive.com`. The test logins built into the login form were removed.
 
 ### Removed
 - Ticket upgrades and vendor listings from the create-event Publish summary.
+- The promo code step of create event, with the code only it used (its form, cards, helpers and the apply-promo popover).
+- The analytics page's own tab list. The sidebar replaces it.
 - The Charts page and the Reports link. Analytics replaces both.
+- The vendor list pages' filter, event picker and export bar, and the separate edit form and slot details modal. Create and edit share one form now.
 
 ### Fixed
 - **Ticket resale was never saved.** The ticket form always sent "no resale", whatever the organizer chose.
 - **The Publish summary never listed ticket names**, because it read the wrong field.
 - **Resume Requests didn't work.** The pause setting was sent in the request body, but the API reads it from the URL.
 - **The production build was failing.** It now passes both the type check and the bundle.
+- **Saved ticket cards showed the price with fees**, not the price the organizer set.
+- **The Event Details page crashed** when the rich text editor was replaced under it.
+- **Editing an event didn't refresh the events dashboard** or the public event page, and a new draft could be missing from the dashboard.
+- **The avatar menu stopped opening** after it was closed, or after Settings was opened from it.
+- **Bank lists came back empty** after a while, in the organizer payout tab and the fans withdraw modal: the list wasn't cached. It's now kept for a day.
+- **The date-time picker didn't work inside modals.** The modal treated its popup as outside and blocked its clicks and inputs; it now renders inside the modal.
+- **Editing a vendor stall didn't refresh its page** or the sidebar's stall list.
 - Mobile layouts for the dashboard tabs, price fields and ticket cards.
 
 ---

@@ -24,6 +24,7 @@ export function PriceField<T extends FieldValues>({
   ticketTypeName,
   className,
   readOnly = false,
+  description,
   showMessage,
 }: IPriceField<T>) {
 
@@ -65,9 +66,11 @@ export function PriceField<T extends FieldValues>({
               value={field.value == null ? "" : String(field.value)}
             />
           </div>
-          {/* <p className="mt-2 text-[10px] normal-case font-sf-pro-text text-mid-dark-gray">
-            {description}
-          </p> */}
+          {description && (
+            <p className="mt-2 text-xs normal-case font-medium font-inter-tight text-mid-dark-gray">
+              {description}
+            </p>
+          )}
         </div>
       )}
     </FormField>

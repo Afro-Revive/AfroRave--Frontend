@@ -49,6 +49,13 @@ export function useGetEventGuestListConfig(eventId?: string) {
   })
 }
 
+export function useGetGuestListAllowance() {
+  return useQuery({
+    queryKey: guestlistKeys.allowance(),
+    queryFn: () => guestListService.getGuestListAllowance(),
+  })
+}
+
 
 
 export function useAddGuest() {

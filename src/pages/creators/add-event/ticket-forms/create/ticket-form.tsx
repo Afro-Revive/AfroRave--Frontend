@@ -6,7 +6,8 @@ import { BaseBooleanCheckbox } from "@/components/reusable/base-boolean-checkbox
 import { BaseCheckbox } from "@/components/reusable/base-checkbox";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { RichTextEditor } from "@/components/reusable/rich-text-editor";
+import { richTextLength } from "@/lib/rich-text";
 import { OnlyShowIf } from "@/lib/environment";
 import { ChevronDown } from "lucide-react";
 import { BsInfoCircle } from "react-icons/bs";
@@ -240,16 +241,18 @@ export function TicketForm({
         showMessage
         form={form}
         maxLength={2000}
+        count={(value) => richTextLength(value as string)}
       >
         {(field) => (
-          <Textarea
+          <RichTextEditor
+            id="ticket.description"
             placeholder={`KEEP DESCRIPTIONS SHORT BUT EXCITING.
 BULLET POINTS WORK BETTER THAN LONG PARAGRAPHS.
 ALWAYS INCLUDE DATE AND VENUE SOMEWHERE INSIDE THE DESCRIPTION FOR CLARITY.
 DESCRIBE WHAT THIS TICKET INCLUDES.`}
-            className="w-full h-[272px] text-black bg-white px-3 py-[11px] rounded-[4px] border border-mid-dark-gray/50 text-sm font-sf-pro-display"
-            {...field}
-            value={field.value == null ? "" : String(field.value)}
+            value={field.value as string}
+            onChange={field.onChange}
+            onBlur={field.onBlur}
           />
         )}
       </FormFieldWithCounter>

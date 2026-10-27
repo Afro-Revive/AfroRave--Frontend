@@ -17,7 +17,14 @@ const SOCIAL_ICONS: Record<EventSocialPlatform, IconType> = {
   facebook: FaFacebookF,
 }
 
-export default function ContactSection({ event }: { event: EventDetailData }) {
+export default function ContactSection({
+  event,
+  title = 'Contact event organizers',
+}: {
+  event: EventDetailData
+  /** The organizer's own preview (Publish) calls it 'Contact details'. */
+  title?: string
+}) {
   const { socials, eventContact } = event.eventDetails
 
   const email = eventContact?.email?.trim()
@@ -26,7 +33,7 @@ export default function ContactSection({ event }: { event: EventDetailData }) {
   return (
     <div className='w-full rounded-2xl bg-gunmetal-gray px-6 py-5 flex flex-col gap-4'>
       <p className='font-inter-tight text-base md:text-lg font-bold text-white'>
-        Contact event organizers
+        {title}
       </p>
 
       <div className='flex items-center gap-5'>
@@ -34,7 +41,7 @@ export default function ContactSection({ event }: { event: EventDetailData }) {
 
         {email && (
           <ContactIconLink href={`mailto:${email}`} label={`Email ${email}`}>
-            <Mail className='w-[18px] h-[18px]' />
+            <Mail className='w-7 h-7' />
           </ContactIconLink>
         )}
 
@@ -43,7 +50,7 @@ export default function ContactSection({ event }: { event: EventDetailData }) {
             href={toAbsoluteUrl(website, 'https://')}
             label='Visit website'
             external>
-            <Link2 className='w-[18px] h-[18px]' />
+            <Link2 className='w-7 h-7' />
           </ContactIconLink>
         )}
       </div>
@@ -62,7 +69,7 @@ function SocialMediaLinks({ socials }: { socials: Partial<EventSocials> }) {
 
         return (
           <ContactIconLink key={platform} href={url} label={alt} external>
-            <Icon className='w-[18px] h-[18px]' />
+            <Icon className='w-7 h-7' />
           </ContactIconLink>
         )
       })}

@@ -20,9 +20,25 @@ import {
   PanelLeftOpen,
 } from "lucide-react";
 import { stripUnderscores } from "@/lib/helper-func";
+import { useSidebarToggleCount } from "@/components/shared/sidebar-toggle";
 
-function isPathActive(pathname: string, path: string) {
-  return pathname === path || pathname.startsWith(`${path}/`);
+/**
+ * Whether a link is the current page. A link with a query (the analytics tabs,
+ * '/creators/realtime?tab=orders') also needs each of its params to match, or
+ * every tab of one page would light up together.
+ */
+function isPathActive(
+  { pathname, search }: { pathname: string; search: string },
+  path: string,
+) {
+  const [linkPath, linkQuery] = path.split("?");
+  const onPath = pathname === linkPath || pathname.startsWith(`${linkPath}/`);
+  if (!onPath || !linkQuery) return onPath;
+
+  const current = new URLSearchParams(search);
+  return [...new URLSearchParams(linkQuery)].every(
+    ([key, value]) => current.get(key) === value,
+  );
 }
 
 export function BaseSideBar({
@@ -38,13 +54,18 @@ export function BaseSideBar({
   children,
   headerItem,
   footerItem,
+  sticky = false,
 }: IBaseSidebar) {
   const location = useLocation();
   const isMobile = useIsMobile();
   const { openMobile, setOpenMobile, open, toggleSidebar } = useSidebar();
 
-  // On desktop the sidebar slides away entirely; a floating button brings it back.
+  // On desktop the sidebar slides away entirely. Its toggle sits beside each
+  // page's title (SidebarToggle); a page without one gets the sidebar's own
+  // buttons instead, so it can still be collapsed and brought back.
   const isCollapsed = collapsibleOnDesktop && !open;
+  const pageHasToggle = useSidebarToggleCount((state) => state.count > 0);
+  const showOwnToggles = collapsibleOnDesktop && !pageHasToggle;
 
   const effectiveCollapsible =
     collapsibleOnMobile && isMobile ? "offcanvas" : collapsible;
@@ -56,9 +77,9 @@ export function BaseSideBar({
       {sidebar_links?.map((item) => {
         const isActive = item.links.some(
           (link) =>
-            isPathActive(location.pathname, link.path) ||
+            isPathActive(location, link.path) ||
             link.subLinks?.some((sub) =>
-              isPathActive(location.pathname, sub.path),
+              isPathActive(location, sub.path),
             ),
         );
         return (
@@ -82,7 +103,7 @@ export function BaseSideBar({
       <div
         className={cn(
           "fixed inset-x-0 bottom-0 z-40 bg-white flex flex-col overflow-y-auto",
-          "top-16 transition-all duration-300 ease-in-out",
+          "top-(--dashboard-header-height,4rem) transition-all duration-300 ease-in-out",
           openMobile
             ? "opacity-100 translate-y-0 pointer-events-auto"
             : "opacity-0 -translate-y-2 pointer-events-none",
@@ -110,7 +131,7 @@ export function BaseSideBar({
 
   return (
     <>
-      {isCollapsed && (
+      {isCollapsed && showOwnToggles && (
         <button
           type="button"
           onClick={toggleSidebar}
@@ -128,16 +149,29 @@ export function BaseSideBar({
         collapsible={effectiveCollapsible}
         className={cn(
           className,
-          "min-h-screen h-fit bg-white border-r-[0.5px] border-r-gray-200",
+          "min-h-[93vh] bg-white border-r-[0.5px] border-r-gray-200",
           "transition-[width] duration-300 ease-in-out",
           // `invisible` keeps the hidden links out of the tab order while collapsed
           isCollapsed
             ? "w-0 min-w-0 overflow-hidden border-r-0 invisible"
             : "lg:w-[320px] xl:w-95 w-70 visible",
+          // Held under the header and as tall as the rest of the screen, so all
+          // of it, footer included, is always in view. self-start stops the row
+          // it sits in from stretching it to the page's height, which would
+          // leave sticky nothing to stick within.
+          sticky &&
+            "sticky top-(--dashboard-header-height,0px) self-start h-[calc(100svh-var(--dashboard-header-height,0px))] min-h-0",
         )}
       >
-        <SidebarContent className={cn(contentClassName, "flex flex-col h-full")}>
-          {collapsibleOnDesktop && (
+        <SidebarContent
+          className={cn(
+            contentClassName,
+            "flex flex-col h-full",
+            // The sidebar itself never scrolls; only the links do, and only if
+            // the open sections don't fit, so "Your Events" stays at the bottom.
+            sticky && "overflow-hidden",
+          )}>
+          {showOwnToggles && (
             <div className="hidden md:flex justify-end px-4 pb-2">
               <button
                 type="button"
@@ -151,7 +185,8 @@ export function BaseSideBar({
             </div>
           )}
 
-          <SidebarGroup className="px-0 flex-1">
+          <SidebarGroup
+            className={cn("px-0 flex-1", sticky && "min-h-0 overflow-y-auto scrollbar-none")}>
             <SidebarGroupLabel className="sr-only">
               Application
             </SidebarGroupLabel>
@@ -193,11 +228,11 @@ function AccordionSidebarMenuItem({
       defaultOpen={defaultOpen}
     >
       {links.map((item) => {
-        const isActiveLink = isPathActive(location.pathname, item.path);
+        const isActiveLink = isPathActive(location, item.path);
 
         if (item.subLinks && item.subLinks.length > 0) {
           const isSubActive = item.subLinks.some((sub) =>
-            isPathActive(location.pathname, sub.path),
+            isPathActive(location, sub.path),
           );
 
           return (
@@ -213,7 +248,7 @@ function AccordionSidebarMenuItem({
             >
               {item.subLinks.map((sub) => {
                 const isActiveSubLink = isPathActive(
-                  location.pathname,
+                  location,
                   sub.path,
                 );
 
@@ -287,4 +322,5 @@ interface IBaseSidebar {
   /** Rendered above the link groups. */
   headerItem?: React.ReactNode;
   footerItem?: React.ReactNode;
+  sticky?: boolean;
 }

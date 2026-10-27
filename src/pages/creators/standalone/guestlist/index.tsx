@@ -7,7 +7,7 @@ import {
   useGetOrganizerCategories,
   useGetOrganizerGuestList,
 } from '@/hooks/use-guestlist-mutations'
-import type { CategoryData, GuestListData } from '@/types/guestlist'
+import type { CategoryData, GuestListAllowanceData, GuestListData } from '@/types/guestlist'
 import { LoaderCircle, Users } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { AddGuestModal } from './components/add-guest-modal'
@@ -22,6 +22,7 @@ import {
   type GuestSort,
 } from './constant'
 import { PaginatedResponse } from '@/types'
+import { useGetGuestListAllowance } from '@/hooks/use-guestlist-mutations'
 
 export function GuestlistTab({
   isAddGuestOpen,
@@ -55,6 +56,9 @@ export function GuestlistTab({
   // One row fetched purely for its totalCount: the tiles and the limit card
   // need the account total, which the paged request above can't know.
   const { data: totalsResponse } = useGetOrganizerGuestList({ pageNumber: 1, pageSize: 1 })
+  const { data: allowanceResponse } = useGetGuestListAllowance()
+  const allowance = allowanceResponse?.data as GuestListAllowanceData | undefined
+  const currentCategoryUsage = allowance?.categoryUsages.find((categoryUsage) => categoryUsage.categoryId === activeCategoryId)
 
   const { data: categoriesResponse } = useGetOrganizerCategories()
 
@@ -119,7 +123,7 @@ export function GuestlistTab({
         />
       )}
 
-      <GuestLimitCard used={totalGuests} total={GUEST_LIMIT.total} />
+      <GuestLimitCard used={allowance?.usedGuests ?? totalGuests} total={allowance?.totalGuests ?? GUEST_LIMIT.total} category={activeCategoryName} categoryUsage={currentCategoryUsage} />
 
       <NewCategoryModal
         open={isNewCategoryOpen}

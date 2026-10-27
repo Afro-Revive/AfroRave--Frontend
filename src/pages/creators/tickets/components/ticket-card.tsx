@@ -1,4 +1,5 @@
 import { TicketSummaryCard } from '@/components/shared/ticket-summary-card'
+import { RichTextContent } from '@/components/reusable/rich-text-content'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -64,11 +65,13 @@ export function TicketCard({
     ? ({ Single: 'Single Ticket', Group: 'Group Ticket', MultiDay: 'Multi Day' } as const)[ticketType]
     : null
 
+  console.log("ticket", ticket)
+
   return (
     <>
       <TicketSummaryCard
         name={ticket.ticketName}
-        price={ticket.price}
+        price={ticket.basePrice}
         typeLabel={typeBadge ?? 'Ticket'}
         accessLabel={accessType}
         isInviteOnly={isInviteOnly}
@@ -76,6 +79,8 @@ export function TicketCard({
         // Others keep the detail popup — there's nothing per-ticket to list.
         onClick={isInviteOnly ? onSelect : () => setDetailOpen(true)}
         isSelected={isSelected}
+        usedQuantity={ticket.usedQuantity}
+        availableQuantity={ticket.availableQuantity}
         onDelete={onDelete}
         onEdit={onEdit}
         onSendInvite={onSendInvite}
@@ -126,7 +131,10 @@ export function TicketCard({
                   ) : isDetailError ? (
                     <p className='text-sm text-red-400 font-sf-pro-display italic'>Failed to load details.</p>
                   ) : description ? (
-                    <p className='font-sf-pro-display text-[14px] text-black leading-relaxed'>{description}</p>
+                    <RichTextContent
+                      value={description}
+                      className='font-sf-pro-display text-[14px] text-black leading-relaxed'
+                    />
                   ) : (
                     <p className='text-sm text-gray-400 font-sf-pro-display italic'>No description provided.</p>
                   )}

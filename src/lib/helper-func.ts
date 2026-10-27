@@ -450,6 +450,22 @@ export function monthNumberToName(month: number | string): string {
   return new Date(2000, Number(month) - 1, 1).toLocaleString('en-US', { month: 'short' }).toLowerCase()
 }
 
+/**
+ * A saved date of birth ("1998-03-07", with or without a time) as birthday
+ * selects take it: month "mar", day "7", year "1998". Read from the date's own
+ * digits rather than through Date, so a time zone can't shift the day. The
+ * backend's empty date (year 0001) counts as none.
+ */
+export function fromDateOfBirth(
+  value?: string | null,
+): { month: string; day: string; year: string } | null {
+  const match = value?.match(/^(\d{4})-(\d{2})-(\d{2})/)
+  if (!match) return null
+  const [, year, month, day] = match
+  if (Number(year) < 1900 || Number(month) < 1 || Number(month) > 12) return null
+  return { month: monthNumberToName(month), day: String(Number(day)), year }
+}
+
 
 export function daysUntilEvent(startDate: string): number {
   return differenceInCalendarDays(parseApiDate(startDate), new Date())
