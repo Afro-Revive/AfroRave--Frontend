@@ -4,6 +4,9 @@ import { richTextLength } from "@/lib/rich-text";
 import { africanCountryCodes } from "@/pages/creators/add-event/constant";
 import type { VendorSlot } from "@/types/vendor";
 
+/** The top of the service budget slider. */
+export const BUDGET_MAX = 1_000_000;
+
 /** A deadline with no time picked closes at the end of its day. */
 export const DEFAULT_DEADLINE_TIME = {
   hour: "11",
@@ -111,8 +114,10 @@ export const EMPTY_VENDOR_FORM: FormValues = {
   price: "",
   totalPrice: "",
   serviceName: "",
-  minBudget: "",
-  maxBudget: "",
+  // The slider shows the full range until it's moved, so that range is what
+  // gets saved, not nothing.
+  minBudget: "0",
+  maxBudget: String(BUDGET_MAX),
   startDate: "",
   startTime: { hour: "9", minute: "30", period: "AM" },
   stopTime: { hour: "5", minute: "30", period: "PM" },
@@ -174,8 +179,14 @@ export function slotToFormValues(slot: VendorSlot, isRevenue: boolean): FormValu
         ? String(slotData.price * slotData.slotNumber)
         : "",
     serviceName: serviceData?.serviceName ?? "",
-    minBudget: serviceData?.minBudget != null ? String(serviceData.minBudget) : "",
-    maxBudget: serviceData?.maxBudget != null ? String(serviceData.maxBudget) : "",
+    minBudget:
+      serviceData?.minBudget != null
+        ? String(serviceData.minBudget)
+        : EMPTY_VENDOR_FORM.minBudget,
+    maxBudget:
+      serviceData?.maxBudget != null
+        ? String(serviceData.maxBudget)
+        : EMPTY_VENDOR_FORM.maxBudget,
     startDate: serviceData?.startDate ?? "",
     endDate: serviceData?.endDate ?? "",
     startTime: parseTime(serviceData?.startTime, EMPTY_VENDOR_FORM.startTime),

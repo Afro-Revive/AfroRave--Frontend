@@ -34,6 +34,7 @@ import type { CreateVendorRequest } from "@/types/event";
 import { PriceField } from "@/pages/creators/add-event/component/price-field";
 import { TimeForm } from "@/components/shared/time-form";
 import {
+  BUDGET_MAX,
   EMPTY_VENDOR_FORM,
   FormValues,
   buildSchema,
@@ -47,7 +48,6 @@ import { DateForm } from "@/components/shared/date-form";
 import { Slider } from "@/components/ui/slider";
 import { formatNaira } from "@/lib/format-price";
 
-const BUDGET_MAX = 1_000_000;
 const BUDGET_STEP = 5_000;
 
 function formatTime(
