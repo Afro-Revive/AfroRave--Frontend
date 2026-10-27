@@ -1,4 +1,4 @@
-import { useState, type CSSProperties } from 'react'
+import { useCallback, useState, type CSSProperties } from 'react'
 import { addYears, endOfYear, format, isBefore, startOfDay, startOfMonth } from 'date-fns'
 import { CalendarIcon, Minus, Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -90,6 +90,16 @@ export function DateTimePicker({
   className?: string
 }) {
   const trigger = TRIGGER[tone]
+  // Inside a dialog, the popover renders in the dialog itself. Rendered at the
+  // end of the page, the dialog counts it as outside: it blocks its clicks and
+  // takes focus back from its inputs (they use separate copies of Radix's
+  // layer and focus code, so they don't know about each other).
+  const [dialog, setDialog] = useState<HTMLElement | null>(null)
+  const findDialog = useCallback(
+    (node: HTMLButtonElement | null) =>
+      setDialog(node?.closest<HTMLElement>('[role="dialog"]') ?? null),
+    [],
+  )
   const earliest = minDate ?? startOfDay(new Date())
   const { date, hour, minute, period } = value
   const time = `${hour.padStart(2, '0')}:${minute.padStart(2, '0')} ${period}`
@@ -104,6 +114,7 @@ export function DateTimePicker({
         <Button
           type='button'
           variant='outline'
+          ref={findDialog}
           className={cn(
             'w-full min-h-10 justify-start gap-2 rounded-[4px] text-left font-sf-pro-display font-normal',
             trigger.field,
@@ -121,6 +132,7 @@ export function DateTimePicker({
       </PopoverTrigger>
 
       <PopoverContent
+        container={dialog}
         align='start'
         collisionPadding={16}
         style={TONE_VARS[tone]}
