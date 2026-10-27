@@ -73,6 +73,22 @@ class VendorService {
     return response.data
   }
 
+  /**
+   * Pause applications for a vendor slot, so no new ones can be submitted
+   */
+  async pauseVendorApplications(eventVendorId: string): Promise<void> {
+    const response = await api.put(`/api/Event/vendor/${eventVendorId}/pause-applications`)
+    return response.data
+  }
+
+  /**
+   * Resume applications for a paused vendor slot
+   */
+  async resumeVendorApplications(eventVendorId: string): Promise<void> {
+    const response = await api.put(`/api/Event/vendor/${eventVendorId}/resume-applications`)
+    return response.data
+  }
+
 }
 
 // Export service instance
