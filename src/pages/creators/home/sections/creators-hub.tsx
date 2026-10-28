@@ -13,13 +13,13 @@ export default function CreatorsHubSection() {
     <section className='relative w-full flex-1 overflow-hidden bg-[#0B0B0B] text-white'>
       <HeroVideo />
 
-      <div className='relative z-10 w-full max-w-[1280px]  px-6 md:px-[60px] pt-28 pb-16 md:pt-[112px] md:pb-24'>
-        <div className='flex w-full max-w-[525px] flex-col'>
-          <h1 className='font-work-sans font-black uppercase text-[44px] leading-[1.1] md:text-[84px] md:leading-[1.15]'>
+      <div className='relative z-10 w-full max-w-9xl  px-6 md:px-[60px] pt-28 pb-16 md:pt-[112px] md:pb-24'>
+        <div className='flex w-full max-w-[700px] flex-col'>
+          <h1 className='font-work-sans font-black uppercase text-[44px] leading-[1.1] md:text-[100px] md:leading-[1.15]'>
             All-in-one hub for creators
           </h1>
 
-          <p className='mt-2 font-work-sans text-xl font-bold uppercase leading-snug md:text-xl'>
+          <p className='mt-2 font-work-sans text-xl font-bold uppercase leading-snug md:text-2xl'>
             Explore our tools for seamless event management.
           </p>
 
@@ -41,14 +41,15 @@ export default function CreatorsHubSection() {
               connect with audiences and bring their ideas to life.
             </p>
             <p>
-              Our creative thinking also extends beyond the platform. As co-founders of OFFTHEDECK,
+              Our creative thinking also extends beyond the platform. As co-founders of <span className='font-bold italic'>OFFTHEDECK
+                </span>,
               we bring that vision into set design, visual direction, marketing.
             </p>
           </div>
 
           <Link
             to={getRoutePath('creators_about')}
-            className='mt-10 w-fit font-work-sans text-sm uppercase underline text-tech-blue decoration-2 underline-offset-[6px] hover:text-white/70'>
+            className='mt-4 w-fit font-work-sans text-sm uppercase underline text-tech-blue decoration-2 underline-offset-[6px] hover:text-white/70'>
             About Us
           </Link>
         </div>

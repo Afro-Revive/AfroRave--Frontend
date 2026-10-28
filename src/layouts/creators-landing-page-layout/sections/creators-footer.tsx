@@ -6,8 +6,8 @@ import { Link } from 'react-router-dom'
 
 /**
  * The redesigned creators website footer: the AFROREVIVE wordmark across the
- * page, then socials, links and the copyright. Light under the pages that end
- * on white (home, contact); dark where the page stays black (about).
+ * page, then socials, links and the copyright. It has no background of its
+ * own, so it matches the page it sits on; `tone` only picks the text colours.
  */
 export default function CreatorsFooter({ tone = 'light' }: { tone?: 'light' | 'dark' }) {
   const isDark = tone === 'dark'
@@ -17,7 +17,7 @@ export default function CreatorsFooter({ tone = 'light' }: { tone?: 'light' | 'd
     <footer
       className={cn(
         'relative z-20 w-full pt-16 md:pt-[120px]',
-        isDark ? 'bg-black text-[#5C5C5C]' : 'bg-white text-[#1E1E1E]',
+        isDark ? 'text-[#5C5C5C]' : 'text-[#1E1E1E]',
       )}>
       <div
         className={cn(
@@ -30,7 +30,7 @@ export default function CreatorsFooter({ tone = 'light' }: { tone?: 'light' | 'd
         <p
           aria-hidden
           className={cn(
-            'w-full text-center whitespace-nowrap font-work-sans font-black uppercase leading-none text-[14.5vw]',
+            'w-full text-center whitespace-nowrap font-work-sans font-black uppercase leading-none text-[14.5vw] tracking-wide',
             isDark ? 'text-[#1C1C1C]' : 'text-[#1E1E1E]',
           )}>
           Afrorevive

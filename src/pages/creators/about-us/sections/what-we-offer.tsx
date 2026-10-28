@@ -1,6 +1,6 @@
 export default function WhatWeOfferSection() {
   return (
-    <section className='w-full bg-black text-white'>
+    <section className='w-full text-white'>
       <div className='w-full max-w-[1280px] mx-auto flex flex-col items-center px-6 pt-6 md:px-[60px]'>
         <h2 className='text-center font-work-sans font-black uppercase text-[40px] leading-none md:text-[88px]'>
           What we offer
