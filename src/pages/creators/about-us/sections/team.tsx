@@ -1,7 +1,7 @@
 /** The team, by group: founders, engineering, marketing. */
 export default function TeamSection() {
   return (
-    <section className='w-full bg-black text-white'>
+    <section className='w-full text-white'>
       <div className='w-full max-w-[1280px] mx-auto flex flex-col items-center px-6 pt-20 md:px-[60px] md:pt-[100px]'>
         <h2 className='text-center font-work-sans font-black uppercase text-[40px] leading-none md:text-[64px]'>
           The team
@@ -20,7 +20,8 @@ export default function TeamSection() {
                 {group.name}
               </h3>
 
-              <ul className='flex flex-wrap justify-center gap-x-[120px] gap-y-8'>
+              {/* Mobile: rows of 2 then 1 (every third name takes the whole row). */}
+              <ul className='grid w-full grid-cols-2 justify-items-center gap-x-4 gap-y-8 md:flex md:flex-wrap md:justify-center md:gap-x-[120px]'>
                 {group.members.map((member) => (
                   <TeamMember key={`${group.name}-${member.name}`} {...member} />
                 ))}
@@ -35,7 +36,7 @@ export default function TeamSection() {
 
 function TeamMember({ initials, name, role }: { initials: string; name: string; role: string }) {
   return (
-    <li className='flex w-[200px] flex-col items-center text-center'>
+    <li className='flex w-full max-w-[200px] flex-col items-center text-center nth-[3n]:col-span-2 md:w-[200px]'>
       <span
         aria-hidden
         className='flex size-[72px] items-center justify-center rounded-full border-[3px] border-white font-inter text-2xl font-bold md:size-[86px] md:text-[30px]'>

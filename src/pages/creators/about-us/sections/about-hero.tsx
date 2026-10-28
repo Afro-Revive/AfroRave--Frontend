@@ -3,8 +3,8 @@ import { cn } from '@/lib/utils'
 /** "Built for the culture": who Afrorevive is, and its story. */
 export default function AboutHeroSection() {
   return (
-    <section className='w-full bg-[linear-gradient(180deg,#1F1F1F_0%,#171717_100%)] text-white'>
-      <div className='w-full max-w-[1280px] mx-auto flex flex-col px-6 md:px-[60px] pt-32 pb-20 md:pt-[184px] md:pb-[110px]'>
+    <section className='w-full text-white'>
+      <div className='w-full max-w-[1280px]  flex flex-col px-6 md:px-[60px] h-[95vh] justify-end pb-24'>
         <SectionLabel>Afrorevive ticketing</SectionLabel>
 
         <h1 className='mt-6 font-work-sans font-black uppercase text-[52px] leading-[1.05] md:text-[112px] md:leading-[1.25]'>

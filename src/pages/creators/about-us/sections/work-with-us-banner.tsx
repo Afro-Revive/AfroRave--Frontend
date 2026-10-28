@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom'
 /** "Work with us": partners, collaborators and organizers, pointed at Contact Us. */
 export default function WorkWithUsBanner() {
   return (
-    <section className='w-full bg-black text-white'>
+    <section className='w-full text-white'>
       <div className='w-full max-w-[1280px] mx-auto flex flex-col items-center px-6 pt-24 md:px-[60px] md:pt-[140px]'>
         <h2 className='text-center font-work-sans font-black uppercase text-[36px] leading-none md:text-[48px]'>
           Work with us
