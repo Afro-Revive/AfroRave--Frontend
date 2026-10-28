@@ -90,6 +90,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setSignupNotice(options?.signupNotice ?? null)
       setStayOnPage(options?.stayOnPage === true)
       if (loginType) setLoginType(loginType)
+      // Set now, not left to the URL effect: that runs a render later, and the
+      // role selection would show (and animate out) in between.
+      if (type === 'signup' && loginType) setSignupType(loginType)
       setAuthParam(type, loginType ?? 'true')
       setIsAuthModalOpen(true)
     },

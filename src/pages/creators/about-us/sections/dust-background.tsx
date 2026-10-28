@@ -30,7 +30,7 @@ export default function DustBackground() {
         loop
         playsInline
         preload='auto'
-        className='size-full object-cover'
+        className='size-full object-cover opacity-50'
       />
     </div>
   )

@@ -88,7 +88,7 @@ function HeroVideo() {
   return (
     <div
       aria-hidden
-      className='absolute inset-0 opacity-40 md:inset-y-0 md:left-auto md:right-0 md:w-[60%] md:opacity-100'>
+      className='absolute inset-0 md:block hidden opacity-40 md:inset-y-0 md:left-auto md:right-0 md:w-[60%] md:opacity-100'>
       <video
         ref={videoRef}
         src={HERO_VIDEO_SRC}
