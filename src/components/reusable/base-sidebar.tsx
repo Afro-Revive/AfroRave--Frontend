@@ -258,7 +258,7 @@ function AccordionSidebarMenuItem({
                     to={sub.path}
                     onClick={onLinkClick}
                     className={cn(
-                      "w-full flex items-center px-6 h-[56px] text-xs font-inter uppercase transition-colors duration-300",
+                      "w-full flex items-center px-6 h-[56px] text-xs font-inter capitalize transition-colors duration-300",
                       {
                         " text-deep-red": isActiveSubLink,
                         "text-black hover:bg-deep-red/10": !isActiveSubLink,
@@ -291,7 +291,7 @@ function AccordionSidebarMenuItem({
             to={item.path}
             onClick={onLinkClick}
             className={cn(
-              "w-full flex items-center px-6 h-[64px] text-xs font-sf-pro-text uppercase transition-colors duration-300",
+              "w-full flex items-center px-6 h-[64px] text-[13px] font-inter-tight capitalize transition-colors duration-300",
               {
                 "border-l-[3px] bg-deep-red/16 border-l-deep-red text-black":
                   isActiveLink,
