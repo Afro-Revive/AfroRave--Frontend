@@ -13,9 +13,10 @@ export default function CreatorsHubSection() {
     <section className='relative w-full flex-1 overflow-hidden bg-[#0B0B0B] text-white'>
       <HeroVideo />
 
-      <div className='relative z-10 w-full max-w-9xl  px-6 md:px-[60px] pt-28 pb-16 md:pt-[112px] md:pb-24'>
+      {/* Tablet: the left half, beside the video. xl: the full width, the video fading in behind on the right. */}
+      <div className='relative z-10 w-full max-w-9xl  px-6 md:w-1/2 md:pl-[60px] md:pr-6 xl:w-full xl:px-[60px] pt-28 pb-16 md:pt-[112px] md:pb-24'>
         <div className='flex w-full max-w-[700px] flex-col'>
-          <h1 className='font-work-sans font-black uppercase text-[44px] leading-[1.1] md:text-[100px] md:leading-[1.15]'>
+          <h1 className='font-work-sans font-black uppercase text-[44px] leading-[1.1] md:text-[52px] lg:text-[64px] xl:text-[100px] md:leading-[1.15]'>
             All-in-one hub for creators
           </h1>
 
@@ -29,7 +30,7 @@ export default function CreatorsHubSection() {
             <RoleButton onClick={() => openAuthModal('signup', 'vendor')}>Vendor</RoleButton>
           </div>
 
-          <div className='mt-8 flex flex-col gap-6 font-work-sans text-base leading-snug md:text-xl'>
+          <div className='mt-8 flex flex-col gap-6 font-work-sans text-base leading-snug xl:text-xl'>
             <p>
               <strong className='font-bold'>AFROREVIVE</strong> is a powerhouse for entertainment,
               connecting the tools and experiences that bring events to life.
@@ -88,7 +89,7 @@ function HeroVideo() {
   return (
     <div
       aria-hidden
-      className='absolute inset-0 md:block hidden opacity-40 md:inset-y-0 md:left-auto md:right-0 md:w-[60%] md:opacity-100'>
+      className='absolute inset-0 md:block hidden opacity-40 md:inset-y-0 md:left-auto md:right-0 md:w-1/2 md:opacity-100 xl:w-[60%]'>
       <video
         ref={videoRef}
         src={HERO_VIDEO_SRC}
