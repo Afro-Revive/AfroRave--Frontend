@@ -83,7 +83,7 @@ const SOCIALS = [
 const LINKS = [
   { href: getRoutePath('terms_and_conditions'), name: 'Terms & Conditions' },
   { href: getRoutePath('home'), name: 'Discover events' },
-  { href: getRoutePath('support'), name: 'Support' },
+  { href: getRoutePath('creators_contact'), name: 'Support' },
   { href: getRoutePath('creators_blog'), name: 'Blog' },
-  { href: getRoutePath('work_with_us'), name: 'Work with us' },
+  { href: getRoutePath('creators_contact'), name: 'Work with us' },
 ]
