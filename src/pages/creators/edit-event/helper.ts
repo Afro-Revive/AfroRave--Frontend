@@ -39,8 +39,31 @@ function getOffset(timeZone: string): string {
   return match ? match[1] : '+0'
 }
 
+/**
+ * The zone shown for each saved offset. The API keeps only the offset ("+1"),
+ * not the zone picked, so Lagos can't round-trip as Lagos; without this the
+ * first zone in the list with that offset came back (Lagos saved, Algiers shown).
+ */
+const PREFERRED_ZONE_BY_OFFSET: Record<string, string> = {
+  '+0': 'Africa/Accra',
+  '+1': 'Africa/Lagos',
+  '+2': 'Africa/Johannesburg',
+  '+3': 'Africa/Nairobi',
+}
+
+/** "+1", "UTC+1", "GMT+01:00" and "1" all read as "+1"; anything else as is. */
+function normaliseOffset(offset: string): string {
+  const match = offset?.trim().match(/^(?:UTC|GMT)?\s*([+-])?0?(\d{1,2})(?::?00)?$/i)
+  return match ? `${match[1] ?? '+'}${Number(match[2])}` : offset
+}
+
 export function getAfricanTimezoneByOffset(offset: string) {
-  return africanTimezones.find((tz) => getOffset(tz.value) === offset) || undefined
+  const normalised = normaliseOffset(offset)
+  const preferred = PREFERRED_ZONE_BY_OFFSET[normalised]
+  return (
+    africanTimezones.find((tz) => tz.value === preferred) ??
+    africanTimezones.find((tz) => getOffset(tz.value) === normalised)
+  )
 }
 
 export function transformEventToSchema(event: EventDetailData) {
