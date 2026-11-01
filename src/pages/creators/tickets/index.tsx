@@ -148,10 +148,14 @@ function EventTickets({ eventId, accessType }: IEventTickets) {
 
         {/* Inline composer, same shape as the create-event flow: the format
             list stands by default and the form replaces it once one is picked.
-            No modal in either direction. */}
+            No modal in either direction. Both sit on a white card, like the
+            cards below. */}
         <OnlyShowIf condition={!isLoading && !error}>
           {selectedType ? (
-            <FormBase form={ticketForm} onSubmit={() => {}} className='flex flex-col gap-5'>
+            <FormBase
+              form={ticketForm}
+              onSubmit={() => {}}
+              className='flex flex-col gap-5 rounded-xl bg-white p-5'>
               <TicketForm
                 form={ticketForm}
                 type={selectedType}
@@ -174,24 +178,30 @@ function EventTickets({ eventId, accessType }: IEventTickets) {
               description='Create Tickets for your event'
               hiddenFormats={isPrivateEvent ? ['group_ticket'] : []}
               layout='grid'
+              className='rounded-xl bg-white p-5'
             />
           )}
         </OnlyShowIf>
 
 
-        <div className='flex flex-col gap-[13px]'>
-          {(() => {
-            if (isLoading) return <LoadingState />
+        {(() => {
+          // A white card like the rest, left out when there's nothing in it.
+          const ticketList = (children: React.ReactNode) => (
+            <div className='flex flex-col gap-[13px] rounded-xl bg-white p-5'>{children}</div>
+          )
 
-            if (error) return <ErrorState onClick={refetch} />
+          if (isLoading) return ticketList(<LoadingState />)
 
-            // Only the filtered views get an empty state. On 'all' the format
-            // list below is always on screen, so it already says what to do.
-            if (visibleTickets.length === 0 && filter !== 'all') {
-              return <NoMatchesState filter={filter} />
-            }
+          if (error) return ticketList(<ErrorState onClick={refetch} />)
 
-            return visibleTickets.map((ticket) => (
+          // Only the filtered views get an empty state. On 'all' the format
+          // list below is always on screen, so it already says what to do.
+          if (visibleTickets.length === 0) {
+            return filter === 'all' ? null : ticketList(<NoMatchesState filter={filter} />)
+          }
+
+          return ticketList(
+            visibleTickets.map((ticket) => (
               <TicketCard
                 key={ticket.ticketId}
                 ticket={ticket}
@@ -208,9 +218,9 @@ function EventTickets({ eventId, accessType }: IEventTickets) {
                 isLoading={deleteTicketMutation.isPending}
                 isUpdating={isUpdatingTicket && editingTicketId === ticket.ticketId}
               />
-            ))
-          })()}
-        </div>
+            )),
+          )
+        })()}
 
         <SummaryCard eventId={eventId} />
 
