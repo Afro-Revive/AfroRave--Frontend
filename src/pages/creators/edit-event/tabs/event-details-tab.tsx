@@ -27,6 +27,8 @@ import { VisibilityField } from "../../add-event/component/visibility-field";
 import { PosterImageField } from "../component/poster-image-field";
 import { transformEventDetailsToCreateRequest } from "@/lib/event-transforms";
 import { TabChildrenContainer } from "../component/edit-tab-children-container";
+import { ConfirmOverlay } from "@/components/reusable/confirm-overlay";
+import { useState } from "react";
 
 export default function EventDetailsTab({
   event,
@@ -73,6 +75,19 @@ export default function EventDetailsTab({
     );
   }
 
+  // Going public can't be undone, so a save that does it waits here for a yes.
+  const [pendingPublic, setPendingPublic] = useState<EventDetailsSchema | null>(
+    null,
+  );
+
+  function requestSave(values: EventDetailsSchema) {
+    if (!isAlreadyPublic && values.visibility === "public") {
+      setPendingPublic(values);
+      return;
+    }
+    onSubmit(values);
+  }
+
   function onPublish() {
     publishEvent(eventId, {
       onSuccess: () => {
@@ -83,7 +98,7 @@ export default function EventDetailsTab({
 
   return (
     <TabChildrenContainer
-      handleSaveEvent={() => form.handleSubmit(onSubmit)()}
+      handleSaveEvent={() => form.handleSubmit(requestSave)()}
       handlePublishEvent={onPublish}
       handleBackClick={handleBackClick}
       isPublished={event.isPublished}
@@ -96,11 +111,26 @@ export default function EventDetailsTab({
         <div className="flex flex-col gap-4 w-full md:min-w-[560px] max-w-[800px]">
           <EventDetailsForm
             form={form}
-            onSubmit={onSubmit}
+            onSubmit={requestSave}
             isAlreadyPublic={isAlreadyPublic}
           />
         </div>
       </div>
+
+      {pendingPublic && (
+        <ConfirmOverlay
+          fixed
+          title="Make this event public?"
+          message="Anyone will be able to discover it and buy tickets. This can't be undone: a public event can't be made private again."
+          confirmText="Make Public"
+          cancelText="Cancel"
+          onConfirm={() => {
+            onSubmit(pendingPublic);
+            setPendingPublic(null);
+          }}
+          onCancel={() => setPendingPublic(null)}
+        />
+      )}
     </TabChildrenContainer>
   );
 }
