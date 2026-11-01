@@ -8,6 +8,7 @@ export function TabChildrenContainer({
   isPublishing,
   isUploading,
   isPublished,
+  hasChanges,
   handleSaveEvent,
   handlePublishEvent,
   children,
@@ -40,11 +41,19 @@ export function TabChildrenContainer({
         </div>
 
         <div className="flex items-center md:gap-8 gap-4 mt-3 md:mt-0">
+          {hasChanges && (
+            <p className="flex items-center gap-1.5 text-xs font-inter-tight text-mid-dark-gray">
+              <span className="size-1.5 rounded-full bg-deep-red" aria-hidden />
+              Unsaved changes
+            </p>
+          )}
+
+          {/* Nothing to save until something's been edited. */}
           <Button
             variant="destructive"
             className="py-2 w-fit xl:px-8 px-4 text-xs font-inter-tight font-black rounded-[5px]"
             onClick={handleSaveEvent}
-            disabled={isLoading || isUploading}
+            disabled={!hasChanges || isLoading || isUploading}
           >
             {isUploading ? "UPLOADING..." : isLoading ? "SAVING..." : "SAVE"}
           </Button>
@@ -75,6 +84,7 @@ interface ITabChildrenProps {
   isPublished?: boolean;
   isPublishing?: boolean;
   isUploading?: boolean;
+  hasChanges?: boolean;
   handleSaveEvent: () => void;
   handlePublishEvent?: () => void;
   children: React.ReactNode;
