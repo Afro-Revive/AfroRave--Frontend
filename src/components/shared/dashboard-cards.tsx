@@ -9,6 +9,7 @@ import { getRoutePath } from "@/config/get-route-path";
 import { RiShareCircleFill } from "react-icons/ri";
 import { Eye } from "iconsax-react";
 import { IconType } from "react-icons/lib";
+import { useCopyEventLink } from "@/hooks/use-copy-event-link";
 
 export type EventVisibility = "Private" | "Public";
 
@@ -31,6 +32,7 @@ export function DashboardCardSkeleton() {
 
 export function DashboardCards({
   eventId,
+  customUrl,
   image,
   name,
   status,
@@ -73,13 +75,7 @@ export function DashboardCards({
           </div>
         )}
 
-        {/* Link icon — top right */}
-        <Link to={getRoutePath("individual_event", { eventId: eventId })}>
-          <RiShareCircleFill
-            size={14}
-            className="absolute top-2 right-2 z-10 text-white hover:text-gray-300 transition-colors"
-          />
-        </Link>
+        {customUrl && <CopyEventLink customUrl={customUrl} />}
 
         {/* Event name + date — bottom left overlay */}
         <div className="absolute bottom-0 left-0 right-0 px-2.5 pb-2 z-10">
@@ -118,6 +114,36 @@ export function DashboardCards({
 
         {customButton}
       </div>
+    </div>
+  );
+}
+
+/**
+ * Top right of the flyer: copies the event's public page and says so in green
+ * just below, for a couple of seconds.
+ */
+function CopyEventLink({ customUrl }: { customUrl: string }) {
+  const { copied, copy } = useCopyEventLink(customUrl);
+
+  return (
+    <div className="absolute top-2 right-2 z-10 flex flex-col items-end gap-1">
+      <button
+        type="button"
+        onClick={copy}
+        aria-label="Copy event link"
+        title="Copy event link"
+        className="flex size-6 items-center justify-center rounded-full text-white hover:text-gray-300 transition-colors"
+      >
+        <RiShareCircleFill size={14} />
+      </button>
+      {copied && (
+        <p
+          role="status"
+          className="rounded-full bg-green px-2 py-0.5 font-inter-tight text-[10px] font-semibold text-white whitespace-nowrap"
+        >
+          Link copied
+        </p>
+      )}
     </div>
   );
 }
@@ -199,6 +225,8 @@ interface IDashboardCardProps {
   status?: "ended" | "drafts" | "upcoming" | "ongoing" | "sold_out";
   visibility?: EventVisibility;
   eventId: string;
+  /** The fan page's address for the event; without it there's no "copy link". */
+  customUrl?: string;
   cardInfo: React.ReactNode[];
   cardButtons: Omit<IEventButtonsProps, "className">[];
   customButton?: React.ReactNode[];

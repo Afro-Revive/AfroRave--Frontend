@@ -299,6 +299,7 @@ function StandAloneEvents({
       status={status}
       visibility={toEventVisibility(accessType)}
       eventId={event.eventId}
+      customUrl={event.customUrl}
       cardInfo={[
         <StatParagraph
           key="sold_tickets"
