@@ -74,7 +74,8 @@ function StandAloneModalHeader({ event }: { event: EventDetailData }) {
           asChild
           variant="outline"
           className='w-[130px] h-9 rounded-[6px] bg-white border border-gray-200 text-xs font-medium text-black font-sf-pro-display hover:bg-gray-50 shadow-sm'>
-          <Link to={getRoutePath('individual_event', { eventId: event.eventId })}>
+          {/* The fan page looks events up by custom URL, like every other link to it. */}
+          <Link to={getRoutePath('individual_event', { eventId: event.customUrl })}>
             View Event Page
           </Link>
         </Button>
