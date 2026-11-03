@@ -66,7 +66,7 @@ export function VendorEventCard({
   )
 }
 
-/** "SLOTS : 12" pill for Discover cards. */
+/** "SLOTS : 12 / 20" pill for Discover cards: slots left, then the total when the API sends it. */
 export function SlotsCountPill({ available, total }: { available: number; total?: number }) {
   return (
     <span className='w-fit rounded-md bg-white/20 px-2 py-1 font-work-sans text-sm font-bold text-white backdrop-blur-sm'>

@@ -25,6 +25,7 @@ interface DiscoverEvent {
   endDate: string
   venue: string
   availableSlots?: number
+  totalSlots?: number
 }
 
 export default function VendorDiscoverPage() {
@@ -32,7 +33,6 @@ export default function VendorDiscoverPage() {
   const [showSaved, setShowSaved] = useState(false)
 
   const { data: response, isPending: isLoadingAvailable } = useGetVendorAvailableEvents()
-  console.log('response', response, isLoadingAvailable)
   const { data: savedEvents = [], isPending: isLoadingSaved } = useVendorSavedEvents()
   const toggleSave = useToggleVendorSavedEvent()
 
@@ -46,6 +46,7 @@ export default function VendorDiscoverPage() {
       endDate: event.endDate,
       venue: event.venue,
       availableSlots: event.availableSlot,
+      totalSlots: event.totalSlots,
     }))
   }, [response])
 
@@ -53,15 +54,20 @@ export default function VendorDiscoverPage() {
 
   const events = useMemo<DiscoverEvent[]>(() => {
     const source = showSaved
-      ? savedEvents.map((event) => ({
-          eventId: event.eventId,
-          name: event.eventName,
-          image: event.posterUrl,
-          startDate: event.startDate,
-          endDate: event.endDate,
-          venue: event.venue,
-          availableSlots: availableEvents.find((available) => available.eventId === event.eventId)?.availableSlots,
-        }))
+      ? savedEvents.map((event) => {
+          // Saved events don't carry slot counts; take them from the same event in the available list.
+          const available = availableEvents.find((item) => item.eventId === event.eventId)
+          return {
+            eventId: event.eventId,
+            name: event.eventName,
+            image: event.posterUrl,
+            startDate: event.startDate,
+            endDate: event.endDate,
+            venue: event.venue,
+            availableSlots: available?.availableSlots,
+            totalSlots: available?.totalSlots,
+          }
+        })
       : availableEvents
     const query = search.trim().toLowerCase()
     return query ? source.filter((event) => event.name.toLowerCase().includes(query)) : source
@@ -117,7 +123,7 @@ export default function VendorDiscoverPage() {
                 isEnded={!!event.endDate && new Date(event.endDate) < new Date()}
                 isSaved={isSaved}
                 onToggleSave={() => toggleSave.mutate({ eventId: event.eventId, isSaved })}
-                footer={event.availableSlots !== undefined && <SlotsCountPill available={event.availableSlots} />}
+                footer={event.availableSlots !== undefined && <SlotsCountPill available={event.availableSlots} total={event.totalSlots} />}
               />
             )
           })}
