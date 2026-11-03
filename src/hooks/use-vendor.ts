@@ -31,14 +31,13 @@ export function useVendorSavedEvents() {
   })
 }
 
-/** Saves an event, or removes it when `isSaved` is true. */
-export function useToggleVendorSavedEvent() {
+/** Saves an event. TODO: unsaving, once the API has a vendor endpoint for it (see vendor.service.ts). */
+export function useSaveVendorEvent() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({ eventId, isSaved }: { eventId: string; isSaved: boolean }) =>
-      isSaved ? vendorService.unsaveEventVendor(eventId) : vendorService.saveEventVendor(eventId),
-    onSuccess: (_, { isSaved }) => {
-      toast.success(isSaved ? 'Removed from saved events' : 'Event saved')
+    mutationFn: (eventId: string) => vendorService.saveEventVendor(eventId),
+    onSuccess: () => {
+      toast.success('Event saved')
       queryClient.invalidateQueries({ queryKey: eventKeys.vendorSaved() })
       queryClient.invalidateQueries({ queryKey: eventKeys.vendorSummary() })
     },

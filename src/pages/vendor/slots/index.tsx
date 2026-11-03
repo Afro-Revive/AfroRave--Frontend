@@ -1,6 +1,6 @@
 import { getRoutePath } from '@/config/get-route-path'
 import { useGetVendorApplications } from '@/hooks/use-event-mutations'
-import { useToggleVendorSavedEvent, useVendorEventsById, useVendorSavedEvents } from '@/hooks/use-vendor'
+import { useSaveVendorEvent, useVendorEventsById, useVendorSavedEvents } from '@/hooks/use-vendor'
 import { cn } from '@/lib/utils'
 import type { PaginatedResponse } from '@/types'
 import type { VendorApplications } from '@/types/vendor'
@@ -22,7 +22,7 @@ export default function VendorSlotsPage() {
   const [filter, setFilter] = useState<SlotFilter>('all')
   const { data, isPending: isLoadingApplications } = useGetVendorApplications()
   const { data: savedEvents = [] } = useVendorSavedEvents()
-  const toggleSave = useToggleVendorSavedEvent()
+  const saveEvent = useSaveVendorEvent()
 
   const applications = useMemo(() => {
     const items = (data?.data as PaginatedResponse<VendorApplications> | undefined)?.items ?? []
@@ -107,7 +107,7 @@ export default function VendorSlotsPage() {
                     venue={application.eventVenue}
                     isEnded={ended}
                     isSaved={isSaved}
-                    onToggleSave={() => toggleSave.mutate({ eventId: application.eventId, isSaved })}
+                    onSave={() => saveEvent.mutate(application.eventId)}
                     footer={<SlotStatusPill status={status} />}
                   />
                 )

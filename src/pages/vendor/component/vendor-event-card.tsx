@@ -15,7 +15,7 @@ export function VendorEventCard({
   venue,
   footer,
   isSaved,
-  onToggleSave,
+  onSave,
   isEnded = false,
 }: IVendorEventCard) {
   return (
@@ -37,16 +37,21 @@ export function VendorEventCard({
 
       <div className='absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent' />
 
-      {onToggleSave && (
+      {/* Save only: a saved event can't be removed until the API has a vendor endpoint for it. */}
+      {onSave && (
         <button
           type='button'
-          aria-label={isSaved ? 'Remove from saved events' : 'Save event'}
+          aria-label={isSaved ? 'Saved' : 'Save event'}
+          aria-disabled={isSaved}
           onClick={(e) => {
             e.preventDefault()
             e.stopPropagation()
-            onToggleSave()
+            if (!isSaved) onSave()
           }}
-          className='absolute top-4 right-4 z-10 flex size-9 items-center justify-center rounded-full bg-white/40 text-white backdrop-blur-sm transition-colors hover:bg-white/60'>
+          className={cn(
+            'absolute top-4 right-4 z-10 flex size-9 items-center justify-center rounded-full bg-white/40 text-white backdrop-blur-sm transition-colors',
+            isSaved ? 'cursor-default' : 'hover:bg-white/60',
+          )}>
           {isSaved ? <RiBookmarkFill className='size-5' /> : <RiBookmarkLine className='size-5' />}
         </button>
       )}
@@ -96,6 +101,6 @@ interface IVendorEventCard {
   venue?: string
   footer?: ReactNode
   isSaved?: boolean
-  onToggleSave?: () => void
+  onSave?: () => void
   isEnded?: boolean
 }
