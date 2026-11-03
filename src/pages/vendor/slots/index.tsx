@@ -16,7 +16,13 @@ import { getSlotStatus, hasEventEnded, needsPayment } from './slot-status'
 
 const SKELETON_COUNT = 4
 
-type SlotFilter = 'all' | 'approved' | 'ended'
+type SlotFilter = 'all' | 'in_review' | 'approved' | 'ended'
+
+const EMPTY_TITLES: Record<Exclude<SlotFilter, 'all'>, string> = {
+  in_review: 'No Slots In Review',
+  approved: 'No Approved Slots',
+  ended: 'No Ended Slots',
+}
 
 export default function VendorSlotsPage() {
   const [filter, setFilter] = useState<SlotFilter>('all')
@@ -37,9 +43,10 @@ export default function VendorSlotsPage() {
     return { application, event, status: getSlotStatus(application, event), ended: hasEventEnded(application, event) }
   })
 
+  const inReviewRows = rows.filter((row) => row.status === 'in_review')
   const approvedRows = rows.filter((row) => row.status === 'approved' || row.status === 'secured')
   const endedRows = rows.filter((row) => row.ended)
-  const visibleRows = filter === 'approved' ? approvedRows : filter === 'ended' ? endedRows : rows
+  const visibleRows = { all: rows, in_review: inReviewRows, approved: approvedRows, ended: endedRows }[filter]
   const paymentCount = rows.filter((row) => needsPayment(row.application, row.event)).length
 
   const isLoading = isLoadingApplications || (applications.length > 0 && isLoadingEvents)
@@ -85,6 +92,12 @@ export default function VendorSlotsPage() {
           <div className='flex flex-wrap gap-2'>
             <FilterChip label='All' count={rows.length} active={filter === 'all'} onClick={() => setFilter('all')} />
             <FilterChip
+              label='In Review'
+              count={inReviewRows.length}
+              active={filter === 'in_review'}
+              onClick={() => setFilter('in_review')}
+            />
+            <FilterChip
               label='Approved'
               count={approvedRows.length}
               active={filter === 'approved'}
@@ -114,7 +127,7 @@ export default function VendorSlotsPage() {
               })}
             </VendorCardGrid>
           ) : (
-            <VendorEmptyState title={filter === 'approved' ? 'No Approved Slots' : 'No Ended Slots'} />
+            <VendorEmptyState title={filter === 'all' ? 'No Slots Yet' : EMPTY_TITLES[filter]} />
           )}
         </div>
       )}
