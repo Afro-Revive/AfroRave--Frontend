@@ -4,7 +4,7 @@ import { profileService } from '@/services/profile.service'
 import { vendorService } from '@/services/vendor.service'
 import { useAfroStore } from '@/stores'
 import type { EventDetailData, PaginatedResponse } from '@/types'
-import type { ChangePasswordRequest, UpdateVendorProfileRequest } from '@/types/profile'
+import type { ChangePasswordRequest, UpdateVendorProfileRequest, VendorProfileData } from '@/types/profile'
 import type {
   PayVendorSlotRequest,
   VendorApplicationRequest,
@@ -13,6 +13,7 @@ import type {
 } from '@/types/vendor'
 import { useMutation, useQueries, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
+import { useVendorProfile } from './use-profile-mutations'
 
 export function useVendorSummary() {
   return useQuery({
@@ -132,19 +133,29 @@ export function useChangeVendorPassword() {
   })
 }
 
-/** The fields a vendor needs filled in before their profile counts as set up. */
+/**
+ * The fields a vendor needs filled in before their profile counts as set up. Reads the
+ * vendor profile first and falls back to the logged-in user, the same order as the modal,
+ * since the user from login can be missing the picture, about text or socials.
+ */
 export function useVendorProfileComplete() {
   const { user } = useAfroStore()
+  const { data: profileResponse } = useVendorProfile()
   if (!user) return false
-  const { profile, email } = user
-  const socials = profile.businessData?.socials
+  const vendor = profileResponse?.data as VendorProfileData | undefined
+  const { profile } = user
+  const socials = vendor?.businessData?.socials || profile.businessData?.socials
   return [
     profile.firstName,
-    profile.businessName || profile.companyName,
-    profile.phoneNumber,
-    email,
-    profile.description || profile.businessData?.aboutBusiness || profile.aboutBusiness,
-    profile.businessData?.profilePicture,
+    vendor?.businessName || profile.businessName || profile.companyName,
+    vendor?.contactPhone || profile.phoneNumber,
+    vendor?.contactEmail || user.email,
+    vendor?.businessData?.aboutBusiness ||
+      vendor?.description ||
+      profile.description ||
+      profile.businessData?.aboutBusiness ||
+      profile.aboutBusiness,
+    vendor?.businessData?.profilePicture || vendor?.profilePicture || profile.businessData?.profilePicture,
     socials && Object.values(socials).some((link) => !!link),
   ].every(Boolean)
 }
