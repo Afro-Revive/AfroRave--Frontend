@@ -22,7 +22,8 @@ export default function VendorDashboardLayout() {
       </div>
 
       <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
-        <SheetContent side='left' className='w-[320px] max-w-[85vw] overflow-y-auto border-none bg-[#1E1E1E] p-0 text-white'>
+        {/* Fixed to the screen's height, no scrolling: Log Out is pinned at the bottom, and the sidebar tightens up on short screens to fit. */}
+        <SheetContent side='left' className='h-dvh w-[320px] max-w-[85vw] overflow-hidden border-none bg-[#1E1E1E] p-0 text-white'>
           <SheetTitle className='sr-only'>Vendor menu</SheetTitle>
           <SheetDescription className='sr-only'>Your profile and dashboard links</SheetDescription>
           <VendorSidebar onNavigate={() => setIsMenuOpen(false)} />

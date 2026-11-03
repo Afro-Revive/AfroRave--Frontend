@@ -14,10 +14,10 @@ export default function VendorSidebar({ onNavigate }: { onNavigate?: () => void 
   const logoutMutation = useLogout()
 
   return (
-    <div className='flex min-h-full w-full flex-col gap-5 px-[18px] pt-5 pb-6'>
+    <div className='flex min-h-full w-full flex-col gap-5 px-[18px] pt-5 pb-6 max-lg:min-h-0 max-lg:flex-1 max-lg:gap-3 max-lg:pt-1 max-lg:pb-4 short:gap-2 short:pt-0 short:pb-3'>
       <VendorProfileCard />
 
-      <nav className='flex flex-col gap-5'>
+      <nav className='flex flex-col gap-5 max-lg:gap-3 short:gap-2'>
         {links.map(({ Icon, text, href }) => (
           <NavLink
             key={text}
@@ -25,7 +25,7 @@ export default function VendorSidebar({ onNavigate }: { onNavigate?: () => void 
             onClick={onNavigate}
             className={({ isActive }) =>
               cn(
-                'flex h-[57px] items-center gap-2 rounded-xl border px-5 font-inter-tight text-sm text-white transition-colors',
+                'flex h-[57px] max-lg:h-12 short:h-10 items-center gap-2 rounded-xl border px-5 font-inter-tight text-sm text-white transition-colors',
                 isActive ? 'border-[#C62828]' : 'border-[#2E2E2E] hover:border-[#4A4A4A]',
               )
             }>
@@ -39,7 +39,7 @@ export default function VendorSidebar({ onNavigate }: { onNavigate?: () => void 
         ))}
       </nav>
 
-      <div className='mt-auto pt-6'>
+      <div className='mt-auto shrink-0 pt-6 max-lg:pt-3 short:pt-2'>
         <button
           type='button'
           onClick={() => logoutMutation.mutate()}

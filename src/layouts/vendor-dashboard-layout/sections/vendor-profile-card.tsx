@@ -23,9 +23,9 @@ export function VendorProfileCard() {
     profile?.businessData?.profilePicture || profile?.profilePicture || user?.profile.businessData?.profilePicture
 
   return (
-    <section className='flex flex-col gap-5 rounded-[20px] bg-[#2A2A2A] p-[18px] pt-9'>
+    <section className='flex flex-col gap-5 rounded-[20px] bg-[#2A2A2A] p-[18px] pt-9 max-lg:gap-4 max-lg:pt-5 short:gap-2.5 short:p-4'>
       <div className='flex items-center gap-3'>
-        <div className='flex size-[54px] shrink-0 items-center justify-center overflow-hidden rounded-full bg-black'>
+        <div className='flex size-[54px] short:size-11 shrink-0 items-center justify-center overflow-hidden rounded-full bg-black'>
           {picture ? (
             <img src={picture} alt={name} className='size-full object-cover' />
           ) : (
@@ -33,14 +33,14 @@ export function VendorProfileCard() {
           )}
         </div>
         <div className='flex min-w-0 flex-col gap-1'>
-          <p className='font-inter-tight text-xl leading-tight font-black break-words text-white uppercase'>
+          <p className='font-inter-tight text-xl short:text-lg leading-tight font-black break-words text-white uppercase'>
             {name}
           </p>
           {category && <p className='font-inter-tight text-sm text-white'>{category}</p>}
         </div>
       </div>
 
-      <dl className='grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 rounded-md bg-[#4A4A4A] px-3 py-2.5 font-inter-tight text-xs text-white'>
+      <dl className='grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 short:gap-y-1 rounded-md bg-[#4A4A4A] px-3 py-2.5 short:py-2 font-inter-tight text-xs text-white'>
         <dt className='font-bold'>Phone Number</dt>
         <dd className='truncate text-sm'>{phone || '—'}</dd>
         <dt className='font-bold'>Email</dt>
@@ -48,12 +48,12 @@ export function VendorProfileCard() {
       </dl>
 
       <div className='flex flex-col px-1'>
-        <p className='mb-2 font-inter-tight text-base font-bold text-white'>Summary</p>
+        <p className='mb-2 short:mb-1 font-inter-tight text-base font-bold text-white'>Summary</p>
         <SummaryRow name='Saved Events' value={summary?.savedEvents} />
         <SummaryRow name='Total Slots Secured' value={summary?.acquiredSlots} />
       </div>
 
-      <div className='flex flex-col gap-4'>
+      <div className='flex flex-col gap-4 max-lg:gap-3 short:gap-2'>
         <VendorEditProfileModal
           customTrigger={
             <button
@@ -84,7 +84,7 @@ export function VendorProfileCard() {
 
 function SummaryRow({ name, value }: { name: string; value?: number }) {
   return (
-    <div className='flex h-[37px] items-center justify-between border-t border-[#3D3D3D] font-sf-pro-display text-sm text-white'>
+    <div className='flex h-[37px] max-lg:h-8 short:h-7 items-center justify-between border-t border-[#3D3D3D] font-inter-tight text-sm text-white'>
       <span>{name}</span>
       <span className='text-xs'>{value ?? '—'}</span>
     </div>
