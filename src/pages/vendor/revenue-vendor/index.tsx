@@ -48,7 +48,7 @@ function SectionMapBtn({ type }: { type: 'edit' | 'upload' }) {
         'text-deep-red': type === 'upload',
       })}>
       <Upload size={18} />
-      <span className='text-xs font-sf-pro-display'>Upload Section Map</span>
+      <span className='text-xs font-inter-tight'>Upload Section Map</span>
     </Button>
   )
 }

@@ -27,7 +27,7 @@ export function IndividualVendorItem({
           className="rounded-full"
         />
 
-        <div className="flex flex-col gap-0.5 font-sf-pro-display text-black">
+        <div className="flex flex-col gap-0.5 font-inter-tight text-black">
           <p className="text-sm capitalize leading-[100%]">{name}</p>
           <p className="text-[10px] capitalize leading-[100%]">{category}</p>
         </div>
@@ -35,14 +35,14 @@ export function IndividualVendorItem({
 
       <div className="flex items-center gap-8">
         {service_name && (
-          <p className="font-sf-pro-display font-medium text-sm text-black">
+          <p className="font-inter-tight font-medium text-sm text-black">
             {service_name}
           </p>
         )}
-        <p className="font-sf-pro-display text-xs text-black">{date}</p>
+        <p className="font-inter-tight text-xs text-black">{date}</p>
         <Badge
           className={cn(
-            "font-sf-pro-display text-xs capitalize p-0 bg-transparent",
+            "font-inter-tight text-xs capitalize p-0 bg-transparent",
             {
               "text-bright-mint": status === "Active" || status === "Complete",
               "text-deep-red": status === "Rejected",

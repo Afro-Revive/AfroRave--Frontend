@@ -260,6 +260,37 @@
   font-display: swap;
 }
 
+@font-face {
+  font-family: "inter-tight";
+  src: url("/fonts/inter-tight/InterTight-VariableFont_wght.ttf") format("truetype");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "inter-tight";
+  src: url("/fonts/inter-tight/InterTight-Italic-VariableFont_wght.ttf") format("truetype");
+  font-weight: 100 900;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "work-sans";
+  src: url("/fonts/work-sans/WorkSans-Italic-VariableFont_wght.ttf") format("truetype");
+  font-weight: 100 900;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "work-sans";
+  src: url("/fonts/work-sans/WorkSans-VariableFont_wght.ttf") format("truetype");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
 
 /** Phospahte Inline */
 @font-face {
