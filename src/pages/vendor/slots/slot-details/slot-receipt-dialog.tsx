@@ -1,7 +1,8 @@
-import { Dialog, DialogContent, DialogDescription, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { formatNaira } from '@/lib/format-price'
 import type { VendorApplications } from '@/types/vendor'
 import type { ReactNode } from 'react'
+import { RiCloseLine } from 'react-icons/ri'
 import { formatShortDate } from '../../lib/format-date'
 import { getAmountDue, getSlotFee, getSlotName } from '../slot-status'
 
@@ -23,24 +24,32 @@ export function SlotReceiptDialog({ application }: { application: VendorApplicat
           View receipt
         </button>
       </DialogTrigger>
-      <DialogContent className='w-[92vw] max-w-[420px] gap-5 rounded-xl border border-[#3A3A3A] bg-[#262626] p-6 text-white'>
-        <div className='flex flex-col gap-1'>
-          <DialogTitle className='font-inter-tight text-lg font-bold'>Receipt</DialogTitle>
-          <DialogDescription className='font-sf-pro-text text-xs text-[#9A9A9A]'>
-            Application #{application.id}
-          </DialogDescription>
+      {/* noCancel: the default close sits in its own padded row above the title. */}
+      <DialogContent noCancel className='w-[90vw] max-w-[340px] gap-3 rounded-xl border border-[#3A3A3A] bg-[#262626] p-5 text-white'>
+        <div className='flex items-start justify-between gap-3 border-b border-[#3A3A3A] pb-3'>
+          <div className='flex flex-col gap-1'>
+            <DialogTitle className='font-inter-tight text-base leading-none font-bold'>Receipt</DialogTitle>
+            <DialogDescription className='font-sf-pro-text text-[11px] text-[#9A9A9A]'>
+              Application #{application.id}
+            </DialogDescription>
+          </div>
+          <DialogClose
+            aria-label='Close'
+            className='flex size-7 shrink-0 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20'>
+            <RiCloseLine className='size-4' />
+          </DialogClose>
         </div>
 
-        <dl className='flex flex-col font-sf-pro-text text-sm'>
+        <dl className='flex flex-col font-sf-pro-text text-[13px]'>
           <ReceiptRow name='Event' value={application.eventName} />
           <ReceiptRow name='Slot' value={getSlotName(application)} />
           <ReceiptRow name='Slots' value={application.requestedSlots} />
           <ReceiptRow name='Slot fee' value={formatNaira(slotFee)} />
           <ReceiptRow name='Platform fee' value={formatNaira(total - slotFee)} />
           <ReceiptRow name='Paid on' value={formatShortDate(application.updatedDate) || '—'} />
-          <div className='mt-2 flex items-center justify-between border-t border-[#3A3A3A] pt-4'>
+          <div className='mt-1.5 flex items-center justify-between border-t border-[#3A3A3A] pt-2.5'>
             <dt className='font-semibold'>Total paid</dt>
-            <dd className='font-inter-tight text-lg font-bold'>{formatNaira(total)}</dd>
+            <dd className='font-inter-tight text-base font-bold'>{formatNaira(total)}</dd>
           </div>
         </dl>
       </DialogContent>
@@ -50,9 +59,9 @@ export function SlotReceiptDialog({ application }: { application: VendorApplicat
 
 function ReceiptRow({ name, value }: { name: string; value: ReactNode }) {
   return (
-    <div className='flex items-start justify-between gap-6 py-1.5'>
+    <div className='flex items-start justify-between gap-4 py-1'>
       <dt className='text-[#9A9A9A]'>{name}</dt>
-      <dd className='text-right'>{value}</dd>
+      <dd className='min-w-0 text-right break-words'>{value}</dd>
     </div>
   )
 }
