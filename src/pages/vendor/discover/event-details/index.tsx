@@ -1,270 +1,208 @@
-import { LoadingFallback } from "@/components/loading-fallback";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { ChevronLeft, Info } from "lucide-react";
-import { SlotDescription } from "../../component/description-show-more";
-import RequestVendorSlotModal from "../../component/request-vendor-slot-modal";
-import { useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import { useGetEvent } from "@/hooks/use-event-mutations";
-import { cn } from "@/lib/utils";
-import { useGetVendorSlots } from "@/hooks/use-event-mutations";
-import { EventDetailData } from "@/types/event";
-import type { VendorSlot } from "@/types/vendor";
-import { PaginatedResponse } from "@/types";
-import { formatNaira } from "@/lib/format-price";
-import {
-  formatEventDate,
-  formatEventTime,
-  stripUnderscores,
-} from "@/lib/helper-func";
+import { ShowMoreText } from '@/components/reusable/show-more-text'
+import { RenderEventImage } from '@/components/shared/render-event-flyer'
+import { getRoutePath } from '@/config/get-route-path'
+import { useGetEvent, useGetVendorApplications, useGetVendorSlots } from '@/hooks/use-event-mutations'
+import { useRequestVendorSlots } from '@/hooks/use-vendor'
+import { formatDateLong, formatTimeLong } from '@/lib/helper-func'
+import type { EventDetailData, PaginatedResponse } from '@/types'
+import type { VendorApplications, VendorSlot } from '@/types/vendor'
+import { useState } from 'react'
+import { RiCloseLine } from 'react-icons/ri'
+import { Link, useNavigate, useParams } from 'react-router-dom'
+import { toast } from 'sonner'
+import { VendorEmptyState } from '../../component/vendor-empty-state'
+import { formatVendorDate } from '../../lib/format-date'
+import { SlotCart } from './slot-cart'
+import { SlotRow } from './slot-row'
+import { getSlotsLeft, isRevenueSlot, toApplicationRequest, type SlotCartItem } from './slot-request'
 
+/** A request the vendor can still act on blocks requesting the same slot again. */
+const LIVE_STATUSES = ['pending', 'approved', 'accepted', 'secured']
+
+/**
+ * The vendor's "ticket page" for an event: its details, the slots and offers it's taking
+ * applications for, and "Your Slots", where the vendor gathers what to request.
+ */
 export default function VendorEventDetailsPage() {
-  const { eventId } = useParams();
-  const navigate = useNavigate();
-  const { data: eventResponse, isPending: isLoading } = useGetEvent(
-    eventId || "",
-  );
-  const app_percentage = import.meta.env.VITE_VENDOR_APPLICATIONS_PERCENTAGE;
-  const [openModal, setOpenModal] = useState(false)
-  const [selectedSlotId, setSelectedSlotId] = useState<string | null>(null)
-  const { data: vendorSlotsResponse, isPending: isLoadingSlots } =
-    useGetVendorSlots(eventId || "");
-  const vendorSlots = vendorSlotsResponse?.data as
-    | PaginatedResponse<VendorSlot[]>
-    | undefined;
-  const availableVendorSlots = vendorSlots?.items as VendorSlot[] | undefined;
-  const event = eventResponse?.data as EventDetailData | undefined;
-  const selectedSlot = availableVendorSlots?.find(
-    (s) => s.vendorId === selectedSlotId,
-  );
+  const { eventId = '' } = useParams()
+  const navigate = useNavigate()
+  const [cart, setCart] = useState<SlotCartItem[]>([])
 
-  const revenuePrice = (price: number): string => {
-    let totalPrice = app_percentage * price
-    totalPrice += price
-    return formatNaira(totalPrice)
+  const { data: eventResponse, isPending: isLoadingEvent } = useGetEvent(eventId)
+  const { data: slotsResponse, isPending: isLoadingSlots } = useGetVendorSlots(eventId)
+  const { data: applicationsResponse } = useGetVendorApplications()
+  const requestSlots = useRequestVendorSlots()
+
+  const event = eventResponse?.data as EventDetailData | undefined
+  const slots = (slotsResponse?.data as PaginatedResponse<VendorSlot> | undefined)?.items ?? []
+  const applications = (applicationsResponse?.data as PaginatedResponse<VendorApplications> | undefined)?.items ?? []
+  const eventEnded = !!event && new Date(event.eventDate.endDate) < new Date()
+
+  const close = () => navigate(getRoutePath('vendor_discover'))
+
+  function liveApplicationFor(slot: VendorSlot) {
+    return applications.find(
+      (application) =>
+        application.eventVendorId === slot.vendorId && LIVE_STATUSES.includes(application.status?.toLowerCase()),
+    )
   }
 
-  const handleSlotRequest = (slotId: string) => {
-    setSelectedSlotId(slotId)
-    setOpenModal(true)
+  function addRevenue(slot: VendorSlot) {
+    setCart((prev) => {
+      const existing = prev.find((item) => item.slot.vendorId === slot.vendorId)
+      if (!existing) return [...prev, { slot, quantity: 1 }]
+      const quantity = Math.min(existing.quantity + 1, getSlotsLeft(slot))
+      return prev.map((item) => (item === existing ? { ...item, quantity } : item))
+    })
   }
 
-  if (isLoading && isLoadingSlots) return <LoadingFallback />;
+  function addService(slot: VendorSlot, priceOffer: number) {
+    // One offer per service: adding again replaces the price.
+    setCart((prev) => [...prev.filter((item) => item.slot.vendorId !== slot.vendorId), { slot, quantity: 1, priceOffer }])
+  }
+
+  function decrease(vendorId: string) {
+    setCart((prev) =>
+      prev.flatMap((item) => {
+        if (item.slot.vendorId !== vendorId) return [item]
+        return item.quantity > 1 ? [{ ...item, quantity: item.quantity - 1 }] : []
+      }),
+    )
+  }
+
+  function handleRequest() {
+    requestSlots.mutate(cart.map(toApplicationRequest), {
+      onSuccess: (failedIndexes) => {
+        if (failedIndexes.length === 0) {
+          toast.success(cart.length === 1 ? 'Request sent' : `${cart.length} requests sent`)
+          navigate(getRoutePath('vendor_slots'))
+          return
+        }
+        const sent = cart.length - failedIndexes.length
+        toast.error(
+          sent > 0
+            ? `${sent} sent, but ${failedIndexes.length} couldn’t be sent. They’re still in Your Slots.`
+            : 'Your request couldn’t be sent. Please try again.',
+        )
+        setCart((prev) => prev.filter((_, index) => failedIndexes.includes(index)))
+      },
+    })
+  }
+
+  if (isLoadingEvent) {
+    return (
+      <div className='min-h-screen bg-[#1E1E1E] px-4 py-10 md:px-[108px]'>
+        <div className='h-24 max-w-[650px] animate-pulse rounded-xl bg-[#2A2A2A]' />
+        <div className='mt-14 h-60 max-w-[650px] animate-pulse rounded-xl bg-[#2A2A2A]' />
+      </div>
+    )
+  }
 
   if (!event) {
     return (
-      <div className="flex flex-col items-center justify-center w-full h-full p-4">
-        <p className="text-xl font-bold mb-4">Event not found</p>
-        <Button onClick={() => navigate(-1)}>Go Back</Button>
+      <div className='min-h-screen bg-[#1E1E1E]'>
+        <VendorEmptyState
+          className='py-40'
+          title='Event Not Found'
+          action={
+            <Link
+              to={getRoutePath('vendor_discover')}
+              className='inline-flex h-9 items-center rounded-md bg-light-red px-3 font-sf-pro-text text-sm font-medium text-white'>
+              Back to Discover
+            </Link>
+          }
+        />
       </div>
-    );
+    )
   }
 
-  const isEnded = new Date(event.eventDate.endDate) < new Date();
-
   return (
-    <section className="w-full h-full flex flex-col bg-[#F2F2F7] md:bg-white min-h-screen">
-      {/* Header */}
-      <div className="w-full h-14 flex items-center justify-between px-6 md:px-8 border-b md:border-none md:hidden">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => navigate(-1)}
-          className="-ml-3"
-        >
-          <ChevronLeft className="h-12 w-12 text-black" />
-        </Button>
-      </div>
-
-      {/* Desktop Header */}
-      <div className="hidden md:flex w-full h-16 items-center justify-between px-8 bg-white mb-6">
-        <Button
-          variant="ghost"
-          onClick={() => navigate(-1)}
-          className="pl-0 hover:bg-transparent text-black"
-        >
-          <ChevronLeft className="h-18 w-18" />
-        </Button>
-      </div>
-
-      <div className="flex flex-1 flex-col md:flex-row items-start gap-12 py-4 px-6 md:px-8 w-full">
-        <div className="flex flex-col md:w-[45%] w-full justify-baseline ">
-          {/* Left Column: Event Info */}
-          <div className="flex md:flex-row flex-col gap-5">
-            {/* Banner */}
-            <div className="md:w-3/5 w-full h-[500px] md:h-[450px] rounded-[20px] overflow-hidden bg-gray-100 shadow-sm relative">
-              <img
-                src={event.eventDetails.desktopMedia?.flyer}
-                alt={event.eventName}
-                className="w-full h-full object-cover"
-              />
-            </div>
-
-            <div className="flex w-2/5 flex-col gap-2">
-              <h1 className="text-xl md:text-3xl text-black font-black font-sf-pro-display uppercase leading-tight">
-                {event.eventName}
-              </h1>
-              <div className="flex flex-col text-sm md:text-base text-system-black font-sf-pro-display">
-                <p>{event.venue}</p>
-                <p>
-                  {formatEventDate(event.eventDate.startDate)} at{" "}
-                  {formatEventTime(event.eventDate.startTime)}
-                </p>
-                <div className="mt-2">
-                  <span
-                    className={cn(
-                      "text-xs font-bold rounded-full ",
-                      isEnded ? "text-red-500" : "text-[#00AD2E]",
-                    )}
-                  >
-                    {isEnded ? "Ended" : "Upcoming"}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-          {/* About Event */}
-          <div className="bg-[#8E8E93] text-white rounded-[20px] p-4 relative w-fit overflow-hidden md:mt-16 mt-4">
-            <div className="flex items-center justify-between pb-2 mb-2 border-b border-white">
-              <h3 className="text-xl font-bold font-sf-pro-display">About Event</h3>
-              <Info className="w-5 h-5" />
-            </div>
-
-            <div
-              className={cn(
-                "text-sm leading-relaxed font-sf-pro-display transition-all duration-300",
-              )}
-            >
-              {event.description ||
-                "We're Looking For Food Vendors To Serve A Variety Of Delicious Meals, Snacks, Or Beverages To Our Attendees. This Slot Is Ideal For Mobile Food Trucks, Grills, Or Packaged Treats. What We're Looking For: - Quick-Service Or Grab-And-Go Options - Clean And Appealing Booth/Truck Setups - Ability To Handle High Foot Traffic - Compliance With Health And Safety Standards Electricity And Water Access Will Be Provided On-Site. Vendors Must Arrive 2 Hours Before Event Start For Setup And Be Fully Self-Sufficient."}
-            </div>
-          </div>
+    // pb-36 keeps the last slot clear of the Your Slots bar.
+    <div className='min-h-screen bg-[#1E1E1E] pb-36 text-white'>
+      <header className='flex items-start justify-between gap-4 border-b border-[#2E2E2E] px-4 pt-6 pb-7 md:px-[108px]'>
+        <div className='flex min-w-0 flex-col gap-1.5'>
+          <h1 className='font-work-sans text-2xl leading-tight font-black uppercase md:text-[28px]'>
+            {event.eventName}
+          </h1>
+          <p className='font-inter-tight text-base'>{event.venue}</p>
+          <p className='font-inter-tight text-base'>{formatVendorDate(event.eventDate.startDate)}</p>
         </div>
+        <button
+          type='button'
+          aria-label='Close'
+          onClick={close}
+          className='flex size-12 shrink-0 items-center justify-center rounded-full bg-[#3A3A3A] text-white transition-colors hover:bg-[#4A4A4A] md:size-[58px]'>
+          <RiCloseLine className='size-8' />
+        </button>
+      </header>
 
-        {/* Right Column: Cards (Desktop) or swipeable row (Mobile) */}
-        <div className="md:w-[55%] w-full md:flex-1 md:min-w-0 flex flex-nowrap md:flex-wrap overflow-x-auto md:overflow-x-visible md:overflow-y-auto md:max-h-[calc(100vh-140px)] snap-x snap-mandatory md:snap-none scrollbar-none -mx-6 px-6 pb-2 md:mx-0 md:px-0 md:pb-0 md:content-start gap-4">
+      <main className='box-content flex max-w-[650px] flex-col gap-8 px-4 pt-8 md:px-[108px]'>
+        <AboutEvent event={event} />
+
+        <section className='flex flex-col gap-4'>
+          <h2 className='font-inter-tight text-2xl font-bold'>Available Slots</h2>
+
           {isLoadingSlots ? (
-            <Card className="w-full p-6 rounded-[20px] bg-white border-none shadow-xl h-48 animate-pulse" />
-          ) : availableVendorSlots && availableVendorSlots.length > 0 ? (
-            availableVendorSlots.map((slot) => {
-              const isRevenue = slot.vendorType === "Revenue";
-              const deadline = isRevenue
-                ? slot.vendorDetails.slotData.applicationDeadline
-                : slot.vendorDetails.serviceData.applicationDeadline;
-              console.log(deadline);
-
-              return (
-                <Card
+            <div className='h-48 animate-pulse rounded-lg bg-[#3D3D3D]' />
+          ) : slots.length > 0 ? (
+            // One card, like the fans' ticket list: divide-y draws the separators.
+            <div className='w-full flex flex-col overflow-hidden rounded-md bg-gunmetal-gray divide-y divide-mid-dark-gray'>
+              {slots.map((slot) => (
+                <SlotRow
                   key={slot.vendorId}
-                  className="w-80 shrink-0 snap-center md:w-auto md:flex-1 md:min-w-65 md:max-w-80 md:shrink md:snap-align-none md:h-110 p-6 rounded-xl bg-white border-none shadow-sm flex flex-col gap-6"
-                >
-                  <div className="flex flex-col items-center justify-center gap-2">
-                    <div
-                      className={cn(
-                        "w-fit px-2 py-1 rounded-2xl text-xs font-sf-pro-rounded capitalize",
-                        isRevenue
-                          ? "bg-[#00AD2E]/30 text-[#00AD2E]"
-                          : "bg-orange-peel/30 text-orange-peel",
-                      )}
-                    >
-                      {isRevenue ? "Revenue vendor" : "Service vendor"}
-                    </div>
-                    <h3 className="font-bold text-sm uppercase">
-                      {slot.vendorName}
-                    </h3>
-                    <p className="text-xs text-gray-500 mt-1">
-                      {stripUnderscores(slot.category)}
-                    </p>
-                  </div>
-
-                  <div className="flex flex-col gap-4 text-sm">
-                    <div className="flex justify-between items-center">
-                      <span className="text-system-black">
-                        {isRevenue ? "Price Per Slot:" : "Budget:"}
-                      </span>
-                      <span className="font-bold">
-                        {isRevenue
-                          ? revenuePrice(slot.vendorDetails.slotData.price)
-                          : slot.vendorDetails.serviceData.hasBudgetRange
-                            ? `${formatNaira(slot.vendorDetails.serviceData.minBudget)} - ${formatNaira(slot.vendorDetails.serviceData.maxBudget)}`
-                            : formatNaira(
-                                slot.vendorDetails.serviceData.minBudget,
-                              )}
-                      </span>
-                    </div>
-                    <SlotDescription description={slot.description} />
-                    {isRevenue && (
-                      <div className="flex justify-between items-center">
-                        <span className="text-system-black">
-                          Available Slots:
-                        </span>
-                        <span className="text-[#34C759] font-bold">
-                          {slot.vendorDetails.slotData.slotNumber}
-                        </span>
-                      </div>
-                    )}
-                    {!isRevenue &&
-                      slot.vendorDetails.serviceData.startTime != null && (
-                        <div className="flex justify-between items-center">
-                          <span className="text-system-black">
-                            Work Duration:
-                          </span>
-                          <span className="text-system-black">
-                            {slot.vendorDetails.serviceData.startTime} -{" "}
-                            {slot.vendorDetails.serviceData.stopTime}
-                          </span>
-                        </div>
-                      )}
-                    {deadline && (
-                      <div className="flex justify-between items-center">
-                        <span className="text-system-black">
-                          Application Deadline:
-                        </span>
-                        <span>
-                          {new Date(deadline).toLocaleDateString("en-US", {
-                            month: "short",
-                            day: "numeric",
-                            year: "numeric",
-                          })}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-
-                  <Button
-                    variant={"secondary"}
-                    className="mt-auto font-sf-pro-text rounded-full uppercase text-xs"
-                    onClick={() => handleSlotRequest(slot.vendorId)}
-                    disabled={isEnded}
-                  >
-                    Request For {isRevenue ? "Slot" : "Offer"}
-                  </Button>
-                </Card>
-              );
-            })
+                  slot={slot}
+                  eventEnded={eventEnded}
+                  quantityInCart={cart.find((item) => item.slot.vendorId === slot.vendorId)?.quantity ?? 0}
+                  requestedApplicationId={liveApplicationFor(slot)?.id}
+                  onAddRevenue={() => addRevenue(slot)}
+                  onAddService={(price) => addService(slot, price)}
+                  onDecrease={() => decrease(slot.vendorId)}
+                />
+              ))}
+            </div>
           ) : (
-            <Card className="p-6 rounded-[20px] bg-white border-none shadow-sm text-center text-sm text-gray-500">
-              No vendor slots available for this event yet.
-            </Card>
+            <VendorEmptyState className='rounded-lg bg-[#2A2A2A] py-14' title='No Slots Yet' description='This event isn’t taking vendor applications yet.' />
           )}
-        </div>
-       
-      </div>
-       <div className="py-8 px-5 flex justify-end">
-            <p className="font-sf-pro-display text-base text-black font-medium capitalize">
-                Contact Details arent shared until after payment has been approved
-            </p>
-        </div>
 
-      {selectedSlot && (
-        <RequestVendorSlotModal
-          isOpen={openModal}
-          onClose={() => setOpenModal(false)}
-          slot={selectedSlot}
-        />
-      )}
-    </section>
-  );
+          {slots.some((slot) => !isRevenueSlot(slot)) && (
+            <p className='font-sf-pro-text text-xs text-[#9A9A9A]'>
+              For services, enter the price you’d charge. The organizer sees it with your request.
+            </p>
+          )}
+        </section>
+      </main>
+
+      <SlotCart items={cart} onRequest={handleRequest} isRequesting={requestSlots.isPending} />
+    </div>
+  )
 }
 
+// Same markup as the fans' cart page (cart-container.tsx), so the two stay identical.
+function AboutEvent({ event }: { event: EventDetailData }) {
+  return (
+    <section className='w-full flex flex-col md:flex-row items-stretch gap-4'>
+      <div className='md:w-[300px] md:h-[400px] w-[200px] h-[300px] mt-4 md:mt-0 shrink-0'>
+        <RenderEventImage
+          image={event.eventDetails?.desktopMedia?.flyer}
+          event_name={event.eventName}
+          className='!w-full !h-full object-cover'
+        />
+      </div>
+      <div className='flex flex-col flex-1 gap-2 md:gap-0'>
+        <p className='font-inter-tight md:text-2xl text-lg font-bold md:mb-4'>About Event</p>
+        <div className='flex flex-col gap-1'>
+          <p className='font-inter-tight text-lg font-bold uppercase'>{event.eventName}</p>
+          <p className='font-inter-tight text-sm md:text-base'>
+            {formatDateLong(event.eventDate.startDate)} | {event.venue}
+          </p>
+          <p className='font-inter-tight text-sm md:text-base'>
+            Doors open: {formatTimeLong(event.eventDate.startTime)} - {formatTimeLong(event.eventDate.endTime)}
+          </p>
+        </div>
+        <div className='flex flex-col gap-1 font-inter-tight text-sm'>
+          <ShowMoreText text={event.description} limit={200} className='text-sm font-inter-tight' />
+        </div>
+      </div>
+    </section>
+  )
+}
