@@ -25,16 +25,28 @@ export interface VendorCategory {
     label: string
 }
 
+// Values kept from the first list where a category carried over, so saved profiles still match.
 export const VENDOR_CATEGORIES: VendorCategory[] = [
-    { value: 'food_beverage', label: 'Food & Beverage' },
-    { value: 'merchandise', label: 'Merchandise & Apparel' },
-    { value: 'art_crafts', label: 'Art & Crafts' },
-    { value: 'beauty_wellness', label: 'Beauty & Wellness' },
-    { value: 'entertainment', label: 'Entertainment Services' },
-    { value: 'photography', label: 'Photography & Videography' },
-    { value: 'technology', label: 'Technology & Electronics' },
-    { value: 'other', label: 'Other' },
+    { value: 'food_beverage', label: 'Food & Drinks' },
+    { value: 'merchandise', label: 'Fashion & Merchandise' },
+    { value: 'beauty_wellness', label: 'Beauty & Personal Care' },
+    { value: 'djs_hosts', label: 'DJs & Hosts' },
+    { value: 'photography', label: 'Photography, Video & Media' },
+    { value: 'art_crafts', label: 'Arts & Crafts' },
+    { value: 'equipment_rentals', label: 'Equipment Rentals' },
+    { value: 'equipment_furniture_rentals', label: 'Equipment & Furniture Rentals' },
+    { value: 'decorator', label: 'Decorator' },
+    { value: 'event_staffing_security', label: 'Event Staffing & Security' },
+    { value: 'cleaning_services', label: 'Cleaning Services' },
+    { value: 'games_activities_experiences', label: 'Games, Activities & Experiences' },
 ]
+
+/** A category's label, or the raw value tidied up for older categories no longer listed. */
+export function vendorCategoryLabel(value?: string): string {
+    if (!value) return ''
+    const match = VENDOR_CATEGORIES.find((category) => category.value === value || category.label === value)
+    return match ? match.label : value.replace(/_/g, ' ').replace(/\b\w/g, (letter) => letter.toUpperCase())
+}
 
 // Vendor Slot Data for GET /api/Event/{eventId}/vendor-slots
 export interface VendorSlot {
@@ -168,3 +180,34 @@ export interface VendorApplicationRequest {
 }
 
 export type VendorAvailableEvents = ApiResponse<VendorSlot[]>
+// GET /api/Event/vendor/summary
+export interface VendorSummary {
+    savedEvents: number
+    securedEvents: number
+    acquiredSlots: number
+}
+
+export type VendorSummaryResponse = ApiResponse<VendorSummary>
+
+// GET /api/Profile/vendor/event/watchlist
+export interface VendorSavedEvent {
+    id: string
+    eventId: string
+    eventName: string
+    description: string
+    venue: string
+    startDate: string
+    endDate: string
+    category: string
+    posterUrl: string
+    createdDate: string
+}
+
+export type VendorSavedEventsResponse = ApiResponse<VendorSavedEvent>
+
+// POST /api/Event/vendor/slot/pay
+export interface PayVendorSlotRequest {
+    applicationId: number
+    paymentMethod: string
+    reference?: string
+}

@@ -97,13 +97,56 @@ export interface VendorProfileData {
   vendorId: string
   businessName: string
   description: string
+  profilePicture?: string
   contactEmail: string
   contactPhone: string
   website: string
   businessCategory: string
+  category?: string
+  vendorCategory?: string
   services: string
+  vendorType?: string
+  state?: string
+  country?: string
   location: string
+  businessData?: VendorBusinessData
   createdDate: string
+}
+
+export interface VendorBusinessData {
+  aboutBusiness?: string | null
+  profilePicture?: string | null
+  gallery?: string[] | null
+  /** Old spelling the API still sends. */
+  gallary?: string[] | null
+  portfolio?: { webUrl?: string; fileUrl?: string } | null
+  socials?: Partial<Record<'facebook' | 'instagram' | 'x' | 'linkedIn' | 'tikTok' | 'youTube' | 'socialLink', string>> | null
+}
+
+// PATCH /api/Profile/vendor. category, country, state and dateOfBirth aren't in the API's
+// schema yet; they're sent so they save once the backend accepts them.
+export interface UpdateVendorProfileRequest {
+  firstName?: string
+  lastName?: string
+  businessName?: string
+  email?: string
+  phoneNumber?: string
+  telephone?: string
+  gender?: string
+  businessData?: VendorBusinessData
+  category?: string
+  vendorCategory?: string
+  country?: string
+  state?: string
+  dateOfBirth?: string
+}
+
+// PATCH /api/Profile/{role}/change-password
+export interface ChangePasswordRequest {
+  currentPassword: string
+  oldPassword: string
+  newPassword: string
+  confirmNewPassword: string
 }
 
 export type VendorProfileResponse = ApiResponse<VendorProfileData>
