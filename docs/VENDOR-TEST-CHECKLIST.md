@@ -11,54 +11,54 @@ and reject requests. How the pages work is in [VENDOR-SIDE.md](VENDOR-SIDE.md).
 
 ## 1. Dashboard layout (sidebar and header)
 
-- [ ] The sidebar card shows business name, category, phone, email, and the Saved Events and Total Slots Secured counts.
-- [ ] "Finish setting up your profile" shows only while the profile is incomplete, and opens the profile modal.
-- [ ] Edit profile opens the modal on the Profile tab.
-- [ ] DISCOVER and MY SLOTS work and highlight the current page.
-- [ ] Log Out in the sidebar logs you out.
-- [ ] Avatar menu: Settings opens the modal on the Settings tab, and Log out works.
-- [ ] On a phone or portrait tablet, the menu button opens the sidebar as a slide-out panel.
-- [ ] Going to `/vendor/profile` takes you to Discover.
+- [x] The sidebar card shows business name, category, phone, email, and the Saved Events and Total Slots Secured counts.
+- [x] "Finish setting up your profile" shows only while the profile is incomplete, and opens the profile modal.
+- [x] Edit profile opens the modal on the Profile tab.
+- [x] DISCOVER and MY SLOTS work and highlight the current page.
+- [x] Log Out in the sidebar logs you out.
+- [x] Avatar menu: Settings opens the modal on the Settings tab, and Log out works.
+- [x] On a phone or portrait tablet, the menu button opens the sidebar as a slide-out panel.
+- [x] Going to `/vendor/profile` takes you to Discover.
 
 ## 2. Discover (`/vendor/discover`)
 
-- [ ] Event cards load with the slots-left count.
-- [ ] Search filters the events.
-- [ ] The Saved Events toggle shows only saved events.
-- [ ] The bookmark saves an event, and the sidebar's Saved Events count goes up.
-- [ ] ⚠️ Tapping it again unsaves the event, and it stays unsaved after a reload. This uses the fans' endpoint.
-- [ ] Clicking a card opens the ticket page.
+- [x] ⚠️ Event cards load with slots left out of the total ("SLOTS : 12 / 20"), and saved events show the same numbers.
+- [x] Search filters the events.
+- [x] The Saved Events toggle shows only saved events.
+- [x] The bookmark saves an event, and the sidebar's Saved Events count goes up.
+- [ ] ⚠️ Tapping it again unsaves the event, and it stays unsaved after a reload. This uses the fans' endpoint. (doesn't work and endpoint doesnt exist)
+- [x] Clicking a card opens the ticket page.
 
 ## 3. Ticket page (`/vendor/discover/:eventId`)
 
 **About the event**
 
-- [ ] The header and About Event show the flyer (a grey box with the event name when there's none), name, date | venue, doors open, and Read more on long descriptions.
+- [x] The header and About Event show the flyer (a grey box with the event name when there's none), name, date | venue, doors open, and Read more on long descriptions.
 
 **Slots**
 
-- [ ] Each slot shows its price (revenue prices include the 8% fee) and category.
-- [ ] Tapping a row opens its details: price, description, slots left or work hours, apply-by date.
-- [ ] Revenue slot: + adds a stall, − takes one off, and + stops at the number of slots left.
-- [ ] Service slot: + turns green only once a price is typed, a price above the budget gets capped, and after adding, the row shows − 1.
-- [ ] Requested shows when you already have a pending, approved or secured request, and links to it.
-- [ ] Closed shows after the deadline or once the event has ended.
+- [x] Each slot shows its price (revenue prices include the 8% fee) and category.
+- [x] Tapping a row opens its details: price, description, slots left or work hours, apply-by date.
+- [x] Revenue slot: + adds a stall, − takes one off, and + stops at the number of slots left.
+- [x] Service slot: + turns green only once a price is typed, a price above the budget gets capped, and after adding, the row shows − 1.
+- [x] Requested shows when you already have a pending, approved or secured request, and links to it.
+- [x] Closed shows after the deadline or once the event has ended.
 - [ ] Paused shows when the organizer has paused the slot.
 - [ ] Sold out shows when a revenue slot has no stalls left.
 
 **Cart and Request**
 
-- [ ] The cart opens by itself when something is added, and stays closed after taking something off.
-- [ ] The cart shows the fees box, the ×n lines with unit prices, and the right total.
-- [ ] Request is black, and disabled while the cart is empty.
-- [ ] ⚠️ Request sends one request per cart line, shows a success toast, and goes to My Slots.
+- [x] The cart opens by itself when something is added, and stays closed after taking something off.
+- [x] The cart shows the fees box, the ×n lines with unit prices, and the right total.
+- [x] Request is black, and disabled while the cart is empty.
+- [x] ⚠️ Request sends one request per cart line, shows a success toast, and goes to My Slots.
 - [ ] If some requests fail, only the failed ones stay in the cart. This is hard to trigger, so try it if you get the chance.
-- [ ] ✕ goes back to Discover, and the cart is empty when you return.
+- [x] ✕ goes back to Discover, and the cart is empty when you return.
 
 ## 4. My Slots (`/vendor/slots`)
 
-- [ ] ⚠️ Your requests show up, grouped by event, with the right status: In Review, Approved, Slot Secured, Rejected, Expired, Completed.
-- [ ] The All, Approved and Ended filters show the right requests and counts.
+- [x] ⚠️ Your requests show up, grouped by event, with the right status: In Review, Approved, Slot Secured, Rejected, Expired, Completed.
+- [x] The All, Approved and Ended filters show the right requests and counts.
 - [ ] The payment badge shows on approved stalls that haven't been paid for.
 
 ## 5. Request page (`/vendor/slots/:applicationId`)
@@ -87,10 +87,10 @@ Use the organizer account to get a request into each status.
 
 **Profile tab**
 
-- [ ] Uploading a picture works, and it shows in the modal and on the sidebar card.
+- [x] Uploading a picture works, and it shows in the modal and on the sidebar card.
 - [ ] The about text, contact details and socials can be edited.
-- [ ] Save is disabled until something changes.
-- [ ] ⚠️ After saving, everything is still there after a reload.
+- [x] Save is disabled until something changes.
+- [x] ⚠️ After saving, everything is still there after a reload.
 
 **Account tab**
 

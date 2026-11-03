@@ -16,7 +16,7 @@ section (§3) was checked against the `vendors` branch in November 2026.
 | **Fans** | 15 / 17 done | 10 / 11 | 1 / 4 | **86%** |
 | **Organizers** | 13 / 13 done | 23 / 27 | 5 / 16 | **83%** |
 | **Fans + Organizers** | **28 / 30 done (93%)** | 33 / 38 | 6 / 20 | **84%** |
-| Vendors (in progress on the `vendors` branch) | 5 / 6 done | 5 / 7 | 1 / 3 | 74% |
+| Vendors (in progress on the `vendors` branch) | 5 / 6 done | 3 / 7 | 1 / 3 | 63% |
 
 **How the overall % is worked out:**
 - A High feature counts 3 times as much as a Low one, and a Medium one twice as much.
@@ -277,16 +277,16 @@ which isn't merged yet. How the code works: [VENDOR-SIDE.md](./VENDOR-SIDE.md).
 | Feature | Priority | Status | Notes |
 |---|---|---|---|
 | Vendor sign-up and registration callout | 🔴 High | ✅ Working | |
-| Discover events (`/vendor/discover`) | 🔴 High | ✅ Working | Real events, searched by name. Each card shows the slots left; the design's "12 / 20" needs a total the API doesn't send. |
+| Discover events (`/vendor/discover`) | 🔴 High | ✅ Working | Real events, searched by name. Each card shows slots left out of the total, like "12 / 20". |
 | Event page and requesting slots (`/vendor/discover/:eventId`) | 🔴 High | ✅ Working | The ticket page design: About Event, Available Slots, and Your Slots. Add stalls with + and −, propose a price for service offers, then Request sends them all. Rows and the cart match the fans' ticket rows and cart. Slots already requested, closed, paused or sold out say so. |
-| My Slots (`/vendor/slots`) | 🔴 High | ✅ Working | One card per request with its status (In Review, Approved, Slot Secured, Rejected, Expired, Completed). All / Approved / Ended filters, and an "n slots need payment" badge. |
+| My Slots (`/vendor/slots`) | 🔴 High | ✅ Working | One card per request with its status (In Review, Approved, Slot Secured, Rejected, Expired, Completed). All / In Review / Approved / Ended filters, and an "n slots need payment" badge. |
 | A request's page (`/vendor/slots/:applicationId`) | 🔴 High | ✅ Working | The event, the slot, its details, and what to do next for each status, for revenue slots and service offers. |
 | Pay for an approved slot | 🔴 High | 🔵 Awaiting backend | **Pay now** calls the pay endpoint. If it answers with a Paystack link the page goes there, and the reference is confirmed on the way back; otherwise the slot is treated as secured. Which one the backend does isn't confirmed. |
-| Saved events | 🟠 Medium | ✅ Working | The bookmark on Discover and My Slots cards, and the Saved Events toggle on Discover. Removing uses the shared watchlist endpoint; confirm it on the real API. |
+| Saved events | 🟠 Medium | 🟡 Partial | The bookmark on Discover and My Slots cards saves an event, and the Saved Events toggle on Discover lists them. **Removing isn't possible yet**: there's no vendor endpoint for it, so a saved event's bookmark stays filled. **The sidebar's Saved Events count doesn't match the list.** Both raised with the backend (see §5). |
 | Withdraw a request | 🟠 Medium | ✅ Working | While it's in review, after a confirmation. |
 | Profile card and summary (sidebar) | 🟠 Medium | ✅ Working | Business name, category, phone, email, saved events and slots secured from the API, and a "Finish setting up your profile" prompt. |
-| Profile: picture, bio, contact details, gallery | 🟠 Medium | ✅ Working | The redesigned modal's Profile tab. Photos upload to Cloudinary; Save sends the profile. |
-| Account details | 🟠 Medium | 🟡 Partial | Business name, website, name, email, gender and phone save. **Category, country, state and birthday aren't in the API's schema**, so they may not save until the backend adds them. |
+| Profile: picture, bio, contact details, gallery | 🟠 Medium | 🟡 Partial | The redesigned modal's Profile tab. Photos upload to Cloudinary; Save sends the profile. **The gallery doesn't save**: the backend drops it, so it's gone after a reload (see §5). |
+| Account details | 🟠 Medium | 🟡 Partial | Business name, website, name, email, gender and phone save. **Category, country, state and birthday aren't in the API's schema**, so they don't save until the backend adds them (see §5). |
 | Change password | 🟠 Medium | ✅ Working | Settings tab. |
 | Notifications inbox | 🟠 Medium | ⛔ Not working | The redesign dropped the Inbox tab, so vendors can't see notifications anywhere. The hooks still work. |
 | Email notifications setting | ⚪ Low | ⛔ Not working | The checkbox isn't saved; the API has no setting for it. |
@@ -337,13 +337,14 @@ or changes:
 - **Private event status for signed-out fans:** `isApplicationPaused` and `isApplicationEnded` on the public event, so they can be told before logging in.
 - **New vendor slot's id:** creating a slot returns an id in a different format from the one the slot's own endpoint takes, so the app finds the new slot in the refreshed list to open its page. Returning the slot's `vendorId` would remove that step.
 - **Vendor slot payment:** `POST /api/Event/vendor/slot/pay` says it "confirms payment" with a `reference`, but nothing starts a Paystack payment for a vendor slot. Either the pay call returns a checkout link (the app follows `authorizationUrl` and confirms the reference when Paystack sends the vendor back), or there needs to be an initialize endpoint, like the cart's.
+- **Vendor profile save (`PATCH /api/Profile/vendor`):** the endpoint needs work. Its request DTO has no category, country, state or birthday, and it doesn't save the gallery. The app sends all of them, and React Query's cache makes them look saved until the page reloads, then they're gone.
+- **Vendor saved events (raised with the backend):**
+  - There's no vendor endpoint to remove a saved event. The app doesn't use the fans' watchlist remove in its place, so for now a vendor can save an event but not unsave it.
+  - `savedEvents` from `GET /api/Event/vendor/summary` doesn't match `GET /api/Profile/vendor/event/watchlist`: the summary said 3 while the list had 2. The sidebar shows the summary's number as it comes.
 - **Vendor dashboard gaps:**
-  - The total number of slots on available events, for "12 / 20".
-  - A vendor endpoint to remove a saved event (the app uses the fans' watchlist remove).
   - A receipt for a paid slot.
   - Fetching one application by id (the request page finds it in the full list).
   - Changing a service offer's proposed price after sending it, which the design shows as editable.
-  - Category, country, state and birthday on `PATCH /api/Profile/vendor` (the app sends them; the schema doesn't list them).
   - Somewhere to show vendor notifications, once the design has one.
 - **Organizer account deletion:** the API only has an admin delete (`DELETE /api/Admin/users/{userId}`), nothing an organizer can call on their own account.
 
