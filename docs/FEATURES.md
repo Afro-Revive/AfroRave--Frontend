@@ -40,8 +40,8 @@ how much they block launch:
 | 2 | QR code for entry | Fans | 🟡 Partial | **Mobile app.** The QR is in the mobile app; the web app's app store links point nowhere until the apps are published. |
 
 Vendors have 1 more on the `vendors` branch: **paying for an approved slot**.
-The button is built; the backend needs to confirm how a Paystack payment starts
-and comes back (§5).
+The button is built, but the pay endpoint doesn't return a Paystack link yet, so
+nothing redirects and nothing gets paid (§5).
 
 ---
 
@@ -281,9 +281,9 @@ which isn't merged yet. How the code works: [VENDOR-SIDE.md](./VENDOR-SIDE.md).
 | Event page and requesting slots (`/vendor/discover/:eventId`) | 🔴 High | ✅ Working | The ticket page design: About Event, Available Slots, and Your Slots. Add stalls with + and −, propose a price for service offers, then Request sends them all. Rows and the cart match the fans' ticket rows and cart. Slots already requested, closed, paused or sold out say so. |
 | My Slots (`/vendor/slots`) | 🔴 High | ✅ Working | One card per request with its status (In Review, Approved, Slot Secured, Rejected, Expired, Completed). All / In Review / Approved / Ended filters, and an "n slots need payment" badge. |
 | A request's page (`/vendor/slots/:applicationId`) | 🔴 High | ✅ Working | The event, the slot, its details, and what to do next for each status, for revenue slots and service offers. |
-| Pay for an approved slot | 🔴 High | 🔵 Awaiting backend | **Pay now** calls the pay endpoint. If it answers with a Paystack link the page goes there, and the reference is confirmed on the way back; otherwise the slot is treated as secured. Which one the backend does isn't confirmed. |
+| Pay for an approved slot | 🔴 High | 🔵 Awaiting backend | **Pay now** calls the pay endpoint and goes to Paystack if it answers with a link, then confirms the reference on the way back. **The backend doesn't return a Paystack link yet**, so there's no redirect: the vendor is told online payment isn't available and to contact the organizer (see §5). |
 | Saved events | 🟠 Medium | 🟡 Partial | The bookmark on Discover and My Slots cards saves an event, and the Saved Events toggle on Discover lists them. **Removing isn't possible yet**: there's no vendor endpoint for it, so a saved event's bookmark stays filled. **The sidebar's Saved Events count doesn't match the list.** Both raised with the backend (see §5). |
-| Withdraw a request | 🟠 Medium | ✅ Working | While it's in review, after a confirmation. |
+| Withdraw a request | 🟠 Medium | ✅ Working | While it's in review, after a confirmation. **Requesting the same slot again afterwards fails**: the backend still counts the withdrawn request (see §5). |
 | Profile card and summary (sidebar) | 🟠 Medium | ✅ Working | Business name, category, phone, email, saved events and slots secured from the API, and a "Finish setting up your profile" prompt. |
 | Profile: picture, bio, contact details, gallery | 🟠 Medium | 🟡 Partial | The redesigned modal's Profile tab. Photos upload to Cloudinary; Save sends the profile. **The gallery doesn't save**: the backend drops it, so it's gone after a reload (see §5). |
 | Account details | 🟠 Medium | 🟡 Partial | Business name, website, name, email, gender and phone save. **Category, country, state and birthday aren't in the API's schema**, so they don't save until the backend adds them (see §5). |
@@ -336,11 +336,12 @@ or changes:
 - **Access requests:** the list endpoint needs a `search` parameter, and order details for approved fans.
 - **Private event status for signed-out fans:** `isApplicationPaused` and `isApplicationEnded` on the public event, so they can be told before logging in.
 - **New vendor slot's id:** creating a slot returns an id in a different format from the one the slot's own endpoint takes, so the app finds the new slot in the refreshed list to open its page. Returning the slot's `vendorId` would remove that step.
-- **Vendor slot payment:** `POST /api/Event/vendor/slot/pay` says it "confirms payment" with a `reference`, but nothing starts a Paystack payment for a vendor slot. Either the pay call returns a checkout link (the app follows `authorizationUrl` and confirms the reference when Paystack sends the vendor back), or there needs to be an initialize endpoint, like the cart's.
+- **Vendor slot payment:** `POST /api/Event/vendor/slot/pay` says it "confirms payment" with a `reference`, but **it doesn't return a Paystack link**, so Pay now has nowhere to send the vendor and nothing starts a payment. Either the pay call returns a checkout link (the app already follows `authorizationUrl` and confirms the reference when Paystack sends the vendor back), or there needs to be an initialize endpoint, like the cart's.
 - **Vendor profile save (`PATCH /api/Profile/vendor`):** the endpoint needs work. Its request DTO has no category, country, state or birthday, and it doesn't save the gallery. The app sends all of them, and React Query's cache makes them look saved until the page reloads, then they're gone.
 - **Vendor saved events (raised with the backend):**
   - There's no vendor endpoint to remove a saved event. The app doesn't use the fans' watchlist remove in its place, so for now a vendor can save an event but not unsave it.
   - `savedEvents` from `GET /api/Event/vendor/summary` doesn't match `GET /api/Profile/vendor/event/watchlist`: the summary said 3 while the list had 2. The sidebar shows the summary's number as it comes.
+- **Requesting a slot again after withdrawing:** withdrawing (`DELETE /api/Event/vendor/application/{applicationId}`, a soft delete) works, but requesting the same slot again fails with `{"message":"You have already applied for this vendor slot"}`. The duplicate check still counts the withdrawn request; it should skip soft-deleted ones.
 - **Vendor dashboard gaps:**
   - A receipt for a paid slot.
   - Fetching one application by id (the request page finds it in the full list).

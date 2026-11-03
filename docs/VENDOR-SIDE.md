@@ -127,7 +127,7 @@ The API sends four application statuses: `Pending`, `Approved`, `Rejected` and
 | **Expired** | A revenue slot that was `Approved` but not paid before its deadline, or before the event ended |
 | **Completed** | `Secured` after the event ends. Also an approved service offer after the event ends, since service vendors don't pay. |
 
-- **The payment deadline** is the slot's application deadline (`slotData.applicationDeadline` or `serviceData.applicationDeadline`, then `vendorDetails.applicationDeadline`). The design's copy calls it that too: "Pay before {application deadline}".
+- **The payment deadline** is the slot's application deadline (`slotData.applicationDeadline` or `serviceData.applicationDeadline`, then `vendorDetails.applicationDeadline`). The design's copy calls it that too: "Pay before {application deadline}", shown as the day and the time, read as UTC like every deadline.
 - **"Ended"** uses the event's `endDate` once the event has loaded. Before then it falls back to the end of the event's start day, from the application.
 - **Money:**
   - `getSlotFee` is the slot price × slots requested.
@@ -220,16 +220,16 @@ What the bottom of the summary card shows:
 | Status | Revenue slot | Service offer |
 |---|---|---|
 | In Review | "Request sent on …" notice, Amount Due, **Withdraw Request**, faded "Secure Payment With Paystack" | Budget and proposed price, the notice, **Withdraw Request** |
-| Approved | "Pay before …" notice, Amount Due, **Pay now** | **Contact organizer** |
+| Approved | "Pay before “date” at “time”" notice, Amount Due, **Pay now** | **Contact organizer** |
 | Slot Secured | "Paid ₦…" with the date, **View receipt**, **Contact organizer** | "Offer accepted", **Contact organizer** |
 | Rejected, Expired, Completed | The notice, **Discover Events** | Same |
 
-- **Withdraw Request** asks for confirmation, then calls `DELETE /api/Event/vendor/application/{id}` and goes back to My Slots.
+- **Withdraw Request** asks for confirmation, then calls `DELETE /api/Event/vendor/application/{id}` and goes back to My Slots. The ticket page then shows the slot as open again, but **requesting it fails** with "You have already applied for this vendor slot": the backend still counts the withdrawn request (FEATURES.md §5).
 - **Pay now** calls `POST /api/Event/vendor/slot/pay` with `{ applicationId, paymentMethod: 'paystack-checkout' }`:
   - If the response holds a checkout link (`authorizationUrl`, `authorization_url`, `checkoutUrl` or `paymentUrl`), the page goes to Paystack.
-  - Otherwise it treats the slot as secured, says so, and refreshes the applications and the summary.
+  - Otherwise it says online payment isn't available yet and to contact the organizer, and refreshes the applications in case the status changed. It never says the slot is secured, since nothing was paid. **This is what happens today: the backend doesn't return a Paystack link yet.** There's a TODO in `slot-details/index.tsx`.
   - Back from Paystack, a `?reference=` (or `?trxref=`) in the URL is sent once to the same endpoint to confirm the payment, then removed from the URL.
-  - *Which of these the backend does hasn't been confirmed* (see FEATURES.md §5).
+  - See FEATURES.md §5.
 - **Contact organizer** is a `mailto:`. It uses the slot's own contact email when the organizer set different contact details, otherwise the event's contact email. It's greyed out when there's neither.
 - **View receipt** is for stalls only (a service vendor doesn't pay for the slot). It's a dialog built from the application: slot fee, platform fee, total and the date it was last updated. There's no receipt endpoint, so these are the dashboard's numbers, not Paystack's.
 

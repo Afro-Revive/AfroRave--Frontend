@@ -72,10 +72,13 @@ Use the organizer account to get a request into each status.
 - [x] Cancel and ✕ close the popup.
 - [x] ⚠️ Withdraw deletes the request and goes back to My Slots.
 - [x] After withdrawing, the slot can be requested again on the ticket page.
+- [ ] ⚠️ Known issue: sending that new request fails with "You have already applied for this vendor slot". Raised with the backend; recheck once it's fixed.
 
 **Approved, Secured and the rest**
 
-- [ ] ⚠️ Approved stall: Pay now goes to Paystack, and coming back confirms the payment and shows "Slot secured!". This is the biggest unknown.
+- [x] Approved stall: the notice says Pay before “date” at “time”, matching the deadline the organizer set.
+- [x] Approved stall, today: Pay now shows "Online payment isn't available yet…" and doesn't say the slot is secured (the backend doesn't return a Paystack link).
+- [ ] ⚠️ Once the backend returns a Paystack link: Pay now goes to Paystack, and coming back confirms the payment and shows "Slot secured!".
 - [x] Approved service: Contact organizer opens an email to them, and is disabled when the organizer has no contact email.
 - [ ] Secured stall: View receipt (slot fee, 8% fee, total) and Contact organizer both work.
 - [x] Secured service: only Contact organizer shows, full width, with no View receipt.
