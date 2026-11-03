@@ -38,7 +38,8 @@ export function AccountTab({ draft, update, onSave, isDirty, isSaving }: ITab) {
         <h3 className='font-inter-tight text-xl font-bold text-white'>User Information</h3>
         <InsetInput label='First Name' value={draft.firstName} onChange={(e) => update({ firstName: e.target.value })} maxLength={75} />
         <InsetInput label='Last Name' value={draft.lastName} onChange={(e) => update({ lastName: e.target.value })} maxLength={75} />
-        <InsetInput label='Email' type='email' value={draft.email} onChange={(e) => update({ email: e.target.value })} />
+        {/* Read only: it's the vendor's sign-in email. */}
+        <InsetInput label='Email' type='email' value={draft.email} disabled readOnly />
         {/* Changed in Settings; shown so the vendor knows where their sign-in lives. */}
         <InsetInput label='Password' type='password' value={user ? '*************' : ''} disabled readOnly />
 

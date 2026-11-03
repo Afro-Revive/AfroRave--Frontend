@@ -82,8 +82,9 @@ export function ProfileTab({ draft, update, onSave, isDirty, isSaving }: ITab) {
             label='Email'
             type='email'
             value={draft.email}
-            onChange={(e) => update({ email: e.target.value })}
-            placeholder='Add email address'
+            // Read only: it's the vendor's sign-in email.
+            disabled
+            readOnly
           />
           <IconInput
             icon={<RiPhoneFill className='size-4' />}

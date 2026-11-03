@@ -112,7 +112,7 @@ export function IconInput({ icon, label, ...props }: { icon: ReactNode; label: s
       </span>
       <input
         {...props}
-        className='h-[38px] w-full rounded-lg border border-white bg-transparent px-3 font-inter-tight text-sm text-white outline-none placeholder:text-white/40 focus:border-tech-blue'
+        className='h-[38px] w-full rounded-lg border border-white bg-transparent px-3 font-inter-tight text-sm text-white outline-none placeholder:text-white/40 focus:border-tech-blue disabled:cursor-not-allowed disabled:border-transparent disabled:bg-[#4A4A4A] disabled:text-white/50'
       />
     </label>
   )
