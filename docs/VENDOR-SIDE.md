@@ -231,7 +231,7 @@ What the bottom of the summary card shows:
   - Back from Paystack, a `?reference=` (or `?trxref=`) in the URL is sent once to the same endpoint to confirm the payment, then removed from the URL.
   - *Which of these the backend does hasn't been confirmed* (see FEATURES.md §5).
 - **Contact organizer** is a `mailto:`. It uses the slot's own contact email when the organizer set different contact details, otherwise the event's contact email. It's greyed out when there's neither.
-- **View receipt** is a dialog built from the application: slot fee, platform fee, total and the date it was last updated. There's no receipt endpoint, so these are the dashboard's numbers, not Paystack's.
+- **View receipt** is for stalls only (a service vendor doesn't pay for the slot). It's a dialog built from the application: slot fee, platform fee, total and the date it was last updated. There's no receipt endpoint, so these are the dashboard's numbers, not Paystack's.
 
 ### Profile, Account and Settings (`profile/`)
 

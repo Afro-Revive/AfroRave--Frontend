@@ -59,7 +59,7 @@ and reject requests. How the pages work is in [VENDOR-SIDE.md](VENDOR-SIDE.md).
 
 - [x] ⚠️ Your requests show up, grouped by event, with the right status: In Review, Approved, Slot Secured, Rejected, Expired, Completed.
 - [x] The All, Approved and Ended filters show the right requests and counts.
-- [ ] The payment badge shows on approved stalls that haven't been paid for.
+- [ ] The payment badge shows on approved revenue stalls only that haven't been paid for.
 
 ## 5. Request page (`/vendor/slots/:applicationId`)
 
@@ -68,18 +68,19 @@ Use the organizer account to get a request into each status.
 **In Review**
 
 - [ ] The notice and amount due are right.
-- [ ] Withdraw Request opens the popup, with the slot and event names in the body.
-- [ ] Cancel and ✕ close the popup.
-- [ ] ⚠️ Withdraw deletes the request and goes back to My Slots.
-- [ ] After withdrawing, the slot can be requested again on the ticket page.
+- [x] Withdraw Request opens the popup, with the slot and event names in the body.
+- [x] Cancel and ✕ close the popup.
+- [x] ⚠️ Withdraw deletes the request and goes back to My Slots.
+- [x] After withdrawing, the slot can be requested again on the ticket page.
 
 **Approved, Secured and the rest**
 
 - [ ] ⚠️ Approved stall: Pay now goes to Paystack, and coming back confirms the payment and shows "Slot secured!". This is the biggest unknown.
-- [ ] Approved service: Contact organizer opens an email to them, and is disabled when the organizer has no contact email.
-- [ ] Secured: View receipt (slot fee, 8% fee, total) and Contact organizer both work.
-- [ ] Rejected: the description popup can't be opened, and Discover Events works.
-- [ ] Expired: a stall that was approved but not paid by the deadline shows Expired.
+- [x] Approved service: Contact organizer opens an email to them, and is disabled when the organizer has no contact email.
+- [ ] Secured stall: View receipt (slot fee, 8% fee, total) and Contact organizer both work.
+- [x] Secured service: only Contact organizer shows, full width, with no View receipt.
+- [x] Rejected: the description popup can't be opened, and Discover Events works.
+- [x] Expired: a stall that was approved but not paid by the deadline shows Expired.
 - [ ] Completed: a request for an event that has ended shows Completed.
 - [ ] A request ID that doesn't exist shows "This request may have been withdrawn".
 
@@ -88,7 +89,7 @@ Use the organizer account to get a request into each status.
 **Profile tab**
 
 - [x] Uploading a picture works, and it shows in the modal and on the sidebar card.
-- [ ] The about text, contact details and socials can be edited.
+- [x] The about text, contact details and socials can be edited.
 - [x] Save is disabled until something changes.
 - [x] ⚠️ After saving, everything is still there after a reload.
 
@@ -104,7 +105,7 @@ Use the organizer account to get a request into each status.
 
 **Settings tab**
 
-- [ ] The smaller layout looks right.
+- [x] The smaller layout looks right.
 - [ ] A new password under 8 characters, or the same as the current one, shows an error.
 - [ ] ⚠️ A real password change works, and you can log in with the new password.
 - [ ] Log Out works.

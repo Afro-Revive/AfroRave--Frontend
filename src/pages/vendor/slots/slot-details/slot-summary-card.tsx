@@ -135,12 +135,16 @@ export function SlotSummaryCard({
 
       {status === 'approved' && !isRevenue && <ContactOrganizerButton email={organizerEmail} className='w-full' />}
 
-      {status === 'secured' && (
-        <div className='grid grid-cols-2 gap-2.5'>
-          <SlotReceiptDialog application={application} />
-          <ContactOrganizerButton email={organizerEmail} />
-        </div>
-      )}
+      {/* Only stalls have a receipt; a service vendor doesn't pay for the slot. */}
+      {status === 'secured' &&
+        (isRevenue ? (
+          <div className='grid grid-cols-2 gap-2.5'>
+            <SlotReceiptDialog application={application} />
+            <ContactOrganizerButton email={organizerEmail} />
+          </div>
+        ) : (
+          <ContactOrganizerButton email={organizerEmail} className='w-full' />
+        ))}
 
       {(status === 'rejected' || status === 'expired' || status === 'completed') && (
         <Link

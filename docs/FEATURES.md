@@ -291,7 +291,7 @@ which isn't merged yet. How the code works: [VENDOR-SIDE.md](./VENDOR-SIDE.md).
 | Notifications inbox | 🟠 Medium | ⛔ Not working | The redesign dropped the Inbox tab, so vendors can't see notifications anywhere. The hooks still work. |
 | Email notifications setting | ⚪ Low | ⛔ Not working | The checkbox isn't saved; the API has no setting for it. |
 | Contact organizer | ⚪ Low | ✅ Working | Emails the organizer once a slot is secured, or once a service offer is approved. |
-| View receipt | ⚪ Low | 🟡 Partial | Built from the application (slot fee, platform fee, total). There's no receipt endpoint, so it isn't the Paystack record. |
+| View receipt | ⚪ Low | 🟡 Partial | Secured stalls only. Built from the application (slot fee, platform fee, total). There's no receipt endpoint, so it isn't the Paystack record. |
 
 ---
 
