@@ -1,5 +1,6 @@
 import type { EventDetailData } from '@/types'
 import type { VendorApplications } from '@/types/vendor'
+import { isPast } from '../lib/format-date'
 
 /**
  * Where a vendor's application stands, as the dashboard shows it. The API only sends
@@ -38,8 +39,7 @@ export function hasEventEnded(application: VendorApplications, event?: EventDeta
 }
 
 function isPastDeadline(application: VendorApplications): boolean {
-  const deadline = getApplicationDeadline(application)
-  return !!deadline && new Date(deadline) < new Date()
+  return isPast(getApplicationDeadline(application))
 }
 
 export function getSlotStatus(application: VendorApplications, event?: EventDetailData): SlotStatus {

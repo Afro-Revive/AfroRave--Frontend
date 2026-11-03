@@ -1,5 +1,6 @@
 import { formatNaira } from '@/lib/format-price'
 import type { VendorApplicationRequest, VendorSlot } from '@/types/vendor'
+import { isPast } from '../../lib/format-date'
 import { withPlatformFee } from '../../slots/slot-status'
 
 /** A slot the vendor has added to "Your Slots", waiting to be requested. */
@@ -36,8 +37,7 @@ export function getSlotAvailability(slot: VendorSlot, eventEnded: boolean): Slot
   if (eventEnded) return 'closed'
   const status = (slot.vendorDetails?.status || slot.status || '').toLowerCase()
   if (status.includes('pause')) return 'paused'
-  const deadline = getSlotDeadline(slot)
-  if (deadline && new Date(deadline) < new Date()) return 'closed'
+  if (isPast(getSlotDeadline(slot))) return 'closed'
   if (isRevenueSlot(slot) && getSlotsLeft(slot) <= 0) return 'sold_out'
   return 'open'
 }

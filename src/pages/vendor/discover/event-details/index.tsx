@@ -11,13 +11,14 @@ import { RiCloseLine } from 'react-icons/ri'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'sonner'
 import { VendorEmptyState } from '../../component/vendor-empty-state'
+import { getSlotStatus, type SlotStatus } from '../../slots/slot-status'
 import { formatVendorDate } from '../../lib/format-date'
 import { SlotCart } from './slot-cart'
 import { SlotRow } from './slot-row'
 import { getSlotsLeft, isRevenueSlot, toApplicationRequest, type SlotCartItem } from './slot-request'
 
-/** A request the vendor can still act on blocks requesting the same slot again. */
-const LIVE_STATUSES = ['pending', 'approved', 'accepted', 'secured']
+/** A request in review, approved or secured makes its slot read only: it can't be requested again. */
+const REQUESTED_STATUSES: SlotStatus[] = ['in_review', 'approved', 'secured']
 
 /**
  * The vendor's "ticket page" for an event: its details, the slots and offers it's taking
@@ -40,10 +41,11 @@ export default function VendorEventDetailsPage() {
 
   const close = () => navigate(getRoutePath('vendor_discover'))
 
-  function liveApplicationFor(slot: VendorSlot) {
-    return applications.find(
+  // Same status mapping as My Slots, so "In Review" here matches "In Review" there.
+  function isRequested(slot: VendorSlot) {
+    return applications.some(
       (application) =>
-        application.eventVendorId === slot.vendorId && LIVE_STATUSES.includes(application.status?.toLowerCase()),
+        application.eventVendorId === slot.vendorId && REQUESTED_STATUSES.includes(getSlotStatus(application, event)),
     )
   }
 
@@ -153,7 +155,7 @@ export default function VendorEventDetailsPage() {
                   slot={slot}
                   eventEnded={eventEnded}
                   quantityInCart={cart.find((item) => item.slot.vendorId === slot.vendorId)?.quantity ?? 0}
-                  requestedApplicationId={liveApplicationFor(slot)?.id}
+                  isRequested={isRequested(slot)}
                   onAddRevenue={() => addRevenue(slot)}
                   onAddService={(price) => addService(slot, price)}
                   onDecrease={() => decrease(slot.vendorId)}

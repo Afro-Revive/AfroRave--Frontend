@@ -1,7 +1,6 @@
 import BaseModal from '@/components/reusable/base-modal'
 import { RichTextContent } from '@/components/reusable/rich-text-content'
 import { Button } from '@/components/ui/button'
-import { getRoutePath } from '@/config/get-route-path'
 import { stripUnderscores } from '@/lib/helper-func'
 import { cn } from '@/lib/utils'
 import type { VendorSlot } from '@/types/vendor'
@@ -9,8 +8,7 @@ import { useState } from 'react'
 import type { IconType } from 'react-icons'
 import { BsInfoCircle } from 'react-icons/bs'
 import { RiAddLine, RiSubtractLine } from 'react-icons/ri'
-import { Link } from 'react-router-dom'
-import { formatShortDate } from '../../lib/format-date'
+import { formatShortDateTime } from '../../lib/format-date'
 import {
   getSlotAvailability,
   getSlotDeadline,
@@ -30,30 +28,40 @@ const UNAVAILABLE_LABELS: Record<Exclude<SlotAvailability, 'open'>, string> = {
 /**
  * One row in Available Slots, styled like the fans' TicketCard (event page and cart) so
  * the two read the same. Tapping the row opens the slot's details; revenue slots count up
- * and down in the green pill, service offers take a proposed price first.
+ * and down in the green pill, service offers take a proposed price first. A slot the vendor
+ * has already requested is read only: no details, no counter, just a Requested pill.
  */
-export function SlotRow({ slot, eventEnded, quantityInCart, requestedApplicationId, onAddRevenue, onAddService, onDecrease }: ISlotRow) {
+export function SlotRow({ slot, eventEnded, quantityInCart, isRequested, onAddRevenue, onAddService, onDecrease }: ISlotRow) {
   const [showDetails, setShowDetails] = useState(false)
   const isRevenue = isRevenueSlot(slot)
   const availability = getSlotAvailability(slot, eventEnded)
   const slotsLeft = getSlotsLeft(slot)
   const title = getSlotTitle(slot)
 
-  return (
-    <>
-      <div
-        role='button'
-        tabIndex={0}
-        aria-label={`About ${title}`}
-        onClick={() => setShowDetails(true)}
-        onKeyDown={(event) => {
+  const rowProps = isRequested
+    ? {}
+    : {
+        role: 'button',
+        tabIndex: 0,
+        'aria-label': `About ${title}`,
+        onClick: () => setShowDetails(true),
+        onKeyDown: (event: React.KeyboardEvent<HTMLDivElement>) => {
           if (event.target !== event.currentTarget) return
           if (event.key === 'Enter' || event.key === ' ') {
             event.preventDefault()
             setShowDetails(true)
           }
-        }}
-        className='w-full flex flex-wrap items-center justify-between gap-4 h-fit pl-5 pr-2 py-4 text-xl font-inter-tight cursor-pointer transition-colors hover:bg-white/5'>
+        },
+      }
+
+  return (
+    <>
+      <div
+        {...rowProps}
+        className={cn(
+          'w-full flex flex-wrap items-center justify-between gap-4 h-fit pl-5 pr-2 py-4 text-xl font-inter-tight',
+          !isRequested && 'cursor-pointer transition-colors hover:bg-white/5',
+        )}>
         <div className='flex items-start gap-3 min-w-0'>
           <BsInfoCircle aria-hidden='true' className='w-5 h-5 shrink-0 mt-0.5 text-white' />
 
@@ -70,12 +78,10 @@ export function SlotRow({ slot, eventEnded, quantityInCart, requestedApplication
 
         {/* stopPropagation so using the counter doesn't also open the details. */}
         <div onClick={(event) => event.stopPropagation()} className='shrink-0 ml-auto'>
-          {requestedApplicationId !== undefined ? (
-            <Link
-              to={getRoutePath('vendor_slot_details', { applicationId: requestedApplicationId })}
-              className='flex items-center justify-center h-12 px-5 rounded-full bg-mid-dark-gray font-sf-pro-rounded text-xs font-bold uppercase tracking-wide text-tech-blue transition-opacity hover:opacity-80'>
+          {isRequested ? (
+            <span className='flex items-center justify-center font-inter-tight pr-4 text-xs font-bold uppercase tracking-wide text-tech-blue'>
               Requested
-            </Link>
+            </span>
           ) : availability !== 'open' ? (
             <StatusPill label={UNAVAILABLE_LABELS[availability]} />
           ) : quantityInCart > 0 ? (
@@ -95,7 +101,9 @@ export function SlotRow({ slot, eventEnded, quantityInCart, requestedApplication
         </div>
       </div>
 
-      <SlotDetailsModal slot={slot} availability={availability} open={showDetails} onClose={() => setShowDetails(false)} />
+      {!isRequested && (
+        <SlotDetailsModal slot={slot} availability={availability} open={showDetails} onClose={() => setShowDetails(false)} />
+      )}
     </>
   )
 }
@@ -225,7 +233,7 @@ function SlotDetailsModal({
   onClose: () => void
 }) {
   const isRevenue = isRevenueSlot(slot)
-  const deadline = formatShortDate(getSlotDeadline(slot))
+  const deadline = formatShortDateTime(getSlotDeadline(slot))
   const service = slot.vendorDetails?.serviceData
 
   return (
@@ -283,8 +291,8 @@ interface ISlotRow {
   slot: VendorSlot
   eventEnded: boolean
   quantityInCart: number
-  /** Set when the vendor already has a live request for this slot. */
-  requestedApplicationId?: number
+  /** The vendor already has a request in review, approved or secured for this slot. */
+  isRequested: boolean
   onAddRevenue: () => void
   onAddService: (price: number) => void
   /** One fewer stall, or the service offer taken out. */
