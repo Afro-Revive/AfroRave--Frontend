@@ -18,7 +18,7 @@ import { SlotSummaryCard } from './slot-summary-card'
 
 const PAYMENT_METHOD = 'paystack-checkout'
 
-/** Paystack checkout link, if the pay endpoint answered with one instead of securing the slot. */
+/** Paystack checkout link from the pay endpoint. The API doesn't send one yet (FEATURES.md §5). */
 function getCheckoutUrl(data: unknown): string | undefined {
   if (!data || typeof data !== 'object') return undefined
   const record = data as Record<string, unknown>
@@ -36,7 +36,6 @@ export default function VendorSlotDetailsPage() {
   const application = (data?.data as PaginatedResponse<VendorApplications> | undefined)?.items.find(
     (item) => String(item.id) === applicationId,
   )
-  console.log('application', application)
   const { data: eventResponse } = useGetEvent(application?.eventId ?? '')
   const event = eventResponse?.data as EventDetailData | undefined
 
@@ -56,8 +55,14 @@ export default function VendorSlotDetailsPage() {
       {
         onSuccess: (response) => {
           const checkoutUrl = getCheckoutUrl(response?.data)
-          if (checkoutUrl) window.location.href = checkoutUrl
-          else onSlotSecured()
+          if (checkoutUrl) {
+            window.location.href = checkoutUrl
+            return
+          }
+          // TODO: remove once the pay endpoint returns a Paystack link. Until then nothing is
+          // paid, so don't say the slot is secured; just pick up any status change.
+          toast.info('Online payment isn’t available yet. Contact the organizer to pay for this slot.')
+          queryClient.invalidateQueries({ queryKey: eventKeys.vendorApplications() })
         },
         onError: () => toast.error('Could not start the payment. Please try again.'),
       },
