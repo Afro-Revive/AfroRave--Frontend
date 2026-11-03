@@ -20,7 +20,7 @@ import type { ReactNode } from 'react'
 import { RiCheckboxCircleLine, RiCloseLine, RiInformationLine, RiLockLine } from 'react-icons/ri'
 import { Link } from 'react-router-dom'
 import { SlotStatusPill } from '../../component/slot-status-pill'
-import { formatShortDate } from '../../lib/format-date'
+import { formatDeadlineParts, formatShortDate } from '../../lib/format-date'
 import {
   getAmountDue,
   getApplicationDeadline,
@@ -169,13 +169,14 @@ export function SlotSummaryCard({
 }
 
 function StatusNotice({ application, event, status }: { application: VendorApplications; event?: EventDetailData; status: SlotStatus }) {
-  const deadline = formatShortDate(getApplicationDeadline(application))
+  const deadline = formatDeadlineParts(getApplicationDeadline(application))
   const messages: Partial<Record<SlotStatus, ReactNode>> = {
     in_review: `Request sent on ${formatShortDate(application.createdDate)}. You’ll get an email as soon as the organizer approves.`,
     approved: isRevenueApplication(application) ? (
       deadline ? (
         <>
-          Approved by the organizer. Pay before <strong className='text-white'>“{deadline}”</strong> to secure this slot.
+          Approved by the organizer. Pay before <strong className='text-white'>{deadline.date}</strong> at{' '}
+          <strong className='text-white'>{deadline.time}</strong> to secure this slot.
         </>
       ) : (
         'Approved by the organizer. Pay now to secure this slot.'
@@ -184,7 +185,7 @@ function StatusNotice({ application, event, status }: { application: VendorAppli
     rejected: 'Your request for this slot was declined by the organizer.',
     expired: deadline ? (
       <>
-        Payment wasn’t made before <strong className='text-white'>“{deadline}”</strong>.
+        Payment wasn’t made before <strong className='text-white'>“{deadline.date}”</strong>.
       </>
     ) : (
       'Payment wasn’t made before the deadline.'

@@ -34,6 +34,12 @@ export function formatShortDateTime(value?: string): string {
   return date ? format(date, 'MMM d, yyyy, h:mm a') : ''
 }
 
+/** A deadline's day and time apart, for 'Pay before “Apr 28, 2025” at “11:00 AM”'. */
+export function formatDeadlineParts(value?: string): { date: string; time: string } | null {
+  const date = parseApiTimestamp(value)
+  return date ? { date: format(date, 'MMM d, yyyy'), time: format(date, 'h:mm a') } : null
+}
+
 /** Whether an API timestamp, like an application deadline, has passed. */
 export function isPast(value?: string): boolean {
   const date = parseApiTimestamp(value)
