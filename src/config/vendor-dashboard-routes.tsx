@@ -1,25 +1,20 @@
 import { LoadingFallback } from '@/components/loading-fallback'
 import { VendorAuthGuard } from '@/components/auth/vendor-auth-guard'
 import { Suspense, lazy } from 'react'
-import type { RouteObject } from 'react-router-dom'
+import { Navigate, type RouteObject } from 'react-router-dom'
 import { getRoutePath } from './get-route-path'
 
 // Vendor routes
-const ProfilePage = lazy(() => import('../pages/vendor/profile'))
 const DiscoverPage = lazy(() => import('../pages/vendor/discover'))
-const WishlistPage = lazy(() => import('../pages/vendor/wishlist'))
 const SlotsPage = lazy(() => import('../pages/vendor/slots'))
+const SlotDetailsPage = lazy(() => import('../pages/vendor/slots/slot-details'))
 
 export const vendor_dashboard_routes: RouteObject[] = [
   {
+    // The profile lives in the sidebar now. Login and the account menus still send
+    // vendors here, so it forwards to Discover.
     path: getRoutePath('vendor_profile'),
-    element: (
-      <VendorAuthGuard>
-        <Suspense fallback={<LoadingFallback />}>
-          <ProfilePage />
-        </Suspense>
-      </VendorAuthGuard>
-    ),
+    element: <Navigate to={getRoutePath('vendor_discover')} replace />,
   },
   {
     path: getRoutePath('vendor_discover'),
@@ -27,16 +22,6 @@ export const vendor_dashboard_routes: RouteObject[] = [
       <VendorAuthGuard>
         <Suspense fallback={<LoadingFallback />}>
           <DiscoverPage />
-        </Suspense>
-      </VendorAuthGuard>
-    ),
-  },
-  {
-    path: getRoutePath('vendor_wishlist'),
-    element: (
-      <VendorAuthGuard>
-        <Suspense fallback={<LoadingFallback />}>
-          <WishlistPage />
         </Suspense>
       </VendorAuthGuard>
     ),
@@ -50,5 +35,15 @@ export const vendor_dashboard_routes: RouteObject[] = [
         </Suspense>
       </VendorAuthGuard>
     ),
-  }
+  },
+  {
+    path: getRoutePath('vendor_slot_details', { applicationId: ':applicationId' }),
+    element: (
+      <VendorAuthGuard>
+        <Suspense fallback={<LoadingFallback />}>
+          <SlotDetailsPage />
+        </Suspense>
+      </VendorAuthGuard>
+    ),
+  },
 ]

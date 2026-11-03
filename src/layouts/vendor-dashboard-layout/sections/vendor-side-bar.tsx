@@ -1,63 +1,54 @@
-import { CalendarIcon } from '@/components/icons/calendar'
-import { SlotIcon } from '@/components/icons/slots'
-import { VendorIcon } from '@/components/icons/vendor'
-import { BaseSideBar } from '@/components/reusable/base-sidebar'
 import { getRoutePath } from '@/config/get-route-path'
+import { useLogout } from '@/hooks/use-auth'
 import { cn } from '@/lib/utils'
-import { Link } from 'react-router-dom'
-import { useLocation } from 'react-router-dom'
-import { SidebarMenu, SidebarMenuItem, SidebarMenuButton } from '@/components/ui/sidebar'
+import { RiArchiveLine, RiArrowLeftLine, RiCalendarLine } from 'react-icons/ri'
+import { NavLink } from 'react-router-dom'
+import { VendorProfileCard } from './vendor-profile-card'
 
-export default function VendorSidebar() {
-  const location = useLocation()
+const links = [
+  { Icon: RiCalendarLine, text: 'DISCOVER', href: getRoutePath('vendor_discover') },
+  { Icon: RiArchiveLine, text: 'MY SLOTS', href: getRoutePath('vendor_slots') },
+]
 
-  const links = [
-    {
-      icon: <VendorIcon />,
-      text: 'PROFILE',
-      href: getRoutePath('vendor_profile'),
-    },
-    {
-      icon: <CalendarIcon />,
-      text: 'DISCOVER',
-      href: getRoutePath('vendor_discover'),
-    },
-    {
-      icon: <SlotIcon />,
-      text: 'MY SLOTS',
-      href: getRoutePath('vendor_slots'),
-    },
-  ]
+export default function VendorSidebar({ onNavigate }: { onNavigate?: () => void }) {
+  const logoutMutation = useLogout()
 
   return (
-    <BaseSideBar className='pt-28 sticky top-0 bg-white border-r border-gray-100' collapsibleOnMobile={true}>
-      <SidebarMenu className="gap-2 px-0">
-        {links.map((item) => {
-          const isActiveLink = location.pathname.startsWith(item.href)
+    <div className='flex min-h-full w-full flex-col gap-5 px-[18px] pt-5 pb-6'>
+      <VendorProfileCard />
 
-          return (
-            <SidebarMenuItem key={item.text} className="px-0">
-              <SidebarMenuButton
-                asChild
-                className={cn(
-                  'w-full flex gap-3 items-center px-8 h-[52px] text-[13px] font-medium font-sf-pro-display uppercase transition-all duration-200 hover:bg-gray-50 rounded-none',
-                  {
-                    'border-l-[4px] border-l-[#D32F2F] bg-[#D32F2F]/10 text-black': isActiveLink,
-                    'text-gray-500 hover:text-black border-l-[4px] border-l-transparent': !isActiveLink,
-                  },
-                )}
-              >
-                <Link to={item.href} className="flex items-center gap-3 w-full">
-                  <span className={cn("shrink-0", isActiveLink ? "text-[#D32F2F] [&>svg]:stroke-[#D32F2F]" : "[&>svg]:stroke-current")}>
-                    {item.icon}
-                  </span>
-                  <span>{item.text}</span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          )
-        })}
-      </SidebarMenu>
-    </BaseSideBar>
+      <nav className='flex flex-col gap-5'>
+        {links.map(({ Icon, text, href }) => (
+          <NavLink
+            key={text}
+            to={href}
+            onClick={onNavigate}
+            className={({ isActive }) =>
+              cn(
+                'flex h-[57px] items-center gap-2 rounded-xl border px-5 font-inter-tight text-sm text-white transition-colors',
+                isActive ? 'border-[#C62828]' : 'border-[#2E2E2E] hover:border-[#4A4A4A]',
+              )
+            }>
+            {({ isActive }) => (
+              <>
+                <Icon className={cn('size-4', isActive ? 'text-[#E53935]' : 'text-white')} />
+                {text}
+              </>
+            )}
+          </NavLink>
+        ))}
+      </nav>
+
+      <div className='mt-auto pt-6'>
+        <button
+          type='button'
+          onClick={() => logoutMutation.mutate()}
+          disabled={logoutMutation.isPending}
+          className='flex h-10 w-full items-center gap-4 rounded-full bg-[#721414] px-5 font-sf-pro-text text-sm font-medium text-white transition-colors hover:bg-[#8A1818] disabled:opacity-60'>
+          <RiArrowLeftLine className='size-4' />
+          Log Out
+        </button>
+      </div>
+    </div>
   )
 }
