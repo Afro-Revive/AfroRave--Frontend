@@ -108,6 +108,8 @@ export interface VendorProfileData {
   vendorType?: string
   state?: string
   country?: string
+  /** yyyy-MM-dd */
+  dateOfBirth?: string | null
   location: string
   businessData?: VendorBusinessData
   createdDate: string
@@ -123,8 +125,7 @@ export interface VendorBusinessData {
   socials?: Partial<Record<'facebook' | 'instagram' | 'x' | 'linkedIn' | 'tikTok' | 'youTube' | 'socialLink', string>> | null
 }
 
-// PATCH /api/Profile/vendor. category, country, state and dateOfBirth aren't in the API's
-// schema yet; they're sent so they save once the backend accepts them.
+// PATCH /api/Profile/vendor
 export interface UpdateVendorProfileRequest {
   firstName?: string
   lastName?: string
@@ -135,7 +136,6 @@ export interface UpdateVendorProfileRequest {
   gender?: string
   businessData?: VendorBusinessData
   category?: string
-  vendorCategory?: string
   country?: string
   state?: string
   dateOfBirth?: string

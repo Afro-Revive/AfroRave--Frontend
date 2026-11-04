@@ -61,8 +61,8 @@ export function toDraft(profile: VendorProfileData | undefined, user: User | nul
   const business = profile?.businessData ?? {}
   const userBusiness = user?.profile.businessData
   const [phoneCode, phoneDigits] = splitPhone(profile?.contactPhone || user?.profile.phoneNumber)
-  // The User type doesn't list dateOfBirth, but the profile may still carry it.
-  const dateOfBirth = (user?.profile as { dateOfBirth?: string } | undefined)?.dateOfBirth
+  // The User type doesn't list dateOfBirth, but the user's profile may still carry it.
+  const dateOfBirth = profile?.dateOfBirth || (user?.profile as { dateOfBirth?: string } | undefined)?.dateOfBirth
   const [birthYear = '', birthMonth = '', birthDay = ''] = dateOfBirth?.slice(0, 10).split('-') ?? []
   const country = profile?.country || user?.profile.country || ''
 
@@ -120,6 +120,8 @@ export function toUpdateRequest(draft: VendorProfileDraft, profile: VendorProfil
     gender: draft.gender,
     businessData: {
       ...business,
+      // Clear the old spelling so it can't bring back removed images.
+      gallary: undefined,
       aboutBusiness: draft.bio.trim(),
       profilePicture: draft.picture,
       gallery: draft.gallery,
@@ -127,7 +129,6 @@ export function toUpdateRequest(draft: VendorProfileDraft, profile: VendorProfil
       socials: { ...business.socials, instagram: instagramLink(draft.instagram) },
     },
     category: draft.category,
-    vendorCategory: draft.category,
     country: draft.country,
     state: draft.state.trim(),
     // Month as a number: '1998-03-07', never '1998-mar-07'.
