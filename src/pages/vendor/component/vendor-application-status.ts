@@ -12,6 +12,7 @@ export const APPLICATION_STATUS: Record<
   { label: string; className: string }
 > = {
   Pending: { label: "Requested", className: "text-[#007AFF]" },
+  Accepted: { label: "Accepted", className: "text-green" },
   Acquired: { label: "Pending", className: "text-orange-peel" },
   Secured: { label: "Secured", className: "text-green" },
   Rejected: { label: "Rejected", className: "text-deep-red" },
