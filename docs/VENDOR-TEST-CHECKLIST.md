@@ -26,8 +26,8 @@ and reject requests. How the pages work is in [VENDOR-SIDE.md](VENDOR-SIDE.md).
 - [x] Search filters the events.
 - [x] The Saved Events toggle shows only saved events.
 - [x] The bookmark saves an event, and the sidebar's Saved Events count goes up.
-- [ ] ⚠️ Tapping it again unsaves the event, the sidebar count goes down, and it stays unsaved after a reload (new vendor endpoint).
-- [ ] ⚠️ The sidebar's Saved Events count matches the Saved Events list.
+- [x] ⚠️ Tapping it again unsaves the event, the sidebar count goes down, and it stays unsaved after a reload (new vendor endpoint).
+- [x] ⚠️ The sidebar's Saved Events count matches the Saved Events list.
 - [x] Clicking a card opens the ticket page.
 
 ## 3. Ticket page (`/vendor/discover/:eventId`)
@@ -42,7 +42,7 @@ and reject requests. How the pages work is in [VENDOR-SIDE.md](VENDOR-SIDE.md).
 - [x] Tapping a row opens its details: price, description, slots left or work hours, apply-by date.
 - [x] Revenue slot: + adds a stall, − takes one off, and + stops at the number of slots left.
 - [x] Service slot: + turns green only once a price is typed, and after adding, the row shows − 1.
-- [ ] ⚠️ Service slot budget: the placeholder says "Up to ₦…" (the top of the range, or the single budget). Typing or pasting more sets it to that maximum and shows "The organizer's budget goes up to ₦…". A price below the minimum can still be added and requested.
+- [x] ⚠️ Service slot budget: the placeholder says "Up to ₦…" (the top of the range, or the single budget). Typing or pasting more sets it to that maximum and shows "The organizer's budget goes up to ₦…". A price below the minimum can still be added and requested.
 - [x] Requested shows when you already have a pending, approved or secured request, and links to it.
 - [x] Closed shows after the deadline or once the event has ended.
 - [ ] Paused shows when the organizer has paused the slot.
@@ -61,7 +61,7 @@ and reject requests. How the pages work is in [VENDOR-SIDE.md](VENDOR-SIDE.md).
 
 - [x] ⚠️ Your requests show up, grouped by event, with the right status: In Review, Approved, Slot Secured, Rejected, Expired, Completed.
 - [x] The All, Approved and Ended filters show the right requests and counts.
-- [ ] The payment badge shows on approved revenue stalls only that haven't been paid for.
+- [x] The payment badge shows on approved revenue stalls only that haven't been paid for.
 
 ## 5. Request page (`/vendor/slots/:applicationId`)
 
@@ -69,26 +69,28 @@ Use the organizer account to get a request into each status.
 
 **In Review**
 
-- [ ] The notice and amount due are right.
+- [x] The notice and amount due are right.
 - [x] Withdraw Request opens the popup, with the slot and event names in the body.
 - [x] Cancel and ✕ close the popup.
 - [x] ⚠️ Withdraw deletes the request and goes back to My Slots.
 - [x] After withdrawing, the slot can be requested again on the ticket page.
-- [ ] ⚠️ Known issue: sending that new request fails with "You have already applied for this vendor slot". Raised with the backend; recheck once it's fixed.
+- [x] ⚠️ Known issue: sending that new request fails with "You have already applied for this vendor slot". Raised with the backend; recheck once it's fixed (fixed ).
 
 **Approved, Secured and the rest**
 
 - [x] Approved stall: the notice says Pay before “date” at “time”, matching the deadline the organizer set.
-- [ ] ⚠️ Approved stall: Pay now shows "Starting payment..." and goes to Paystack (new initialize-payment endpoint).
+- [x] Approved stall: Slot fee (price × stalls) and Platform fee show above Amount Due, and add up to it.
+- [x] ⚠️ Approved stall: Pay now shows "Starting payment..." and goes to Paystack (new initialize-payment endpoint).
+- [ ] ⚠️ Paystack charges the Amount Due (slot fee + platform fee). Today it charges the slot fee only: the backend doesn't add the fee yet.
 - [ ] ⚠️ After paying, Paystack comes back to the same request page, which shows "Slot secured!", the Secured state, and the sidebar's Total Slots Secured goes up.
-- [ ] ⚠️ Cancelling on Paystack and coming back leaves the slot Approved.
+- [x] ⚠️ Cancelling on Paystack and coming back leaves the slot Approved.
 - [x] Approved service: Contact organizer opens an email to them, and is disabled when the organizer has no contact email.
-- [ ] Secured stall: View receipt (slot fee, 8% fee, total) and Contact organizer both work.
+- [x] Secured stall: View receipt (slot fee, 8% fee, total) and Contact organizer both work.
 - [x] Secured service: only Contact organizer shows, full width, with no View receipt.
 - [x] Rejected: the description popup can't be opened, and Discover Events works.
 - [x] Expired: a stall that was approved but not paid by the deadline shows Expired.
 - [ ] Completed: a request for an event that has ended shows Completed.
-- [ ] A request ID that doesn't exist shows "This request may have been withdrawn".
+- [x] A request ID that doesn't exist shows "This request may have been withdrawn".
 
 ## 6. Profile modal
 
@@ -98,28 +100,32 @@ Use the organizer account to get a request into each status.
 - [x] The about text, contact details and socials can be edited.
 - [x] Save is disabled until something changes.
 - [x] ⚠️ After saving, everything is still there after a reload.
-- [ ] ⚠️ Gallery: added and removed photos are still right after a reload.
+- [x] Gallery: removing every photo and saving leaves it empty after a reload.
+- [ ] ⚠️ Gallery: removing some photos (2 of 8) sticks after a reload. Today all 8 come back.
+- [ ] ⚠️ Gallery: adding photos saves each one once. Today removing all and adding 4 brings back each of the 4 twice. Raised with the backend.
 
 **Account tab**
 
-- [ ] Business name, web URL and category can be edited.
-- [ ] First name, last name, email, gender and phone (country code plus number) can be edited.
-- [ ] The Month, Day and Year labels sit above their values, even when empty.
-- [ ] Picking Nigeria turns State into a dropdown of the states and the FCT; other countries get a text box.
-- [ ] Changing country clears the state.
-- [ ] A state saved earlier as typed text ("lagos") shows selected in the dropdown.
-- [ ] ⚠️ After saving and reloading, category, country, state and birthday are still there (newly added to the API).
+- [x] Business name is shown but can't be edited (greyed out, like email).
+- [x] Web URL and category can be edited.
+- [x] First name, last name, gender and phone (country code plus number) can be edited.
+- [x] The Month, Day and Year labels sit above their values, even when empty.
+- [x] Picking Nigeria turns State into a dropdown of the states and the FCT; other countries get a text box.
+- [x] Changing country clears the state.
+- [x] A state saved earlier as typed text ("lagos") shows selected in the dropdown.
+- [x] ⚠️ After saving and reloading, category, country, state and birthday are still there (newly added to the API).
 
 **Settings tab**
 
 - [x] The smaller layout looks right.
-- [ ] A new password under 8 characters, or the same as the current one, shows an error.
-- [ ] ⚠️ A real password change works, and you can log in with the new password.
-- [ ] Log Out works.
-- [ ] The Email Notifications checkbox toggles. It isn't saved yet; that's expected.
+- [x] A new password under 8 characters, or the same as the current one, shows an error.
+- [x] Confirm New Password that doesn't match shows "Passwords don't match", and Update Password stays disabled until it does.
+- [x] ⚠️ A real password change works, and you can log in with the new password.
+- [x] Log Out works.
+- [x] The Email Notifications checkbox toggles. It isn't saved yet; that's expected.
 
 ## 7. Other checks
 
-- [ ] The vendor pages render in Inter Tight.
-- [ ] Organizer side: approve and reject from the organizer's vendor tabs, and the vendor sees each change. Test those organizer tabs end to end while you're there.
+- [x] The vendor pages render in Inter Tight.
+- [x] Organizer side: approve and reject from the organizer's vendor tabs, and the vendor sees each change. Test those organizer tabs end to end while you're there.
 - [ ] Phone, portrait tablet (should look like the phone layout) and landscape tablet or laptop (should look like the desktop layout) all look right.

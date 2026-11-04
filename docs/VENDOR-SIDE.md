@@ -220,17 +220,17 @@ What the bottom of the summary card shows:
 
 | Status | Revenue slot | Service offer |
 |---|---|---|
-| In Review | "Request sent on …" notice, Amount Due, **Withdraw Request**, faded "Secure Payment With Paystack" | Budget and proposed price, the notice, **Withdraw Request** |
-| Approved | "Pay before “date” at “time”" notice, Amount Due, **Pay now** | **Contact organizer** |
+| In Review | "Request sent on …" notice, Slot fee (price × stalls), Platform fee, Amount Due, **Withdraw Request**, faded "Secure Payment With Paystack" | Budget and proposed price, the notice, **Withdraw Request** |
+| Approved | "Pay before “date” at “time”" notice, Slot fee (price × stalls), Platform fee, Amount Due, **Pay now** | **Contact organizer** |
 | Slot Secured | "Paid ₦…" with the date, **View receipt**, **Contact organizer** | "Offer accepted", **Contact organizer** |
 | Rejected, Expired, Completed | The notice, **Discover Events** | Same |
 
-- **Withdraw Request** asks for confirmation, then calls `DELETE /api/Event/vendor/application/{id}` and goes back to My Slots. The ticket page then shows the slot as open again, and it can be requested again.
-- **Pay now** calls `POST /api/Event/vendor/slot/initialize-payment` (`useInitializeVendorSlotPayment`) with `{ applicationId, paymentMethod: 'paystack-checkout', callbackUrl }`. The callback is the request's own page.
+- **Withdraw Request** asks for confirmation, then calls `DELETE /api/Event/vendor/application/{id}` and goes back to My Slots. The ticket page then shows the slot as open again, and it can be requested again. A service offer's proposed price can't be edited once it's sent; withdrawing and requesting again is the way to change it.
+- **Pay now** calls `POST /api/Event/vendor/slot/initialize-payment` (`useInitializeVendorSlotPayment`) with `{ applicationId, paymentMethod: 'paystack-checkout', callbackUrl }`. The callback is the request's own page. **The backend doesn't add the platform fee yet**: Paystack charges the slot fee alone, not the Amount Due the page shows (FEATURES.md §5).
   - The page goes to the checkout link in the response (`authorizationUrl`, also `authorization_url`, `checkoutUrl`, `paymentUrl`, or the data itself if it's a link). With no link, it says the payment couldn't start.
   - Back from Paystack, a `?reference=` (or `?trxref=`) in the URL is sent once to `POST /api/Event/vendor/slot/pay` (`usePayVendorSlot`) to confirm the payment, then removed from the URL. On success it says "Slot secured!" and refreshes the applications and the summary.
 - **Contact organizer** is a `mailto:`. It uses the slot's own contact email when the organizer set different contact details, otherwise the event's contact email. It's greyed out when there's neither.
-- **View receipt** is for stalls only (a service vendor doesn't pay for the slot). It's a dialog built from the application: slot fee, platform fee, total and the date it was last updated. There's no receipt endpoint, so these are the dashboard's numbers, not Paystack's.
+- **View receipt** is for stalls only (a service vendor doesn't pay for the slot). It's a dialog built from the application: slot fee, platform fee, total and the date it was last updated. There's no receipt endpoint; these are the dashboard's numbers.
 
 ### Profile, Account and Settings (`profile/`)
 
@@ -239,12 +239,12 @@ One modal, opened from the sidebar's **Edit profile** and **Finish setting up yo
 | Tab | Contents | Saves with |
 |---|---|---|
 | Profile | Picture (tap to change), business name and email, bio (450 characters), contact details (email, read only; phone, website, Instagram), gallery (up to 12 photos) | `PATCH /api/profile/vendor` |
-| Account | Business name, website, category; first and last name, email and password (both shown, not editable), gender, birthday, country, state (a list of the 36 states and the FCT when the country is Nigeria, typed otherwise; changing country clears it), phone with country code | `PATCH /api/profile/vendor` |
-| Settings | Change password (current and new, 8 characters or more), email notifications, Log Out | `PATCH /api/profile/vendor/change-password` |
+| Account | Business name (shown, not editable), website, category; first and last name, email and password (both shown, not editable), gender, birthday, country, state (a list of the 36 states and the FCT when the country is Nigeria, typed otherwise; changing country clears it), phone with country code | `PATCH /api/profile/vendor` |
+| Settings | Change password (current, new and confirm new; 8 characters or more, different from the current one, and the two must match), email notifications, Log Out | `PATCH /api/profile/vendor/change-password` |
 
 - **One draft for both tabs.** Phone and website are on Profile and Account (email too, read only, since it's the sign-in email), so both tabs edit one draft (`VendorProfileDraft`), and either Save sends all of it. Save stays grey until something changes.
 - **Where the values come from:** `toDraft` reads the vendor profile (`GET /api/profile/vendor`) and falls back to the logged-in user. Name and gender only come from the user.
-- **What's sent:** `toUpdateRequest` keeps the rest of `businessData` and writes the bio to `aboutBusiness`, the website to `portfolio.webUrl`, Instagram to `socials.instagram` (a handle becomes a full link), the picture and gallery. The phone goes as `+234…` in both `phoneNumber` and `telephone`. Category, country and state go as they are, and the birthday as `dateOfBirth`, `1998-03-07`. The old `gallary` spelling is cleared so it can't bring back removed photos. The birthday is read back from the vendor profile's `dateOfBirth`, falling back to the user.
+- **What's sent:** `toUpdateRequest` keeps the rest of `businessData` and writes the bio to `aboutBusiness`, the website to `portfolio.webUrl`, Instagram to `socials.instagram` (a handle becomes a full link), the picture and gallery. The phone goes as `+234…` in both `phoneNumber` and `telephone`. Category also goes as `services` and `vendorType`, and the website also as `website`, to keep the profile's duplicate fields in step. The app never reads those three back: Web URL comes from `portfolio.webUrl` and category from `category`. Country and state go as they are, and the birthday as `dateOfBirth`, `1998-03-07`. The old `gallary` spelling is cleared so it can't bring back removed photos. The birthday is read back from the vendor profile's `dateOfBirth`, falling back to the user.
 - **After saving**, the logged-in user is updated too (`applyDraftToUser`), so the sidebar and the "Finish setting up" check change straight away.
 - **Photos** upload to Cloudinary as they're picked (`useUploadImage`). Only their links are saved, and only on Save.
 - **Email notifications** isn't saved; the API has no setting for it.
@@ -271,7 +271,7 @@ One modal, opened from the sidebar's **Edit profile** and **Finish setting up yo
 | `useUpdateVendorProfile` | `use-vendor.ts` | `PATCH /api/profile/vendor` |
 | `useChangeVendorPassword` | `use-vendor.ts` | `PATCH /api/profile/vendor/change-password` |
 | `useUploadImage` | `useCloudinaryUpload.ts` | Cloudinary (profile picture and gallery) |
-| `useVendorNotifications`, `useMarkVendorNotificationsAsRead` | `use-profile-mutations.ts` | `GET /api/profile/vendor/notifications`, `PATCH …/{id}/read`. **Nothing uses them now**: the new profile modal has no Inbox tab. |
+| `useVendorNotifications`, `useMarkVendorNotificationsAsRead` | `use-profile-mutations.ts` | `GET /api/profile/vendor/notifications`, `PATCH …/{id}/read`. **Nothing uses them**: vendors get notifications by email only, with no inbox in the app. |
 
 The new dashboard hooks are in their own file, `use-vendor.ts`, rather than
 `use-event-mutations.ts`.
@@ -289,5 +289,5 @@ payment refreshes the applications and the summary.
 - **Icons** are react-icons (Remix, `react-icons/ri`), added to `package.json` here at the same version as `prod`, like `dompurify`.
 - **Descriptions are rich text HTML.** `RichTextContent` (`components/reusable/rich-text-content.tsx`) and `lib/rich-text.ts` show them sanitized. Both were copied unchanged from `prod`, with `dompurify` at prod's version, so the merge sees the same files on both sides.
 - **Colours are written inline** (`#1E1E1E`, `#2A2A2A`, …) to match the Figma file. There are no dark theme tokens for the vendor dashboard yet.
-- **Vendor notifications have nowhere to show.** The old modal's Inbox tab went with the redesign. The hooks and service calls are still there for when the design gives notifications a home.
+- **No in-app notifications.** Vendors get notifications by email only; the old modal's Inbox tab went with the redesign and won't come back. The hooks and service calls are unused.
 - **Categories** (`VENDOR_CATEGORIES` in `types/vendor.ts`) are now the design's 12. Where a category carried over, its old value was kept (`food_beverage` is Food & Drinks), so saved profiles still match. Sign-up and complete profile use the same list. `vendorCategoryLabel` tidies up values that are no longer listed.

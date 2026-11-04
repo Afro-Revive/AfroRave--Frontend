@@ -16,7 +16,7 @@ section (§3) was checked against the `vendors` branch in November 2026.
 | **Fans** | 15 / 17 done | 10 / 11 | 1 / 4 | **86%** |
 | **Organizers** | 13 / 13 done | 23 / 27 | 5 / 16 | **83%** |
 | **Fans + Organizers** | **28 / 30 done (93%)** | 33 / 38 | 6 / 20 | **84%** |
-| Vendors (in progress on the `vendors` branch) | 6 / 6 done | 6 / 7 | 1 / 3 | 89% |
+| Vendors (in progress on the `vendors` branch) | 5 / 6 done | 5 / 6 | 2 / 3 | 82% |
 
 **How the overall % is worked out:**
 - A High feature counts 3 times as much as a Low one, and a Medium one twice as much.
@@ -39,8 +39,9 @@ how much they block launch:
 | 1 | Privacy Policy, Refund Policy, Terms and Conditions | Fans | 🚧 Coming soon | **Content.** Needed before taking real payments: payment providers and app stores ask for them. |
 | 2 | QR code for entry | Fans | 🟡 Partial | **Mobile app.** The QR is in the mobile app; the web app's app store links point nowhere until the apps are published. |
 
-Vendors have none left: paying for an approved slot is wired to the new
-initialize-payment endpoint on the `vendors` branch and needs retesting.
+Vendors have 1 on the `vendors` branch: **paying for an approved slot** goes
+through Paystack, but the backend charges the slot price without the platform
+fee the app shows (§5).
 
 ---
 
@@ -280,17 +281,16 @@ which isn't merged yet. How the code works: [VENDOR-SIDE.md](./VENDOR-SIDE.md).
 | Event page and requesting slots (`/vendor/discover/:eventId`) | 🔴 High | ✅ Working | The ticket page design: About Event, Available Slots, and Your Slots. Add stalls with + and −, propose a price for service offers, then Request sends them all. Rows and the cart match the fans' ticket rows and cart. Slots already requested, closed, paused or sold out say so. |
 | My Slots (`/vendor/slots`) | 🔴 High | ✅ Working | One card per request with its status (In Review, Approved, Slot Secured, Rejected, Expired, Completed). All / In Review / Approved / Ended filters, and an "n slots need payment" badge. |
 | A request's page (`/vendor/slots/:applicationId`) | 🔴 High | ✅ Working | The event, the slot, its details, and what to do next for each status, for revenue slots and service offers. |
-| Pay for an approved slot | 🔴 High | ✅ Working | **Pay now** calls `initialize-payment` and goes to Paystack, which sends the vendor back to the request's page, where the pay endpoint confirms the reference. Wired November 2026, **to retest**. |
+| Pay for an approved slot | 🔴 High | 🟡 Partial | **Pay now** calls `initialize-payment` and goes to Paystack, which sends the vendor back to the request's page, where the pay endpoint confirms the reference. The page shows Slot fee, Platform fee and Amount Due, but **the backend doesn't add the platform fee**, so Paystack charges only the slot fee (see §5). |
 | Saved events | 🟠 Medium | ✅ Working | The bookmark on Discover and My Slots cards saves an event, or removes it when it's already saved, and the Saved Events toggle on Discover lists them. Unsave uses the new vendor endpoint, **to retest**. |
 | Withdraw a request | 🟠 Medium | ✅ Working | While it's in review, after a confirmation. The slot can be requested again afterwards. |
 | Profile card and summary (sidebar) | 🟠 Medium | ✅ Working | Business name, category, phone, email, saved events and slots secured from the API, and a "Finish setting up your profile" prompt. |
-| Profile: picture, bio, contact details, gallery | 🟠 Medium | ✅ Working | The redesigned modal's Profile tab. Photos upload to Cloudinary; Save sends the profile. The backend now saves the gallery, **to retest**. |
-| Account details | 🟠 Medium | ✅ Working | Business name, website, category, name, gender, birthday, country, state and phone. The backend added category, country, state and birthday, **to retest**. |
-| Change password | 🟠 Medium | ✅ Working | Settings tab. |
-| Notifications inbox | 🟠 Medium | ⛔ Not working | The redesign dropped the Inbox tab, so vendors can't see notifications anywhere. The hooks still work. |
+| Profile: picture, bio, contact details, gallery | 🟠 Medium | 🟡 Partial | The redesigned modal's Profile tab. Photos upload to Cloudinary; Save sends the profile. **The gallery doesn't save correctly**: removing some photos doesn't stick, and new ones come back twice. Removing all of them works. Raised with the backend (see §5). |
+| Account details | 🟠 Medium | ✅ Working | Business name (read only), website, category, name, gender, birthday, country, state and phone. The backend added category, country, state and birthday, **to retest**. |
+| Change password | 🟠 Medium | ✅ Working | Settings tab: current, new and confirm new password, on `PATCH /api/profile/vendor/change-password`. |
 | Email notifications setting | ⚪ Low | ⛔ Not working | The checkbox isn't saved; the API has no setting for it. |
 | Contact organizer | ⚪ Low | ✅ Working | Emails the organizer once a slot is secured, or once a service offer is approved. |
-| View receipt | ⚪ Low | 🟡 Partial | Secured stalls only. Built from the application (slot fee, platform fee, total). There's no receipt endpoint, so it isn't the Paystack record. |
+| View receipt | ⚪ Low | ✅ Working | Secured stalls only. Built from the application (slot fee, platform fee, total). |
 
 ---
 
@@ -335,11 +335,15 @@ or changes:
 - **Access requests:** the list endpoint needs a `search` parameter, and order details for approved fans.
 - **Private event status for signed-out fans:** `isApplicationPaused` and `isApplicationEnded` on the public event, so they can be told before logging in.
 - **New vendor slot's id:** creating a slot returns an id in a different format from the one the slot's own endpoint takes, so the app finds the new slot in the refreshed list to open its page. Returning the slot's `vendorId` would remove that step.
+- **Vendor slot platform fee:** `initialize-payment` charges the slot price without the platform fee (`VITE_VENDOR_APPLICATIONS_PERCENTAGE`, 8%). The request page shows Slot fee + Platform fee = Amount Due, so the vendor is shown more than Paystack charges. The backend should add the fee to the amount it charges.
+- **Vendor gallery doesn't save correctly (raised with the backend):** `PATCH /api/Profile/vendor` gets the whole gallery in `businessData.gallery`, each photo once (checked in the browser), but the server doesn't replace its gallery with it. What happens today:
+  - Removing every photo and saving works: the gallery is empty after a reload.
+  - Removing 2 of 8 and saving does nothing: all 8 are still there.
+  - Removing all and adding 4: the 4 come back twice each.
+
+  The server should replace the gallery with exactly the list it's sent.
 - **Vendor dashboard gaps:**
-  - A receipt for a paid slot.
-  - Fetching one application by id (the request page finds it in the full list).
-  - Changing a service offer's proposed price after sending it, which the design shows as editable.
-  - Somewhere to show vendor notifications, once the design has one.
+  - Fetching one application by id. There's no `GET` for one vendor application, only the list (`GET /api/Event/vendor/applications`), so the request page loads the whole list and finds its application in it. Something like `GET /api/Event/vendor/application/{applicationId}` (the path already has a `DELETE`) would replace that.
 - **Organizer account deletion:** the API only has an admin delete (`DELETE /api/Admin/users/{userId}`), nothing an organizer can call on their own account.
 
 **Now in the API, waiting on the frontend.** These endpoints are in the API's
