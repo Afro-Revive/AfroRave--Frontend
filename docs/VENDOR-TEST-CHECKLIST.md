@@ -26,7 +26,8 @@ and reject requests. How the pages work is in [VENDOR-SIDE.md](VENDOR-SIDE.md).
 - [x] Search filters the events.
 - [x] The Saved Events toggle shows only saved events.
 - [x] The bookmark saves an event, and the sidebar's Saved Events count goes up.
-- [ ] ⚠️ Tapping it again unsaves the event, and it stays unsaved after a reload. This uses the fans' endpoint. (doesn't work and endpoint doesnt exist)
+- [ ] ⚠️ Tapping it again unsaves the event, the sidebar count goes down, and it stays unsaved after a reload (new vendor endpoint).
+- [ ] ⚠️ The sidebar's Saved Events count matches the Saved Events list.
 - [x] Clicking a card opens the ticket page.
 
 ## 3. Ticket page (`/vendor/discover/:eventId`)
@@ -40,7 +41,8 @@ and reject requests. How the pages work is in [VENDOR-SIDE.md](VENDOR-SIDE.md).
 - [x] Each slot shows its price (revenue prices include the 8% fee) and category.
 - [x] Tapping a row opens its details: price, description, slots left or work hours, apply-by date.
 - [x] Revenue slot: + adds a stall, − takes one off, and + stops at the number of slots left.
-- [x] Service slot: + turns green only once a price is typed, a price above the budget gets capped, and after adding, the row shows − 1.
+- [x] Service slot: + turns green only once a price is typed, and after adding, the row shows − 1.
+- [ ] ⚠️ Service slot budget: the placeholder says "Up to ₦…" (the top of the range, or the single budget). Typing or pasting more sets it to that maximum and shows "The organizer's budget goes up to ₦…". A price below the minimum can still be added and requested.
 - [x] Requested shows when you already have a pending, approved or secured request, and links to it.
 - [x] Closed shows after the deadline or once the event has ended.
 - [ ] Paused shows when the organizer has paused the slot.
@@ -77,8 +79,9 @@ Use the organizer account to get a request into each status.
 **Approved, Secured and the rest**
 
 - [x] Approved stall: the notice says Pay before “date” at “time”, matching the deadline the organizer set.
-- [x] Approved stall, today: Pay now shows "Online payment isn't available yet…" and doesn't say the slot is secured (the backend doesn't return a Paystack link).
-- [ ] ⚠️ Once the backend returns a Paystack link: Pay now goes to Paystack, and coming back confirms the payment and shows "Slot secured!".
+- [ ] ⚠️ Approved stall: Pay now shows "Starting payment..." and goes to Paystack (new initialize-payment endpoint).
+- [ ] ⚠️ After paying, Paystack comes back to the same request page, which shows "Slot secured!", the Secured state, and the sidebar's Total Slots Secured goes up.
+- [ ] ⚠️ Cancelling on Paystack and coming back leaves the slot Approved.
 - [x] Approved service: Contact organizer opens an email to them, and is disabled when the organizer has no contact email.
 - [ ] Secured stall: View receipt (slot fee, 8% fee, total) and Contact organizer both work.
 - [x] Secured service: only Contact organizer shows, full width, with no View receipt.
@@ -95,6 +98,7 @@ Use the organizer account to get a request into each status.
 - [x] The about text, contact details and socials can be edited.
 - [x] Save is disabled until something changes.
 - [x] ⚠️ After saving, everything is still there after a reload.
+- [ ] ⚠️ Gallery: added and removed photos are still right after a reload.
 
 **Account tab**
 
@@ -104,7 +108,7 @@ Use the organizer account to get a request into each status.
 - [ ] Picking Nigeria turns State into a dropdown of the states and the FCT; other countries get a text box.
 - [ ] Changing country clears the state.
 - [ ] A state saved earlier as typed text ("lagos") shows selected in the dropdown.
-- [ ] ⚠️ After saving and reloading, category, country, state and birthday are still there. They aren't in the API's schema yet, so they may not stick.
+- [ ] ⚠️ After saving and reloading, category, country, state and birthday are still there (newly added to the API).
 
 **Settings tab**
 

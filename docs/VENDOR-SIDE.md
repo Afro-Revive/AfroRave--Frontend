@@ -106,7 +106,7 @@ VendorDashboardLayout
 └── <Outlet />
 ```
 
-- **Profile card data:** identity comes from `useVendorProfile` (`GET /api/profile/vendor`), falling back to the logged-in user. The counts come from `useVendorSummary` (`GET /api/Event/vendor/summary`): Saved Events is `savedEvents`, Total Slots Secured is `acquiredSlots`. **Known issue:** `savedEvents` doesn't always match the saved events list (3 against 2); raised with the backend (FEATURES.md §5).
+- **Profile card data:** identity comes from `useVendorProfile` (`GET /api/profile/vendor`), falling back to the logged-in user. The counts come from `useVendorSummary` (`GET /api/Event/vendor/summary`): Saved Events is `savedEvents`, Total Slots Secured is `acquiredSlots`.
 - **"Finish setting up your profile"** shows until `useVendorProfileComplete()` is true: first name, business name, phone, email, about text, profile picture, and at least one social link. It reads the vendor profile first, then the logged-in user.
 - **Breakpoints:** `lg` needs landscape below 1025px, so an upright tablet gets the phone layout with the sheet (see USER-SIDE.md §10).
 
@@ -147,12 +147,12 @@ VendorDiscoverPage
 ├── search (by event name, in the browser) + SAVED EVENTS toggle
 └── VendorCardGrid
     └── VendorEventCard (each)   flyer, name, date and venue, SLOTS : n,
-                                 bookmark → save (no unsave yet); card → event details
+                                 bookmark → save / unsave; card → event details
 ```
 
 - **Available events:** `useGetVendorAvailableEvents` (`GET /api/Event/vendor/available-events`). The service asks for 100 at once, because search is done in the browser (the endpoint has no search parameter).
 - **Saved events:** `useVendorSavedEvents` (`GET /api/Profile/vendor/event/watchlist`). The bookmark's state comes from this list, on Discover and My Slots.
-- **Saving** is `POST /api/Event/{eventId}/save` (`useSaveVendorEvent`), which refreshes the saved list and the summary. **Removing isn't built**: the API has no vendor endpoint for it, and the fans' watchlist remove isn't used in its place. A saved event's bookmark stays filled and does nothing when tapped. There's a TODO in `vendor.service.ts` (FEATURES.md §5).
+- **The bookmark** (`useToggleVendorSavedEvent`) saves with `POST /api/Event/{eventId}/save`, or, when the event is already saved, removes it with `DELETE /api/Profile/vendor/event/watchlist/remove` and `{ id: eventId }` in the body. Either way it refreshes the saved list and the summary.
 - **Empty states:** "No Slots Available", "No Saved Events", or "No Events Found" for a search.
 - **The card's slots count** shows the number left out of the total, "12 / 20" (`availableSlot` / `totalSlots`). Saved events don't carry the counts, so they take them from the same event in the available list; a saved event that isn't in that list shows no pill.
 
@@ -167,7 +167,7 @@ VendorEventDetailsPage
 ├── Available Slots      a SlotRow per slot or offer, styled like the fans' TicketCard
 │   ├── tap the row      details modal: price, description, slots left or work hours, apply-by date and time
 │   ├── revenue slot     green pill: + adds a stall up to the slots left, − takes one off
-│   ├── service offer    ₦ + "Enter your price" + (green once a price is in) adds it (capped at the top of the budget); then − takes it out
+│   ├── service offer    ₦ + "Up to ₦…" + (green once a price is in) adds it (capped at the top of the budget); then − takes it out
 │   └── or a pill        Requested (the row is read only), Closed, Paused or Sold out
 └── SlotCart             Your Slots, styled like the fans' CartSummaryFloat: Request + total, opens to the ×n lines
 ```
@@ -177,6 +177,7 @@ VendorEventDetailsPage
 - **Prices:**
   - Revenue prices are shown with the platform fee (`withPlatformFee` in `slots/slot-status.ts`), so the row says "(includes fees)".
   - A service offer shows the organizer's budget, and the cart shows the vendor's proposed price.
+  - **The proposed price can't go above the budget** (`getMaxPriceOffer`): the top of the range, or the single budget when there's no range. Below the minimum is allowed. The input's placeholder says "Up to ₦…"; typing or pasting more sets it to the maximum with a toast, "The organizer's budget goes up to ₦…". `addService` caps it again before it goes in the cart. With no budget set, there's no cap.
 - **Your Slots:**
   - A white bar fixed bottom right (centred on phones) with the black Request button and the total; the arrow opens it upward to show "Price Includes Fees." and the slots, each with its unit price.
   - Quantities change on the rows, not in the cart, as with fans' tickets.
@@ -224,12 +225,10 @@ What the bottom of the summary card shows:
 | Slot Secured | "Paid ₦…" with the date, **View receipt**, **Contact organizer** | "Offer accepted", **Contact organizer** |
 | Rejected, Expired, Completed | The notice, **Discover Events** | Same |
 
-- **Withdraw Request** asks for confirmation, then calls `DELETE /api/Event/vendor/application/{id}` and goes back to My Slots. The ticket page then shows the slot as open again, but **requesting it fails** with "You have already applied for this vendor slot": the backend still counts the withdrawn request (FEATURES.md §5).
-- **Pay now** calls `POST /api/Event/vendor/slot/pay` with `{ applicationId, paymentMethod: 'paystack-checkout' }`:
-  - If the response holds a checkout link (`authorizationUrl`, `authorization_url`, `checkoutUrl` or `paymentUrl`), the page goes to Paystack.
-  - Otherwise it says online payment isn't available yet and to contact the organizer, and refreshes the applications in case the status changed. It never says the slot is secured, since nothing was paid. **This is what happens today: the backend doesn't return a Paystack link yet.** There's a TODO in `slot-details/index.tsx`.
-  - Back from Paystack, a `?reference=` (or `?trxref=`) in the URL is sent once to the same endpoint to confirm the payment, then removed from the URL.
-  - See FEATURES.md §5.
+- **Withdraw Request** asks for confirmation, then calls `DELETE /api/Event/vendor/application/{id}` and goes back to My Slots. The ticket page then shows the slot as open again, and it can be requested again.
+- **Pay now** calls `POST /api/Event/vendor/slot/initialize-payment` (`useInitializeVendorSlotPayment`) with `{ applicationId, paymentMethod: 'paystack-checkout', callbackUrl }`. The callback is the request's own page.
+  - The page goes to the checkout link in the response (`authorizationUrl`, also `authorization_url`, `checkoutUrl`, `paymentUrl`, or the data itself if it's a link). With no link, it says the payment couldn't start.
+  - Back from Paystack, a `?reference=` (or `?trxref=`) in the URL is sent once to `POST /api/Event/vendor/slot/pay` (`usePayVendorSlot`) to confirm the payment, then removed from the URL. On success it says "Slot secured!" and refreshes the applications and the summary.
 - **Contact organizer** is a `mailto:`. It uses the slot's own contact email when the organizer set different contact details, otherwise the event's contact email. It's greyed out when there's neither.
 - **View receipt** is for stalls only (a service vendor doesn't pay for the slot). It's a dialog built from the application: slot fee, platform fee, total and the date it was last updated. There's no receipt endpoint, so these are the dashboard's numbers, not Paystack's.
 
@@ -245,8 +244,7 @@ One modal, opened from the sidebar's **Edit profile** and **Finish setting up yo
 
 - **One draft for both tabs.** Phone and website are on Profile and Account (email too, read only, since it's the sign-in email), so both tabs edit one draft (`VendorProfileDraft`), and either Save sends all of it. Save stays grey until something changes.
 - **Where the values come from:** `toDraft` reads the vendor profile (`GET /api/profile/vendor`) and falls back to the logged-in user. Name and gender only come from the user.
-- **What's sent:** `toUpdateRequest` keeps the rest of `businessData` and writes the bio to `aboutBusiness`, the website to `portfolio.webUrl`, Instagram to `socials.instagram` (a handle becomes a full link), the picture and gallery. The phone goes as `+234…` in both `phoneNumber` and `telephone`. The birthday goes as `1998-03-07`.
-- **Backend needs work on `PATCH /api/profile/vendor`:** its DTO has no category, country, state or birthday, and it doesn't save the gallery. They're all sent anyway so they save once the backend accepts them (FEATURES.md §5). Until then they only *look* saved: React Query's cache and the updated user keep showing them, and a reload brings back what the API really has.
+- **What's sent:** `toUpdateRequest` keeps the rest of `businessData` and writes the bio to `aboutBusiness`, the website to `portfolio.webUrl`, Instagram to `socials.instagram` (a handle becomes a full link), the picture and gallery. The phone goes as `+234…` in both `phoneNumber` and `telephone`. Category, country and state go as they are, and the birthday as `dateOfBirth`, `1998-03-07`. The old `gallary` spelling is cleared so it can't bring back removed photos. The birthday is read back from the vendor profile's `dateOfBirth`, falling back to the user.
 - **After saving**, the logged-in user is updated too (`applyDraftToUser`), so the sidebar and the "Finish setting up" check change straight away.
 - **Photos** upload to Cloudinary as they're picked (`useUploadImage`). Only their links are saved, and only on Save.
 - **Email notifications** isn't saved; the API has no setting for it.
@@ -262,10 +260,11 @@ One modal, opened from the sidebar's **Edit profile** and **Finish setting up yo
 | `useGetVendorApplications` | `use-event-mutations.ts` | `GET /api/Event/vendor/applications` |
 | `useVendorSummary` | `use-vendor.ts` | `GET /api/Event/vendor/summary` |
 | `useVendorSavedEvents` | `use-vendor.ts` | `GET /api/Profile/vendor/event/watchlist` |
-| `useSaveVendorEvent` | `use-vendor.ts` | `POST /api/Event/{eventId}/save` (no unsave yet) |
+| `useToggleVendorSavedEvent` | `use-vendor.ts` | `POST /api/Event/{eventId}/save`, `DELETE /api/Profile/vendor/event/watchlist/remove` |
 | `useRequestVendorSlots` | `use-vendor.ts` | `POST /api/Event/vendor/apply`, once per slot |
 | `useWithdrawVendorApplication` | `use-vendor.ts` | `DELETE /api/Event/vendor/application/{applicationId}` |
-| `usePayVendorSlot` | `use-vendor.ts` | `POST /api/Event/vendor/slot/pay` |
+| `useInitializeVendorSlotPayment` | `use-vendor.ts` | `POST /api/Event/vendor/slot/initialize-payment` |
+| `usePayVendorSlot` | `use-vendor.ts` | `POST /api/Event/vendor/slot/pay` (confirms with the reference) |
 | `useVendorEventsById` | `use-vendor.ts` | `GET /api/Event/{eventId}` for each event |
 | `useVendorProfileComplete` | `use-vendor.ts` | none (reads the logged-in user) |
 | `useVendorProfile` | `use-profile-mutations.ts` | `GET /api/profile/vendor` |
