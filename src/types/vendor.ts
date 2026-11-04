@@ -210,4 +210,6 @@ export interface PayVendorSlotRequest {
     applicationId: number
     paymentMethod: string
     reference?: string
+    /** Where Paystack sends the vendor back to after paying */
+    callbackUrl?: string
 }

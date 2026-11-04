@@ -1,7 +1,7 @@
 import { RichTextContent } from '@/components/reusable/rich-text-content'
 import { getRoutePath } from '@/config/get-route-path'
 import { useGetEvent, useGetVendorApplications } from '@/hooks/use-event-mutations'
-import { usePayVendorSlot, useWithdrawVendorApplication } from '@/hooks/use-vendor'
+import { useInitializeVendorSlotPayment, usePayVendorSlot, useWithdrawVendorApplication } from '@/hooks/use-vendor'
 import { eventKeys } from '@/lib/event-keys'
 import type { EventDetailData, PaginatedResponse } from '@/types'
 import type { VendorApplications } from '@/types/vendor'
@@ -18,8 +18,9 @@ import { SlotSummaryCard } from './slot-summary-card'
 
 const PAYMENT_METHOD = 'paystack-checkout'
 
-/** Paystack checkout link from the pay endpoint. The API doesn't send one yet (FEATURES.md §5). */
+/** Paystack checkout link from the initialize-payment response. */
 function getCheckoutUrl(data: unknown): string | undefined {
+  if (typeof data === 'string') return /^https?:\/\//.test(data) ? data : undefined
   if (!data || typeof data !== 'object') return undefined
   const record = data as Record<string, unknown>
   const url = record.authorizationUrl ?? record.authorization_url ?? record.checkoutUrl ?? record.paymentUrl
@@ -40,6 +41,7 @@ export default function VendorSlotDetailsPage() {
   const event = eventResponse?.data as EventDetailData | undefined
 
   const withdraw = useWithdrawVendorApplication()
+  const initializePayment = useInitializeVendorSlotPayment()
   const pay = usePayVendorSlot()
 
   function onSlotSecured() {
@@ -50,8 +52,13 @@ export default function VendorSlotDetailsPage() {
 
   function handlePay() {
     if (!application) return
-    pay.mutate(
-      { applicationId: application.id, paymentMethod: PAYMENT_METHOD },
+    // Paystack sends the vendor back to this page with a `reference`, confirmed below.
+    initializePayment.mutate(
+      {
+        applicationId: application.id,
+        paymentMethod: PAYMENT_METHOD,
+        callbackUrl: `${window.location.origin}${window.location.pathname}`,
+      },
       {
         onSuccess: (response) => {
           const checkoutUrl = getCheckoutUrl(response?.data)
@@ -59,10 +66,7 @@ export default function VendorSlotDetailsPage() {
             window.location.href = checkoutUrl
             return
           }
-          // TODO: remove once the pay endpoint returns a Paystack link. Until then nothing is
-          // paid, so don't say the slot is secured; just pick up any status change.
-          toast.info('Online payment isn’t available yet. Contact the organizer to pay for this slot.')
-          queryClient.invalidateQueries({ queryKey: eventKeys.vendorApplications() })
+          toast.error('Could not start the payment. Please try again.')
         },
         onError: () => toast.error('Could not start the payment. Please try again.'),
       },
@@ -144,7 +148,7 @@ export default function VendorSlotDetailsPage() {
             onWithdraw={handleWithdraw}
             isWithdrawing={withdraw.isPending}
             onPay={handlePay}
-            isPaying={pay.isPending}
+            isPaying={initializePayment.isPending || pay.isPending}
           />
           <CommunityCard />
         </div>

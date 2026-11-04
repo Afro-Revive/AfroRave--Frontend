@@ -92,7 +92,15 @@ class VendorService {
   }
 
   /**
-   * Pay for an approved slot. With a `reference` it confirms a finished Paystack payment.
+   * Start paying for an approved slot. Returns the Paystack checkout link (`authorizationUrl`).
+   */
+  async initializeSlotPayment(data: PayVendorSlotRequest): Promise<ApiResponse<unknown>> {
+    const response = await api.post('/api/Event/vendor/slot/initialize-payment', data)
+    return response.data
+  }
+
+  /**
+   * Confirm a finished Paystack payment for a slot with its `reference`, which secures it.
    */
   async payVendorSlot(data: PayVendorSlotRequest): Promise<ApiResponse<unknown>> {
     const response = await api.post('/api/Event/vendor/slot/pay', data)

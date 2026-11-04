@@ -79,6 +79,12 @@ export function useWithdrawVendorApplication() {
 }
 
 /** Toasts and refetching are left to the caller: the response may be a Paystack link, not a secured slot. */
+export function useInitializeVendorSlotPayment() {
+  return useMutation({
+    mutationFn: (data: PayVendorSlotRequest) => vendorService.initializeSlotPayment(data),
+  })
+}
+
 export function usePayVendorSlot() {
   return useMutation({
     mutationFn: (data: PayVendorSlotRequest) => vendorService.payVendorSlot(data),
