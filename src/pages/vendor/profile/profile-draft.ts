@@ -72,7 +72,7 @@ export function toDraft(profile: VendorProfileData | undefined, user: User | nul
     email: profile?.contactEmail || user?.email || '',
     phoneCode,
     phoneDigits,
-    webUrl: business.portfolio?.webUrl || profile?.website || userBusiness?.portfolio?.webUrl || '',
+    webUrl: business.portfolio?.webUrl || userBusiness?.portfolio?.webUrl || '',
     instagram: instagramHandle(business.socials?.instagram || userBusiness?.socials?.instagram),
     gallery: business.gallery ?? business.gallary ?? user?.profile.gallery ?? [],
     businessName: profile?.businessName || user?.profile.businessName || user?.profile.companyName || '',
@@ -128,7 +128,11 @@ export function toUpdateRequest(draft: VendorProfileDraft, profile: VendorProfil
       portfolio: { ...business.portfolio, webUrl: draft.webUrl.trim() },
       socials: { ...business.socials, instagram: instagramLink(draft.instagram) },
     },
+    // The profile has more than one field for each of these; keep them all in step.
     category: draft.category,
+    services: draft.category,
+    vendorType: draft.category,
+    website: draft.webUrl.trim(),
     country: draft.country,
     state: draft.state.trim(),
     // Month as a number: '1998-03-07', never '1998-mar-07'.

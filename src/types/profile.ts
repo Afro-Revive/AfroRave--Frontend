@@ -136,6 +136,11 @@ export interface UpdateVendorProfileRequest {
   gender?: string
   businessData?: VendorBusinessData
   category?: string
+  /** Same as category. Sent only; the app reads category. */
+  services?: string
+  vendorType?: string
+  /** Same as businessData.portfolio.webUrl. Sent only; the app reads webUrl. */
+  website?: string
   country?: string
   state?: string
   dateOfBirth?: string
