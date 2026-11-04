@@ -250,12 +250,19 @@ export default function CreateVendorSlot({
   // Revenue puts this under the stall name; service puts it beside the service name.
   const categoryField = (
     <div className="w-full flex flex-col gap-2">
-      <FormField form={form} name="category" label="CATEGORY" showMessage>
+      {/* As tall as a counter field's label row, so the inputs beside it line up. */}
+      <FormField
+        form={form}
+        name="category"
+        label="CATEGORY"
+        labelClassName="flex h-4 items-center"
+        showMessage
+      >
         <BaseSelect
           type="auth"
           items={categoryOptions}
           placeholder="Choose An Applicable category"
-          triggerClassName="w-full text-black !bg-white px-3 rounded-[4px] border border-mid-dark-gray/50 text-sm font-inter-tight uppercase"
+          triggerClassName="h-10 w-full text-black !bg-white px-3 rounded-[4px] border border-mid-dark-gray/50 text-sm font-inter-tight uppercase"
         />
       </FormField>
       {selectedCategory && (
@@ -331,6 +338,7 @@ export default function CreateVendorSlot({
                 form={form}
                 name="slotNumber"
                 label="NUMBER OF STALLS"
+                labelClassName="flex h-4 items-center"
                 showMessage
               >
                 {(field) => (
