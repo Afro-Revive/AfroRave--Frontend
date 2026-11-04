@@ -52,6 +52,18 @@ export function getSlotPriceLabel(slot: VendorSlot): string {
     : formatNaira(service.minBudget)
 }
 
+/**
+ * The most a vendor can offer for a service: the top of the organizer's budget range, or
+ * the single budget when there's no range. Offering less than the minimum is allowed.
+ * Undefined when the organizer set no budget.
+ */
+export function getMaxPriceOffer(slot: VendorSlot): number | undefined {
+  const service = slot.vendorDetails?.serviceData
+  if (!service) return undefined
+  const max = service.hasBudgetRange ? service.maxBudget : service.maxBudget || service.minBudget
+  return max > 0 ? max : undefined
+}
+
 /** A cart line's total: stalls × price with fees, or the proposed price. */
 export function getCartItemTotal(item: SlotCartItem): number {
   if (isRevenueSlot(item.slot)) return withPlatformFee(item.slot.vendorDetails?.slotData?.price ?? 0) * item.quantity

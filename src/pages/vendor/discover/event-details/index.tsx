@@ -15,7 +15,7 @@ import { getSlotStatus, type SlotStatus } from '../../slots/slot-status'
 import { formatVendorDate } from '../../lib/format-date'
 import { SlotCart } from './slot-cart'
 import { SlotRow } from './slot-row'
-import { getSlotsLeft, isRevenueSlot, toApplicationRequest, type SlotCartItem } from './slot-request'
+import { getMaxPriceOffer, getSlotsLeft, isRevenueSlot, toApplicationRequest, type SlotCartItem } from './slot-request'
 
 /** A request in review, approved or secured makes its slot read only: it can't be requested again. */
 const REQUESTED_STATUSES: SlotStatus[] = ['in_review', 'approved', 'secured']
@@ -58,7 +58,9 @@ export default function VendorEventDetailsPage() {
     })
   }
 
-  function addService(slot: VendorSlot, priceOffer: number) {
+  function addService(slot: VendorSlot, price: number) {
+    const maxOffer = getMaxPriceOffer(slot)
+    const priceOffer = maxOffer ? Math.min(price, maxOffer) : price
     // One offer per service: adding again replaces the price.
     setCart((prev) => [...prev.filter((item) => item.slot.vendorId !== slot.vendorId), { slot, quantity: 1, priceOffer }])
   }

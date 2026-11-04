@@ -2,15 +2,18 @@ import BaseModal from '@/components/reusable/base-modal'
 import { RichTextContent } from '@/components/reusable/rich-text-content'
 import { Button } from '@/components/ui/button'
 import { stripUnderscores } from '@/lib/helper-func'
+import { formatNaira } from '@/lib/format-price'
 import { cn } from '@/lib/utils'
 import type { VendorSlot } from '@/types/vendor'
 import { useState } from 'react'
 import type { IconType } from 'react-icons'
 import { BsInfoCircle } from 'react-icons/bs'
 import { RiAddLine, RiSubtractLine } from 'react-icons/ri'
+import { toast } from 'sonner'
 import { formatShortDateTime } from '../../lib/format-date'
 import {
   getSlotAvailability,
+  getMaxPriceOffer,
   getSlotDeadline,
   getSlotPriceLabel,
   getSlotsLeft,
@@ -170,10 +173,9 @@ function StatusPill({ label }: { label: string }) {
 
 function ServicePriceInput({ slot, onAdd }: { slot: VendorSlot; onAdd: (price: number) => void }) {
   const [value, setValue] = useState('')
-  const service = slot.vendorDetails?.serviceData
-  const maxBudget = service?.hasBudgetRange ? service.maxBudget : undefined
+  const maxOffer = getMaxPriceOffer(slot)
   const price = Number(value)
-  const isValid = value !== '' && price > 0
+  const isValid = value !== '' && price > 0 && (!maxOffer || price <= maxOffer)
 
   return (
     <form
@@ -193,16 +195,21 @@ function ServicePriceInput({ slot, onAdd }: { slot: VendorSlot; onAdd: (price: n
           type='number'
           inputMode='numeric'
           min={1}
-          max={maxBudget}
+          max={maxOffer}
           value={value}
           onChange={(e) => {
             const next = e.target.value
             if (next === '') return setValue('')
             const parsed = Number(next)
             if (Number.isNaN(parsed) || parsed < 0) return
-            setValue(String(maxBudget ? Math.min(parsed, maxBudget) : parsed))
+            // Below the minimum is fine; above the organizer's budget isn't.
+            if (maxOffer && parsed > maxOffer) {
+              toast.info(`The organizer’s budget goes up to ${formatNaira(maxOffer)}`, { id: `max-offer-${slot.vendorId}` })
+              return setValue(String(maxOffer))
+            }
+            setValue(String(parsed))
           }}
-          placeholder='Enter your price'
+          placeholder={maxOffer ? `Up to ${formatNaira(maxOffer)}` : 'Enter your price'}
           className='h-8 w-full rounded-lg border border-white bg-transparent px-2.5 font-inter-tight text-sm text-white outline-none [appearance:textfield] placeholder:text-[#9A9A9A] focus:border-tech-blue [&::-webkit-inner-spin-button]:appearance-none'
         />
       </label>
