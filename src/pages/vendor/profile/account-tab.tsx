@@ -12,12 +12,8 @@ export function AccountTab({ draft, update, onSave, isDirty, isSaving }: ITab) {
     <div className='flex flex-col gap-8'>
       <section className='flex flex-col gap-3.5'>
         <h3 className='font-inter-tight text-base font-bold text-white'>Business Details</h3>
-        <InsetInput
-          label='BUSINESS NAME'
-          value={draft.businessName}
-          onChange={(e) => update({ businessName: e.target.value })}
-          maxLength={85}
-        />
+        {/* Read only: set at sign-up. */}
+        <InsetInput label='BUSINESS NAME' value={draft.businessName} disabled readOnly />
         <InsetInput
           label='WEB URL'
           hint='(optional)'
