@@ -9,6 +9,7 @@ const MIN_PASSWORD_LENGTH = 8
 export function SettingsTab() {
   const [currentPassword, setCurrentPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
   // Not saved yet: the API has no notification preference.
   const [emailNotifications, setEmailNotifications] = useState(true)
   const changePassword = useChangeVendorPassword()
@@ -16,17 +17,20 @@ export function SettingsTab() {
 
   const isTooShort = newPassword.length > 0 && newPassword.length < MIN_PASSWORD_LENGTH
   const isSame = newPassword.length > 0 && newPassword === currentPassword
-  const canSubmit = !!currentPassword && newPassword.length >= MIN_PASSWORD_LENGTH && !isSame
+  const isMismatch = confirmPassword.length > 0 && confirmPassword !== newPassword
+  const canSubmit =
+    !!currentPassword && newPassword.length >= MIN_PASSWORD_LENGTH && !isSame && confirmPassword === newPassword
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!canSubmit) return
     changePassword.mutate(
-      { currentPassword, oldPassword: currentPassword, newPassword, confirmNewPassword: newPassword },
+      { currentPassword, oldPassword: currentPassword, newPassword, confirmNewPassword: confirmPassword },
       {
         onSuccess: () => {
           setCurrentPassword('')
           setNewPassword('')
+          setConfirmPassword('')
         },
       },
     )
@@ -58,6 +62,17 @@ export function SettingsTab() {
               {isTooShort ? `Use at least ${MIN_PASSWORD_LENGTH} characters.` : 'Choose a password you haven’t used here.'}
             </p>
           )}
+        </div>
+        <div className='flex flex-col gap-1.5'>
+          <InsetPasswordInput
+            id='vendor-confirm-password'
+            label='Confirm New Password'
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            placeholder='Enter New Password Again'
+            autoComplete='new-password'
+          />
+          {isMismatch && <p className='font-sf-pro-text text-xs text-[#FF6B6B]'>Passwords don’t match.</p>}
         </div>
         <button
           type='submit'
