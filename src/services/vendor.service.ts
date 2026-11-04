@@ -43,8 +43,13 @@ class VendorService {
     return response.data
   }
 
-  // TODO: unsaving an event. The API has no vendor endpoint to remove a saved event yet
-  // (raised with the backend). Don't use the fans' watchlist remove in its place.
+  /**
+   * Remove a saved event
+   */
+  async unsaveEventVendor(eventId: string): Promise<void> {
+    const response = await api.delete('/api/Profile/vendor/event/watchlist/remove', { data: { id: eventId } })
+    return response.data
+  }
 
   /**
    * Get the vendor's saved events

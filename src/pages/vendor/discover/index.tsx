@@ -1,6 +1,6 @@
 import { getRoutePath } from '@/config/get-route-path'
 import { useGetVendorAvailableEvents } from '@/hooks/use-event-mutations'
-import { useSaveVendorEvent, useVendorSavedEvents } from '@/hooks/use-vendor'
+import { useToggleVendorSavedEvent, useVendorSavedEvents } from '@/hooks/use-vendor'
 import { cn } from '@/lib/utils'
 import type { PaginatedResponse, VendorAvailableEventData } from '@/types'
 import { useMemo, useState } from 'react'
@@ -34,7 +34,7 @@ export default function VendorDiscoverPage() {
 
   const { data: response, isPending: isLoadingAvailable } = useGetVendorAvailableEvents()
   const { data: savedEvents = [], isPending: isLoadingSaved } = useVendorSavedEvents()
-  const saveEvent = useSaveVendorEvent()
+  const toggleSave = useToggleVendorSavedEvent()
 
   const availableEvents = useMemo<DiscoverEvent[]>(() => {
     const items = (response?.data as PaginatedResponse<VendorAvailableEventData> | undefined)?.items ?? []
@@ -122,7 +122,7 @@ export default function VendorDiscoverPage() {
                 venue={event.venue}
                 isEnded={!!event.endDate && new Date(event.endDate) < new Date()}
                 isSaved={isSaved}
-                onSave={() => saveEvent.mutate(event.eventId)}
+                onToggleSave={() => toggleSave.mutate({ eventId: event.eventId, isSaved })}
                 footer={event.availableSlots !== undefined && <SlotsCountPill available={event.availableSlots} total={event.totalSlots} />}
               />
             )
