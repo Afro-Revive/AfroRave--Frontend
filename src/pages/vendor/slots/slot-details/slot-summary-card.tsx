@@ -24,6 +24,7 @@ import { formatDeadlineParts, formatShortDate } from '../../lib/format-date'
 import {
   getAmountDue,
   getApplicationDeadline,
+  getSlotFee,
   getSlotName,
   isRevenueApplication,
   type SlotStatus,
@@ -46,6 +47,7 @@ export function SlotSummaryCard({
   const isRevenue = isRevenueApplication(application)
   const service = application.vendorDetails?.serviceData
   const amountDue = getAmountDue(application)
+  const slotFee = getSlotFee(application)
   const showAmountDue = isRevenue && (status === 'in_review' || status === 'approved')
   const organizerEmail = application.vendorDetails?.contact?.useDifferentContactDetails
     ? application.vendorDetails.contact.email
@@ -113,9 +115,14 @@ export function SlotSummaryCard({
       )}
 
       {showAmountDue && (
-        <div className='flex items-center justify-between'>
-          <span className='font-sf-pro-text text-sm text-[#BDBDBD]'>Amount Due</span>
-          <span className='font-inter-tight text-xl font-bold text-white'>{formatNaira(amountDue)}</span>
+        <div className='flex flex-col gap-2'>
+          {/* In review and approved: what the amount due is made of, before paying it. */}
+          <AmountRow name='Slot fee' value={formatNaira(slotFee)} />
+          <AmountRow name='Platform fee' value={formatNaira(amountDue - slotFee)} />
+          <div className='mt-1 flex items-center justify-between border-t border-[#3A3A3A] pt-3'>
+            <span className='font-sf-pro-text text-sm text-[#BDBDBD]'>Amount Due</span>
+            <span className='font-inter-tight text-xl font-bold text-white'>{formatNaira(amountDue)}</span>
+          </div>
         </div>
       )}
 
@@ -200,6 +207,15 @@ function StatusNotice({ application, event, status }: { application: VendorAppli
       <RiInformationLine className='mt-px size-4 shrink-0' />
       <span>{message}</span>
     </p>
+  )
+}
+
+function AmountRow({ name, value }: { name: string; value: string }) {
+  return (
+    <div className='flex items-center justify-between font-sf-pro-text text-sm'>
+      <span className='text-[#BDBDBD]'>{name}</span>
+      <span className='text-white'>{value}</span>
+    </div>
   )
 }
 
