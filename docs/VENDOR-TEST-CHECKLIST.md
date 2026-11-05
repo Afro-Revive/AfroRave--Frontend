@@ -45,8 +45,8 @@ and reject requests. How the pages work is in [VENDOR-SIDE.md](VENDOR-SIDE.md).
 - [x] ⚠️ Service slot budget: the placeholder says "Up to ₦…" (the top of the range, or the single budget). Typing or pasting more sets it to that maximum and shows "The organizer's budget goes up to ₦…". A price below the minimum can still be added and requested.
 - [x] Requested shows when you already have a pending, approved or secured request, and links to it.
 - [x] Closed shows after the deadline or once the event has ended.
-- [ ] Paused shows when the organizer has paused the slot.
-- [ ] Sold out shows when a revenue slot has no stalls left.
+- [x] Paused shows when the organizer has paused the slot.
+- [x] Sold out shows when a revenue slot has no stalls left.
 
 **Cart and Request**
 
@@ -81,16 +81,16 @@ Use the organizer account to get a request into each status.
 - [x] Approved stall: the notice says Pay before “date” at “time”, matching the deadline the organizer set.
 - [x] Approved stall: Slot fee (price × stalls) and Platform fee show above Amount Due, and add up to it.
 - [x] ⚠️ Approved stall: Pay now shows "Starting payment..." and goes to Paystack (new initialize-payment endpoint).
-- [ ] ⚠️ Paystack charges the Amount Due (slot fee + platform fee).
-- [ ] ⚠️ After paying, Paystack comes back to the same request page, which shows "Slot secured!", the Secured state, and the sidebar's Total Slots Secured goes up.
+- [x] ⚠️ Paystack charges the Amount Due (slot fee + platform fee).
+- [x] ⚠️ After paying, Paystack comes back to the same request page, which shows "Slot secured!", the Secured state, and the sidebar's Total Slots Secured goes up.
 - [x] ⚠️ Cancelling on Paystack and coming back leaves the slot Approved.
 - [x] Approved service: Contact organizer opens an email to them, and is disabled when the organizer has no contact email.
 - [x] Secured stall: View receipt (slot fee, 8% fee, total) and Contact organizer both work.
 - [x] Secured service: only Contact organizer shows, full width, with no View receipt.
 - [x] Rejected: the description popup can't be opened, and Discover Events works.
 - [x] Expired: a stall that was approved but not paid by the deadline shows Expired.
-- [ ] Completed: a request for an event that has ended shows Completed.
-- [ ] ⚠️ The request page loads on its own (new get-one-application endpoint): open a request, reload it, and open it from a copied link.
+- [x] Completed: a request for an event that has ended shows Completed.
+- [x] ⚠️ The request page loads on its own (new get-one-application endpoint): open a request, reload it, and open it from a copied link.
 - [ ] A request ID that doesn't exist shows "This request may have been withdrawn" (now from the new endpoint).
 
 ## 6. Profile modal
@@ -102,8 +102,8 @@ Use the organizer account to get a request into each status.
 - [x] Save is disabled until something changes.
 - [x] ⚠️ After saving, everything is still there after a reload.
 - [x] Gallery: removing every photo and saving leaves it empty after a reload.
-- [ ] ⚠️ Gallery: removing some photos (2 of 8) sticks after a reload.
-- [ ] ⚠️ Gallery: adding photos saves each one once (removing all and adding 4 leaves exactly those 4).
+- [x] ⚠️ Gallery: removing some photos (2 of 8) sticks after a reload.
+- [x] ⚠️ Gallery: adding photos saves each one once (removing all and adding 4 leaves exactly those 4).
 
 **Account tab**
 
