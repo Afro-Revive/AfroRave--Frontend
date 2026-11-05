@@ -9,6 +9,8 @@ import type {
   UserProfileResponse,
   UserTicketsResponse,
   VendorProfileResponse,
+  UpdateVendorProfileRequest,
+  ChangePasswordRequest,
   WalletDetailsResponse,
   WithdrawFundsRequest,
 } from '@/types'
@@ -69,6 +71,22 @@ class ProfileService {
    */
   async getVendorProfile(): Promise<VendorProfileResponse> {
     const response = await api.get('/api/profile/vendor')
+    return response.data
+  }
+
+  /**
+   * Update vendor profile
+   */
+  async updateVendorProfile(data: UpdateVendorProfileRequest): Promise<VendorProfileResponse> {
+    const response = await api.patch('/api/profile/vendor', data)
+    return response.data
+  }
+
+  /**
+   * Change the vendor's password
+   */
+  async changeVendorPassword(data: ChangePasswordRequest): Promise<void> {
+    const response = await api.patch('/api/profile/vendor/change-password', data)
     return response.data
   }
 

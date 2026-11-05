@@ -11,6 +11,39 @@ For what the app can do today, see [docs/FEATURES.md](docs/FEATURES.md).
 
 ---
 
+## November 2026 — Vendor dashboard redesign
+
+**Design:** the vendor dashboard was rebuilt from the new design. It's dark, in
+**Inter Tight**, with the vendor's profile in the sidebar, and slots are
+requested from a page laid out like the fans' ticket page. How it works:
+[docs/VENDOR-SIDE.md](docs/VENDOR-SIDE.md).
+
+### Added — vendors
+- **Discover** (`/vendor/discover`): events taking applications, with slots left out of the total, search, a Saved Events toggle and a bookmark to save or unsave an event.
+- **Ticket page** (`/vendor/discover/:eventId`):
+  - Slots and service offers in rows like the fans' tickets.
+  - **+** and **−** for stalls; a proposed price for services, capped at the organizer's maximum budget.
+  - A cart that sends one request per line.
+  - Requested, Closed, Paused and Sold out labels.
+- **My Slots** (`/vendor/slots`): every request with its status (In Review, Approved, Slot Secured, Rejected, Expired, Completed), filters and a payment badge.
+- **Request page** (`/vendor/slots/:applicationId`):
+  - Loads the one request (`GET /api/Event/vendor/application/{applicationId}`).
+  - Slot fee, platform fee and amount due.
+  - Withdraw while it's in review.
+  - **Pay now** through Paystack (`initialize-payment`, then `slot/pay` with the reference).
+  - View receipt and Contact organizer.
+- **Profile modal** with Profile (picture, bio, contact details, socials, gallery), Account (business and personal details, birthday, country, state, phone) and Settings (change password with a confirm field, log out) tabs.
+- **Sidebar profile card** with the saved events and slots secured counts, and a prompt to finish the profile.
+
+### Changed — vendors
+- Vendor categories are a new list of 12, also used at sign-up, in the registration modal and on complete profile.
+
+### Removed — vendors
+- The old Profile and Wishlist pages and the view-profile modal.
+- The notifications inbox: vendors get updates by email only.
+
+---
+
 ## [Unreleased] — `prod` branch, October 2026
 
 **Design:** the organizer dashboard got its biggest redesign so far.

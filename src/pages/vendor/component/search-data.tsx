@@ -7,7 +7,7 @@ export function SearchData() {
       <Search size={14} color="#000000" />
 
       <Input
-        className="w-full text-xs font-sf-pro-display opacity-70 text-black border-none outline-none"
+        className="w-full text-xs font-inter-tight opacity-70 text-black border-none outline-none"
         placeholder="Search"
       />
     </div>

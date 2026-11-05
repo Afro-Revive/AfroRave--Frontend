@@ -4,7 +4,6 @@ import { HelmetProvider } from 'react-helmet-async'
 import { ErrorBoundary } from './components/error-boundary.tsx'
 import './index.css'
 import Application from './application.tsx'
-import { WishlistProvider } from './contexts/wishlist-context.tsx'
 
 const rootElement = document.getElementById('root')
 if (!rootElement) {
@@ -15,9 +14,7 @@ createRoot(rootElement).render(
   <StrictMode>
     <ErrorBoundary>
       <HelmetProvider>
-        <WishlistProvider>
-          <Application />
-        </WishlistProvider>
+        <Application />
       </HelmetProvider>
     </ErrorBoundary>
   </StrictMode>,

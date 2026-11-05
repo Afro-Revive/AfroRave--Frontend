@@ -3,7 +3,8 @@
 Files in `src/` that the running app never loads, grouped by why they're dead,
 with a recommendation for each group.
 
-Checked on the `prod` branch, October 2026. **55 dead files** in total.
+Checked on the `prod` branch, October 2026, and §F again when `vendors` merged
+in November 2026. **54 dead files** in total.
 
 ---
 
@@ -35,7 +36,7 @@ npx knip --include files
 | [C. Old helpers, mock data and schemas](#c-old-helpers-mock-data-and-schemas) | 9 | Delete |
 | [D. Unused UI building blocks](#d-unused-ui-building-blocks) | 4 | Delete, or keep if you plan to use them |
 | [E. Parked until the backend is ready](#e-parked-until-the-backend-is-ready) | 3 | **Keep** |
-| [F. Vendor files](#f-vendor-files--check-on-the-vendors-branch) | 7 | **Don't touch here.** Check on `vendors` |
+| [F. Vendor files](#f-vendor-files) | 6 | Delete |
 
 ---
 
@@ -134,19 +135,18 @@ API can list every resale ticket. Its routes are commented out in
 | `pages/landing-page/resale-marketplace/individual-resale-event/index.tsx` |
 | `pages/landing-page/resale-marketplace/individual-resale-event/resale-event-details.tsx` |
 
-## F. Vendor files — check on the `vendors` branch
+## F. Vendor files
 
-Vendor work happens on the `vendors` branch. These files are unused on `prod`,
-but they may be in use, or already deleted, on `vendors`. **Don't delete them
-here.** Check them again after `vendors` is merged.
+Rechecked when the `vendors` branch merged in November 2026. The vendor auth
+guard is in use now (every vendor route has it), so it's off the list. Nothing
+imports the rest.
 
 | File | Notes |
 |---|---|
-| `components/auth/vendor-auth-guard.tsx` | Vendor routes don't use a guard on `prod`. |
 | `components/vendor/vendor-success-overlay.tsx` | Success screen from the vendor registration callout. |
 | `pages/auth/sign-up/business-signup-form.tsx` | Old organizer/vendor sign-up. Replaced by the general sign-up in June 2026. |
-| `pages/auth/sign-up/vendor-signup-form.tsx` | Old vendor sign-up. |
-| `pages/vendor/component/back-btn.tsx` | Back button for vendor pages. |
+| `pages/auth/sign-up/vendor-signup-form.tsx` | Old vendor sign-up. Only a commented-out import in `auth-modal.tsx` mentions it. |
+| `pages/vendor/component/back-btn.tsx` | Back button for the old vendor pages. |
 | `data/services.ts`, `data/slots.ts` (2 files) | Mock vendor services and slots. |
 
 ---
