@@ -8,6 +8,7 @@ import type { ChangePasswordRequest, UpdateVendorProfileRequest, VendorProfileDa
 import type {
   PayVendorSlotRequest,
   VendorApplicationRequest,
+  VendorApplications,
   VendorSavedEvent,
   VendorSummary,
 } from '@/types/vendor'
@@ -20,6 +21,17 @@ export function useVendorSummary() {
     queryKey: eventKeys.vendorSummary(),
     queryFn: () => vendorService.getSummary(),
     select: (response) => response.data as VendorSummary,
+  })
+}
+
+export function useVendorApplication(applicationId: string) {
+  return useQuery({
+    queryKey: eventKeys.vendorApplication(applicationId),
+    queryFn: () => vendorService.getVendorApplication(applicationId),
+    select: (response) => response.data as VendorApplications | undefined,
+    enabled: !!applicationId,
+    // A withdrawn request is gone for good, so there's nothing to retry.
+    retry: false,
   })
 }
 

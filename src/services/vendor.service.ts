@@ -80,6 +80,14 @@ class VendorService {
   }
 
   /**
+   * Get one of the vendor's applications by its id
+   */
+  async getVendorApplication(applicationId: string): Promise<VendorApplicationsResponse> {
+    const response = await api.get(`/api/Event/vendor/application/${applicationId}`)
+    return response.data
+  }
+
+  /**
    * Apply for Event Vendor Slot
    */
 

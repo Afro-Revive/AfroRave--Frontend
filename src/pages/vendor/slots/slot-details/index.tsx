@@ -1,9 +1,14 @@
 import { RichTextContent } from '@/components/reusable/rich-text-content'
 import { getRoutePath } from '@/config/get-route-path'
-import { useGetEvent, useGetVendorApplications } from '@/hooks/use-event-mutations'
-import { useInitializeVendorSlotPayment, usePayVendorSlot, useWithdrawVendorApplication } from '@/hooks/use-vendor'
+import { useGetEvent } from '@/hooks/use-event-mutations'
+import {
+  useInitializeVendorSlotPayment,
+  usePayVendorSlot,
+  useVendorApplication,
+  useWithdrawVendorApplication,
+} from '@/hooks/use-vendor'
 import { eventKeys } from '@/lib/event-keys'
-import type { EventDetailData, PaginatedResponse } from '@/types'
+import type { EventDetailData } from '@/types'
 import type { VendorApplications } from '@/types/vendor'
 import { useQueryClient } from '@tanstack/react-query'
 import { useEffect, useRef } from 'react'
@@ -33,10 +38,7 @@ export default function VendorSlotDetailsPage() {
   const queryClient = useQueryClient()
   const [searchParams, setSearchParams] = useSearchParams()
 
-  const { data, isPending } = useGetVendorApplications()
-  const application = (data?.data as PaginatedResponse<VendorApplications> | undefined)?.items.find(
-    (item) => String(item.id) === applicationId,
-  )
+  const { data: application, isPending } = useVendorApplication(applicationId ?? '')
   const { data: eventResponse } = useGetEvent(application?.eventId ?? '')
   const event = eventResponse?.data as EventDetailData | undefined
 
