@@ -204,7 +204,7 @@ VendorSlotsPage
 ### A request's page (`slots/slot-details/`)
 
 ```
-VendorSlotDetailsPage (finds :applicationId in the applications list)
+VendorSlotDetailsPage (loads :applicationId with useVendorApplication)
 ├── VendorPageHeader        event name, slot name, back to My Slots, Revenue / Service vendor tag
 ├── EventFlyerCard          flyer, About Event, Go to eventpage (the fan page, new tab)
 └── column
@@ -213,8 +213,9 @@ VendorSlotDetailsPage (finds :applicationId in the applications list)
     └── CommunityCard       Instagram, X, the creators website
 ```
 
-There's no single-application endpoint, so the page finds the request in the
-applications list.
+The page loads the request on its own with `GET /api/Event/vendor/application/{applicationId}`.
+A withdrawn or unknown id isn't retried and shows "This request may have been
+withdrawn". Swagger also lists the same `GET` under `/applications/{applicationId}`.
 
 What the bottom of the summary card shows:
 
@@ -226,7 +227,7 @@ What the bottom of the summary card shows:
 | Rejected, Expired, Completed | The notice, **Discover Events** | Same |
 
 - **Withdraw Request** asks for confirmation, then calls `DELETE /api/Event/vendor/application/{id}` and goes back to My Slots. The ticket page then shows the slot as open again, and it can be requested again. A service offer's proposed price can't be edited once it's sent; withdrawing and requesting again is the way to change it.
-- **Pay now** calls `POST /api/Event/vendor/slot/initialize-payment` (`useInitializeVendorSlotPayment`) with `{ applicationId, paymentMethod: 'paystack-checkout', callbackUrl }`. The callback is the request's own page. **The backend doesn't add the platform fee yet**: Paystack charges the slot fee alone, not the Amount Due the page shows (FEATURES.md §5).
+- **Pay now** calls `POST /api/Event/vendor/slot/initialize-payment` (`useInitializeVendorSlotPayment`) with `{ applicationId, paymentMethod: 'paystack-checkout', callbackUrl }`. The callback is the request's own page. Paystack charges the Amount Due the page shows (slot fee + platform fee).
   - The page goes to the checkout link in the response (`authorizationUrl`, also `authorization_url`, `checkoutUrl`, `paymentUrl`, or the data itself if it's a link). With no link, it says the payment couldn't start.
   - Back from Paystack, a `?reference=` (or `?trxref=`) in the URL is sent once to `POST /api/Event/vendor/slot/pay` (`usePayVendorSlot`) to confirm the payment, then removed from the URL. On success it says "Slot secured!" and refreshes the applications and the summary.
 - **Contact organizer** is a `mailto:`. It uses the slot's own contact email when the organizer set different contact details, otherwise the event's contact email. It's greyed out when there's neither.
@@ -258,6 +259,7 @@ One modal, opened from the sidebar's **Edit profile** and **Finish setting up yo
 | `useGetVendorAvailableEvents` | `use-event-mutations.ts` | `GET /api/Event/vendor/available-events` |
 | `useGetVendorSlots` | `use-event-mutations.ts` | `GET /api/Event/{eventId}/vendors` |
 | `useGetVendorApplications` | `use-event-mutations.ts` | `GET /api/Event/vendor/applications` |
+| `useVendorApplication` | `use-vendor.ts` | `GET /api/Event/vendor/application/{applicationId}` |
 | `useVendorSummary` | `use-vendor.ts` | `GET /api/Event/vendor/summary` |
 | `useVendorSavedEvents` | `use-vendor.ts` | `GET /api/Profile/vendor/event/watchlist` |
 | `useToggleVendorSavedEvent` | `use-vendor.ts` | `POST /api/Event/{eventId}/save`, `DELETE /api/Profile/vendor/event/watchlist/remove` |

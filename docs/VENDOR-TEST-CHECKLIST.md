@@ -81,7 +81,7 @@ Use the organizer account to get a request into each status.
 - [x] Approved stall: the notice says Pay before “date” at “time”, matching the deadline the organizer set.
 - [x] Approved stall: Slot fee (price × stalls) and Platform fee show above Amount Due, and add up to it.
 - [x] ⚠️ Approved stall: Pay now shows "Starting payment..." and goes to Paystack (new initialize-payment endpoint).
-- [ ] ⚠️ Paystack charges the Amount Due (slot fee + platform fee). Today it charges the slot fee only: the backend doesn't add the fee yet.
+- [ ] ⚠️ Paystack charges the Amount Due (slot fee + platform fee).
 - [ ] ⚠️ After paying, Paystack comes back to the same request page, which shows "Slot secured!", the Secured state, and the sidebar's Total Slots Secured goes up.
 - [x] ⚠️ Cancelling on Paystack and coming back leaves the slot Approved.
 - [x] Approved service: Contact organizer opens an email to them, and is disabled when the organizer has no contact email.
@@ -90,7 +90,8 @@ Use the organizer account to get a request into each status.
 - [x] Rejected: the description popup can't be opened, and Discover Events works.
 - [x] Expired: a stall that was approved but not paid by the deadline shows Expired.
 - [ ] Completed: a request for an event that has ended shows Completed.
-- [x] A request ID that doesn't exist shows "This request may have been withdrawn".
+- [ ] ⚠️ The request page loads on its own (new get-one-application endpoint): open a request, reload it, and open it from a copied link.
+- [ ] A request ID that doesn't exist shows "This request may have been withdrawn" (now from the new endpoint).
 
 ## 6. Profile modal
 
@@ -101,8 +102,8 @@ Use the organizer account to get a request into each status.
 - [x] Save is disabled until something changes.
 - [x] ⚠️ After saving, everything is still there after a reload.
 - [x] Gallery: removing every photo and saving leaves it empty after a reload.
-- [ ] ⚠️ Gallery: removing some photos (2 of 8) sticks after a reload. Today all 8 come back.
-- [ ] ⚠️ Gallery: adding photos saves each one once. Today removing all and adding 4 brings back each of the 4 twice. Raised with the backend.
+- [ ] ⚠️ Gallery: removing some photos (2 of 8) sticks after a reload.
+- [ ] ⚠️ Gallery: adding photos saves each one once (removing all and adding 4 leaves exactly those 4).
 
 **Account tab**
 
