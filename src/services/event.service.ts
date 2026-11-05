@@ -5,13 +5,16 @@ import type {
   CreateThemeRequest,
   CreateTicketRequest,
   CreateVendorRequest,
+  EventAnalyticsResponse,
   EventData,
   EventDetailResponse,
+  EventListParams,
   EventPromoCodesResponse,
   EventTicketsResponse,
   EventVendorsResponse,
   EventsResponse,
   PromoCodeResponseWithDetails,
+  ResaleListingsResponse,
   ThemeResponse,
   TicketResponse,
   TrendingEventsResponse,
@@ -22,10 +25,10 @@ import api from './http.service'
 // Event service class
 class EventService {
   /**
-   * Get all events
+   * Get published events, paged and filtered on the server
    */
-  async getAllEvents(): Promise<EventsResponse> {
-    const response = await api.get('/api/Event')
+  async getAllEvents(params?: EventListParams): Promise<EventsResponse> {
+    const response = await api.get('/api/Event', { params })
     return response.data
   }
 
@@ -214,8 +217,11 @@ class EventService {
   /**
    * Get organizer events
    */
-  async getOrganizerEvents(): Promise<EventsResponse> {
-    const response = await api.get('/api/Event/organizer')
+  async getOrganizerEvents(params?: {
+    pageNumber?: number
+    pageSize?: number
+  }): Promise<EventsResponse> {
+    const response = await api.get('/api/Event/organizer', { params })
     return response.data
   }
 
@@ -257,6 +263,23 @@ class EventService {
 
   async getEventByCustomUrl(customUrl: string): Promise<EventDetailResponse> {
     const response = await api.get(`/api/Event/url/${customUrl}`)
+    return response.data
+  }
+
+  /**
+   * Get active event Resale Listings
+   */
+
+  async getEventResaleListings(eventId?: string): Promise<ResaleListingsResponse>{
+    const response = await api.get(`/api/Profile/user/ticket/resale/?eventId=${eventId}`)
+    return response.data
+  }
+
+  /**
+   * Get event analytics using eventId
+   */
+  async getEventAnalytics(eventId: string): Promise<EventAnalyticsResponse> {
+    const response = await api.get(`/api/Analytics/organizer/dashboard/${eventId}`)
     return response.data
   }
 }

@@ -1,35 +1,41 @@
-import { SearchData } from '../component/search-data'
-import { slots } from '@/data/slots'
-import { VendorItem } from '../component/vendor-item'
-import { AddFilterBUtton } from '@/pages/creators/standalone/components/add-filter-btn'
-import { ExportButton } from '../component/export-btn'
-import VendorSelect from '@/components/shared/vendor-select'
-import { DestructiveAddBtn } from '@/pages/creators/_components/destructive-add-btn'
+import { SidebarToggle } from "@/components/shared/sidebar-toggle";
+import { useVendorSlotsByType } from "@/hooks/use-vendor-mutation";
+import { useEventSelectorStore } from "@/stores";
+import CreateVendorSlot from "../component/create-vendor-slot-modal";
+import {
+  VENDOR_HOW_IT_WORKS,
+  VendorHowItWorks,
+} from "../component/vendor-how-it-works";
 
 export default function ServiceVendorPage() {
-  return (
-    <section className='w-full h-full flex flex-col items-center'>
-      <div className='w-full flex flex-wrap items-center justify-between bg-white h-36 md:h-14 px-8 border-l border-light-gray'>
-        <AddFilterBUtton />
+  const { selectedEventId } = useEventSelectorStore();
+  const { serviceSlots } = useVendorSlotsByType(selectedEventId ?? "");
+  console.log("Service Slots:", serviceSlots); // Debugging line
 
-        <div className='flex items-center gap-2 md:gap-8'>
-          <ExportButton />
-          <VendorSelect />
-          <DestructiveAddBtn special name='Create Offer' />
+  return (
+    <section className="w-full h-full flex flex-col items-center">
+      <div className="w-full bg-white flex items-start gap-4 px-5 py-6">
+        <SidebarToggle />
+
+        <div className="flex flex-col gap-1">
+          <p className="font-inter-tight text-2xl font-bold text-black">
+            Service Vendors
+          </p>
+          <p className="font-inter-tight text-sm text-black">
+            Post offers for the professional services your event needs and
+            review vendor applications.
+          </p>
         </div>
       </div>
 
-      <div className='w-full h-full flex flex-col pt-10 pb-14 px-5'>
-        <div className='w-full h-full bg-white flex flex-col gap-2.5 rounded-[4px]'>
-          <SearchData />
-
-          <div className='w-full flex flex-col'>
-            {slots.map((item) => (
-              <VendorItem key={item.id} {...item} type='service' />
-            ))}
-          </div>
+      {/* On the page background as on Event Details; the offers list stays a white card. */}
+      <div className="w-full flex flex-col gap-6 px-5 py-6 md:py-8">
+        <VendorHowItWorks {...VENDOR_HOW_IT_WORKS.Service} />
+        {/* The create form is open by default. */}
+        <div className="w-full">
+          <CreateVendorSlot type="Service" inline />
         </div>
       </div>
     </section>
-  )
+  );
 }

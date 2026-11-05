@@ -1,5 +1,5 @@
 import { getRoutePath } from '@/config/get-route-path'
-import { useGetVendorAvailableEvents } from '@/hooks/use-event-mutations'
+import { useGetVendorAvailableEvents } from '@/hooks/use-vendor-mutation'
 import { useToggleVendorSavedEvent, useVendorSavedEvents } from '@/hooks/use-vendor'
 import { cn } from '@/lib/utils'
 import type { PaginatedResponse, VendorAvailableEventData } from '@/types'

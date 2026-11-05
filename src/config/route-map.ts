@@ -14,6 +14,9 @@ export const ROUTE_PATHS = {
   home: '/fans',
   events: '/fans/events',
   individual_event: '/fans/events/:eventId',
+  // Buying: the cart, then checkout, each a full-screen page of its own.
+  event_cart: '/fans/events/:eventId/cart',
+  event_checkout: '/fans/events/:eventId/checkout',
   resell: '/fans/resell',
   about_us: '/fans/about-us',
   blog: '/fans/blog',
@@ -34,6 +37,8 @@ export const ROUTE_PATHS = {
   account: '/fans/account',
   settings: '/fans/settings', // Added settings route
   my_tickets: '/fans/my-tickets',
+  /** The invite email's link lands here with ?token=. */
+  accept_invite: '/fans/invite/accept',
   active_tickets: '/fans/my-tickets/:eventId',
   listed_tickets: '/fans/listed-tickets',
 
@@ -43,20 +48,24 @@ export const ROUTE_PATHS = {
   creators_contact: '/contact-us',
   creators_blog: '/blog',
   creators_wishlist: '/',
-  standalone: '/creators/standalone',
+  standalone: '/creators/events',
   season: '/creators/season',
   reports: '/creators/reports',
-  charts: '/creators/charts',
   realtime: '/creators/realtime',
+  tickets: '/creators/tickets',
+  guest_list: '/creators/guest-list',
   promo_codes: '/creators/promo-codes',
   edit_event: '/creators/edit/:eventId',
+  audience: '/creators/audience/:eventId',
   add_event: '/creators/add-event',
   access_control: '/creators/access-control',
   revenue_vendor: '/creators/revenue-vendor',
   creator_not_found: '/creators/*',
   revenue_vendor_slot: '/creators/revenue-vendor/:slotId',
+  revenue_vendor_application: '/creators/revenue-vendor/:slotId/applications/:applicationId',
   service_vendor: '/creators/service-vendor',
   service_vendor_slot: '/creators/service-vendor/:slotId',
+  service_vendor_application: '/creators/service-vendor/:slotId/applications/:applicationId',
   individual_service_vendor: '/creators/service-vendor/:serviceId',
   seating_maps: '/creators/seating-maps',
 
@@ -68,8 +77,9 @@ export const ROUTE_PATHS = {
   vendor_slot_details: '/vendor/slots/:applicationId',
   vendor_slots: '/vendor/slots',
 
-  // Email-token routes
+  // Email-token routes — public, reached from a link in an email
   complete_profile: '/complete-profile',
+  reset_password: '/reset-password',
 } as const
 
 /**
@@ -96,6 +106,8 @@ export interface RouteParams {
   home: never
   events: never
   individual_event: { eventId: string | number }
+  event_cart: { eventId: string | number }
+  event_checkout: { eventId: string | number }
   resell: never
   about_us: never
   blog: never
@@ -116,6 +128,7 @@ export interface RouteParams {
   account: never
   settings: never
   my_tickets: never
+  accept_invite: never
   active_tickets: { eventId: string | number }
   listed_tickets: never
 
@@ -130,8 +143,11 @@ export interface RouteParams {
   reports: never
   charts: never
   realtime: never
+  tickets: never
+  guest_list: never
   promo_codes: never
   edit_event: { eventId: string | number }
+  audience: { eventId: string | number }
   add_event: never
   access_control: never
   seating_maps: never
@@ -143,6 +159,8 @@ export interface RouteParams {
   individual_service_vendor: { serviceId: string | number }
   revenue_vendor_slot: { slotId: string | number }
   service_vendor_slot: { slotId: string | number }
+  revenue_vendor_application: { slotId: string | number; applicationId: string | number }
+  service_vendor_application: { slotId: string | number; applicationId: string | number }
   vendor_not_found: never
   vendor_profile: never
   vendor_discover: never
@@ -152,4 +170,5 @@ export interface RouteParams {
 
   // Email-token routes
   complete_profile: never
+  reset_password: never
 }

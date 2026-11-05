@@ -68,6 +68,8 @@ export default function MobileSidebar({ isOpen, onClose }: MobileSidebarProps) {
                         <div className='flex flex-col gap-6 mt-4'>
                             {account_links.map((item) => {
                                 const active = isLinkActive(item.link)
+                                // Aliased so TS narrows the union — it won't narrow `item.icon` in JSX.
+                                const Icon = item.icon
 
                                 return (
                                     <div key={item.name} className='flex flex-col'>
@@ -78,14 +80,19 @@ export default function MobileSidebar({ isOpen, onClose }: MobileSidebarProps) {
                                                 'flex items-center gap-4 py-3 group font-input-mono transition-colors',
                                                 active ? 'text-deep-red' : 'text-white/60 hover:text-white'
                                             )}>
-                                            <img
-                                                src={item.icon}
-                                                alt={item.name}
-                                                className='w-5 h-5 transition-all'
-                                                style={{
-                                                    filter: active ? redFilter : 'brightness(0) invert(1) opacity(0.6)',
-                                                }}
-                                            />
+                                            {typeof Icon === 'string' ? (
+                                                <img
+                                                    src={Icon}
+                                                    alt={item.name}
+                                                    className='w-5 h-5 transition-all'
+                                                    style={{
+                                                        filter: active ? redFilter : 'brightness(0) invert(1) opacity(0.6)',
+                                                    }}
+                                                />
+                                            ) : (
+                                                // Inherits the Link's active/inactive colour via currentColor.
+                                                <Icon className='w-5 h-5 transition-colors' />
+                                            )}
                                             <span className='text-sm uppercase tracking-[0.05em] font-medium'>
                                                 {item.name}
                                             </span>

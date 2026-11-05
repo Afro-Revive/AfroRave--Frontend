@@ -1,6 +1,6 @@
 import { BaseSheet } from "@/components/reusable";
-import MobileMenu from "../root-layout/header/mobile-menu";
 import { useState } from "react";
+import SideBarMenu from "../root-layout/header/sidebar-menu";
 
 export default function NavSheet() {
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
@@ -28,7 +28,7 @@ export default function NavSheet() {
         setOpen={setIsMenuOpen}
         contentClassName="bg-pure-black text-white px-3"
       >
-        <MobileMenu onClose={() => setIsMenuOpen(false)} />
+        <SideBarMenu onClose={() => setIsMenuOpen(false)} />
       </BaseSheet>
     </>
   );

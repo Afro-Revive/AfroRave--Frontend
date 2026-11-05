@@ -32,7 +32,7 @@ export const GALLERY_LIMIT = 12
 const DEFAULT_PHONE_CODE = '+234'
 
 /** '+2348146027405' -> ['+234', '8146027405'], matching the longest known code. */
-function splitPhone(phone?: string): [string, string] {
+function splitPhone(phone?: string | null): [string, string] {
   const value = (phone ?? '').replace(/\s+/g, '')
   if (!value.startsWith('+')) return [DEFAULT_PHONE_CODE, value]
   const match = africanCountryCodes
@@ -163,7 +163,16 @@ export function applyDraftToUser(user: User, draft: VendorProfileDraft, request:
         aboutBusiness: request.businessData?.aboutBusiness ?? '',
         profilePicture: draft.picture,
         portfolio: { ...user.profile.businessData?.portfolio, webUrl: draft.webUrl },
-        socials: { ...user.profile.businessData?.socials, instagram: request.businessData?.socials?.instagram ?? '' },
+        socials: {
+          facebook: '',
+          x: '',
+          linkedIn: '',
+          tikTok: '',
+          youTube: '',
+          socialLink: '',
+          ...user.profile.businessData?.socials,
+          instagram: request.businessData?.socials?.instagram ?? '',
+        },
       },
     },
   }

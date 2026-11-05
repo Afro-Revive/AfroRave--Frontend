@@ -7,6 +7,7 @@ import type {
   RefreshTokenResponse,
   CompleteProfileData,
   UserSignup,
+  CurrentUserResponse,
 } from '@/types/auth'
 import api from './http.service'
 
@@ -35,8 +36,20 @@ class AuthService {
     return api.post<{ message: string }>('/auth/logout')
   }
 
+
+  /**
+   * Without a token this answers about the Bearer holder. With one 
+   * it answers to the token passed in the query string.
+   */
+  static verifyToken(token?: string) {
+    return api.get<CurrentUserResponse>('/api/Auth/me', {
+      params: token ? { token } : undefined,
+    })
+  }
+
+  // Organizer change password
   static changePassword(data: { currentPassword: string; newPassword: string }) {
-    return api.post<{ message: string }>('/api/Auth/change-password', data)
+    return api.patch<{ message: string }>('/api/Profile/vendor/change-password', data)
   }
 
   static refreshToken(data: { accessToken: string; refreshToken: string }) {
@@ -46,6 +59,14 @@ class AuthService {
   static completeProfile(data: CompleteProfileData){
     console.log(data)
     return api.post<AuthResponse>('/api/Auth/complete-profile', data)
+  }
+
+  static forgetPassword(data: { email: string }) {
+    return api.post<{ message: string }>('/api/Auth/forgot-password', data)
+  }
+
+  static resetPassword(data: {email: string; token: string; newPassword: string }) {
+    return api.post<{ message: string }>('/api/Auth/reset-password', data)
   }
 }
 

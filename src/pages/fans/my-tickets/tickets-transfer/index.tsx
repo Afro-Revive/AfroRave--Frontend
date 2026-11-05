@@ -1,4 +1,5 @@
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { transferBlockedReason } from "@/lib/helper-func";
 import { cn } from "@/lib/utils";
 import { UserTicketTicketDetails } from "@/types";
 import {
@@ -216,29 +217,46 @@ export default function TicketTransferModal({
                 {ticketDetails.map((ticket) => {
                   const isSelected = (selections[ticket.ticketId] ?? 0) > 0;
                   const count = selections[ticket.ticketId] ?? 0;
+                  // Set, the ticket is faded and can't be picked.
+                  const unavailableReason = transferBlockedReason(ticket);
                   return (
                     <button
                       key={ticket.ticketId}
                       type="button"
                       onClick={() => handleToggleTicket(ticket.ticketId)}
+                      disabled={!!unavailableReason}
                       className={cn(
                         "w-full rounded-[8px] border px-4 py-3 flex items-center gap-3 text-left transition-all",
-                        isSelected
-                          ? "border-system-black bg-system-black/5"
-                          : "border-black/10 hover:border-black/30",
+                        unavailableReason
+                          ? "border-black/10 cursor-not-allowed"
+                          : isSelected
+                            ? "border-system-black bg-system-black/5"
+                            : "border-black/10 hover:border-black/30",
                       )}
                     >
-                      <TransformedTicket color="#ae0d0d" />
-                      <div className="flex flex-col gap-0.5 flex-1">
-                        <p className="text-sm font-semibold font-sf-pro-display capitalize">
-                          {ticket.ticketName}
-                        </p>
-                        <p className="text-xs text-black/40 font-sf-pro-display">
-                          {ticket.totalQuantity} available
-                        </p>
+                      {/* Only the ticket fades, so the reason stays readable. */}
+                      <div
+                        className={cn(
+                          "flex flex-1 items-center gap-3",
+                          unavailableReason && "opacity-30",
+                        )}
+                      >
+                        <TransformedTicket color="#ae0d0d" />
+                        <div className="flex flex-col gap-0.5 flex-1">
+                          <p className="text-sm font-semibold font-sf-pro-display capitalize">
+                            {ticket.ticketName}
+                          </p>
+                          <p className="text-xs text-black/40 font-sf-pro-display">
+                            {ticket.totalQuantity} available
+                          </p>
+                        </div>
                       </div>
 
-                      {isSelected ? (
+                      {unavailableReason ? (
+                        <span className="max-w-[45%] text-right text-[11px] leading-tight text-light-red font-sf-pro-display">
+                          {unavailableReason}
+                        </span>
+                      ) : isSelected ? (
                         <div
                           className="flex items-center gap-2"
                           onClick={(e) => e.stopPropagation()}

@@ -46,12 +46,12 @@ export function BaseDatePicker({
           {dateValue ? format(dateValue, "PPP") : <span>Pick a date</span>}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-auto p-0">
+      <PopoverContent className="w-auto p-0 z-[10000000000]">
         <Calendar
           mode="single"
           selected={dateValue}
           onSelect={onChange}
-          initialFocus
+          autoFocus
         />
       </PopoverContent>
     </Popover>

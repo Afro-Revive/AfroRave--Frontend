@@ -1,6 +1,7 @@
 export function SectionContainer({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex max-lg:flex-col gap-[30px] lg:gap-[120px]  px-5 lg:px-[120px]">
+    // No page padding — these sit inside the scrolling column, which owns the gutters.
+    <div className="flex max-lg:flex-col gap-[30px] lg:gap-[60px] w-full min-w-0">
       {children}
     </div>
   );

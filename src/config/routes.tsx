@@ -17,10 +17,21 @@ const WorkWithUsPage = lazy(() => import('../pages/landing-page/work-with-us'))
 //   () => import('../pages/landing-page/resale-marketplace/individual-resale-event'),
 // )
 const SellPage = lazy(() => import('../pages/landing-page/sell'))
+const AcceptInvitePage = lazy(() => import('../pages/fans/accept-invite'))
 const TermsAndConditionPage = lazy(() => import('../pages/landing-page/terms-and-condition'))
 const PrivacyPolicyPage = lazy(() => import('../pages/landing-page/privacy-policy'))
 
 export const routes: RouteObject[] = [
+  {
+    // Signs the guest in itself, so it sits with the public pages, where the
+    // login modal lives.
+    path: getRoutePath('accept_invite'),
+    element: (
+      <Suspense fallback={<LoadingFallback />}>
+        <AcceptInvitePage />
+      </Suspense>
+    ),
+  },
   {
     path: getRoutePath('home'),
     element: (

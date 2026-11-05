@@ -11,7 +11,7 @@ import type {
   UserSignup,
   VendorRegisterData,
 } from '@/types/auth'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query'
 import type { AxiosError } from 'axios'
 import { useNavigate } from 'react-router-dom'
 
@@ -57,6 +57,20 @@ function extractErrorMessage(error: unknown): string {
   return 'An unexpected error occurred'
 }
 
+/**
+ * Landing route for an account type.
+ */
+function dashboardPathFor(accountType?: string): string {
+  switch (accountType) {
+    case 'Vendor':
+      return getRoutePath('vendor_profile')
+    case 'Organizer':
+      return getRoutePath('standalone')
+    default:
+      return getRoutePath('account')
+  }
+}
+
 // Query keys for authentication
 export const authKeys = {
   all: ['auth'] as const,
@@ -69,7 +83,6 @@ export const authKeys = {
 export function useRegisterUser() {
   const queryClient = useQueryClient()
   const setAuth = useAfroStore((state) => state.setAuth)
-  const { closeAuthModal } = useAuth()
 
   return useMutation({
     mutationFn: (data: UserSignup) => authService.registerUser(data),
@@ -79,18 +92,9 @@ export function useRegisterUser() {
         setAuth(data.data.userData, data.data.token, data.data.refreshToken)
       }
 
-      // Close auth modal
-      closeAuthModal()
-
       // Invalidate and refetch user data
       queryClient.invalidateQueries({ queryKey: authKeys.user() })
       authToasts.userVerified()
-      // if(data.data.userData.accountType === 'User'){
-      //   navigate(getRoutePath('account'))
-      // } else if(data.data.userData.accountType === 'Organizer'){
-      //   navigate(getRoutePath('standalone'))
-      // }
-    
     },
     onError: (error: unknown) => {
       const errorMessage = extractErrorMessage(error)
@@ -189,8 +193,14 @@ export function useLogin(options?: { onSuccess?: () => void }) {
           useCartStore.getState().setSyncing(true)
           try {
             await cartService.syncCart(
-              localItems.map(({ ticketId, quantity }) => ({ ticketId, quantity })),
+              localItems.map(({ ticketId, quantity, listingId }) =>
+                listingId
+                  ? { quantity, listingId, resellTicketId: ticketId }
+                  : { ticketId, quantity },
+              ),
             )
+            // The server has just reserved the tickets: start the checkout countdown.
+            useCartStore.getState().startReservation()
             await queryClient.invalidateQueries({ queryKey: cartKeys.lists() })
           } finally {
             useCartStore.getState().setSyncing(false)
@@ -203,21 +213,7 @@ export function useLogin(options?: { onSuccess?: () => void }) {
         if (options?.onSuccess) {
           options.onSuccess()
         } else {
-          // Redirect based on account type
-          const accountType = data.data.userData.accountType
-          switch (accountType) {
-            case 'User':
-              navigate(getRoutePath('account'))
-              break
-            case 'Vendor':
-              navigate(getRoutePath('vendor_profile'))
-              break
-            case 'Organizer':
-              navigate(getRoutePath('standalone'))
-              break
-            default:
-              navigate(getRoutePath('account'))
-          }
+          navigate(dashboardPathFor(data.data.userData.accountType))
         }
       }
 
@@ -233,7 +229,11 @@ export function useLogin(options?: { onSuccess?: () => void }) {
 }
 
 // Logout Hook
-export function useLogout() {
+/**
+ * stayOnPage skips the landing-page redirect, for a page that carries on
+ * signed out (an invite asking for a different account).
+ */
+export function useLogout(options?: { stayOnPage?: boolean }) {
   const queryClient = useQueryClient()
   const clearAuth = useAfroStore((state) => state.clearAuth)
   const navigate = useNavigate()
@@ -256,7 +256,7 @@ export function useLogout() {
 
       // Navigate after clearing — auth guard will now redirect to the correct
       // landing page for the account type (fixed in AuthGuard) so there's no conflict
-      navigate(destination, { replace: true })
+      if (!options?.stayOnPage) navigate(destination, { replace: true })
       authToasts.logoutSuccess()
     },
     onError: (error: unknown) => {
@@ -283,7 +283,7 @@ export function useCompleteProfile() {
 
       queryClient.invalidateQueries({ queryKey: authKeys.user() })
       profileToasts.profileCompleted()
-      navigate(getRoutePath('account'))
+      navigate(dashboardPathFor(data.data.userData?.accountType))
     },
     onError: (error: unknown) => {
       const errorMessage = extractErrorMessage(error)
@@ -309,5 +309,49 @@ export function useChangePassword() {
       const errorMessage = extractErrorMessage(error)
       authToasts.loginError(errorMessage)
     },
+  })
+}
+
+// Forgot Password Hook
+export function useForgotPassword() {
+  return useMutation({
+    mutationFn: (data: { email: string }) => authService.forgetPassword(data),
+    onSuccess: () => {
+      profileToasts.forgotPasswordSuccess()
+    },
+    onError: (error: unknown) => {
+      const errorMessage = extractErrorMessage(error)
+      authToasts.loginError(errorMessage)
+    },
+  })
+}
+
+// Reset Password Hook — consumes the token from the emailed reset link
+export function useResetPassword() {
+  return useMutation({
+    mutationFn: (data: { email: string; token: string; newPassword: string }) =>
+      authService.resetPassword(data),
+    onSuccess: () => {
+      profileToasts.passwordChanged()
+    },
+    onError: (error: unknown) => {
+      const errorMessage = extractErrorMessage(error)
+      authToasts.loginError(errorMessage)
+    },
+  })
+}
+
+/**
+ * The signed-in user, or — given a verification token — whoever that token
+ * belongs to. The token is part of the key so a link-scoped result never
+ * overwrites the session user's cache entry.
+ */
+export function useGetCurrentUser(token?: string) {
+  return useQuery({
+    queryKey: [...authKeys.user(), token ?? 'session'],
+    queryFn: () => authService.verifyToken(token),
+    // No toast here: callers render their own failure state, and a login error
+    // makes no sense on a page reached from an email link.
+    retry: false,
   })
 }

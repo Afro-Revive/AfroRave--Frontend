@@ -1,31 +1,42 @@
-import { clsx, type ClassValue } from 'clsx'
-import { twMerge } from 'tailwind-merge'
-import type { CartData } from '@/types/cart'
-import type { User } from '@/types/auth'
+import { clsx, type ClassValue } from "clsx"
+import { twMerge } from "tailwind-merge"
+import type { User } from "@/types/auth"
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
 /**
- * Get user initials from user profile data
- * @param user - User object from auth store
- * @returns User initials or "U" as fallback
+ * Builds the initials shown in avatar buttons.
+ *
+ * Falls back through the identities an account can have: the person's name first,
+ * then the business/company name vendors and organizers sign up with, then the
+ * email. Returns an empty string when there is nothing to derive them from.
+ *
+ * @example
+ * getUserInitials(user) // 'IA'
  */
-export function getUserInitials(user: User | null): string {
-  if (!user?.profile?.firstName && !user?.profile?.lastName) return 'U'
-  const first = user.profile.firstName?.charAt(0) || ''
-  const last = user.profile.lastName?.charAt(0) || ''
-  return (first + last).toUpperCase() || 'U'
-}
+export function getUserInitials(user?: User | null): string {
+  const profile = user?.profile
 
-export function getCartTotals(cartItems: CartData[] = []) {
-  return cartItems.reduce(
-    (acc, item) => {
-      acc.totalQuantity += item.quantity || 0
-      acc.totalPrice += (item.price || 0) * (item.quantity || 0)
-      return acc
-    },
-    { totalQuantity: 0, totalPrice: 0 },
-  )
+  const firstName = profile?.firstName?.trim()
+  const lastName = profile?.lastName?.trim()
+
+  if (firstName || lastName) {
+    return `${firstName?.[0] ?? ""}${lastName?.[0] ?? ""}`.toUpperCase()
+  }
+
+  const businessName = profile?.businessName?.trim() || profile?.companyName?.trim()
+
+  if (businessName) {
+    const words = businessName.split(/\s+/).filter(Boolean)
+
+    return words
+      .slice(0, 2)
+      .map((word) => word[0])
+      .join("")
+      .toUpperCase()
+  }
+
+  return user?.email?.trim()?.[0]?.toUpperCase() ?? ""
 }

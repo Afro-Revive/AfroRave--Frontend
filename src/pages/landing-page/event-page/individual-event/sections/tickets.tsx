@@ -1,157 +1,394 @@
-import { BlockName } from '../../_components/block-name'
-import { cn } from '@/lib/utils'
-import { formatNaira } from '@/lib/format-price'
-import { type LucideIcon, Plus, Minus, LoaderCircle } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { useGetEventTickets } from '@/hooks/use-event-mutations'
-import { Skeleton } from '@/components/ui/skeleton'
-import { useCreateCart, useUpdateCartQuantity } from '@/hooks/use-cart'
-import { useCartStore } from '@/stores'
-import { PaginatedResponse, TicketData } from '@/types'
+import { TicketTab } from "../../_components/ticket-tab";
+import { RichTextContent } from "@/components/reusable/rich-text-content";
+import { formatNaira } from "@/lib/format-price";
+import { type LucideIcon, Plus, Minus, LoaderCircle, Lock } from "lucide-react";
+import { BiGroup } from "react-icons/bi";
+import { BsInfoCircle } from "react-icons/bs";
+import { Button } from "@/components/ui/button";
+import BaseModal from "@/components/reusable/base-modal";
+import { useState } from "react";
+import {
+  useGetEventTickets,
+  useGetEventResaleListings,
+} from "@/hooks/use-event-mutations";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useClearCart, useCreateCart, useUpdateCartQuantity } from "@/hooks/use-cart";
+import { useNavigate, useParams } from "react-router-dom";
+import { getRoutePath } from "@/config/get-route-path";
+import { ConfirmOverlay } from "@/components/reusable/confirm-overlay";
 
-export default function TicketSection({ eventId, layout }: ITicketProps) {
-  const { data: ticketResponse, isPending: isLoading } = useGetEventTickets(eventId)
+import { useAfroStore, useCartStore } from "@/stores";
+import type {
+  PaginatedResponse,
+  PurchasableTicket,
+  ResaleListingData,
+  TicketData,
+} from "@/types";
+import {
+  isResaleOnlyCart,
+  toPurchasableResaleListings,
+  toPurchasableTickets,
+} from "@/lib/purchasable-tickets";
 
-  const tickets = ticketResponse?.data as PaginatedResponse<TicketData> | undefined
+export default function TicketSection({ eventId }: ITicketProps) {
+  const isAuthenticated = useAfroStore((state) => state.isAuthenticated);
+  const [isSales, setIsSales] = useState(() =>
+    isResaleOnlyCart(useCartStore.getState().items),
+  );
+  const { data: ticketResponse, isPending: isLoading } =
+    useGetEventTickets(eventId);
+  const { data: resaleListingsResponse, isPending: isResaleListingsLoading } =
+    useGetEventResaleListings(eventId, isAuthenticated);
+
+  const tickets = toPurchasableTickets(
+    ticketResponse?.data as PaginatedResponse<TicketData> | undefined,
+  );
+
+  const resaleListings = toPurchasableResaleListings(
+    resaleListingsResponse?.data as
+      | PaginatedResponse<ResaleListingData>
+      | undefined,
+  );
+
+  const hasResale = resaleListings.length > 0;
+
+  // The route's :eventId is the event's custom URL, which the cart is keyed by.
+  const { eventId: eventSlug = "" } = useParams();
+  const navigate = useNavigate();
+  // Adding a ticket here moves the fan into the cart. Leaving the cart clears
+  // it, so a cart only ever holds one event's tickets.
+  const openCart = () =>
+    navigate(getRoutePath("event_cart", { eventId: eventSlug }));
+
+  // Never leave the resale tab mounted once its listings are gone.
+  const showResale = isSales && hasResale;
+  const isTabLoading = showResale ? isResaleListingsLoading : isLoading;
 
   return (
-    <div
-      className={cn('!w-full flex flex-col gap-7', {
-        'px-5 lg:px-32': layout === 'default',
-        'pl-5 lg:pl-32': layout !== 'default',
-      })}>
-      <div className='flex items-center gap-5'>
-        <BlockName name='tickets' />
-
-        {/* <p className='font-sf-pro-display text-xl font-extrabold text-white/60'>SALE</p> */}
+    <div className="w-full min-w-0 flex flex-col gap-7">
+      <div className="flex items-center gap-5">
+        <TicketTab
+          name="tickets"
+          isActive={!showResale}
+          action={() => setIsSales(false)}
+        />
+        {hasResale && (
+          <TicketTab
+            name="resale"
+            isActive={showResale}
+            action={() => setIsSales(true)}
+          />
+        )}
       </div>
 
-      {isLoading ? (
-        <TicketCardSkeleton layout={layout} />
+      {isTabLoading ? (
+        <TicketCardSkeleton />
       ) : (
-        <>
-          <div
-            className={cn('w-full', {
-              'flex gap-7 overflow-x-scroll scrollbar-none':
-                layout === 'with-flyer' || layout === 'standard-carousel',
-              'grid sm:grid-cols-2 gap-x-5 gap-y-7': layout === 'default',
-            })}>
-            {tickets?.items.map((item) => (
-              <TicketCard
-                key={item.ticketName}
-                name={item.ticketName}
-                price={item.price}
-                ticketId={item.ticketId}
-                layout={layout}
-              />
-            ))}
-          </div>
-        </>
+        // One card: the container owns the surface and rounding, divide-y draws
+        // the separators so the last row has no trailing border.
+        <div className="w-full flex flex-col overflow-hidden rounded-md bg-gunmetal-gray divide-y divide-mid-dark-gray">
+          {(showResale ? resaleListings : tickets).map((ticket) => (
+            <TicketCard key={ticket.cartKey} ticket={ticket} onAdd={openCart} />
+          ))}
+        </div>
       )}
     </div>
-  )
+  );
 }
 
-function TicketCard({ name, price, layout, ticketId }: ITicketCard) {
-  const localItems = useCartStore((state) => state.items)
+/** Also used by the cart so both surfaces stay identical. */
+export function TicketCard({ ticket, onAdd }: ITicketCard) {
+  const {
+    cartKey,
+    ticketId,
+    listingId,
+    name,
+    price,
+    caption,
+    available,
+    accessType,
+    purchaseLimit,
+    groupSize,
+    description,
+  } = ticket;
+  const [showDetails, setShowDetails] = useState(false);
+  const localItems = useCartStore((state) => state.items);
+  const isInviteOnly = accessType === "Invite";
 
-  const ticketCount = localItems.find((i) => i.ticketId === ticketId)?.quantity ?? 0
-  const cartId = ticketId
+  const ticketCount =
+    localItems.find((i) => i.cartKey === cartKey)?.quantity ?? 0;
+  const isSoldOut = available <= 0;
+  // Whichever runs out first: stock on hand, or what one buyer is allowed.
+  const maxPerBuyer = Math.min(available, purchaseLimit || available);
+  const atLimit = ticketCount >= maxPerBuyer;
 
-  const createCartMutation = useCreateCart()
-  const updateQuantityMutation = useUpdateCartQuantity()
+  const createCartMutation = useCreateCart();
+  const updateQuantityMutation = useUpdateCartQuantity();
+  const { mutateAsync: clearCart } = useClearCart();
+  const { eventId: eventSlug = "" } = useParams();
+  const [isReplacingCart, setIsReplacingCart] = useState(false);
+
+  function addToCart() {
+    createCartMutation.mutate({
+      eventSlug,
+      item: {
+        cartKey,
+        ticketId,
+        listingId,
+        quantity: 1,
+        purchaseLimit: maxPerBuyer,
+      },
+    });
+    onAdd?.();
+  }
 
   function createCart() {
-    createCartMutation.mutate({ ticketId, quantity: 1 })
-    useCartStore.getState().openCart()
+    // A cart left behind for another event (a closed tab, say) is never mixed
+    // with this one: the fan chooses to replace it or keep it.
+    const { items, eventSlug: cartSlug } = useCartStore.getState();
+    if (items.length > 0 && cartSlug && cartSlug !== eventSlug) {
+      setIsReplacingCart(true);
+      return;
+    }
+    addToCart();
+  }
+
+  async function replaceCart() {
+    setIsReplacingCart(false);
+    try {
+      // Awaited, so the old cart is gone before the new ticket goes in.
+      await clearCart();
+    } catch {
+      // useClearCart has already shown the error, and the browser's copy is cleared first.
+    }
+    addToCart();
   }
 
   function updateCart(quantity: number) {
-    updateQuantityMutation.mutate({ data: quantity, cartId })
+    updateQuantityMutation.mutate({ data: quantity, cartKey });
   }
 
   return (
+    <>
     <div
-      className={cn(
-        'flex items-center justify-between h-fit rounded-md bg-gunmetal-gray pl-5 pr-2 py-2.5 text-xl font-sf-pro-display',
-        {
-          'md:min-w-[480px] min-w-80 last:mr-5': layout === 'with-flyer' || layout === 'standard-carousel',
-          'w-full': layout === 'default',
-        },
-      )}>
-      <div className='flex flex-col gap-1 font-sf-pro-display font-normal'>
-        <p className='md:text-base text-sm capitalize'>{name}</p>
-        <p className='text-sm'>{formatNaira(price, { free: price === 0 })}</p>
-        <p className='text-xs text-[#ACACAC]'>(includes fees)</p>
+      role="button"
+      tabIndex={0}
+      onClick={() => setShowDetails(true)}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          setShowDetails(true);
+        }
+      }}
+      className="w-full flex items-center justify-between gap-4 h-fit pl-5 pr-2 py-4 text-xl font-sf-pro-display cursor-pointer transition-colors hover:bg-white/5">
+      <div className="flex items-start gap-3 min-w-0">
+        <BsInfoCircle
+          aria-hidden="true"
+          className="w-5 h-5 shrink-0 mt-0.5 text-white"
+        />
+
+        <div className="flex flex-col gap-1 font-sf-pro-display font-normal min-w-0">
+        <div className="flex items-center gap-2">
+          <p className="md:text-base text-sm capitalize">{name}</p>
+
+        </div>
+        <div className="flex flex-row items-center gap-2">
+          <p className="text-sm text-tech-blue">
+            {
+              isInviteOnly ? "Invite Only" : formatNaira(price, { free: price === 0 })
+            }
+            
+          </p>
+          <p className="text-xs text-[#ACACAC]">{caption}</p>
+          
+        </div>
+         {groupSize ? <GroupBadge size={groupSize} /> : null}
+        </div>
       </div>
 
-      <div className='flex items-center gap-2 px-3 rounded-full h-12 bg-light-green'>
-        {ticketCount > 0 && (
-          <>
+      {/* stopPropagation so using the counter doesn't also open the modal. */}
+      <div onClick={(event) => event.stopPropagation()} className="shrink-0">
+        {/* Checked before isSoldOut: invite-only tickets carry an
+            availableQuantity of 0, so they would otherwise read as sold out. */}
+        {isInviteOnly ? (
+          <InviteOnlyPill />
+        ) : isSoldOut ? (
+          <SoldOutPill />
+        ) : (
+          <div className="flex items-center gap-2 px-3 rounded-full h-12 bg-light-green">
+            {ticketCount > 0 && (
+              <>
+                <TicketButton
+                  action={() => updateCart(ticketCount - 1)}
+                  Icon={Minus}
+                  isLoading={updateQuantityMutation.isPending}
+                />
+
+                <span className="font-sf-pro-rounded font-bold text-sm">
+                  {ticketCount}
+                </span>
+              </>
+            )}
+
             <TicketButton
-              action={() => updateCart(ticketCount - 1)}
-              Icon={Minus}
-              isLoading={updateQuantityMutation.isPending}
+              action={() => {
+                if (ticketCount === 0) return createCart();
+                updateCart(ticketCount + 1);
+                onAdd?.();
+              }}
+              Icon={Plus}
+              disabled={atLimit}
+              isLoading={
+                createCartMutation.isPending || updateQuantityMutation.isPending
+              }
             />
-
-            <span className='font-sf-pro-rounded font-bold text-sm'>{ticketCount}</span>
-          </>
+          </div>
         )}
-
-        <TicketButton
-          action={() => (ticketCount > 0 ? updateCart(ticketCount + 1) : createCart())}
-          Icon={Plus}
-          isLoading={createCartMutation.isPending || updateQuantityMutation.isPending}
-        />
       </div>
     </div>
-  )
+
+    {isReplacingCart && (
+      <ConfirmOverlay
+        fixed
+        title="Replace your cart?"
+        message="Your cart has tickets for another event. You can only buy tickets for one event at a time."
+        confirmText="Replace"
+        cancelText="Keep cart"
+        onConfirm={replaceCart}
+        onCancel={() => setIsReplacingCart(false)}
+      />
+    )}
+
+    <BaseModal
+      open={showDetails}
+      onClose={() => setShowDetails(false)}
+      size="small"
+      title={name}
+      titleClassName="items-start px-6 "
+      titleTextClassName="font-inter-tight font-bold md:text-2xl text-xl normal-case"
+      className="bg-system-black border border-white/10">
+      <div className="flex flex-col gap-2 px-6 pb-6 font-sf-pro-display">
+        <div className="flex items-center gap-2">
+          {/* Same precedence as the row, so a padlock there can't become a
+              Sold Out pill here. */}
+          {isInviteOnly ? (
+            <p className="flex items-center gap-1.5 text-base text-tech-blue">
+              <Lock aria-hidden="true" className="size-4" />
+              Invite Only
+            </p>
+          ) : isSoldOut ? (
+            <SoldOutPill />
+          ) : (
+            <>
+              <p className="text-base text-tech-blue">
+                {formatNaira(price, { free: price === 0 })}
+              </p>
+              <p className="text-xs text-[#ACACAC]">{caption}</p>
+            </>
+          )}
+        </div>
+
+        {groupSize ? <GroupBadge size={groupSize} /> : null}
+
+        {description ? (
+          <div className="flex flex-col gap-1 ">
+            <p className="font-inter-tight font-bold text-2xl text-white">
+              Description
+            </p>
+            <RichTextContent value={description} className="text-sm text-white/80" />
+          </div>
+        ) : (
+          <p className="text-sm text-white">
+            No description provided for this ticket.
+          </p>
+        )}
+      </div>
+    </BaseModal>
+    </>
+  );
 }
 
-function TicketButton({ action, Icon, isLoading = false }: ITicketButton) {
+function SoldOutPill() {
+  return (
+    <span className="flex items-center justify-center h-12 px-5 rounded-full bg-mid-dark-gray font-sf-pro-rounded text-xs font-bold uppercase tracking-wide text-white/60">
+      Sold Out
+    </span>
+  );
+}
+
+/**
+ * Invite-only tickets can't be added to a cart — they arrive by invitation —
+ * so the counter is replaced by a padlock rather than a disabled plus button.
+ */
+function InviteOnlyPill() {
+  return (
+    <span
+      title="Invite only — this ticket is sent to invited guests"
+      className="flex items-center justify-center size-12 rounded-full bg-mid-dark-gray text-white/60">
+      <Lock aria-hidden="true" className="size-5" />
+      <span className="sr-only">Invite only</span>
+    </span>
+  );
+}
+
+/** Matches the group badge on the my-tickets route. */
+function GroupBadge({ size }: { size: number }) {
+  return (
+    <span
+      title={`Admits ${size} people`}
+      className="flex w-fit items-center gap-1 shrink-0 rounded-full text-[#BFEAC8] font-inter-tight text-xs font-bold"
+    >
+      <BiGroup className="w-5 h-5" />
+      Group of {size}
+    </span>
+  );
+}
+
+function TicketButton({
+  action,
+  Icon,
+  isLoading = false,
+  disabled = false,
+}: ITicketButton) {
   return (
     <Button
-      disabled={isLoading}
-      variant='ghost'
-      className='p-1 w-fit h-fit hover:bg-black/10'
-      onClick={action}>
+      disabled={isLoading || disabled}
+      variant="ghost"
+      className="p-1 w-fit h-fit hover:bg-black/10"
+      onClick={action}
+    >
       {isLoading ? (
-        <LoaderCircle color='var(--foreground)' size={16} className='animate-spin' />
+        <LoaderCircle
+          color="var(--foreground)"
+          size={16}
+          className="animate-spin"
+        />
       ) : (
-        <Icon color='var(--foreground)' size={16} />
+        <Icon color="var(--foreground)" size={16} />
       )}
     </Button>
-  )
+  );
 }
 
-function TicketCardSkeleton({ layout }: { layout: ITicketProps['layout'] }) {
+function TicketCardSkeleton() {
   return (
-    <Skeleton
-      className={cn(
-        'flex items-center justify-between h-[76px] rounded-md bg-gunmetal-gray pl-5 pr-2 py-2.5 text-xl font-sf-pro-display',
-        {
-          'md:min-w-[480px] last:mr-5': layout === 'with-flyer' || layout === 'standard-carousel',
-          'w-full': layout === 'default',
-        },
-      )}
-    />
-  )
+    <Skeleton className="w-full flex items-center justify-between h-[76px] rounded-md bg-gunmetal-gray pl-5 pr-2 py-2.5 text-xl font-sf-pro-display" />
+  );
 }
 
 interface ITicketProps {
-  layout: 'default' | 'standard-carousel' | 'with-flyer'
-  eventId: string
+  eventId: string;
 }
 
 interface ITicketButton {
-  action: () => void
-  Icon: LucideIcon
-  isLoading?: boolean
+  action: () => void;
+  Icon: LucideIcon;
+  isLoading?: boolean;
+  disabled?: boolean;
 }
 
 interface ITicketCard {
-  name: string
-  price: number
-  ticketId: string
-  layout: ITicketProps['layout']
+  ticket: PurchasableTicket;
+  /** Called after adding a ticket: the event page uses it to open the cart. */
+  onAdd?: () => void;
 }

@@ -50,8 +50,8 @@ export default function ThemeTab({ setStep, setActiveTabState }: IThemeTab) {
     setStep(3)
   }
 
-  function renderVendorTab() {
-    setActiveTabState('vendor')
+  function renderPublishTab() {
+    setActiveTabState('publish')
     searchParams.delete('form')
   }
 
@@ -67,7 +67,7 @@ export default function ThemeTab({ setStep, setActiveTabState }: IThemeTab) {
 
       await createThemeMutation.mutateAsync(themeRequest, {
         onSuccess: () => {
-          renderVendorTab()
+          renderPublishTab()
         },
       })
     } catch (error) {

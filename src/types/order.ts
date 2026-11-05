@@ -5,6 +5,8 @@ export interface OrderReceiptDetailsData {
     customerEmail: string
     eventName: string
     items: {
+        isResale: boolean
+        listingId?: string
         ticketId: string
         ticketName: string
         quantity: number
@@ -15,6 +17,9 @@ export interface OrderReceiptDetailsData {
     ticketCount: number
     status: string
     paymentMethod: string
+    subtotal?: number
+    promoCode?: string
+    discount?: number
     cost: number
     tax: number
     totalPaid: number

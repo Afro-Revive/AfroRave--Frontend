@@ -12,9 +12,9 @@ export function ChartIcon(props: React.SVGProps<SVGSVGElement>) {
       <path
         d="M3.20312 12.8002V11.2002M8.00313 12.8002V7.2002M12.8031 12.8002V3.2002"
         stroke="currentColor"
-        stroke-width="1.5"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
     </svg>
   );

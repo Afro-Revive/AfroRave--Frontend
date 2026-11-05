@@ -1,7 +1,7 @@
 import { useOrderReceiptDetails } from "@/hooks/use-order-mutations";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { formatNaira } from "@/lib/format-price";
-import { formatEventDate, formatShortDate, formatTimeLong } from "@/lib/helper-func";
+import { formatDateLong, formatShortDate, formatTimeLong } from "@/lib/helper-func";
 import { Loader2, X } from "lucide-react";
 import { useEffect } from "react";
 import { OrderReceiptDetailsData } from "@/types/order";
@@ -30,6 +30,7 @@ export default function OrderDetailsModal({
   }, [isOpen, orderId, fetchOrderDetails]);
 
   const receipt = orderResponse?.data as OrderReceiptDetailsData | undefined;
+  console.log("receipt", receipt);
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -63,7 +64,7 @@ export default function OrderDetailsModal({
                 <Row label="CUSTOMER" value={receipt.customerName} />
                 <Row
                   label="PURCHASE DATE"
-                  value={`${formatEventDate(receipt.purchaseDate)} at ${formatTimeLong(receipt.purchaseDate)}`}
+                  value={`${formatDateLong(receipt.purchaseDate)} at ${formatTimeLong(receipt.purchaseDate)}`}
                   capitalize
                 />
                 <Row
@@ -84,7 +85,21 @@ export default function OrderDetailsModal({
                   value={receipt.paymentMethod}
                   capitalize
                 />
-                <Row label="SUBTOTAL" value={formatNaira(receipt.cost)} />
+                {
+                  receipt.promoCode && (
+                      <Row
+                        label="PROMO CODE USED"
+                        value={receipt.promoCode}
+                        capitalize
+                      />
+                  )
+                }
+                <Row label="SUBTOTAL" value={formatNaira(receipt.subtotal ?? receipt.cost)} />
+                {
+                  receipt.discount !== 0 && (
+                    <Row label="DISCOUNT" value={`- ${formatNaira(receipt.discount ?? 0)}`} />
+                  )
+                }
                 <Row label="FEES & TAXES" value={formatNaira(receipt.tax)} />
                 <Row label="TOTAL" value={formatNaira(receipt.totalPaid)} />
               </div>

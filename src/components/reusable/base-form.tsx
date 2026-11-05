@@ -55,6 +55,8 @@ export interface FormBaseProps<T extends FieldValues> {
   children: ReactNode
   /** Additional CSS classes for the form */
   className?: string
+  /** Lets a submit button outside the form target it via its `form` attribute. */
+  id?: string
 }
 
 /**
@@ -67,10 +69,11 @@ export function FormBase<T extends FieldValues>({
   onError,
   children,
   className,
+  id,
 }: FormBaseProps<T>) {
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit, onError)} className={cn('', className)}>
+      <form id={id} onSubmit={form.handleSubmit(onSubmit, onError)} className={cn('', className)}>
         {children}
       </form>
     </Form>
@@ -84,7 +87,7 @@ export interface FormFieldProps<T extends FieldValues> {
   label?: string
   /** Field description text */
   description?: string
-  /** Whether to show validation messages */
+  /** Whether to show validation messages. On by default — pass `false` to suppress. */
   showMessage?: boolean
   /** Whether to show error styling */
   showError?: boolean
@@ -106,7 +109,7 @@ export function FormField<T extends FieldValues>({
   name,
   label = '',
   description = '',
-  showMessage = false,
+  showMessage = true,
   showError = false,
   children,
   form,
@@ -168,7 +171,7 @@ export function FormField<T extends FieldValues>({
                 {description}
               </FormDescription>
             )}
-            {showMessage && <FormMessage className='text-end' />}
+            {showMessage && <FormMessage className='text-end normal-case' />}
           </FormItem>
         )
       }}

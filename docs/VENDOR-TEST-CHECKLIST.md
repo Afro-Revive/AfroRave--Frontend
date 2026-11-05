@@ -1,7 +1,8 @@
 # Vendor Side — Test Checklist
 
-Everything to test on the `vendors` branch before it merges. So far it has only
-been tried in the browser with fake data, never against the real API.
+Everything to test on the vendor side. `vendors` is merged into `prod`; run this
+on `organizer-fixes` once it has the latest `prod`, alongside the organizer
+checklist.
 
 ⚠️ marks the items most likely to break against the real API.
 

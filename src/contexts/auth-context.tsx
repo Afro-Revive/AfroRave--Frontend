@@ -5,12 +5,30 @@ type AuthType = 'login' | 'signup'
 export type LoginType = 'guest' | 'creator' | 'vendor'
 type SignupType = 'guest' | 'creator' | 'vendor'
 
+interface AuthModalOptions {
+  withVideo?: boolean
+  /** Shown above the login form, to say why the user is being asked to log in. */
+  notice?: string
+  /** The same for the signup form, when it has something different to say. */
+  signupNotice?: string
+  /** Keep the user on the page they logged in from instead of their dashboard. */
+  stayOnPage?: boolean
+}
+
 interface AuthContextType {
   isAuthModalOpen: boolean
   authType: AuthType
   loginType: LoginType
   signupType: SignupType
-  openAuthModal: (type: AuthType, loginType?: LoginType) => void
+  /**
+   * True only when the modal was opened somewhere the video panel belongs 
+   * This is true from the fans sidebar and the fans heder login button, and false from the organizer/vendor login and checkout.
+   */
+  showAuthVideo: boolean
+  authNotice: string | null
+  signupNotice: string | null
+  stayOnPage: boolean
+  openAuthModal: (type: AuthType, loginType?: LoginType, options?: AuthModalOptions) => void
   closeAuthModal: () => void
   switchAuthType: (type: AuthType, loginType?: LoginType) => void
   switchToSignup: (signupType: SignupType) => void
@@ -23,7 +41,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [authType, setAuthType] = useState<AuthType>('login')
   const [loginType, setLoginType] = useState<LoginType>('guest')
   const [signupType, setSignupType] = useState<SignupType>('guest')
+  const [showAuthVideo, setShowAuthVideo] = useState(false)
+  const [authNotice, setAuthNotice] = useState<string | null>(null)
+  const [signupNotice, setSignupNotice] = useState<string | null>(null)
+  const [stayOnPage, setStayOnPage] = useState(false)
   const [searchParams, setSearchParams] = useSearchParams()
+
+  // Marks which form is open in the URL. Other params stay, so a page whose
+  // query matters (an invite's ?token=) still has it after logging in.
+  const setAuthParam = useCallback(
+    (type: AuthType, value: string) => {
+      setSearchParams((params) => {
+        params.delete('login')
+        params.delete('signup')
+        params.set(type, value)
+        return params
+      })
+    },
+    [setSearchParams],
+  )
 
   useEffect(() => {
     const loginParam = searchParams.get('login')
@@ -47,23 +83,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [searchParams])
 
   const openAuthModal = useCallback(
-    (type: AuthType, loginType?: LoginType) => {
+    (type: AuthType, loginType?: LoginType, options?: AuthModalOptions) => {
       setAuthType(type)
-      if (loginType) {
-        setLoginType(loginType)
-        setSearchParams({ [type]: loginType })
-      } else {
-        setSearchParams({ [type]: 'true' })
-      }
+      setShowAuthVideo(options?.withVideo === true)
+      setAuthNotice(options?.notice ?? null)
+      setSignupNotice(options?.signupNotice ?? null)
+      setStayOnPage(options?.stayOnPage === true)
+      if (loginType) setLoginType(loginType)
+      // Set now, not left to the URL effect: that runs a render later, and the
+      // role selection would show (and animate out) in between.
+      if (type === 'signup' && loginType) setSignupType(loginType)
+      setAuthParam(type, loginType ?? 'true')
       setIsAuthModalOpen(true)
     },
-    [setSearchParams],
+    [setAuthParam],
   )
 
   const closeAuthModal = useCallback(() => {
     setIsAuthModalOpen(false)
     // Reset signupType to 'guest' so role selection shows again next time
     setSignupType('guest')
+    setShowAuthVideo(false)
+    setAuthNotice(null)
+    setSignupNotice(null)
+    setStayOnPage(false)
     setSearchParams(
       (params) => {
         params.delete('login')
@@ -78,23 +121,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const switchAuthType = useCallback(
     (type: AuthType, loginType?: LoginType) => {
       setAuthType(type)
-      if (loginType) {
-        setLoginType(loginType)
-        setSearchParams({ [type]: loginType })
-      } else {
-        setSearchParams({ [type]: 'true' })
-      }
+      if (loginType) setLoginType(loginType)
+      setAuthParam(type, loginType ?? 'true')
     },
-    [setSearchParams],
+    [setAuthParam],
   )
 
   const switchToSignup = useCallback(
     (signupType: SignupType) => {
       setSignupType(signupType)
       setAuthType('signup')
-      setSearchParams({ signup: signupType })
+      setAuthParam('signup', signupType)
     },
-    [setSearchParams],
+    [setAuthParam],
   )
 
   return (
@@ -104,6 +143,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         authType,
         loginType,
         signupType,
+        showAuthVideo,
+        authNotice,
+        signupNotice,
+        stayOnPage,
         openAuthModal,
         closeAuthModal,
         switchAuthType,

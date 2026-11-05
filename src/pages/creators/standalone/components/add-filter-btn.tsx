@@ -30,14 +30,14 @@ export function AddFilterBUtton({
         <Button
           variant="outline"
           className={cn(
-            "gap-2 px-3 h-9 border bg-white hover:bg-gray-50 rounded-[6px] transition-colors text-black",
+            "gap-2 px-3 h-9 md:border bg-white hover:bg-gray-50 rounded-[6px] transition-colors text-black",
             activeFilter !== 'all'
               ? "border-deep-red text-deep-red"
-              : "border-gray-300"
+              : "md:border-gray-300"
           )}
         >
           <img src={img} alt="Filter" width={16} height={14} />
-          <span className={cn("font-medium text-xs font-sf-pro-rounded", className)}>
+          <span className={cn("hidden md:blockfont-medium text-xs font-sf-pro-rounded", className)}>
             {FILTER_LABELS[activeFilter]}
           </span>
         </Button>

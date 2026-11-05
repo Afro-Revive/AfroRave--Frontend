@@ -26,7 +26,7 @@ export function useVendorSummary() {
 
 export function useVendorApplication(applicationId: string) {
   return useQuery({
-    queryKey: eventKeys.vendorApplication(applicationId),
+    queryKey: eventKeys.myVendorApplication(applicationId),
     queryFn: () => vendorService.getVendorApplication(applicationId),
     select: (response) => response.data as VendorApplications | undefined,
     enabled: !!applicationId,
@@ -72,7 +72,7 @@ export function useRequestVendorSlots() {
       return results.flatMap((result, index) => (result.status === 'rejected' ? [index] : []))
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: eventKeys.vendorApplications() })
+      queryClient.invalidateQueries({ queryKey: eventKeys.myVendorApplications() })
     },
   })
 }
@@ -83,7 +83,7 @@ export function useWithdrawVendorApplication() {
     mutationFn: (applicationId: number) => vendorService.withdrawApplication(applicationId),
     onSuccess: () => {
       toast.success('Request withdrawn')
-      queryClient.invalidateQueries({ queryKey: eventKeys.vendorApplications() })
+      queryClient.invalidateQueries({ queryKey: eventKeys.myVendorApplications() })
     },
     onError: () => {
       toast.error('Could not withdraw the request. Please try again.')

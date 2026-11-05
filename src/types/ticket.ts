@@ -7,6 +7,8 @@ export interface TicketResaleRequest {
 
 export interface UsersResaleTickets{
     id: string;
+    eventId: string;
+    eventName: string;
     ticketId: string;
     ticketName: string;
     price: number;
@@ -14,6 +16,7 @@ export interface UsersResaleTickets{
     sellersUserId: string;
     sellerName: string;
     createdDate: string;
+    status: string;
 }
 
 export interface VerifyTransferRecipient {

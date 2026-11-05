@@ -256,8 +256,8 @@ One modal, opened from the sidebar's **Edit profile** and **Finish setting up yo
 
 | Hook | File | Endpoint |
 |---|---|---|
-| `useGetVendorAvailableEvents` | `use-event-mutations.ts` | `GET /api/Event/vendor/available-events` |
-| `useGetVendorSlots` | `use-event-mutations.ts` | `GET /api/Event/{eventId}/vendors` |
+| `useGetVendorAvailableEvents` | `use-vendor-mutation.ts` | `GET /api/Event/vendor/available-events` |
+| `useGetVendorSlots` | `use-event-mutations.ts` | `GET /api/Event/{eventId}/vendors`. Shares its cache with `useGetEventVendors`, which calls the same endpoint. |
 | `useGetVendorApplications` | `use-event-mutations.ts` | `GET /api/Event/vendor/applications` |
 | `useVendorApplication` | `use-vendor.ts` | `GET /api/Event/vendor/application/{applicationId}` |
 | `useVendorSummary` | `use-vendor.ts` | `GET /api/Event/vendor/summary` |
@@ -273,23 +273,24 @@ One modal, opened from the sidebar's **Edit profile** and **Finish setting up yo
 | `useUpdateVendorProfile` | `use-vendor.ts` | `PATCH /api/profile/vendor` |
 | `useChangeVendorPassword` | `use-vendor.ts` | `PATCH /api/profile/vendor/change-password` |
 | `useUploadImage` | `useCloudinaryUpload.ts` | Cloudinary (profile picture and gallery) |
-| `useVendorNotifications`, `useMarkVendorNotificationsAsRead` | `use-profile-mutations.ts` | `GET /api/profile/vendor/notifications`, `PATCH …/{id}/read`. **Nothing uses them**: vendors get notifications by email only, with no inbox in the app. |
 
 The new dashboard hooks are in their own file, `use-vendor.ts`, rather than
 `use-event-mutations.ts`.
 
-**Query keys** are in `lib/event-keys.ts`: `vendorAvailable`,
-`vendorApplications`, `vendorSummary` and `vendorSaved`. Requesting and
-withdrawing refresh the applications. Saving refreshes saved events and the summary. A secured
+**Query keys** are in `lib/event-keys.ts`: `vendorAvailable`, `vendors` (an
+event's slots), `myVendorApplications` and `myVendorApplication` (the vendor's
+own requests), `vendorSummary` and `vendorSaved`. `vendorApplications(eventId)`,
+`vendorSlots` and `vendorSlotById` are the organizer's, for an event's slots and
+applicants. Requesting and withdrawing refresh the applications. Saving refreshes saved events and the summary. A secured
 payment refreshes the applications and the summary.
 
 ---
 
 ## 7. Things to know before changing code
 
-- **The `vendors` branch is behind `prod`.** It forked in July 2026, and `prod` has about 190 commits it doesn't, including the organizer vendor tabs redesign. `docs/` was copied in from `organizer-fixes` for this guide. Expect conflicts in shared files (`use-event-mutations.ts`, `helper-func.ts`, `event-keys.ts`, the vendor service and types) when the branches meet.
+- **Vendor and organizer code share files.** The vendor service, `types/vendor.ts`, `event-keys.ts` and the vendor hooks hold both sides: the vendor's own calls and the organizer's slot and applicant calls. `VendorSlot` is one type for both. Check the other side still typechecks when you change them.
 - **Icons** are react-icons (Remix, `react-icons/ri`), added to `package.json` here at the same version as `prod`, like `dompurify`.
 - **Descriptions are rich text HTML.** `RichTextContent` (`components/reusable/rich-text-content.tsx`) and `lib/rich-text.ts` show them sanitized. Both were copied unchanged from `prod`, with `dompurify` at prod's version, so the merge sees the same files on both sides.
 - **Colours are written inline** (`#1E1E1E`, `#2A2A2A`, …) to match the Figma file. There are no dark theme tokens for the vendor dashboard yet.
-- **No in-app notifications.** Vendors get notifications by email only; the old modal's Inbox tab went with the redesign and won't come back. The hooks and service calls are unused.
+- **No in-app notifications.** Vendors get notifications by email only; the old modal's Inbox tab went with the redesign and won't come back. The old inbox hooks and service calls were removed when `vendors` merged.
 - **Categories** (`VENDOR_CATEGORIES` in `types/vendor.ts`) are now the design's 12. Where a category carried over, its old value was kept (`food_beverage` is Food & Drinks), so saved profiles still match. Sign-up and complete profile use the same list. `vendorCategoryLabel` tidies up values that are no longer listed.

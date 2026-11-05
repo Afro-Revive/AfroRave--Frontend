@@ -13,21 +13,13 @@ import { Calendar } from '@/components/ui/calendar'
 import { cn } from '@/lib/utils'
 import { useNavigate } from 'react-router-dom'
 import { getRoutePath } from '@/config/get-route-path'
+import { eventCategories } from '@/pages/creators/edit-event/constant'
 
 interface AnimatedSearchBarProps {
     isOpen: boolean
     onClose: () => void
 }
 
-const categories = [
-    'Concerts & Festivals',
-    'Arts & Performance',
-    'Children',
-    'Sports',
-    'Career & Business',
-    'Comedy',
-    'Culture & Religion',
-]
 
 export function AnimatedSearchBar({ isOpen, onClose }: AnimatedSearchBarProps) {
     const inputRef = useRef<HTMLInputElement>(null)
@@ -37,7 +29,8 @@ export function AnimatedSearchBar({ isOpen, onClose }: AnimatedSearchBarProps) {
     const [filterType, setFilterType] = useState<string>('category')
     const [filterOpen, setFilterOpen] = useState(false)
     const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined)
-    const [selectedCategories, setSelectedCategories] = useState<string[]>([])
+    // One category: the events API filters by a single, exact category.
+    const [selectedCategory, setSelectedCategory] = useState('')
     const [minPrice, setMinPrice] = useState('')
     const [maxPrice, setMaxPrice] = useState('')
 
@@ -54,10 +47,9 @@ export function AnimatedSearchBar({ isOpen, onClose }: AnimatedSearchBarProps) {
         setFilterOpen(false)
     }
 
+    // Picking the selected category again clears it.
     const toggleCategory = (cat: string) => {
-        setSelectedCategories(prev =>
-            prev.includes(cat) ? prev.filter(c => c !== cat) : [...prev, cat]
-        )
+        setSelectedCategory(prev => (prev === cat ? '' : cat))
     }
 
     const applyAndNavigate = (overrideDate?: Date) => {
@@ -73,8 +65,8 @@ export function AnimatedSearchBar({ isOpen, onClose }: AnimatedSearchBarProps) {
             params.set('date', `${y}-${m}-${d}`)
         }
 
-        if (filterType === 'category' && selectedCategories.length > 0) {
-            params.set('category', selectedCategories.join(','))
+        if (filterType === 'category' && selectedCategory) {
+            params.set('category', selectedCategory)
         }
 
         if (filterType === 'price') {
@@ -161,13 +153,13 @@ export function AnimatedSearchBar({ isOpen, onClose }: AnimatedSearchBarProps) {
                                         }}
                                         classNames={{
                                             caption_label: 'text-sm font-medium text-white',
-                                            head_cell: 'text-white/40 rounded-md w-8 font-normal text-[0.8rem]',
-                                            day: 'size-8 p-0 font-normal aria-selected:opacity-100 text-white hover:bg-white/10 rounded-md',
-                                            day_selected: 'bg-white !text-black hover:bg-white hover:text-black focus:bg-white focus:text-black',
-                                            day_today: 'bg-white/10 text-white',
-                                            day_outside: 'text-white/20 aria-selected:text-white/20',
-                                            day_disabled: 'text-white/20 opacity-50',
-                                            nav_button: 'size-7 bg-transparent p-0 opacity-60 hover:opacity-100 text-white hover:bg-white/10 rounded',
+                                            weekday: 'text-white/40 rounded-md flex-1 font-normal text-[0.8rem] select-none',
+                                            day_button: 'rounded-md hover:bg-white/10 hover:text-white data-[selected-single=true]:bg-white data-[selected-single=true]:text-black',
+                                            today: 'bg-white/10 text-white rounded-md',
+                                            outside: 'text-white/20',
+                                            disabled: 'text-white/20 opacity-50',
+                                            button_previous: 'inline-flex items-center justify-center size-8 p-0 opacity-60 hover:opacity-100 text-white hover:bg-white/10 rounded',
+                                            button_next: 'inline-flex items-center justify-center size-8 p-0 opacity-60 hover:opacity-100 text-white hover:bg-white/10 rounded',
                                         }}
                                     />
                                 )}
@@ -204,19 +196,22 @@ export function AnimatedSearchBar({ isOpen, onClose }: AnimatedSearchBarProps) {
                                 {filterType === 'category' && (
                                     <div className="p-4 flex flex-col gap-3 w-[260px]">
                                         <p className="text-xs font-semibold text-white/60 uppercase tracking-wider">Category</p>
-                                        <div className="flex flex-wrap gap-2">
-                                            {categories.map(cat => (
+                                        {/* 32 categories: scroll inside the popover rather than run off the screen. */}
+                                        <div className="flex flex-wrap gap-2 max-h-60 overflow-y-auto">
+                                            {eventCategories.map(({ value: cat, label }) => (
                                                 <button
                                                     key={cat}
+                                                    type="button"
+                                                    aria-pressed={selectedCategory === cat}
                                                     onClick={() => toggleCategory(cat)}
                                                     className={cn(
                                                         'px-3 py-1.5 rounded-full text-xs font-medium border transition-all',
-                                                        selectedCategories.includes(cat)
+                                                        selectedCategory === cat
                                                             ? 'bg-white text-black border-white'
                                                             : 'bg-transparent text-white/70 border-white/20 hover:border-white/50 hover:text-white'
                                                     )}
                                                 >
-                                                    {cat}
+                                                    {label}
                                                 </button>
                                             ))}
                                         </div>

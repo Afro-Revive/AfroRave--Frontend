@@ -11,6 +11,7 @@ const IndividualActiveTicketsPage = lazy(
   () => import("../pages/fans/my-tickets/individual-active-tickets")
 );
 const ListedTicketPage = lazy(() => import("../pages/fans/listed-tickets"));
+const SupportPage = lazy(() => import("../pages/support"));
 
 export const user_dashboard_routes: RouteObject[] = [
   {
@@ -31,6 +32,16 @@ export const user_dashboard_routes: RouteObject[] = [
           <SettingsPage />
         </Suspense>
       </UserAuthGuard>
+    ),
+  },
+  {
+    // No UserAuthGuard: the footer and the nav menu both link here for signed
+    // out visitors, so gating it would bounce them off a public page.
+    path: getRoutePath("support"),
+    element: (
+      <Suspense fallback={<LoadingFallback />}>
+        <SupportPage />
+      </Suspense>
     ),
   },
   {

@@ -1,20 +1,20 @@
-import { CreatorMenuButton } from '@/components/reusable/creator-menu-button'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { getRoutePath } from '@/config/get-route-path'
 import { cn } from '@/lib/utils'
-import { useAfroStore } from '@/stores'
-import { ChevronLeft, Info } from 'lucide-react'
-import { useEffect, useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
-import { useNavigate } from 'react-router-dom'
+import { useEventStore } from '@/stores'
+// import { Info } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { useIsMutating } from '@tanstack/react-query'
+import { toast } from 'sonner'
+import { eventKeys } from '@/lib/event-keys'
+import { EVENT_DETAILS_FORM_ID } from './constant'
 import EventDetailsTab from './tabs/event-details-tab'
 import PublishTab from './tabs/publish-tab'
-import ThemeTab from './tabs/theme-tab'
 import TicketsTab from './tabs/tickets-tab'
-import VendorTab from './tabs/vendor-tab'
 import { OnlyShowIf } from '@/lib/environment'
-import { ApplyPromoCodePopover } from './component/apply-promo-popover'
+import { BiArrowBack } from "react-icons/bi";
 
 export default function AddEventPage() {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -22,38 +22,37 @@ export default function AddEventPage() {
   const [heading, setHeading] = useState<string>('')
   const [description, setDescription] = useState<string>('')
   const [step, setStep] = useState<number>()
-  const [themeBtnVisibility, setThemeBtnVisibility] = useState<boolean>(false)
   const [showError, setShowError] = useState(false)
 
-  const { user } = useAfroStore()
+  const resetEventData = useEventStore((state) => state.resetEventData)
 
   const navigate = useNavigate()
+
+  // The in-progress event lives in a store that outlives this page, so leaving
+  // — by publishing or abandoning — clears it. Otherwise the next Create Event
+  // opened with the last event's id, and jumping straight to the Tickets tab
+  // added tickets to that one.
+  useEffect(() => resetEventData, [resetEventData])
 
 
 
   useEffect(() => {
     const tabParam = searchParams.get('tab')
-    const formParam = searchParams.get('form')
 
-    if (
-      tabParam === 'event-details' ||
-      tabParam === 'tickets' ||
-      tabParam === 'theme' ||
-      tabParam === 'vendor' ||
-      tabParam === 'publish'
-    ) {
+    // The theme step is gone. An old link to it lands on publish, which is
+    // where the theme step used to lead, rather than on a tab with no content.
+    if (tabParam === 'theme') {
+      setSearchParams({ tab: 'publish' }, { replace: true })
+      return
+    }
+
+    if (tabParam === 'event-details' || tabParam === 'tickets' || tabParam === 'publish') {
       setActiveTab(tabParam)
-      RenderHeadline(tabParam, setHeading, setDescription, formParam)
+      RenderHeadline(tabParam, setHeading, setDescription)
     } else if (!tabParam) {
       setActiveTab('event-details')
       setSearchParams({ tab: 'event-details' })
-      RenderHeadline('event-details', setHeading, setDescription, null)
-    }
-
-    if (tabParam === 'theme' && formParam === 'banner') {
-      setThemeBtnVisibility(false)
-    } else {
-      setThemeBtnVisibility(false)
+      RenderHeadline('event-details', setHeading, setDescription)
     }
   }, [searchParams, setSearchParams])
 
@@ -62,15 +61,20 @@ export default function AddEventPage() {
     RenderHeadline(incomingTab, setHeading, setDescription)
   }
 
-  const handleBackClick = () => {
-    const currentIndex = tabs.findIndex((tab) => tab.value === activeTab)
-    if (currentIndex > 0) {
-      const previousTab = tabs[currentIndex - 1].value
-      setActiveTab(previousTab)
-      setSearchParams({ tab: previousTab })
-    } else {
-      navigate(getRoutePath('standalone'))
-    }
+  const eventId = useEventStore((state) => state.eventId)
+  const isCreatingEvent = useIsMutating({ mutationKey: eventKeys.create() }) > 0
+
+  // Until Event Info is submitted there's nothing saved, so Save As Drafts
+  // submits that form (same checks as Continue) and creates the event; it then
+  // lands on the dashboard. After that the event and its tickets are saved as
+  // they go and stay unpublished, so it only has to leave.
+  const savesByCreating = activeTab === 'event-details' && !eventId
+  // Tells that form's submit it came from here, so it ends on the dashboard.
+  const savingDraft = useRef(false)
+
+  const leaveAsDraft = () => {
+    toast.success('Saved as a draft. Finish it any time from your dashboard.')
+    navigate(getRoutePath('standalone'))
   }
 
 
@@ -78,8 +82,14 @@ export default function AddEventPage() {
   const tabs: IEditTabProps[] = [
     {
       value: 'event-details',
-      name: 'Event Details',
-      element: <EventDetailsTab setStep={setStep} setActiveTabState={setActiveTabState} />,
+      name: 'Event Info',
+      element: (
+        <EventDetailsTab
+          setStep={setStep}
+          setActiveTabState={setActiveTabState}
+          savingDraft={savingDraft}
+        />
+      ),
     },
     {
       value: 'tickets',
@@ -92,16 +102,11 @@ export default function AddEventPage() {
         />
       ),
     },
-    {
-      value: 'theme',
-      name: 'Theme',
-      element: <ThemeTab setStep={setStep} setActiveTabState={setActiveTabState} />,
-    },
-    {
-      value: 'vendor',
-      name: 'Vendor',
-      element: <VendorTab setStep={setStep} setActiveTabState={setActiveTabState} />,
-    },
+    // {
+    //   value: 'theme',
+    //   name: 'Theme',
+    //   element: <ThemeTab setStep={setStep} setActiveTabState={setActiveTabState} />,
+    // },
     {
       value: 'publish',
       name: 'Publish',
@@ -117,11 +122,30 @@ export default function AddEventPage() {
       className='w-full min-h-screen flex flex-col items-center bg-[#1E1E1E] overflow-x-hidden'>
       <div className='w-full flex flex-col'>
         <div className='w-full h-[72px] flex items-center justify-between py-4 px-8'>
-          <img src='/assets/landing-page/AR.png' alt='AR' width={60} height={32} />
+          {/* <img src='/assets/landing-page/AR.png' alt='AR' width={60} height={32} /> */}
+          <Link
+            to={getRoutePath('standalone')}
+            className='inline-flex items-center uppercase font-inter-tight text-sm font-semibold text-white transition-colors hover:text-white/70'>
+            <BiArrowBack className='mr-4 md:size-4' />
+            Dashboard
+          </Link>
 
           <CustomTabTriggers tabs={tabs} className='hidden lg:flex p-0' />
-
-          <CreatorMenuButton user={user} variant='dark' />
+          <Button
+            variant='ghost'
+            type={savesByCreating ? 'submit' : 'button'}
+            // Outside the Event Info form, so it submits it by id. The click
+            // runs before the submit, so the form sees the flag.
+            form={savesByCreating ? EVENT_DETAILS_FORM_ID : undefined}
+            onClick={() => {
+              if (savesByCreating) savingDraft.current = true
+              else leaveAsDraft()
+            }}
+            disabled={isCreatingEvent}
+            className='h-8 w-fit px-4 text-[10px] uppercase font-sf-pro-text font-bold rounded-[5px] bg-white text-deep-red border border-deep-red hover:bg-white/90'>
+            {isCreatingEvent ? 'SAVING...' : 'SAVE AS DRAFTS'}
+          </Button>
+          {/* <CreatorMenuButton user={user} variant='dark' /> */}
         </div>
         <CustomTabTriggers tabs={tabs} className='w-full flex lg:hidden px-5' />
       </div>
@@ -131,18 +155,8 @@ export default function AddEventPage() {
           value={tab.value}
           className='w-full h-fit max-w-screen overflow-x-hidden bg-white'>
           <div className='w-full h-fit flex flex-col items-center'>
-            {/** Nav */}
-            <TabNav
-              handleBackClick={handleBackClick}
-              activeTab={activeTab}
-              themeBtnVisibility={themeBtnVisibility}
-              setActiveTabState={setActiveTabState}
-              navigate={navigate}
-              formParam={searchParams.get('form')}
-            />
-
-            <section className='max-w-[1536px] w-full flex flex-col gap-10 px-5 md:px-14'>
-              <div className='flex flex-col gap-6 md:py-10'>
+            <section className='w-full flex flex-col gap-10 px-5 md:px-14 pt-6 md:pt-8'>
+              <div className='flex flex-col gap-6 '>
                 <div className='flex flex-col gap-2 text-black font-sf-pro-display'>
                   <p className='font-black text-2xl md:text-4xl uppercase'>{heading}</p>
                   <p className='text-[13px] max-w-[351px] uppercase'>{description}</p>
@@ -153,23 +167,6 @@ export default function AddEventPage() {
                   <MoreTabDetails />
                 </OnlyShowIf>
 
-                <OnlyShowIf condition={activeTab === 'theme' && false}>
-                  <MoreTabDetails type='theme' />
-                </OnlyShowIf>
-
-                <OnlyShowIf condition={activeTab === 'vendor'}>
-                  <MoreTabDetails type='theme' />
-                </OnlyShowIf>
-
-                <OnlyShowIf condition={activeTab === 'tickets' && searchParams.get('form') === 'promocode'}>
-                  <div className='flex items-start gap-2 text-charcoal'>
-                    <span className='text-sm'>ⓘ</span>
-                    <div className='flex flex-col'>
-                      <p className='text-sm font-bold font-sf-pro-display'>You can come back to this later</p>
-                      <p className='text-xs font-sf-pro-display text-charcoal/70'>No worries if you're not ready to complete this step now. You can always return to it at anytime from your dashboard.</p>
-                    </div>
-                  </div>
-                </OnlyShowIf>
               </div>
 
               {tab.element}
@@ -189,7 +186,7 @@ function CustomTabTriggers({
   className?: string
 }) {
   return (
-    <TabsList className={cn('items-center gap-5 md:gap-24 w-fit h-fit bg-transparent', className)}>
+    <TabsList className={cn('items-center gap-5 md:gap-48 w-fit h-fit bg-transparent', className)}>
       {tabs.map((tab) => (
         <TabsTrigger
           disabled
@@ -203,53 +200,6 @@ function CustomTabTriggers({
   )
 }
 
-function TabNav({
-  activeTab,
-  handleBackClick,
-  themeBtnVisibility,
-  setActiveTabState,
-  navigate,
-  formParam,
-}: ITabNav) {
-  return (
-    <div className='w-full h-fit flex items-center justify-between py-3 px-5 md:px-8 md:py-4'>
-      <Button
-        variant='ghost'
-        className='w-fit h-fit hover:bg-black/10 !p-0'
-        onClick={handleBackClick}>
-        <ChevronLeft color='#000000' className='min-w-1.5 min-h-3' />
-      </Button>
-
-      <div className='flex gap-3'>
-        {activeTab === 'tickets' && formParam === 'promocode' && <ApplyPromoCodePopover />}
-
-        {themeBtnVisibility && (
-          <NavBtn name={activeTab} action={() => setActiveTabState('vendor')} />
-        )}
-
-
-
-        <Button
-          variant='ghost'
-          className='h-8 w-fit px-4 text-[10px] uppercase font-sf-pro-text font-bold rounded-[5px] bg-white text-deep-red border border-deep-red hover:bg-white/90'
-          onClick={() => navigate(getRoutePath('standalone'))}>
-          SAVE AS DRAFTS
-        </Button>
-      </div>
-    </div>
-  )
-}
-
-function NavBtn({ name, action }: { name: string; action: () => void }) {
-  return (
-    <Button
-      onClick={action}
-      className='h-10 w-[120px] text-xs font-sf-pro-text font-black rounded-[5px] bg-white text-deep-red hover:bg-black/10 uppercase'>
-      {name}
-    </Button>
-  )
-}
-
 function MoreTabDetails({ type = 'error' }: { type?: 'error' | 'theme' }) {
   return (
     <div
@@ -257,7 +207,7 @@ function MoreTabDetails({ type = 'error' }: { type?: 'error' | 'theme' }) {
         'text-deep-red': type === 'error',
         'text-charcoal': type === 'theme',
       })}>
-      <div className='flex items-center gap-2'>
+      {/* <div className='flex items-center gap-2'>
         <Info size={16} className='text-inherit' />
         <p className='text-sm font-medium leading-[100%] font-sf-pro-display'>
           {type === 'error' ? 'Changes will be lost' : 'You can come back to this later'}
@@ -267,7 +217,7 @@ function MoreTabDetails({ type = 'error' }: { type?: 'error' | 'theme' }) {
         {type === 'error'
           ? 'If you leave now any changes will not be saved.'
           : `No worries if you’re not ready to complete this step now. You can always return to it at anytime from your dashboard.`}
-      </p>
+      </p> */}
     </div>
   )
 }
@@ -276,30 +226,10 @@ function RenderHeadline(
   activeTab: string,
   setHeading: (heading: string) => void,
   setDescription: (description: string) => void,
-  formParam?: string | null,
 ) {
   if (activeTab === 'tickets') {
-    if (formParam === 'promocode' || formParam === 'upgrades') {
-      setHeading('GO BEYOND THE BASICS!')
-      setDescription('Enhance your ticketing power with flexible, fan-friendly features')
-      return
-    }
     setHeading('CREATE YOUR TICKETS!')
     setDescription('Create different ticket types, set prices, and start your journey to a sold-out event!')
-    return
-  }
-
-  if (activeTab === 'theme') {
-    setHeading('AESTHETICS MATTERS!')
-    setDescription(
-      'CHOOSE A THEME FOR YOUR EVENT PAGE.',
-    )
-    return
-  }
-
-  if (activeTab === 'vendor') {
-    setHeading('Bring Your Event Together!')
-    setDescription('Match with trusted vendors who bring your vision to life')
     return
   }
 
@@ -314,15 +244,6 @@ function RenderHeadline(
   setHeading('BUILD YOUR STAGE!')
   setDescription('Your moment starts here! tell us about your event')
   return
-}
-
-interface ITabNav {
-  activeTab: string
-  handleBackClick: () => void
-  themeBtnVisibility: boolean
-  setActiveTabState: (incomingTab: string) => void
-  navigate: (path: string) => void
-  formParam?: string | null
 }
 
 interface IEditTabProps {

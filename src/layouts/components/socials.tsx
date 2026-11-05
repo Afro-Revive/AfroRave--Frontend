@@ -1,11 +1,13 @@
 import { cn } from '@/lib/utils'
 import { Globe } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import { IoLogoInstagram } from "react-icons/io5";
+import { FaXTwitter } from "react-icons/fa6";
+import { FaYoutube } from "react-icons/fa6";
 
 export function Socials({
   className,
   data = socials,
-  isCreator = false,
   showLanguage = false,
 }: {
   className?: string
@@ -18,13 +20,7 @@ export function Socials({
       <div className='flex items-center gap-3'>
         {data.map((item) => (
           <Link key={item.alt} to={item.href} target='_blank' rel='noopener noreferrer' className='cursor-pointer hover:opacity-80'>
-            <img
-              src={item.icon}
-              alt={item.alt}
-              className={cn('w-7 h-7 object-contain', {
-                'w-8 h-8': isCreator,
-              })}
-            />
+            {item.icon}
           </Link>
         ))}
       </div>
@@ -40,13 +36,13 @@ export function Socials({
 }
 
 const socials: ISocials[] = [
-  { href: 'https://www.instagram.com/afrorevive_?igsh=ZThudm8zODkyZTJv&utm_source=qr', icon: '/assets/landing-page/insta.png', alt: 'Instagram' },
-  { href: 'https://x.com/afrorevive?s=21', icon: '/assets/landing-page/X.png', alt: 'X' },
-  { href: '/', icon: '/assets/landing-page/yt.png', alt: 'Youtube' },
+  { href: 'https://www.instagram.com/afrorevive_?igsh=ZThudm8zODkyZTJv&utm_source=qr', icon: <IoLogoInstagram className='md:w-10 md:h-10 w-7 h-7' />, alt: 'Instagram' },
+  { href: 'https://x.com/afrorevive?s=21', icon: <FaXTwitter className='md:w-10 md:h-10 w-7 h-7' />, alt: 'X' },
+  { href: '/', icon: <FaYoutube className='md:w-10 md:h-10 w-7 h-7' />, alt: 'Youtube' },
 ]
 
 export interface ISocials {
   href: string
-  icon: string
+  icon: React.ReactNode
   alt: string
 }

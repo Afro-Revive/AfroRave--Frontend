@@ -6,17 +6,17 @@ export const multipartHeaders = {
   headers: { 'Content-Type': 'multipart/form-data' },
 }
 
-// Force development mode for now to use proxy
-// const isDev =
-//   import.meta.env.DEV ||
-//   import.meta.env.MODE === 'development' ||
-//   window.location.hostname === 'localhost'
+// Staging is https://dev.afrorevive.com, production https://api.afrorevive.com,
+// set per environment in Vercel. Deliberately no fallback — a default would
+// quietly point production at staging whenever the variable is missing.
+const apiUrl = import.meta.env.VITE_API_URL?.trim().replace(/\/+$/, '')
 
-// const apiUrl = isDev
-//   ? '' // Use relative URLs in development (proxy will handle it)
-//   : import.meta.env.VITE_API_PROD || 'https://afro-revive-latest.onrender.com'
-
-const apiUrl = "https://dev.afrorevive.com/"
+if (!apiUrl) {
+  throw new Error(
+    'Missing required environment variable: VITE_API_URL. Set it in .env.local ' +
+      'locally, or in the Vercel project settings.',
+  )
+}
 
 const api = axios.create({
   baseURL: apiUrl,
@@ -47,7 +47,8 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    // If no token exists in the store no need to clear auth state, just return the error
+    if (error.response?.status === 401 && useAfroStore.getState().token) {
       useAfroStore.getState().clearAuth()
     }
     return Promise.reject(error)

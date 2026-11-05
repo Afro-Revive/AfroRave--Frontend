@@ -1,6 +1,6 @@
 import { BaseSheet } from '@/components/reusable'
 import { Button } from '@/components/ui/button'
-import MobileMenu from '@/layouts/root-layout/header/mobile-menu'
+import SideBarMenu from '@/layouts/root-layout/header/sidebar-menu'
 import { getUserInitials } from '@/lib/utils'
 import type { User } from '@/types/auth'
 import { useState } from 'react'
@@ -32,7 +32,7 @@ export function UserMenuButton({ user }: UserMenuButtonProps) {
         open={isMenuOpen}
         setOpen={setIsMenuOpen}
         contentClassName='bg-pure-black text-white px-3'>
-        <MobileMenu onClose={() => setIsMenuOpen(false)} />
+        <SideBarMenu onClose={() => setIsMenuOpen(false)} />
       </BaseSheet>
     </>
   )

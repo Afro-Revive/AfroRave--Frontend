@@ -1,5 +1,14 @@
 import { useEffect, useState } from 'react'
-import { format, parseISO, differenceInCalendarDays } from 'date-fns'
+import {
+  addDays,
+  endOfMonth,
+  format,
+  parseISO,
+  differenceInCalendarDays,
+  differenceInMinutes,
+  formatDistanceToNowStrict,
+} from 'date-fns'
+import type { EventDetailData, UserTicketTicketDetails } from '@/types'
 
 function generateRandomString(length = 10) {
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
@@ -83,11 +92,6 @@ export function capitalizeFirstLetter(str: string): string {
   return firstLetter + restOfString
 }
 
-export function stripUnderscores(str?: string): string {
-  if (!str) return ''
-  return str.replace(/_/g, ' ').replace(/\b\w/g, (match) => match.toUpperCase())
-}
-
 export function toDashCase(str: string): string {
   return (
     str
@@ -101,6 +105,11 @@ export function toDashCase(str: string): string {
       // Remove leading/trailing dashes
       .replace(/^-+|-+$/g, '')
   )
+}
+
+export function stripUnderscores(str?: string): string {
+  if (!str) return ''
+  return str.replace(/_/g, ' ')
 }
 
 // snake_case, kebab-case, camelCase, PascalCase, chunk, debounce, range
@@ -135,9 +144,88 @@ export function formatUsername(username?: string): string {
   return username.startsWith('@') ? username : `@${username}`
 }
 
+/** The API spells this 'Public'/'Private'; forms and UI use lowercase. */
+export function toVisibility(accessType?: string): 'public' | 'private' {
+  return accessType?.trim().toLowerCase() === 'private' ? 'private' : 'public'
+}
+
+export function copyToClipboard(text: string) {
+  if (navigator?.clipboard?.writeText) {
+    navigator.clipboard.writeText(text)
+    return
+  }
+
+  // Fallback for insecure origins, where the clipboard API is unavailable.
+  const textarea = document.createElement('textarea')
+  textarea.value = text
+  textarea.setAttribute('readonly', '')
+  textarea.style.position = 'absolute'
+  textarea.style.left = '-9999px'
+  document.body.appendChild(textarea)
+  textarea.select()
+  document.execCommand('copy')
+  document.body.removeChild(textarea)
+}
+
+/**
+ * Parses a date from the API. Its timestamps are UTC but arrive without a zone
+ * ('2026-10-15T13:12:13.7' means 13:12 UTC, 2:12pm in Lagos), so those are read
+ * as UTC. Date-only values ('2026-10-18', an event's day) and strings that
+ * already carry 'Z' or an offset are parsed as they are.
+ */
+export function parseApiDate(value: string): Date {
+  const hasTime = value.includes('T')
+  const hasZone = /(z|[+-]\d{2}:?\d{2})$/i.test(value)
+  return parseISO(hasTime && !hasZone ? `${value}Z` : value)
+}
+
+/** A form's date picker plus its 12-hour time inputs. */
+export interface FormDateTime {
+  date: Date
+  hour: string
+  minute: string
+  period: 'AM' | 'PM'
+}
+
+/**
+ * The date and time an organizer typed, in their own zone, as the UTC
+ * timestamp the API stores: 6:00 PM on 20 Oct in Lagos is
+ * '2026-10-20T17:00:00.000Z'.
+ */
+export function toApiDateTime({ date, hour, minute, period }: FormDateTime): string {
+  const hour12 = Number(hour) % 12
+  const hour24 = period === 'PM' ? hour12 + 12 : hour12
+
+  return new Date(
+    date.getFullYear(),
+    date.getMonth(),
+    date.getDate(),
+    hour24,
+    Number(minute),
+  ).toISOString()
+}
+
+/**
+ * The reverse of toApiDateTime: a stored UTC timestamp as the form's local
+ * date and 12-hour time. Null when the value can't be parsed.
+ */
+export function fromApiDateTime(value: string): FormDateTime | null {
+  const date = parseApiDate(value)
+  if (Number.isNaN(date.getTime())) return null
+
+  const hours = date.getHours()
+
+  return {
+    date,
+    hour: String(hours % 12 || 12).padStart(2, '0'),
+    minute: String(date.getMinutes()).padStart(2, '0'),
+    period: hours >= 12 ? 'PM' : 'AM',
+  }
+}
+
 export function formatJoinedDate(dateString: string): string {
   try {
-    const date = parseISO(dateString)
+    const date = parseApiDate(dateString)
     return `Joined ${format(date, 'MMMM yyyy')}`
   } catch (error) {
     console.error('Error parsing date:', error)
@@ -145,21 +233,16 @@ export function formatJoinedDate(dateString: string): string {
   }
 }
 
-/** Green used for an acquired/approved vendor application. */
-export const ACQUIRED_STATUS_COLOR = 'text-[#00AD2E]'
-
-/**
- * The API calls an accepted application "Approved"; the UI shows "Acquired".
- * Display-only — never compare against this, compare against the API value.
- */
-export function vendorStatusLabel(status?: string): string {
-  return status?.toLowerCase() === 'approved' ? 'Acquired' : (status ?? '')
-}
-
-/** True for either the API value or the label, so callers can pass whichever they hold. */
-export function isAcquiredStatus(status?: string): boolean {
-  const value = status?.toLowerCase()
-  return value === 'approved' || value === 'acquired'
+/** Initials for an avatar fallback: 'Lagos Food Co' -> 'LF'. */
+export function initialsFrom(name?: string, fallback = 'V'): string {
+  return (
+    (name ?? '')
+      .split(' ')
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((word) => word[0]?.toUpperCase() ?? '')
+      .join('') || fallback
+  )
 }
 
 export function truncate(str: string, maxLength: number): string {
@@ -167,6 +250,29 @@ export function truncate(str: string, maxLength: number): string {
     return str
   }
   return `${str.slice(0, maxLength - 3)}...`
+}
+
+/**
+ * Mask the local part of an email, keeping its first `visible` characters and the
+ * whole domain, so the recipient can still tell which address it went to.
+ * 'iseoluwaariyibi@gmail.com' -> 'ise************@gmail.com'
+ * Anything too short to mask is hidden entirely rather than partly revealed.
+ */
+export function maskEmail(email?: string, visible = 3): string {
+  if (!email) {
+    return ''
+  }
+  const at = email.lastIndexOf('@')
+  if (at <= 0) {
+    // Not a well-formed address — mask all of it rather than guess at a domain.
+    return '*'.repeat(email.length)
+  }
+  const local = email.slice(0, at)
+  const domain = email.slice(at)
+  if (local.length <= visible) {
+    return `${'*'.repeat(local.length)}${domain}`
+  }
+  return `${local.slice(0, visible)}${'*'.repeat(local.length - visible)}${domain}`
 }
 
 export function formatEventTime(timeString: string): string {
@@ -179,7 +285,12 @@ export function formatEventTime(timeString: string): string {
 }
 
 export function formatTimeLong(timeString: string): string {
-  const [hourStr, minuteStr] = timeString.split(':')
+  // A full timestamp is UTC: convert it to the viewer's time first. A bare
+  // time ('20:00', an event's start) is already local to the event.
+  const time = timeString.includes('T')
+    ? format(parseApiDate(timeString), 'HH:mm')
+    : timeString
+  const [hourStr, minuteStr] = time.split(':')
   const hour = parseInt(hourStr, 10)
   if (isNaN(hour)) return timeString
   const period = hour < 12 ? 'AM' : 'PM'
@@ -222,7 +333,7 @@ export function formatTimezone(offset: string | number): string {
 
 export function formatDateLong(dateString: string): string {
   try {
-    const date = parseISO(dateString)
+    const date = parseApiDate(dateString)
     const day = format(date, 'd')
     const suffix =
       day === '1' || day === '21' || day === '31'
@@ -240,7 +351,7 @@ export function formatDateLong(dateString: string): string {
 
 export function formatEventDate(dateString: string): string {
   try {
-    const date = parseISO(dateString)
+    const date = parseApiDate(dateString)
     const day = format(date, 'd')
     const suffix =
       day === '1' || day === '21' || day === '31'
@@ -258,25 +369,64 @@ export function formatEventDate(dateString: string): string {
 
 export function formatShortDate(dateString: string): string {
   try {
-    return format(parseISO(dateString), 'MMMM d, yyyy')
+    return format(parseApiDate(dateString), 'MMMM d, yyyy')
   } catch {
     return dateString
   }
 }
 
-export function monthNumberToName(month: number | string): string {
-  return new Date(2000, Number(month) - 1, 1).toLocaleString('en-US', { month: 'short' }).toLowerCase()
+/** A date as 'YYYY-MM-DD' by the viewer's calendar, the events API's date format. */
+export function toApiDate(date: Date): string {
+  return format(date, 'yyyy-MM-dd')
 }
 
+/** Today through the seventh day from now, as the events API's date range. */
+export function thisWeekRange(): { startDate: string; endDate: string } {
+  const today = new Date()
+  return { startDate: toApiDate(today), endDate: toApiDate(addDays(today, 7)) }
+}
+
+/**
+ * A month (0–11) as a full-month range for the events API. Fans only browse
+ * upcoming events, so a month that has already passed this year means next
+ * year's: in October, "Jan" is next January.
+ */
+export function upcomingMonthRange(month: number): { startDate: string; endDate: string } {
+  const today = new Date()
+  const year = month < today.getMonth() ? today.getFullYear() + 1 : today.getFullYear()
+  const firstDay = new Date(year, month, 1)
+  return { startDate: toApiDate(firstDay), endDate: toApiDate(endOfMonth(firstDay)) }
+}
+
+/**
+ * How long ago something happened, for activity lists.
+ * Today: '2 hours ago'. The day before: 'Yesterday'. Older: '23 Sep 2026'.
+ */
+export function formatTimeAgo(dateString: string): string {
+  try {
+    const date = parseApiDate(dateString)
+    const days = differenceInCalendarDays(new Date(), date)
+
+    if (days <= 0) {
+      // Also catches a timestamp slightly ahead of this clock.
+      if (differenceInMinutes(new Date(), date) < 1) return 'Just now'
+      return formatDistanceToNowStrict(date, { addSuffix: true })
+    }
+    if (days === 1) return 'Yesterday'
+    return format(date, 'd MMM yyyy')
+  } catch {
+    return dateString
+  }
+}
 
 /**
  * Bucket a timestamp into an inbox section header — the API sends timestamps,
- * inboxes group them under relative headings.
- * '2026-08-30T09:00:00' -> 'Yesterday'
+ * the inbox groups them under relative headings.
+ * '2026-08-26T09:00:00' -> 'Yesterday'
  */
 export function relativeDateGroup(dateString: string): string {
   try {
-    const days = differenceInCalendarDays(new Date(), parseISO(dateString))
+    const days = differenceInCalendarDays(new Date(), parseApiDate(dateString))
     if (days <= 0) return 'Today'
     if (days === 1) return 'Yesterday'
     if (days <= 7) return '7 Days Ago'
@@ -290,12 +440,127 @@ export function relativeDateGroup(dateString: string): string {
 /** Compact date for list rows: '2026-08-26T09:00:00' -> 'Aug 26'. */
 export function formatMonthDay(dateString: string): string {
   try {
-    return format(parseISO(dateString), 'MMM d')
+    return format(parseApiDate(dateString), 'MMM d')
   } catch {
     return dateString
   }
 }
 
+export function monthNumberToName(month: number | string): string {
+  return new Date(2000, Number(month) - 1, 1).toLocaleString('en-US', { month: 'short' }).toLowerCase()
+}
+
+/**
+ * A saved date of birth ("1998-03-07", with or without a time) as birthday
+ * selects take it: month "mar", day "7", year "1998". Read from the date's own
+ * digits rather than through Date, so a time zone can't shift the day. The
+ * backend's empty date (year 0001) counts as none.
+ */
+export function fromDateOfBirth(
+  value?: string | null,
+): { month: string; day: string; year: string } | null {
+  const match = value?.match(/^(\d{4})-(\d{2})-(\d{2})/)
+  if (!match) return null
+  const [, year, month, day] = match
+  if (Number(year) < 1900 || Number(month) < 1 || Number(month) > 12) return null
+  return { month: monthNumberToName(month), day: String(Number(day)), year }
+}
+
+
 export function daysUntilEvent(startDate: string): number {
-  return differenceInCalendarDays(parseISO(startDate), new Date())
+  return differenceInCalendarDays(parseApiDate(startDate), new Date())
+}
+
+/**
+ * One ticket that admits several people. Group tickets can't be resold. Falls
+ * back to the size when the API omits ticketType.
+ */
+export function isGroupTicket(
+  ticket: Pick<UserTicketTicketDetails, 'ticketType' | 'groupSize'>,
+): boolean {
+  return ticket.ticketType === 'Group' || (ticket.groupSize ?? 0) > 1
+}
+
+/**
+ * A ticket the organizer sent to one guest's email. It's tied to that guest,
+ * so it can't be resold or transferred.
+ */
+export function isInviteOnlyTicket(ticket: Pick<UserTicketTicketDetails, 'accessType'>): boolean {
+  return ticket.accessType === 'Invite'
+}
+
+/** Why a ticket can't be listed for resale, or undefined when it can. */
+export function resaleBlockedReason(ticket: UserTicketTicketDetails): string | undefined {
+  if (isInviteOnlyTicket(ticket)) return "Invite-only tickets can't be resold"
+  if (isGroupTicket(ticket)) return "Group tickets can't be resold"
+  return undefined
+}
+
+/** Why a ticket can't be transferred, or undefined when it can. */
+export function transferBlockedReason(ticket: UserTicketTicketDetails): string | undefined {
+  if (isInviteOnlyTicket(ticket)) return "Invite-only tickets can't be transferred"
+  return undefined
+}
+
+/** Tickets a user actually bought for an event, summed across every ticket type and order. */
+export function totalTicketsPurchased(ticketDetails: UserTicketTicketDetails[]): number {
+  return ticketDetails.reduce(
+    (total, ticket) =>
+      total + ticket.purchaseHistory.reduce((sum, purchase) => sum + purchase.quantity, 0),
+    0
+  )
+}
+
+export type EventSocials = EventDetailData['eventDetails']['socials']
+export type EventSocialPlatform = keyof EventSocials
+
+export interface EventSocialLink {
+  platform: EventSocialPlatform
+  alt: string
+  url: string
+}
+
+const SOCIAL_BASE_URLS: Record<EventSocialPlatform, string> = {
+  instagram: 'https://instagram.com/',
+  x: 'https://x.com/',
+  tiktok: 'https://tiktok.com/@',
+  facebook: 'https://facebook.com/',
+}
+
+const SOCIAL_LABELS: Record<EventSocialPlatform, string> = {
+  instagram: 'Instagram',
+  x: 'X',
+  tiktok: 'TikTok',
+  facebook: 'Facebook',
+}
+
+/**
+ * Organizers save either a full profile URL or a bare handle. Without this a bare
+ * handle becomes a relative link that navigates inside our own app.
+ */
+export function toAbsoluteUrl(value: string, baseUrl: string): string {
+  const handle = value.trim()
+  if (/^https?:\/\//i.test(handle)) return handle
+  return `${baseUrl}${handle.replace(/^@/, '')}`
+}
+
+/**
+ * The platforms an event actually filled in, as ready-to-use links. Callers supply
+ * their own icons — only the data is shared.
+ */
+export function getEventSocialLinks(socials?: Partial<EventSocials>): EventSocialLink[] {
+  const platforms = Object.keys(SOCIAL_BASE_URLS) as EventSocialPlatform[]
+
+  return platforms.flatMap((platform) => {
+    const value = socials?.[platform]?.trim()
+    if (!value) return []
+
+    return [
+      {
+        platform,
+        alt: SOCIAL_LABELS[platform],
+        url: toAbsoluteUrl(value, SOCIAL_BASE_URLS[platform]),
+      },
+    ]
+  })
 }

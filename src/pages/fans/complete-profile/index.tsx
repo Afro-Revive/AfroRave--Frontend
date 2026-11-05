@@ -4,13 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { getRoutePath } from "@/config/get-route-path";
 import { useCompleteProfile } from "@/hooks";
-import { useAuth } from "@/hooks/use-auth-store";
-import { africanCountryCodes } from "@/pages/creators/add-event/constant";
+import { africanCountryCodes, nigerianStates } from "@/pages/creators/add-event/constant";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { LoaderCircle } from "lucide-react";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { toast } from "sonner";
 import {
     Select,
     SelectContent,
@@ -19,13 +18,16 @@ import {
     SelectValue,
 } from '@/components/ui/select'
 import { PersonalDetailsSchema, PersonalDetailsValues } from "./zod-schema";
+import { useGetCurrentUser } from "@/hooks";
+import type { CurrentUserData } from "@/types/auth";
 import { VENDOR_CATEGORIES } from "@/types/vendor";
 
 export default function CompleteProfilePage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const token = searchParams.get("token");
-  const { user } = useAuth();
+  const {data: userData, isLoading: isUserLoading} = useGetCurrentUser(token ?? undefined);
+  const user = userData?.data?.data as CurrentUserData | undefined;
   const userAccountType = user?.accountType;
 
   const completeProfileMutation = useCompleteProfile();
@@ -46,6 +48,7 @@ export default function CompleteProfilePage() {
 
   const { formState: { errors, isSubmitting }, watch, setValue } = form
   const category = watch('category')
+  const isNigeria = watch('country') === 'nigeria'
 
   useEffect(() => {
     if (!token) {
@@ -53,17 +56,9 @@ export default function CompleteProfilePage() {
     }
   }, [token, navigate]);
 
-  useEffect(() => {
-    if (user === null) {
-      toast.error("Session expired. Please log in to continue.");
-      navigate(getRoutePath("home"), { replace: true });
-    }
-  }, [user, navigate]);
-
   if (!token) return null;
 
   async function onSubmit(values: PersonalDetailsValues) {
-    if (!user) return;
     const dateOfBirth = `${values.birthday.year}-${values.birthday.month.padStart(2, "0")}-${values.birthday.day.padStart(2, "0")}`;
     const isVendor = userAccountType === "Vendor";
     await completeProfileMutation.mutateAsync({
@@ -102,6 +97,37 @@ export default function CompleteProfilePage() {
   const labelStyle =
     "text-white/60 text-[11px] font-sf-pro-display uppercase tracking-widest ml-1 block";
 
+  // The form shapes its payload around accountType and shows the name and email
+  // back to the person, so it is only safe to render once that has arrived.
+  // Without this the page renders blank read-only fields and submits as a
+  // regular user even when the account is a Vendor.
+  if (isUserLoading) {
+    return (
+      <PageShell>
+        <LoaderCircle className="size-8 animate-spin text-white" />
+      </PageShell>
+    );
+  }
+
+  if (!user) {
+    return (
+      <PageShell>
+        <p className="text-white font-inter text-lg font-bold">
+          We couldn't load your account
+        </p>
+        <p className="text-white/70 font-inter text-sm text-center">
+          This link may have expired. Open the most recent email, or sign in and
+          try again.
+        </p>
+        <Button
+          onClick={() => navigate(getRoutePath("home"))}
+          className="mt-2 bg-white text-black hover:bg-white/90">
+          Go Home
+        </Button>
+      </PageShell>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#848484] to-[#1E1E1E] flex flex-col items-center px-4 pt-16 pb-16">
       <div className="w-full max-w-[550px] flex flex-col">
@@ -123,7 +149,7 @@ export default function CompleteProfilePage() {
                 tabIndex={-1}
                 placeholder=""
                 className={`${labeledInputStyle} bg-[#949494] text-white/70 border-none`}
-                value={user?.profile.firstName ?? ""}
+                value={user?.profile?.firstName ?? ""}
               />
             </div>
 
@@ -134,7 +160,7 @@ export default function CompleteProfilePage() {
                 tabIndex={-1}
                 placeholder=""
                 className={`${labeledInputStyle} bg-[#949494] text-white/70 border-none`}
-                value={user?.profile.lastName ?? ""}
+                value={user?.profile?.lastName ?? ""}
               />
             </div>
           </div>
@@ -356,7 +382,13 @@ export default function CompleteProfilePage() {
                 <div className="relative w-full">
                   <label className={insetLabelStyle}>Country</label>
                   <BaseSelect
-                    onChange={(value) => field.onChange(value)}
+                    onChange={(value) => {
+                      // A state picked or typed for one country means nothing
+                      // for another, and the field switches between a select
+                      // and a text box.
+                      if (value !== field.value) setValue('state', '')
+                      field.onChange(value)
+                    }}
                     placeholder=""
                     value={field.value as string}
                     items={[
@@ -375,12 +407,22 @@ export default function CompleteProfilePage() {
               {(field) => (
                 <div className="relative w-full">
                   <label className={insetLabelStyle}>State</label>
-                  <Input
-                    {...field}
-                    placeholder=""
-                    className={editableInputStyle}
-                    value={field.value as string}
-                  />
+                  {isNigeria ? (
+                    <BaseSelect
+                      onChange={(value) => field.onChange(value)}
+                      placeholder=""
+                      value={field.value as string}
+                      items={nigerianStates}
+                      triggerClassName={editableSelectStyle}
+                    />
+                  ) : (
+                    <Input
+                      {...field}
+                      placeholder=""
+                      className={editableInputStyle}
+                      value={field.value as string}
+                    />
+                  )}
                 </div>
               )}
             </FormField>
@@ -470,3 +512,12 @@ const months = [
   { value: "11", label: "November" },
   { value: "12", label: "December" },
 ];
+
+/** The page's background, so the loading and error states match the form. */
+function PageShell({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-[#848484] to-[#1E1E1E] flex flex-col items-center justify-center gap-3 px-4">
+      {children}
+    </div>
+  );
+}

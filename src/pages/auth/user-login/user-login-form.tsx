@@ -2,12 +2,12 @@ import { FormBase, FormField } from '@/components/reusable'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import PasswordInput from '@/components/ui/password-input'
-import { type LoginType, useAuth } from '@/contexts/auth-context'
+import { useAuth } from '@/contexts/auth-context'
 import { useLogin } from '@/hooks/use-auth'
 import type { LoginData } from '@/types/auth'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { LockKeyhole, type LucideIcon, Mail } from 'lucide-react'
-import { useEffect } from 'react'
+// import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
@@ -50,14 +50,14 @@ export function UserLoginForm({ onForgotPassword, onLoginSuccess }: { onForgotPa
     switchToSignup(loginType)
   }
 
-  useEffect(() => {
-    const dummyData = dummyLoginData.find((data) => data.type === loginType)
+  // useEffect(() => {
+  //   const dummyData = dummyLoginData.find((data) => data.type === loginType)
 
-    if (dummyData) {
-      form.setValue('email', dummyData.email)
-      form.setValue('password', dummyData.password)
-    }
-  }, [loginType, form])
+  //   if (dummyData) {
+  //     form.setValue('email', dummyData.email)
+  //     form.setValue('password', dummyData.password)
+  //   }
+  // }, [loginType, form])
 
   return (
     <>
@@ -65,7 +65,7 @@ export function UserLoginForm({ onForgotPassword, onLoginSuccess }: { onForgotPa
         <FormBase
           form={form}
           onSubmit={onSubmit}
-          className='w-[420px] h-fit rounded-[12px] !bg-white space-y-6 bg-red px-7 py-4 md:px-8 md:py-[37px] z-10 font-sf-pro-text'>
+          className='w-[420px] h-fit rounded-[12px] !bg-white space-y-6 bg-red px-7 py-6 md:px-8 md:py-[37px] z-10 font-sf-pro-text'>
           <div className='w-full flex flex-col gap-5'>
             <div className='flex flex-col gap-1'>
               <p className='text-2xl font-bold leading-[100%] text-black font-sf-pro-display'>
@@ -117,7 +117,7 @@ export function UserLoginForm({ onForgotPassword, onLoginSuccess }: { onForgotPa
               <button
                 type='button'
                 onClick={onForgotPassword}
-                className='text-[10px] font-bold text-black hover:underline'>
+                className='text-[10px] font-bold text-light-red/70 hover:underline'>
                 Forgot Password?
               </button>
             </div>
@@ -125,7 +125,7 @@ export function UserLoginForm({ onForgotPassword, onLoginSuccess }: { onForgotPa
 
           <Button
             type='submit'
-            className='w-full h-[50px] text-xl font-semibold font-sf-pro-text'
+            className='w-full h-[50px] text-base font-semibold font-inter-tight'
             disabled={login.isPending}>
             {login.isPending ? 'Signing In...' : 'Sign In'}
           </Button>
@@ -151,23 +151,23 @@ function InputContainer({
   )
 }
 
-const dummyLoginData: { type: LoginType; email: string; password: string }[] = [
-  {
-    type: 'creator',
-    email: 'iseoluwaariyibi+6@gmail.com',
-    password: 'password',
-  },
-  {
-    type: 'vendor',
-    email: 'iseoluwaariyibi+1@gmail.com',
-    password: 'vendorpassword',
-  },
-  {
-    type: 'guest',
-    email: 'iseoluwaariyibi+10@gmail.com',
-    password: 'password',
-  },
-]
+// const dummyLoginData: { type: LoginType; email: string; password: string }[] = [
+//   {
+//     type: 'creator',
+//     email: 'iseoluwaariyibi+6@gmail.com',
+//     password: 'password',
+//   },
+//   {
+//     type: 'vendor',
+//     email: 'iseoluwaariyibi+1@gmail.com',
+//     password: 'vendorpassword',
+//   },
+//   {
+//     type: 'guest',
+//     email: 'iseoluwaariyibi+10@gmail.com',
+//     password: 'password',
+//   },
+// ]
 
 export const CreatorLogo = () => (
   <svg

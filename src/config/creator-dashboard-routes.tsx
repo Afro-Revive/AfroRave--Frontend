@@ -1,5 +1,4 @@
 import { OrganizerAuthGuard } from '@/components/auth/organizer-auth-guard'
-import { VendorAuthGuard } from '@/components/auth/vendor-auth-guard'
 import { LoadingFallback } from '@/components/loading-fallback'
 import { Suspense, lazy } from 'react'
 import type { RouteObject } from 'react-router-dom'
@@ -9,11 +8,13 @@ import { getRoutePath } from './get-route-path'
 const StandalonePage = lazy(() => import('../pages/creators/standalone'))
 const SeasonPage = lazy(() => import('../pages/creators/season'))
 const AccessControlPage = lazy(() => import('../pages/creators/access-control'))
+const TicketsPage = lazy(() => import('../pages/creators/tickets'))
+const GuestListPage = lazy(() => import('../pages/creators/guest-list'))
 const PromoCodesPage = lazy(() => import('../pages/creators/promo-codes'))
-const ChartPage = lazy(() => import('../pages/creators/charts'))
 const ReportsPage = lazy(() => import('../pages/creators/reports'))
 const RealtimePage = lazy(() => import('../pages/creators/realtime'))
 const EditEventPage = lazy(() => import('../pages/creators/edit-event'))
+const AudiencePage = lazy(() => import('../pages/creators/audience'))
 
 // Vendor routes
 const RevenueVendorPage = lazy(() => import('../pages/vendor/revenue-vendor'))
@@ -21,6 +22,12 @@ const IndividualSlotsPage = lazy(() => import('../pages/vendor/revenue-vendor/in
 const ServiceVendorPage = lazy(() => import('../pages/vendor/service-vendors'))
 const IndividualServicePage = lazy(
   () => import('../pages/vendor/service-vendors/individual-service'),
+)
+const RevenueVendorApplicationPage = lazy(
+  () => import('../pages/vendor/revenue-vendor/application'),
+)
+const ServiceVendorApplicationPage = lazy(
+  () => import('../pages/vendor/service-vendors/application'),
 )
 const SeatingMapsPage = lazy(() => import('../pages/vendor/seating-maps'))
 
@@ -57,6 +64,16 @@ export const creator_dashboard_routes: RouteObject[] = [
     ),
   },
   {
+    path: getRoutePath('audience', { eventId: ':eventId' }),
+    element: (
+      <OrganizerAuthGuard>
+        <Suspense fallback={<LoadingFallback />}>
+          <AudiencePage />
+        </Suspense>
+      </OrganizerAuthGuard>
+    ),
+  },
+  {
     path: getRoutePath('access_control'),
     element: (
       <OrganizerAuthGuard>
@@ -67,21 +84,31 @@ export const creator_dashboard_routes: RouteObject[] = [
     ),
   },
   {
-    path: getRoutePath('promo_codes'),
+    path: getRoutePath('tickets'),
     element: (
       <OrganizerAuthGuard>
         <Suspense fallback={<LoadingFallback />}>
-          <PromoCodesPage />
+          <TicketsPage />
         </Suspense>
       </OrganizerAuthGuard>
     ),
   },
   {
-    path: getRoutePath('charts'),
+    path: getRoutePath('guest_list'),
     element: (
       <OrganizerAuthGuard>
         <Suspense fallback={<LoadingFallback />}>
-          <ChartPage />
+          <GuestListPage />
+        </Suspense>
+      </OrganizerAuthGuard>
+    ),
+  },
+  {
+    path: getRoutePath('promo_codes'),
+    element: (
+      <OrganizerAuthGuard>
+        <Suspense fallback={<LoadingFallback />}>
+          <PromoCodesPage />
         </Suspense>
       </OrganizerAuthGuard>
     ),
@@ -107,35 +134,48 @@ export const creator_dashboard_routes: RouteObject[] = [
     ),
   },
 
-  // Vendor routes (Vendor account type)
+  // Vendor routes (Vendor account type) - Temporarily using OrganizerAuthGuard
   {
     path: getRoutePath('revenue_vendor'),
     element: (
-      <VendorAuthGuard>
+      <OrganizerAuthGuard>
         <Suspense fallback={<LoadingFallback />}>
           <RevenueVendorPage />
         </Suspense>
-      </VendorAuthGuard>
+      </OrganizerAuthGuard>
     ),
   },
   {
     path: getRoutePath('revenue_vendor_slot', { slotId: ':slotId' }),
     element: (
-      <VendorAuthGuard>
+      <OrganizerAuthGuard>
         <Suspense fallback={<LoadingFallback />}>
           <IndividualSlotsPage />
         </Suspense>
-      </VendorAuthGuard>
+      </OrganizerAuthGuard>
+    ),
+  },
+  {
+    path: getRoutePath('revenue_vendor_application', {
+      slotId: ':slotId',
+      applicationId: ':applicationId',
+    }),
+    element: (
+      <OrganizerAuthGuard>
+        <Suspense fallback={<LoadingFallback />}>
+          <RevenueVendorApplicationPage />
+        </Suspense>
+      </OrganizerAuthGuard>
     ),
   },
   {
     path: getRoutePath('service_vendor'),
     element: (
-      <VendorAuthGuard>
+      <OrganizerAuthGuard>
         <Suspense fallback={<LoadingFallback />}>
           <ServiceVendorPage />
         </Suspense>
-      </VendorAuthGuard>
+      </OrganizerAuthGuard>
     ),
   },
   {
@@ -143,21 +183,34 @@ export const creator_dashboard_routes: RouteObject[] = [
       serviceId: ':serviceId',
     }),
     element: (
-      <VendorAuthGuard>
+      <OrganizerAuthGuard>
         <Suspense fallback={<LoadingFallback />}>
           <IndividualServicePage />
         </Suspense>
-      </VendorAuthGuard>
+      </OrganizerAuthGuard>
+    ),
+  },
+  {
+    path: getRoutePath('service_vendor_application', {
+      slotId: ':slotId',
+      applicationId: ':applicationId',
+    }),
+    element: (
+      <OrganizerAuthGuard>
+        <Suspense fallback={<LoadingFallback />}>
+          <ServiceVendorApplicationPage />
+        </Suspense>
+      </OrganizerAuthGuard>
     ),
   },
   {
     path: getRoutePath('seating_maps'),
     element: (
-      <VendorAuthGuard>
+      <OrganizerAuthGuard>
         <Suspense fallback={<LoadingFallback />}>
           <SeatingMapsPage />
         </Suspense>
-      </VendorAuthGuard>
+      </OrganizerAuthGuard>
     ),
   },
 ]

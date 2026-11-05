@@ -5,7 +5,7 @@ each feature is, and whether it actually works yet. Use it to know what's left
 before launch, what's safe to demo, and what to test.
 
 Last checked against the code on the `prod` branch, October 2026. The vendor
-section (§3) was checked against the `vendors` branch in November 2026.
+section (§3) was checked in November 2026, when the `vendors` branch merged.
 
 ---
 
@@ -16,7 +16,7 @@ section (§3) was checked against the `vendors` branch in November 2026.
 | **Fans** | 15 / 17 done | 10 / 11 | 1 / 4 | **86%** |
 | **Organizers** | 13 / 13 done | 23 / 27 | 5 / 16 | **83%** |
 | **Fans + Organizers** | **28 / 30 done (93%)** | 33 / 38 | 6 / 20 | **84%** |
-| Vendors (in progress on the `vendors` branch) | 6 / 6 done | 6 / 6 | 2 / 3 | 97% |
+| Vendors | 6 / 6 done | 6 / 6 | 2 / 3 | 97% |
 
 **How the overall % is worked out:**
 - A High feature counts 3 times as much as a Low one, and a Medium one twice as much.
@@ -39,9 +39,7 @@ how much they block launch:
 | 1 | Privacy Policy, Refund Policy, Terms and Conditions | Fans | 🚧 Coming soon | **Content.** Needed before taking real payments: payment providers and app stores ask for them. |
 | 2 | QR code for entry | Fans | 🟡 Partial | **Mobile app.** The QR is in the mobile app; the web app's app store links point nowhere until the apps are published. |
 
-Vendors have 1 on the `vendors` branch: **paying for an approved slot** goes
-through Paystack, but the backend charges the slot price without the platform
-fee the app shows (§5).
+Vendors have none left: every High priority vendor feature works (§3).
 
 ---
 
@@ -147,7 +145,7 @@ tables further down says where it stands today.
 
 | Work | Priority | What's needed |
 |---|---|---|
-| End-to-end test the organizer vendor tabs | 🟠 Medium | **Once the `vendors` branch is done.** Run the whole flow with real vendors: create a stall and an offer, vendors apply, review each applicant's page, accept and reject, pause and resume, and the secured counts and net profit. Expect some edits. |
+| End-to-end test the organizer vendor tabs | 🟠 Medium | **Now that the `vendors` branch is merged.** Run the whole flow with real vendors: create a stall and an offer, vendors apply, review each applicant's page, accept and reject, pause and resume, and the secured counts and net profit. Expect some edits. |
 | Attendee List tab | 🟠 Medium | Build it on `GET /api/Event/{eventId}/attendees`. |
 | Event guestlist: select a whole category | 🟠 Medium | Frontend only. |
 | Analytics Export | ⚪ Low | Frontend only. |
@@ -272,7 +270,7 @@ Three tabs: **Account**, **Payout** and **Settings**.
 ## 3. Vendors
 
 The vendor dashboard was redesigned in November 2026 on the `vendors` branch,
-which isn't merged yet. How the code works: [VENDOR-SIDE.md](./VENDOR-SIDE.md).
+and merged into `prod`. How the code works: [VENDOR-SIDE.md](./VENDOR-SIDE.md).
 
 | Feature | Priority | Status | Notes |
 |---|---|---|---|
@@ -317,12 +315,11 @@ pretends to. Rows run from High to Low priority.
 | Organizer settings | Email notifications checkbox | ⚪ Low | ⛔ Not working | Not saved. |
 | Sidebar → Tools | Seating Maps | ⚪ Low | 🚧 Coming soon | |
 
-Vendor dashboard buttons (on the `vendors` branch):
+Vendor dashboard buttons:
 
 | Where | Button or link | Priority | Status |
 |---|---|---|---|
 | Vendor settings | Email notifications checkbox | ⚪ Low | ⛔ Not working |
-| A vendor request's page | Pay now | 🔴 High | 🔵 Awaiting backend (see §5) |
 
 ---
 

@@ -1,4 +1,5 @@
 import type { EventDetailData } from '@/types'
+import { parseApiDate, toVisibility } from '@/lib/helper-func'
 import { africanTimezones } from './constant'
 
 export function convertTime(time: string) {
@@ -42,7 +43,7 @@ export function getAfricanTimezoneByOffset(offset: string) {
   return africanTimezones.find((tz) => getOffset(tz.value) === offset) || undefined
 }
 
-export function transformEventToSchema(event: EventDetailData, eventType: 'standalone' | 'season') {
+export function transformEventToSchema(event: EventDetailData) {
   const eventDate = event.eventDate
 
   return {
@@ -52,24 +53,32 @@ export function transformEventToSchema(event: EventDetailData, eventType: 'stand
     custom_url: event.customUrl,
     venue: event.venue,
     description: event.description,
-    event_type: eventType,
-    frequency: eventDate.frequency as 'Daily' | 'Weekly' | 'Monthly',
-    occurrence: eventDate.occurance,
+    event_type: 'standalone' as const,
+    // Both are seeded so a save round-trips them. transformEventDetailsToCreateRequest
+    // treats a missing visibility as 'Private', which would quietly take a
+    // public event off discovery on the first edit.
+    visibility: toVisibility(event.accessType),
+    // posterUrl is what the detail response carries; the nested flyer is only a
+    // fallback for events saved before that field existed.
+    poster_url: event.posterUrl || event.eventDetails.desktopMedia?.flyer || '',
     time_zone: getAfricanTimezoneByOffset(eventDate.timezone)?.value,
+    // Event days are plain calendar days ('2026-10-20'): parseApiDate keeps
+    // the day, where new Date reads it as UTC midnight and can land a day off.
     start_date: {
-      date: new Date(eventDate.startDate),
+      date: parseApiDate(eventDate.startDate),
       hour: convertTime(eventDate.startTime).hour,
       minute: convertTime(eventDate.startTime).minute,
       period: convertTime(eventDate.startTime).period as 'AM' | 'PM',
     },
     end_date: {
-      date: new Date(eventDate.endDate),
+      date: parseApiDate(eventDate.endDate),
       hour: convertTime(eventDate.endTime).hour,
       minute: convertTime(eventDate.endTime).minute,
       period: convertTime(eventDate.endTime).period as 'AM' | 'PM',
     },
     email: event.eventDetails.eventContact.email,
-    website_url: event.eventDetails.eventContact.website,
+    // Optional, so an event saved without one comes back as null.
+    website_url: event.eventDetails.eventContact.website ?? '',
     socials: {
       instagram: event.eventDetails.socials.instagram,
       tiktok: event.eventDetails.socials.tiktok,

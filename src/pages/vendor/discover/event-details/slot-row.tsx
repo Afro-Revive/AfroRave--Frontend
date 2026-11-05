@@ -70,7 +70,7 @@ export function SlotRow({ slot, eventEnded, quantityInCart, isRequested, onAddRe
 
           <div className='flex flex-col gap-1 font-inter-tight font-normal min-w-0'>
             <p className='md:text-base text-sm font-bold capitalize'>{title}</p>
-              <p className='text-sm text-white font-medium capitalize'>{stripUnderscores(slot.category || slot.vendorCategory)}</p>
+              <p className='text-sm text-white font-medium'>{stripUnderscores(slot.category || slot.vendorCategory)}</p>
             <div className='flex flex-row items-center gap-2'>
               <p className='text-sm font-medium text-tech-blue'>{getSlotPriceLabel(slot)}</p>
               <p className='text-xs text-[#ACACAC]'>{isRevenue ? '(includes fees)' : '(budget)'}</p>

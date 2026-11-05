@@ -1,28 +1,175 @@
-import { ApiResponse } from "./api"
-
+import { ApiResponse } from "./api";
 export interface VendorRegistration {
-    firstName: string
-    lastName: string
-    category: string
-    email: string
-    businessName: string
-    isRegistered: boolean
-    description: string
+  firstName: string;
+  lastName: string;
+  category: string;
+  email: string;
+  businessName: string;
+  isRegistered: boolean;
+  description: string;
 }
 
 export interface VendorNewsletterData {
-    email: string
-    firstName: string
-    lastName: string
-    businessName: string
-    category: string
-    description: string
-    isRegisteredBusiness: boolean
+  email: string;
+  firstName: string;
+  lastName: string;
+  businessName: string;
+  category: string;
+  description: string;
+  isRegisteredBusiness: boolean;
 }
 
 export interface VendorCategory {
-    value: string
-    label: string
+  value: string;
+  label: string;
+}
+
+// Vendor Slots Response for GET /api/Event/{eventId}/vendor-slots
+export interface VendorSlot {
+  vendorId: string;
+  vendorType: "Revenue" | "Service";
+  category: string;
+  vendorCategory: string;
+  vendorName: string;
+  description: string;
+  contactEmail: string;
+  contactPhone: string;
+  eventId: string;
+  eventName: string;
+  status: string;
+  vendorDetails: {
+    slotData: {
+      slotName: string;
+      slotNumber: number;
+      price: number;
+      applicationDeadline: string;
+    };
+    serviceData: {
+      serviceName: string;
+      hasBudgetRange: boolean;
+      minBudget: number;
+      maxBudget: number;
+      startTime: string;
+      stopTime: string;
+      startDate: string;
+      endDate: string;
+      applicationDeadline: string;
+    };
+    contact: {
+      useDifferentContactDetails: boolean;
+      email: string;
+      phoneNumbers: string[];
+    };
+    hideSocialLinks: boolean;
+    /** "Paused" while the organizer has paused applications. */
+    status?: string;
+    applicationDeadline: string;
+  };
+}
+
+export type VendorSlotsResponse = ApiResponse<VendorSlot[]>;
+
+export interface VendorSlotApplication {
+  id: number;
+  eventId: string;
+  eventName: string;
+  vendorId: string;
+  vendorBusinessName: string;
+  vendorEmail: string;
+  vendorPhone: string;
+  vendorProfilePicture: string;
+  vendorDescription: string;
+  vendorBusinessData: {
+    portfolio: {
+      webUrl: string;
+      fileUrl: string;
+    };
+    socials: {
+      facebook: string;
+      instagram: string;
+      x: string;
+      linkedin: string;
+      tikTok: string;
+      youTube: string;
+      socialLink: string;
+    };
+    gallery: string[];
+    aboutBusiness: string;
+    profilePicture: string;
+  };
+  eventVendorId: string;
+  vendorType: string;
+  category: string;
+  description: string;
+  vendorDetails: {
+    slotData: {
+      slotName: string;
+      slotNumber: number;
+      price: number;
+      applicationDeadline: string;
+    };
+    serviceData: {
+      serviceName: string;
+      hasBudgetRange: boolean;
+      minBudget: number;
+      maxBudget: number;
+      startTime: string;
+      stopTime: string;
+      startDate: string;
+      endDate: string;
+      applicationDeadline: string;
+    };
+    contact: {
+      useDifferentContactDetails: boolean;
+      email: string;
+      phoneNumbers: string[];
+    };
+    hideSocialLinks: true;
+    applicationDeadline: string;
+  };
+  requestedSlots: number;
+  noOfRequestedStalls: number;
+  priceOffer: number;
+  proposedPrice: number;
+  status: "Pending" | "Acquired" | "Rejected" | "Secured";
+  message: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type VendorSlotApplicationsResponse = ApiResponse<VendorSlotApplication[]>;
+
+export interface VendorSlotRequest {
+  vendorType: string;
+  category: string;
+  description: string;
+  eventId: string;
+  vendorDetails: {
+    slotData: {
+      slotName: string;
+      slotNumber: number;
+      price: number;
+      applicationDeadline?: Date | null;
+    };
+    serviceData: {
+      serviceName: string;
+      hasBudgetRange: boolean;
+      minBudget: number;
+      maxBudget: number;
+      startTime: string;
+      stopTime: string;
+      startDate?: string;
+      endDate?: string;
+      applicationDeadline: Date | null;
+    };
+    contact: {
+      useDifferentContactDetails: boolean;
+      email: string;
+      phoneNumbers: string[];
+    };
+    hideSocialLinks: boolean;
+    applicationDeadline: string;
+  };
 }
 
 // Values kept from the first list where a category carried over, so saved profiles still match.
@@ -42,52 +189,10 @@ export const VENDOR_CATEGORIES: VendorCategory[] = [
 ]
 
 /** A category's label, or the raw value tidied up for older categories no longer listed. */
-export function vendorCategoryLabel(value?: string): string {
+export function vendorCategoryLabel(value?: string | null): string {
     if (!value) return ''
     const match = VENDOR_CATEGORIES.find((category) => category.value === value || category.label === value)
     return match ? match.label : value.replace(/_/g, ' ').replace(/\b\w/g, (letter) => letter.toUpperCase())
-}
-
-// Vendor Slot Data for GET /api/Event/{eventId}/vendor-slots
-export interface VendorSlot {
-    vendorId: string
-    vendorType: string
-    category: string
-    vendorCategory: string
-    vendorName: string
-    description: string
-    contactEmail: string
-    contactPhone: string
-    eventId: string
-    eventName: string
-    status: string
-    vendorDetails: {
-        slotData: {
-            slotName: string
-            slotNumber: number
-            price: number
-            applicationDeadline: string
-        }
-        serviceData: {
-            serviceName: string
-            hasBudgetRange: boolean
-            minBudget: number
-            maxBudget: number
-            startTime: string
-            stopTime: string
-            startDate: string
-            endDate: string
-            applicationDeadline: string
-        }
-        contact: {
-            useDifferentContactDetails: boolean
-            email: string
-            phoneNumbers: string[]
-        }
-        hideSocialLinks: boolean
-        status: string
-        applicationDeadline: string
-    }
 }
 
 export interface VendorApplications{

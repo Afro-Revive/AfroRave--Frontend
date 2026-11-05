@@ -1,6 +1,6 @@
 import type { CreateEventRequest } from '@/types'
 import type { User } from '@/types/auth'
-import { CreateCartRequest } from '@/types/cart'
+import { CartLineItem } from '@/types/cart'
 import { decodeTokenExpiry, isTokenExpired } from '@/lib/token'
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
@@ -24,8 +24,15 @@ interface AfroState {
 interface EventState {
   eventId: string | null
   eventData: CreateEventRequest | null
+  /**
+   * Kept beside eventData rather than inside it: CreateEventRequest has no
+   * visibility field, but later steps of the create flow need to know — the
+   * ticket formats on offer depend on it.
+   */
+  visibility: 'public' | 'private' | null
   setEventId: (id: string) => void
   setEventData: (data: CreateEventRequest) => void
+  setVisibility: (visibility: 'public' | 'private') => void
   resetEventData: () => void
 }
 
@@ -126,9 +133,11 @@ export const useAfroStore = create<AfroState>()((set, get) => ({
 export const useEventStore = create<EventState>()((set) => ({
   eventId: null,
   eventData: null,
+  visibility: null,
   setEventId: (id: string) => set({ eventId: id }),
   setEventData: (data: CreateEventRequest) => set({ eventData: data }),
-  resetEventData: () => set({ eventId: null, eventData: null }),
+  setVisibility: (visibility: 'public' | 'private') => set({ visibility }),
+  resetEventData: () => set({ eventId: null, eventData: null, visibility: null }),
 }))
 
 interface GuideState {
@@ -154,66 +163,114 @@ interface EventSelectorState {
   setSelectedEventId: (id: string | null) => void
 }
 
-export const useEventSelectorStore = create<EventSelectorState>()((set) => ({
-  selectedEventId: null,
-  setSelectedEventId: (id) => set({ selectedEventId: id }),
-}))
+// Persisted so the sidebar's selected-event card survives a refresh. Most
+// creator pages carry no event id in their URL, so without this the selection
+// is only recoverable by going back through the events dashboard.
+export const useEventSelectorStore = create<EventSelectorState>()(
+  persist(
+    (set) => ({
+      selectedEventId: null,
+      setSelectedEventId: (id) => set({ selectedEventId: id }),
+    }),
+    { name: 'afro-selected-event' },
+  ),
+)
 
 
 interface CartState {
-  items: CreateCartRequest[]
+  items: CartLineItem[]
+  /**
+   * The custom URL of the event these items belong to. A cart only ever holds
+   * one event's tickets: it's cleared when the fan leaves the cart or checkout.
+   */
+  eventSlug: string | null
   isSyncingCart: boolean
   promoCodeId: string | null
   setPromoCodeId: (id: string | null) => void
-  isCartOpen: boolean
-  addItem: (item: CreateCartRequest) => void
-  removeItem: (ticketId: string) => void
-  updateQuantity: (ticketId: string, quantity: number) => void
+  /**
+   * When the server last reserved the cart's tickets. The checkout countdown
+   * runs from here, so a refresh carries on rather than resetting it.
+   */
+  reservationStartedAt: number | null
+  /** Restarts the countdown. Call it right after the server reserves the tickets. */
+  startReservation: () => void
+  addItem: (eventSlug: string, item: CartLineItem) => void
+  removeItem: (cartKey: string) => void
+  updateQuantity: (cartKey: string, quantity: number) => void
   clearLocal: () => void
   setSyncing: (value: boolean) => void
-  openCart: () => void
-  closeCart: () => void
 }
 
 export const useCartStore = create<CartState>()(
   persist(
     (set) => ({
       items: [],
+      eventSlug: null,
       isSyncingCart: false,
-      isCartOpen: false,
       promoCodeId: null,
       setPromoCodeId: (id) => set({ promoCodeId: id }),
-      addItem: (item) =>
+      reservationStartedAt: null,
+      // Called each time the server reserves the tickets: after a cart sync and
+      // after an extension. Saved, so a refresh carries on from the same start.
+      startReservation: () => set({ reservationStartedAt: Date.now() }),
+      addItem: (eventSlug, item) =>
         set((state) => {
-          const existing = state.items.find((i) => i.ticketId === item.ticketId)
+          // Never let a line exceed the ticket's per-buyer purchase limit.
+          const limit = item.purchaseLimit ?? Number.POSITIVE_INFINITY
+          const existing = state.items.find((i) => i.cartKey === item.cartKey)
           if (existing) {
             return {
+              eventSlug,
               items: state.items.map((i) =>
-                i.ticketId === item.ticketId
-                  ? { ...i, quantity: i.quantity + item.quantity }
+                i.cartKey === item.cartKey
+                  ? { ...i, quantity: Math.min(i.quantity + item.quantity, limit) }
                   : i,
               ),
             }
           }
-          return { items: [...state.items, item] }
+          return {
+            eventSlug,
+            items: [...state.items, { ...item, quantity: Math.min(item.quantity, limit) }],
+          }
         }),
-      removeItem: (ticketId) =>
-        set((state) => ({ items: state.items.filter((i) => i.ticketId !== ticketId) })),
-      updateQuantity: (ticketId, quantity) =>
+      removeItem: (cartKey) =>
+        set((state) => ({ items: state.items.filter((i) => i.cartKey !== cartKey) })),
+      updateQuantity: (cartKey, quantity) =>
         set((state) => ({
           items:
             quantity <= 0
-              ? state.items.filter((i) => i.ticketId !== ticketId)
-              : state.items.map((i) => (i.ticketId === ticketId ? { ...i, quantity } : i)),
+              ? state.items.filter((i) => i.cartKey !== cartKey)
+              : state.items.map((i) =>
+                  i.cartKey === cartKey
+                    ? {
+                        ...i,
+                        quantity: Math.min(quantity, i.purchaseLimit ?? Number.POSITIVE_INFINITY),
+                      }
+                    : i,
+                ),
         })),
-      clearLocal: () => set({ items: [] }),
+      clearLocal: () =>
+        set({ items: [], eventSlug: null, promoCodeId: null, reservationStartedAt: null }),
       setSyncing: (value) => set({ isSyncingCart: value }),
-      openCart: () => set({ isCartOpen: true }),
-      closeCart: () => set({ isCartOpen: false }),
     }),
     {
       name: 'afro-cart',
-      partialize: (state) => ({ items: state.items }),
+      partialize: (state) => ({
+        items: state.items,
+        eventSlug: state.eventSlug,
+        promoCodeId: state.promoCodeId,
+        reservationStartedAt: state.reservationStartedAt,
+      }),
+      version: 2,
+      // Version 1 carts don't record their event, so there's no telling which
+      // event they belong to. Start those fans with an empty cart.
+      migrate: (persisted, version) =>
+        version < 2
+          ? { items: [], eventSlug: null, promoCodeId: null, reservationStartedAt: null }
+          : (persisted as Pick<
+              CartState,
+              'items' | 'eventSlug' | 'promoCodeId' | 'reservationStartedAt'
+            >),
     },
   ),
 )

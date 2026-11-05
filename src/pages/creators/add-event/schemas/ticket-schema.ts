@@ -1,10 +1,13 @@
 import { z } from 'zod'
+import { richTextLength } from '@/lib/rich-text'
 
 const scheduledStartSchema = z.object({
   whenToStart: z.enum(['immediately', 'at-a-scheduled-date'], {
     required_error: 'Pick an option.',
   }),
-  allow_ticket_resell: z.boolean().optional().default(false),
+  // On by default — organizers opt out. Invite-only and group tickets are
+  // forced off by the form and again by the request transform.
+  allow_ticket_resell: z.boolean().optional().default(true),
   scheduledDate: z
     .object({
       date: z.date({ required_error: 'A start date is required.' }),
@@ -42,10 +45,11 @@ const ticketBaseFields = z.object({
   ),
   price: z.string().optional(),
   purchase_limit: z.string(),
+  // Rich text: both limits count what readers see, not the HTML tags.
   description: z
     .string()
-    .min(10, { message: 'Description too short.' })
-    .max(450, { message: 'Description too long.' }),
+    .refine((value) => richTextLength(value) >= 10, { message: 'Description too short.' })
+    .refine((value) => richTextLength(value) <= 2000, { message: 'Description too long.' }),
 })
 
 const singleTicketObject = ticketBaseFields.extend({
@@ -116,8 +120,8 @@ export const defaultUnifiedTicketValues: UnifiedTicketForm = {
     description: '',
     ticketType: 'single_ticket',
   },
-  whenToStart: 'at-a-scheduled-date',
-  allow_ticket_resell: false,
+  whenToStart: 'immediately',
+  allow_ticket_resell: true,
   scheduledDate: {
     date: new Date(),
     hour: '12',

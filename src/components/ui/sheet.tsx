@@ -75,8 +75,8 @@ const CancelButton = ({ variant = "default" }: CancelButtonProps) => {
     switch (variant) {
       case "circle":
         return (
-          <div className="flex h-[26px] w-[26px] items-center justify-center rounded-full bg-charcoal">
-            <X className="h-[10px] w-[10px]" />
+          <div className="flex h-[28px] w-[28px] items-center justify-center rounded-full bg-charcoal">
+            <X className="h-5 w-5" />
           </div>
         );
       default:

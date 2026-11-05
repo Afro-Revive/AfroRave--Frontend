@@ -1,11 +1,12 @@
 import { cartService } from '@/services/cart.service'
 import type {
+  CartData,
+  CartLineItem,
   CheckoutRequest,
-  CreateCartRequest,
   ValidatePromocodeRequest,
   ValidatePromocodeResponse,
 } from '@/types/cart'
-import type { ApiErrorResponse } from '@/types/api'
+import type { ApiErrorResponse, PaginatedResponse } from '@/types/api'
 import { useAfroStore, useCartStore } from '@/stores'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import type { AxiosError } from 'axios'
@@ -23,8 +24,8 @@ export function useGetAllCart() {
 export function useCreateCart() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: async (data: CreateCartRequest) => {
-      useCartStore.getState().addItem(data)
+    mutationFn: async ({ eventSlug, item }: { eventSlug: string; item: CartLineItem }) => {
+      useCartStore.getState().addItem(eventSlug, item)
     },
     onSuccess: () => {
       toast.success('Added to cart.')
@@ -37,8 +38,8 @@ export function useCreateCart() {
 export function useDeleteCart() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: async ({ cartId }: { cartId: string }) => {
-      useCartStore.getState().removeItem(cartId)
+    mutationFn: async ({ cartKey }: { cartKey: string }) => {
+      useCartStore.getState().removeItem(cartKey)
     },
     onSuccess: () => {
       toast.success('Cart item removed.')
@@ -58,8 +59,8 @@ export function useGetCart(cartId: string) {
 export function useUpdateCartQuantity() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: async ({ cartId, data }: { data: number; cartId: string }) => {
-      useCartStore.getState().updateQuantity(cartId, data)
+    mutationFn: async ({ cartKey, data }: { data: number; cartKey: string }) => {
+      useCartStore.getState().updateQuantity(cartKey, data)
     },
     onSuccess: () => {
       toast.success('Quantity updated.')
@@ -74,10 +75,12 @@ export function useClearCart() {
   const isAuthenticated = useAfroStore((state) => state.isAuthenticated)
   return useMutation({
     mutationFn: async () => {
+      // Local first: if the server call fails, the browser still holds no
+      // tickets, so the next event can't inherit them.
+      useCartStore.getState().clearLocal()
       if (isAuthenticated) {
         await cartService.clearCart()
       }
-      useCartStore.getState().clearLocal()
     },
     onSuccess: () => {
       toast.success('Cart cleared.')
@@ -92,8 +95,20 @@ export function useSyncCartToServer() {
   return useMutation({
     mutationFn: async () => {
       const items = useCartStore.getState().items
-      if (items.length === 0) return
-      await cartService.syncCart(items.map(({ ticketId, quantity }) => ({ ticketId, quantity })))
+      if (items.length === 0) return false
+      // A line is resale if it carries a listingId
+      await cartService.syncCart(
+        items.map(({ ticketId, quantity, listingId }) =>
+          listingId
+            ? { quantity, listingId, resellTicketId: ticketId }
+            : { ticketId, quantity },
+        ),
+      )
+      return true
+    },
+    // The server reserves the tickets as they're synced, so the countdown starts now.
+    onSuccess: (synced) => {
+      if (synced) useCartStore.getState().startReservation()
     },
     onError: () => toast.error('Failed to sync cart. Please try again.'),
   })
@@ -105,7 +120,6 @@ export function useCheckoutCart() {
     mutationFn: ({ promoCodeId, callbackUrl }: { promoCodeId: string; callbackUrl: string }) => cartService.initialzePayment(promoCodeId, callbackUrl),
     mutationKey: cartKeys.checkout(),
     onSuccess: () => {
-      toast.success('Checkout successful.')
       queryClient.invalidateQueries({ queryKey: cartKeys.lists() })
     },
     onError: () => toast.error('Failed to checkout.'),
@@ -118,7 +132,13 @@ export function useProcessCheckout() {
     mutationFn: (data: CheckoutRequest) => cartService.processCheckout(data),
     mutationKey: cartKeys.processCheckout(),
     onSuccess: () => {
+      useCartStore.getState().clearLocal()
+      useCartStore.getState().setPromoCodeId(null)
+
       queryClient.invalidateQueries({ queryKey: cartKeys.lists() })
+      // Invalidate user tickets queries to refresh the user's ticket list after checkout
+      queryClient.invalidateQueries({queryKey: ['user-active-tickets']})
+      queryClient.invalidateQueries({queryKey: ['user-past-tickets']})
     },
     onError: () => toast.error('Failed to process checkout.'),
   })
@@ -136,14 +156,26 @@ export function useValidatePromocode() {
   })
 }
 
+/**
+ * Extends the reservation on the fan's server cart, then restarts the checkout
+ * countdown. The server reserves each cart line separately (each has its own
+ * cartId and expiry), so every line is extended.
+ */
 export function useExtendReservation() {
-  const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({ cartId }: { cartId: string }) => cartService.extendReservation(cartId),
-    mutationKey: cartKeys.extendReservation('dynamic-id'),
-    onSuccess: (_, cartId) => {
-      toast.success('Reservation extended successfully.')
-      queryClient.invalidateQueries({ queryKey: cartKeys.detail(cartId.cartId) })
+    mutationFn: async () => {
+      const response = await cartService.getAllCart()
+      const data = response?.data as CartData[] | PaginatedResponse<CartData> | undefined
+      const lines = Array.isArray(data) ? data : (data?.items ?? [])
+      const cartIds = [...new Set(lines.map((line) => String(line.cartId)))]
+
+      if (cartIds.length === 0) throw new Error('No reserved tickets to extend.')
+
+      await Promise.all(cartIds.map((cartId) => cartService.extendReservation(cartId)))
+    },
+    onSuccess: () => {
+      useCartStore.getState().startReservation()
+      toast.success('Reservation extended.')
     },
     onError: () => toast.error('Failed to extend reservation.'),
   })

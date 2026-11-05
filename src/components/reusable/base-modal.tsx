@@ -1,6 +1,5 @@
 import type { ReactNode } from 'react'
 import { useState, useLayoutEffect } from 'react'
-import { X } from 'lucide-react'
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden'
 import {
   Dialog,
@@ -10,8 +9,8 @@ import {
   DialogTitle,
   DialogDescription,
 } from '../ui/dialog'
-import { Button } from '../ui/button'
 import { cn } from '@/lib/utils'
+import { ConfirmOverlay } from './confirm-overlay'
 
 const sizeClasses = {
   small: 'sm:max-w-[415px]',
@@ -25,7 +24,13 @@ interface CustomModalProps {
   description?: string | React.ReactNode
   children: ReactNode
   className?: string
+  /** Styles the header wrapper — alignment, padding. */
   titleClassName?: string
+  /** Styles the title text itself. DialogTitle hardcodes text-lg/font-semibold,
+   *  which a class on the wrapper cannot override. */
+  titleTextClassName?: string
+  /** Overrides the close button's own classes — position, background, colour. */
+  cancelClassName?: string
   open?: boolean
   onClose?: (open: boolean) => void
   size?: keyof typeof sizeClasses
@@ -59,6 +64,8 @@ function BaseModal({
   onClose,
   size = 'small',
   titleClassName,
+  titleTextClassName,
+  cancelClassName,
   removeCancel = false,
   floatingCancel = false,
   hasFooter = false,
@@ -106,6 +113,7 @@ function BaseModal({
         overlayClassName={overlayClassName}
         noCancel={removeCancel}
         floatingCancel={floatingCancel}
+        cancelClassName={cancelClassName}
         slideFromBottom={slideFromBottom}
         onClick={(e) => e.stopPropagation()}
         onInteractOutside={(e) => {
@@ -115,8 +123,8 @@ function BaseModal({
           }
         }}
         cancelOnOverlay={cancelOnOverlay}>
-        <DialogHeader className={cn('w-full flex flex-col items-center justify-center font-input-mono', titleClassName)}>
-          <DialogTitle>
+        <DialogHeader className={cn('w-full shrink-0 flex flex-col items-center justify-center font-input-mono', titleClassName)}>
+          <DialogTitle className={titleTextClassName}>
             {title || <VisuallyHidden>{title || 'Modal Dialog'}</VisuallyHidden>}
           </DialogTitle>
           <DialogDescription>
@@ -124,42 +132,21 @@ function BaseModal({
           </DialogDescription>
         </DialogHeader>
 
-        <div className='flex flex-col transition-all duration-500 ease-[cubic-bezier(0.25,0.1,0.25,1)]'>{children}</div>
+        {/* flex-1/min-h-0 bounds the body to the modal's height; overflow-y-auto
+            then scrolls content that outgrows it rather than clipping it. */}
+        <div className='flex flex-col flex-1 min-h-0 overflow-y-auto transition-all duration-500 ease-[cubic-bezier(0.25,0.1,0.25,1)]'>{children}</div>
 
         {hasFooter && <div className='absolute bottom-0 right-0 z-10'>{footerContent}</div>}
 
-        {/* Confirmation overlay rendered on top of modal content */}
         {showConfirm && (
-          <div className='absolute inset-0 z-50 flex flex-col items-center justify-center bg-black/80 rounded-lg'>
-            <div className='relative bg-white pt-12 pb-6 rounded-2xl flex flex-col items-center gap-4 px-8 w-full max-w-[350px]'>
-              <button
-                type='button'
-                className='absolute top-3 right-3 text-[#1E1E1E] hover:text-black'
-                onClick={() => setShowConfirm(false)}>
-                <X size={24} />
-              </button>
-              <p className='text-black text-center text-xl font-semibold font-sf-pro-display'>
-                {confirmCloseTitle}
-              </p>
-              <p className='text-[#1E1E1E] text-sm font-inter '>
-                {confirmCloseMessage}
-              </p>
-              <div className='flex gap-4 mt-4'>
-                <Button
-                  variant='link'
-                  className='bg-[#EBC8C8] text-[#AE2323] font-sf-pro-display px-8'
-                  onClick={handleConfirmClose}>
-                  {confirmCloseConfirmText}
-                </Button>
-                <Button
-                  variant='default'
-                  className='font-sf-pro-display px-8'
-                  onClick={() => setShowConfirm(false)}>
-                  {confirmCloseCancelText}
-                </Button>
-              </div>
-            </div>
-          </div>
+          <ConfirmOverlay
+            title={confirmCloseTitle}
+            message={confirmCloseMessage}
+            confirmText={confirmCloseConfirmText}
+            cancelText={confirmCloseCancelText}
+            onConfirm={handleConfirmClose}
+            onCancel={() => setShowConfirm(false)}
+          />
         )}
       </DialogContent>
     </Dialog>

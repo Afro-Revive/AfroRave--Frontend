@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, Clock } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { ChevronLeft } from "lucide-react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useGetEvent } from "@/hooks/use-event-mutations";
 import {
@@ -11,26 +12,58 @@ import {
 import OrderCard from "../components/order-card";
 import { LoadingFallback } from "@/components/loading-fallback";
 import {
-  daysUntilEvent,
   formatEventDate,
   formatShortDate,
   formatTimeLong,
   formatTimezone,
+  getEventSocialLinks,
+  isGroupTicket,
+  resaleBlockedReason,
+  toAbsoluteUrl,
+  transferBlockedReason,
+  type EventSocials as EventSocialsData,
+  type EventSocialPlatform,
 } from "@/lib/helper-func";
-import { useUserActiveTickets } from "@/hooks/use-profile-mutations";
+import { BiGroup } from "react-icons/bi";
+import {
+  useUserActiveTickets,
+  useUserPastTickets,
+} from "@/hooks/use-profile-mutations";
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import OrderDetailsModal from "../components/order-details-modal";
 import TicketResaleModal from "@/pages/fans/my-tickets/tickets-resale/modals/ticket-resale";
 import TicketTransferModal from "@/pages/fans/my-tickets/tickets-transfer";
+import { Socials, type ISocials } from "@/layouts/components/socials";
+import { IoLogoInstagram } from "react-icons/io5";
+import { FaXTwitter, FaTiktok, FaFacebookF } from "react-icons/fa6";
+import type { IconType } from "react-icons";
+import { BsInfoCircle } from "react-icons/bs";
 
-type EnrichedPurchase = {
+type OrderLineItem = {
+  ticketId: string;
+  ticketName: string;
+  quantity: number;
+  groupSize?: number;
+};
+
+type EnrichedOrder = {
   orderId: string;
   purchaseDate: string;
   quantity: number;
-  ticketName: string;
-  ticketId: string;
+  items: OrderLineItem[];
 };
+
+/**
+ * Group size worth showing. Falls back to the size alone when the API omits
+ * ticketType, and ignores a size of 1 since that admits one person like any other.
+ */
+function groupSizeOf(ticket: UserTicketTicketDetails): number | undefined {
+  const size = ticket.groupSize ?? 0;
+  return isGroupTicket(ticket) && size > 1 ? size : undefined;
+}
+
+const EVENT_ENDED = "This event has already ended";
 
 export default function IndividualActiveTicketsPage() {
   const { eventId } = useParams<{ eventId: string }>();
@@ -43,33 +76,69 @@ export default function IndividualActiveTicketsPage() {
   const { data: eventResponse, isLoading: isLoadingEvent } = useGetEvent(
     eventId!,
   );
-  const { data: activeTicketResponse, isLoading: isLoadingTickets } =
+  const { data: activeTicketResponse, isLoading: isLoadingActiveTickets } =
     useUserActiveTickets();
+  const { data: pastTicketResponse, isLoading: isLoadingPastTickets } =
+    useUserPastTickets();
 
   const eventDetails = eventResponse?.data as EventDetailData | undefined;
   const activeTickets =
     (activeTicketResponse?.data as unknown as PaginatedResponse<UserTicketData>)
       ?.items ?? [];
+  const pastTickets =
+    (pastTicketResponse?.data as unknown as PaginatedResponse<UserTicketData>)
+      ?.items ?? [];
+
   const activeEvent = activeTickets.find((t) => t.eventId === eventId);
+  const pastEvent = pastTickets.find((t) => t.eventId === eventId);
+  // Fall back to the past ticket so ended events still render their details,
+  // just with the ticket actions disabled.
+  const ticketEvent = activeEvent ?? pastEvent;
+  const isPastEvent = !activeEvent && !!pastEvent;
+
   const ticketDetails: UserTicketTicketDetails[] =
-    activeEvent?.ticketDetails ?? [];
+    ticketEvent?.ticketDetails ?? [];
+  // With one ticket, a blocked ticket turns its button off. With more, the
+  // buttons stay on and the modals fade whichever can't be resold or sent.
+  const onlyTicket = ticketDetails.length === 1 ? ticketDetails[0] : undefined;
 
-  const allPurchaseHistory: EnrichedPurchase[] = ticketDetails.flatMap((t) =>
-    t.purchaseHistory.map((ph) => ({
-      ...ph,
-      ticketName: t.ticketName,
-      ticketId: t.ticketId,
-    })),
-  );
+  const ordersById = new Map<string, EnrichedOrder>();
+  for (const ticket of ticketDetails) {
+    for (const ph of ticket.purchaseHistory) {
+      const lineItem: OrderLineItem = {
+        ticketId: ticket.ticketId,
+        ticketName: ticket.ticketName,
+        quantity: ph.quantity,
+        groupSize: groupSizeOf(ticket),
+      };
 
-  const selectedOrder = allPurchaseHistory.find(
-    (ph) => ph.orderId === selectedOrderId,
-  );
+      const order = ordersById.get(ph.orderId);
+      if (!order) {
+        ordersById.set(ph.orderId, {
+          orderId: ph.orderId,
+          purchaseDate: ph.purchaseDate,
+          quantity: ph.quantity,
+          items: [lineItem],
+        });
+        continue;
+      }
 
-  const isLoading = isLoadingEvent || isLoadingTickets;
+      // Guard against the same ticket type appearing twice in one order.
+      if (order.items.some((i) => i.ticketId === lineItem.ticketId)) continue;
 
-  const eventStartDate = activeEvent?.eventStartDate ?? "";
-  const eventEndDate = activeEvent?.eventEndDate ?? "";
+      order.items.push(lineItem);
+      order.quantity += lineItem.quantity;
+    }
+  }
+  const orders = [...ordersById.values()];
+
+  const selectedOrder = orders.find((o) => o.orderId === selectedOrderId);
+
+  const isLoading =
+    isLoadingEvent || isLoadingActiveTickets || isLoadingPastTickets;
+
+  const eventStartDate = ticketEvent?.eventStartDate ?? "";
+  const eventEndDate = ticketEvent?.eventEndDate ?? "";
   const isEventMultiDay = eventStartDate !== eventEndDate;
   const eventDate = isEventMultiDay
     ? `${formatEventDate(eventStartDate)} - ${formatEventDate(eventEndDate)}`
@@ -82,113 +151,154 @@ export default function IndividualActiveTicketsPage() {
   }
 
   return (
-    <section className="w-full flex flex-col items-center justify-center gap-[42px] mt-10 ">
+    <section className="w-full flex flex-col items-center justify-center md:gap-[10px] md:mt-10 mt-4 ">
       <Button
         onClick={() => navigate(-1)}
         variant="ghost"
-        className="ml-5 md:ml-[50px] self-start w-fit hover:bg-white/10"
+        className=" md:ml-[50px] self-start w-fit h-auto p-2 hover:bg-white/10"
       >
-        <ChevronLeft color="#ffffff" className="w-[14px] h-[30px]" />
+        <ChevronLeft color="#ffffff" className="size-10" />
       </Button>
 
-      <div className="container px-5 md:px-[60px] flex flex-col ">
-        <div className="flex flex-col md:flex-row gap-3 mb-10">
-          <div className="w-fit h-fit relative">
+      <div className="container px-5 md:px-[60px] flex flex-col">
+        <div className="flex flex-col gap-8 md:grid md:grid-cols-[auto_minmax(0,1fr)] md:items-start md:gap-x-10 md:gap-y-6 mb-10">
+          {/* Event card — same treatment as the fans event card, scaled up. */}
+          <div className="relative flex flex-col justify-end overflow-hidden rounded-2xl border border-white/10 aspect-[5/7] w-full max-w-[360px] md:w-[300px] lg:w-[360px] shrink-0 md:col-start-1 md:row-start-1">
             <img
-              src={activeEvent?.desktopMedia?.flyer}
-              alt={activeEvent?.eventName}
-              className="w-[200px] h-[256px] rounded-[10px]"
+              src={ticketEvent?.desktopMedia?.flyer}
+              alt={ticketEvent?.eventName}
+              className="absolute inset-0 w-full h-full object-cover"
             />
-            <span className="absolute w-6 h-[18px] top-1.5 right-1 bg-medium-gray/80 font-sf-pro-rounded text-[10px] text-center rounded-[10px]">
-              {allPurchaseHistory.length}
-            </span>
-          </div>
 
-          <div className="flex flex-col gap-3">
-            <div className="flex flex-col gap-2 py-3 px-1">
-              <p className="uppercase text-xl font-sf-pro-display font-bold">
-                {activeEvent?.eventName}
+            <div className="absolute inset-x-0 bottom-0 h-3/5 bg-gradient-to-t from-black via-black/75 to-transparent" />
+
+            <div className="absolute inset-x-0 bottom-[10%] flex flex-col gap-2 p-5">
+              <p className="font-inter-tight text-xl md:text-2xl font-black text-white capitalize leading-tight">
+                {ticketEvent?.eventName}
               </p>
-              <p className="text-sm font-sf-pro-display">
-                {activeEvent?.eventVenue}
+              <p className="font-inter-tight text-sm text-white/85 leading-snug">
+                {ticketEvent?.eventVenue}
               </p>
-              <p className="text-sm font-sf-pro-display">
+              <p className="font-inter-tight text-sm text-white/85 leading-snug">
                 {eventDate} at{" "}
                 {formatTimeLong(eventDetails?.eventDate?.startTime ?? "")} (
                 {formatTimezone(eventDetails?.eventDate?.timezone ?? "")})
               </p>
             </div>
+          </div>
 
-            <p className="py-2 px-3 flex items-center gap-1 bg-mid-dark-gray/50 rounded-[10px] max-w-[132px] w-fit h-8 text-xs font-medium font-sf-pro-display">
-              <Clock size={12} />
-              Starts in {daysUntilEvent(eventStartDate)} Days
+          <div className="flex flex-col w-full min-w-0 md:col-start-2 md:row-start-1 md:row-span-2">
+            <div className="flex flex-col gap-3 mb-10">
+              <p className="font-inter-tight font-bold py-1 md:text-xl text-lg">
+                Your Orders
+              </p>
+              <p className="font-inter-tight font-light text-sm">
+                View and manage all the tickets you've purchased.
+              </p>
+              <div className="flex flex-wrap gap-3">
+                {orders.map((item, index) => (
+                  <OrderCard
+                    key={item.orderId}
+                    orderDate={formatShortDate(item.purchaseDate)}
+                    quantity={item.quantity}
+                    index={index}
+                    orderId={item.orderId}
+                    isSelected={selectedOrderId === item.orderId}
+                    onClick={() =>
+                      setSelectedOrderId((prev) =>
+                        prev === item.orderId ? null : item.orderId,
+                      )
+                    }
+                    onViewOrder={() => setReceiptOrderId(item.orderId)}
+                  />
+                ))}
+              </div>
+            </div>
+
+            <OtherActions
+              onSell={() => setResaleOpen(true)}
+              onTransfer={() => setTransferOpen(true)}
+              onUpgrade={() => {}}
+              sellDisabledReason={
+                isPastEvent
+                  ? EVENT_ENDED
+                  : onlyTicket && resaleBlockedReason(onlyTicket)
+              }
+              transferDisabledReason={
+                isPastEvent
+                  ? EVENT_ENDED
+                  : onlyTicket && transferBlockedReason(onlyTicket)
+              }
+            />
+
+            <AnimatePresence>
+              {selectedOrder && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.25 }}
+                  className="overflow-hidden"
+                >
+                  <div className="flex flex-col gap-2 pt-1">
+                    <p className="md:text-xl text-base font-inter-tight text-white tracking-wider">
+                      Tickets
+                    </p>
+                    <p className="md:text-sm text-xs font-inter-tight font-light capitalize text-white tracking-wider">
+                      all tickets in your order.
+                    </p>
+                    <div className="flex flex-wrap gap-3 mb-6">
+                      {selectedOrder.items.flatMap((line) =>
+                        Array.from({ length: line.quantity }).map((_, i) => (
+                          <div
+                            key={`${line.ticketId}-${i}`}
+                            className="w-fit min-w-[220px] rounded-md py-4 px-3 bg-secondary-white flex items-center text-left"
+                          >
+                            <div className="w-full flex flex-row items-center justify-between gap-4 text-black">
+                              <div className="flex items-center gap-2 min-w-0">
+                                {line.groupSize ? (
+                                  <span
+                                    title={`Admits ${line.groupSize} people`}
+                                    className="flex items-center gap-1 shrink-0 rounded-full text-green px-2 py-0.5 font-inter-tight text-xs font-bold"
+                                  >
+                                    <BiGroup className="w-5 h-5" />
+                                    {line.groupSize}
+                                  </span>
+                                ) : null}
+
+                                <p className="text-sm font-inter-tight font-bold capitalize truncate">
+                                  {line.ticketName}
+                                </p>
+                              </div>
+
+                              <BsInfoCircle className="w-4 h-4 shrink-0" />
+                            </div>
+                          </div>
+                        )),
+                      )}
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
+          {/* order-last on mobile; back under the card at md via explicit grid placement. */}
+          <div className="order-last md:order-none md:col-start-1 md:row-start-2 flex flex-col gap-4 md:py-4 py-2 md:px-6">
+            <p className="font-inter-tight font-bold md:text-xl text-lg">
+              Contact event Organizers
+            </p>
+
+            <EventSocials
+              socials={eventDetails?.eventDetails?.socials}
+              contact={eventDetails?.eventDetails?.eventContact}
+            />
+            <p className="max-w-xs w-fit font-inter-tight text-xs font-bold">
+              Your event QR Code is only available in the Afrorevive app.
+              Download the app to view your QR code and scan it for check-in
             </p>
           </div>
         </div>
-
-        <div className="flex flex-col gap-3 mb-10">
-          <p className="uppercase font-sf-pro-display font-medium py-1">
-            Your Orders
-          </p>
-
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
-            {allPurchaseHistory.map((item, index) => (
-              <OrderCard
-                key={item.orderId}
-                orderDate={formatShortDate(item.purchaseDate)}
-                orderTime={formatTimeLong(item.purchaseDate)}
-                quantity={item.quantity}
-                index={index}
-                orderId={item.orderId}
-                isSelected={selectedOrderId === item.orderId}
-                onClick={() =>
-                  setSelectedOrderId((prev) =>
-                    prev === item.orderId ? null : item.orderId,
-                  )
-                }
-                onViewOrder={() => setReceiptOrderId(item.orderId)}
-              />
-            ))}
-          </div>
-        </div>
-
-        <OtherActions
-          onSell={() => setResaleOpen(true)}
-          onTransfer={() => setTransferOpen(true)}
-          onUpgrade={() => {}}
-        />
-
-        <AnimatePresence>
-          {selectedOrder && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.25 }}
-              className="overflow-hidden"
-            >
-              <div className="flex flex-col gap-2 pt-1">
-                <p className="md:text-base text-sm uppercase font-sf-pro-display text-white tracking-wider">
-                  Tickets
-                </p>
-                <div className="flex flex-wrap gap-3 mb-6">
-                  {Array.from({ length: selectedOrder.quantity }).map(
-                    (_, i) => (
-                      <div
-                        key={i}
-                        className="w-fit rounded-md py-4 px-10 bg-secondary-white flex items-center text-left"
-                      >
-                        <p className="text-sm font-sf-pro-display capitalize text-black">
-                          {selectedOrder.ticketName}
-                        </p>
-                      </div>
-                    ),
-                  )}
-                </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
 
         <OrderDetailsModal
           isOpen={!!receiptOrderId}
@@ -213,25 +323,89 @@ export default function IndividualActiveTicketsPage() {
   );
 }
 
+type EventContactData = EventDetailData["eventDetails"]["eventContact"];
+
+const SOCIAL_ICONS: Record<EventSocialPlatform, IconType> = {
+  instagram: IoLogoInstagram,
+  x: FaXTwitter,
+  tiktok: FaTiktok,
+  facebook: FaFacebookF,
+};
+
+function EventSocials({
+  socials,
+  contact,
+}: {
+  socials?: Partial<EventSocialsData>;
+  contact?: EventContactData;
+}) {
+  const links: ISocials[] = getEventSocialLinks(socials).map(
+    ({ platform, alt, url }) => {
+      const Icon = SOCIAL_ICONS[platform];
+      return { href: url, alt, icon: <Icon className="w-6 h-6" /> };
+    },
+  );
+
+  const website = contact?.website?.trim();
+  const email = contact?.email?.trim();
+
+  // Icons when the organizer shared socials, otherwise fall back to whatever
+  // contact detail they did give.
+  return links.length > 0 ? (
+    <Socials data={links} className="w-fit justify-start gap-3" />
+  ) : website ? (
+    <a
+      href={toAbsoluteUrl(website, "https://")}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="font-inter-tight text-sm text-white/85 underline w-fit hover:text-white"
+    >
+      {website}
+    </a>
+  ) : email ? (
+    <a
+      href={`mailto:${email}`}
+      className="font-inter-tight text-sm text-white/85 underline w-fit hover:text-white"
+    >
+      {email}
+    </a>
+  ) : (
+    <p className="font-inter-tight text-sm text-white/60">
+      This organizer hasn't shared any contact details.
+    </p>
+  );
+}
+
 export interface otherActionProps {
   onSell: () => void;
   onTransfer: () => void;
   onUpgrade: () => void;
+  /** Why Resell is off. Set, the button is disabled with this as its tooltip. */
+  sellDisabledReason?: string;
+  /** The same for Transfer. */
+  transferDisabledReason?: string;
 }
 
-function OtherActions({ onSell, onTransfer }: otherActionProps) {
+function OtherActions({
+  onSell,
+  onTransfer,
+  sellDisabledReason,
+  transferDisabledReason,
+}: otherActionProps) {
   const actions = [
     {
-      icon: "/assets/dashboard/sell.png",
-      name: "SELL",
+      icon: "/assets/resell/ticket-icon.svg",
+      name: "Resell",
       description: "Sell tickets at your own price",
       action: onSell,
+      disabledReason: sellDisabledReason,
     },
     {
-      icon: "/assets/dashboard/transfer.png",
-      name: "TRANSFER",
+      icon: "/assets/resell/transfer_icon.svg",
+      name: "Transfer",
       description: "Send tickets and items to anyone",
       action: onTransfer,
+      disabledReason: transferDisabledReason,
     },
     // {
     //   icon: "/assets/dashboard/upgrade.png",
@@ -242,18 +416,27 @@ function OtherActions({ onSell, onTransfer }: otherActionProps) {
   ];
 
   return (
-    <div className="flex flex-wrap gap-3 font-sf-pro-rounded mb-10">
+    <div className="flex md:flex-wrap gap-3 font-sf-pro-rounded mb-10">
       {actions.map((item) => (
         <button
           key={item.name}
           type="button"
           onClick={item.action}
-          className="w-[172px] h-18 flex flex-col justify-between gap-1 p-2 bg-medium-gray rounded-[10px] text-left"
+          disabled={!!item.disabledReason}
+          title={item.disabledReason}
+          className={cn(
+            "w-fit h-fit flex flex-col justify-between gap-1 p-2 bg-tech-blue rounded-[10px] text-left",
+            item.disabledReason && "opacity-40 cursor-not-allowed",
+          )}
         >
-          <img src={item.icon} alt={item.name} className="size-3" />
-          <div className="flex flex-col gap-0.5">
-            <p className="font-bold text-xs">{item.name}</p>
-            <p className="text-[10px]">{item.description}</p>
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center justify-between gap-2">
+              <p className="font-bold font-inter-tight text-sm">{item.name}</p>
+              <img src={item.icon} alt={item.name} className="md:size-6 size-4" />
+            </div>
+            <p className="font-inter-tight font-bold text-xs">
+              {item.description}
+            </p>
           </div>
         </button>
       ))}

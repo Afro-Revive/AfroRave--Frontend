@@ -1,6 +1,11 @@
 import * as React from "react";
 
-const MOBILE_BREAKPOINT = 768;
+/**
+ * The exact query behind the `md:` variant in index.css. Keep the two in step:
+ * a tablet in portrait counts as mobile, the same tablet in landscape does not.
+ */
+const DESKTOP_QUERY =
+  "(min-width: 1025px), (min-width: 768px) and (orientation: landscape)";
 
 export function useIsMobile() {
   const [isMobile, setIsMobile] = React.useState<boolean | undefined>(
@@ -8,12 +13,12 @@ export function useIsMobile() {
   );
 
   React.useEffect(() => {
-    const mql = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`);
-    const onChange = () => {
-      setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);
-    };
+    const mql = window.matchMedia(DESKTOP_QUERY);
+    // Read mql.matches rather than re-deriving from innerWidth, so this can't
+    // drift from the CSS and so rotating a tablet is picked up as a change.
+    const onChange = () => setIsMobile(!mql.matches);
     mql.addEventListener("change", onChange);
-    setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);
+    setIsMobile(!mql.matches);
     return () => mql.removeEventListener("change", onChange);
   }, []);
 

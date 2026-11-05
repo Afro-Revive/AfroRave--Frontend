@@ -48,7 +48,7 @@ export default function VendorSlotDetailsPage() {
 
   function onSlotSecured() {
     toast.success('Slot secured!')
-    queryClient.invalidateQueries({ queryKey: eventKeys.vendorApplications() })
+    queryClient.invalidateQueries({ queryKey: eventKeys.myVendorApplications() })
     queryClient.invalidateQueries({ queryKey: eventKeys.vendorSummary() })
   }
 

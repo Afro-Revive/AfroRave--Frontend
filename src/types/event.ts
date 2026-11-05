@@ -23,10 +23,10 @@ export interface EventDate {
   timezone: string
   startDate: string
   endDate: string
-  frequency: 'Daily' | 'Weekly' | 'Monthly' | undefined
   startTime: string
   endTime: string
-  occurance: number | undefined
+  /** Required by the API. Always 'Once' now that season events are gone. */
+  frequency: 'Once'
 }
 
 export interface CreateEventRequest {
@@ -36,20 +36,35 @@ export interface CreateEventRequest {
   venue: string
   description: string
   customUrl: string
+  posterUrl: string
   eventDate: EventDate
   eventDetails: EventDetails
+  accessType: 'Public' | 'Private'
+  accessDeadline?: string
 }
 
 // Event Data Types
 export interface EventData {
+  accessDeadline: string
+  accessType: string
+  availableSlots: number
+  category: string
   eventId: string
   eventName: string
   venue: string
   startDate: string
   startTime: string
   endDate: string
+  hasResaleTickets: boolean
+  isApplicationEnded: boolean
+  isApplicationPaused: boolean
+  eventCategory: string
   isPublished: boolean
   customUrl: string
+  posterUrl: string
+  stage: string
+  ticketSold: number
+  totalTicket: number
   metadata: {
     termsOfRefund: string
     eventContact: {
@@ -74,6 +89,33 @@ export interface EventData {
 
 export type EventsResponse = ApiResponse<EventData>
 
+/** Query params for GET /api/Event, the public list of published events. */
+export interface EventListParams {
+  pageNumber?: number
+  pageSize?: number
+  /** Matches the event name and venue. */
+  search?: string
+  /** One category, matched exactly (case-insensitive): 'concert', not 'Concerts & Festivals'. */
+  category?: string
+  hasResaleTickets?: boolean
+  /** Ended events are left out unless this is true. */
+  includeEnded?: boolean
+  /**
+   * 'YYYY-MM-DD'. Events running that day: one that spans it counts, not only
+   * one that starts on it.
+   */
+  date?: string
+  /**
+   * 'YYYY-MM-DD'. Events running at any point between the two: one that
+   * overlaps the range counts. Sent together, they win over `date`.
+   */
+  startDate?: string
+  endDate?: string
+  // Naira. Events with at least one ticket priced in the range; free events count as 0.
+  minPrice?: number
+  maxPrice?: number
+}
+
 // Detailed Event Data for GET /api/Event/{eventId}
 export interface EventDetailData {
   eventId: string
@@ -82,8 +124,10 @@ export interface EventDetailData {
   description: string
   ageRating: 'PG' | '16+' | '18+'
   customUrl: string
+  posterUrl: string
   category: string
   isPublished: boolean
+  accessType?: string
   eventDate: {
     startDate: string
     endDate: string
@@ -97,20 +141,27 @@ export interface EventDetailData {
     termsOfRefund: string
     eventContact: { email: string; website: string }
     socials: {
-      instagram: 'string'
-      x: 'string'
-      tiktok: 'string'
-      facebook: 'string'
+      instagram: string
+      x: string
+      tiktok: string
+      facebook: string
     }
 
     desktopMedia: { flyer: string; background: string } | null
     theme: { themeName: 'default' | 'standard-carousel' | 'with-flyer' }
+    posterUrl?: string
   }
   eventStat: {
     netProfit: number
     ticketSold: number
     totalTicket: number
+    totalDiscountValue: number
     activePromoCodes: number
+    confirmedVendors: number
+    pendingVendors: number
+    totalResale: number
+    usedPromocode: number
+    totalCheckedIn: number
   }
   isOnWatchlist?: boolean
 }
@@ -121,14 +172,24 @@ export type EventDetailResponse = ApiResponse<EventDetailData>
 export interface TicketData {
   ticketId: string
   ticketName: string
+  ticketType?: 'Single' | 'Group' | 'MultiDay'
+  accessType?: 'Free' | 'Paid' | 'Invite'
+  groupSize: number
+  purchaseLimit: number
   price: number
+  basePrice: number
+  salesPrice: number
+  resalePrice: number
+  soldQuantity: number
+  usedQuantity: number
+  fee: number
+  feePercentage: number
   quantity: number
   availableQuantity: number
   eventId: string
   eventName: string
-  ticketType?: 'Single' | 'Group' | 'MultiDay'
-  accessType?: 'Free' | 'Paid' | 'Invite'
   salesType?: 'Online' | 'Door'
+  validDays?: number
   description?: string
   ticketDetails?: {
     description?: string
@@ -173,9 +234,17 @@ export interface PromoCodeData {
   eventId: string
   eventName: string
   promoDetails: {
-    description: string
-    terms: string
-    restrictions: string
+    tickets: { id: string }[]
+    isMinimumSpend: boolean
+    minimumSpend: number
+    isMinimumTicket: boolean
+    minimumTicket: number
+    note: string | null
+    isPrivate: boolean
+    isPartnership: boolean
+    partnerName: string
+    commisionType: string
+    commission: number
   }
 }
 
@@ -273,17 +342,23 @@ export interface VendorSlotData {
   slotName: string | null
   slotNumber: number | null
   price: number | null
+  applicationDeadline: string | null
 }
 
 export interface VendorServiceData {
   serviceName: string | null
+  hasBudgetRange: boolean
   minBudget: number | null
   maxBudget: number | null
+  startTime: string | null
+  stopTime: string | null
   startDate: string | null
   endDate: string | null
+  applicationDeadline: string | null
 }
 
 export interface VendorContact {
+  useDifferentContactDetails?: boolean
   email: string | null
   phoneNumbers: string[] | null
 }
@@ -300,6 +375,10 @@ export interface CreateVendorRequest {
   description: string
   eventId: string
   vendorDetails: VendorDetails
+  hideSocialLinks: boolean
+  /** Sent back by edit only; a new slot gets its status from the server. */
+  status?: string
+  applicationDeadline: string
 }
 
 // Promo code creation interfaces
@@ -359,6 +438,46 @@ export interface CreateThemeRequest {
   eventId: string
 }
 
+// Event Resale Listings 
+export interface ResaleListingData {
+  id: string
+  ticketId: string
+  ticketName: string
+  price: number
+  quantity: number
+  sellersUserId: string
+  sellerName: string
+  status: 'Active' | 'Sold' | 'Cancelled'
+  createdDate: string
+}
+
+export type ResaleListingsResponse = ApiResponse<ResaleListingData[]>
+
+/**
+ * Normalized view-model for anything a fan can add to their cart, so UI does not
+ * have to branch on whether a row came from primary sale or the resale market.
+ */
+export interface PurchasableTicket {
+  /** Stable identity for cart lookups: the ticketId for primary, the listing id for resale. */
+  cartKey: string
+  accessType?: 'Free' | 'Paid' | 'Invite'
+  ticketId: string
+  /** Only set for resale rows — the specific listing being bought. */
+  listingId?: string
+  name: string
+  price: number
+  available: number
+  /** Max a single buyer may take. Falls back to `available` for resale listings. */
+  purchaseLimit: number
+  /** Fine print under the price. */
+  caption: string
+  /** People admitted per ticket. Only set when the ticket is a group ticket. */
+  groupSize?: number
+  /** Long-form copy shown in the ticket details modal. */
+  description?: string
+  source: 'primary' | 'resale'
+}
+
 // Vendor Available Events
 export interface VendorAvailableEventData {
   eventId: string
@@ -399,3 +518,55 @@ export interface VendorAvailableEventData {
 }
 
 export type VendorAvailableEventsResponse = ApiResponse<VendorAvailableEventData[]>
+
+
+export interface AnalyticsPromoCode {
+  codeName: string
+  promoCode: string
+  uses: number
+  grossSales: number
+  discountPercentage: number
+  discountType: string
+  netSales: number
+  commissions: number
+  partnerName: string | null
+}
+
+export interface EventAnalyticsData {
+    totalRevenue: number
+    totalNetRevenue: number
+    totalTicketsSold: number
+    totalTicketsCreated: number
+    totalTicketsIssued: number
+    totalAttendees: number
+    totalResales: number
+    totalRevenueFromVendors: number
+    totalVendors: number
+    totalNumberOfVendorsAccepted: number
+    allVendorsOnboarded: number
+    topVendorCategory: string
+    allVendorCategories: string[]
+    totalPromoCodesCreated: number
+    promoCodesUsed: number
+    discountTotal: number
+    topPartner: string
+    topPartnerComission: number
+    topPartnerNetSales: number
+    promoCodes?: AnalyticsPromoCode[]
+    audienceInsights: {
+      ageGroups: {
+        ageRange: string
+        count: number
+      }[]
+      genders: {
+        gender: string
+        count: number
+      }[]
+      locations: {
+        location: string
+        count: number
+      }[]
+    }
+}
+
+export type EventAnalyticsResponse = ApiResponse<EventAnalyticsData>
