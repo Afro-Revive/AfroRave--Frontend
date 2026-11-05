@@ -168,7 +168,7 @@ VendorEventDetailsPage
 │   ├── tap the row      details modal: price, description, slots left or work hours, apply-by date and time
 │   ├── revenue slot     green pill: + adds a stall up to the slots left, − takes one off
 │   ├── service offer    ₦ + "Up to ₦…" + (green once a price is in) adds it (capped at the top of the budget); then − takes it out
-│   └── or a pill        Requested (the row is read only), Closed, Paused or Sold out
+│   └── or a label       Requested (blue, the row is read only), Closed or Sold out (red), Paused (yellow)
 └── SlotCart             Your Slots, styled like the fans' CartSummaryFloat: Request + total, opens to the ×n lines
 ```
 

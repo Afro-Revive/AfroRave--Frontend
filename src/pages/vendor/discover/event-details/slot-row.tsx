@@ -22,10 +22,10 @@ import {
   type SlotAvailability,
 } from './slot-request'
 
-const UNAVAILABLE_LABELS: Record<Exclude<SlotAvailability, 'open'>, string> = {
-  closed: 'Closed',
-  paused: 'Paused',
-  sold_out: 'Sold out',
+const UNAVAILABLE_STYLES: Record<Exclude<SlotAvailability, 'open'>, { label: string; className: string }> = {
+  closed: { label: 'Closed', className: 'text-[#FF453A]' },
+  paused: { label: 'Paused', className: 'text-[#FFD60A]' },
+  sold_out: { label: 'Sold out', className: 'text-[#FF453A]' },
 }
 
 /**
@@ -86,7 +86,7 @@ export function SlotRow({ slot, eventEnded, quantityInCart, isRequested, onAddRe
               Requested
             </span>
           ) : availability !== 'open' ? (
-            <StatusPill label={UNAVAILABLE_LABELS[availability]} />
+            <UnavailableLabel availability={availability} className='pr-4' />
           ) : quantityInCart > 0 ? (
             <Counter
               label={title}
@@ -163,9 +163,11 @@ function CounterButton({
   )
 }
 
-function StatusPill({ label }: { label: string }) {
+/** Closed, Paused or Sold out as plain text, like Requested: red when it's gone, yellow when it may come back. */
+function UnavailableLabel({ availability, className }: { availability: Exclude<SlotAvailability, 'open'>; className?: string }) {
+  const { label, className: colorClassName } = UNAVAILABLE_STYLES[availability]
   return (
-    <span className='flex items-center justify-center h-12 px-5 rounded-full bg-mid-dark-gray font-sf-pro-rounded text-xs font-bold uppercase tracking-wide text-white/60'>
+    <span className={cn('flex items-center font-inter-tight text-xs font-bold uppercase tracking-wide', colorClassName, className)}>
       {label}
     </span>
   )
@@ -254,7 +256,7 @@ function SlotDetailsModal({
       <div className='flex flex-col gap-2 px-6 pb-6 font-inter-tight'>
         <div className='flex items-center gap-2'>
           {availability !== 'open' ? (
-            <StatusPill label={UNAVAILABLE_LABELS[availability]} />
+            <UnavailableLabel availability={availability} />
           ) : (
             <>
               <p className='text-base text-tech-blue'>{getSlotPriceLabel(slot)}</p>
