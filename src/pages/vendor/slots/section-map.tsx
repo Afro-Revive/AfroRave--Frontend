@@ -23,7 +23,7 @@ export function VendorSectionMap() {
 
     return (
         <div className="w-full p-4 bg-gray-50 rounded-xl border border-gray-200">
-            <h3 className="font-bold text-sm mb-4 text-gray-500 font-sf-pro-display">Section Map</h3>
+            <h3 className="font-bold text-sm mb-4 text-gray-500 font-inter-tight">Section Map</h3>
             <div className="grid grid-cols-4 sm:grid-cols-5 gap-1 w-full">
                 {sections.map((section, idx) => (
                     <div

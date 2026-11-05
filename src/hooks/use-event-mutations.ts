@@ -1,6 +1,7 @@
 import { eventKeys } from '@/lib/event-keys'
 import { apiErrorMessage } from '@/lib/api-error'
 import { eventService } from '@/services/event.service'
+import { vendorService } from '@/services/vendor.service'
 import type {
   CreateEventRequest,
   CreatePromoCodeRequest,
@@ -465,6 +466,25 @@ export function useGetEventResaleListings(eventId?: string, enabled = true) {
       return eventService.getEventResaleListings(eventId)
     },
     enabled: enabled && !!eventId,
+  })
+}
+
+// Same endpoint as useGetEventVendors, so it shares that cache entry.
+export function useGetVendorSlots(eventId: string) {
+  return useQuery({
+    queryKey: eventKeys.vendors(eventId || ''),
+    queryFn: () => {
+      if (!eventId) throw new Error('Event ID is required')
+      return vendorService.getVendorSlots(eventId)
+    },
+    enabled: !!eventId,
+  })
+}
+
+export function useGetVendorApplications() {
+  return useQuery({
+    queryKey: eventKeys.myVendorApplications(),
+    queryFn: () => vendorService.getVendorApplications(),
   })
 }
 

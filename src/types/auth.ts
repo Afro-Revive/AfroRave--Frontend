@@ -91,7 +91,11 @@ export interface User {
     category?: string | null
     vendorCategory?: string | null
     gallery?: string[] | null
+    aboutBusiness?: string | null
     businessData?: {
+      aboutBusiness?: string
+      gallary?: string
+      profilePicture?: string
       portfolio: {
         webUrl?: string
         fileUrl?: string

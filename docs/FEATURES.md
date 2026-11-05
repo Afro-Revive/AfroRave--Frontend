@@ -4,7 +4,8 @@ A plain-language list of everything the web app can do today, how important
 each feature is, and whether it actually works yet. Use it to know what's left
 before launch, what's safe to demo, and what to test.
 
-Last checked against the code on the `prod` branch, October 2026.
+Last checked against the code on the `prod` branch, October 2026. The vendor
+section (§3) was checked in November 2026, when the `vendors` branch merged.
 
 ---
 
@@ -15,7 +16,7 @@ Last checked against the code on the `prod` branch, October 2026.
 | **Fans** | 15 / 17 done | 10 / 11 | 1 / 4 | **86%** |
 | **Organizers** | 13 / 13 done | 23 / 27 | 5 / 16 | **83%** |
 | **Fans + Organizers** | **28 / 30 done (93%)** | 33 / 38 | 6 / 20 | **84%** |
-| Vendors (in progress on the `vendors` branch) | 2 / 4 done | 0 / 3 | — | 33% |
+| Vendors | 6 / 6 done | 6 / 6 | 2 / 3 | 97% |
 
 **How the overall % is worked out:**
 - A High feature counts 3 times as much as a Low one, and a Medium one twice as much.
@@ -38,8 +39,7 @@ how much they block launch:
 | 1 | Privacy Policy, Refund Policy, Terms and Conditions | Fans | 🚧 Coming soon | **Content.** Needed before taking real payments: payment providers and app stores ask for them. |
 | 2 | QR code for entry | Fans | 🟡 Partial | **Mobile app.** The QR is in the mobile app; the web app's app store links point nowhere until the apps are published. |
 
-Vendors have 2 more on the `vendors` branch: **Register For Slot** and
-**slot checkout**.
+Vendors have none left: every High priority vendor feature works (§3).
 
 ---
 
@@ -145,7 +145,7 @@ tables further down says where it stands today.
 
 | Work | Priority | What's needed |
 |---|---|---|
-| End-to-end test the organizer vendor tabs | 🟠 Medium | **Once the `vendors` branch is done.** Run the whole flow with real vendors: create a stall and an offer, vendors apply, review each applicant's page, accept and reject, pause and resume, and the secured counts and net profit. Expect some edits. |
+| End-to-end test the organizer vendor tabs | 🟠 Medium | **Now that the `vendors` branch is merged.** Run the whole flow with real vendors: create a stall and an offer, vendors apply, review each applicant's page, accept and reject, pause and resume, and the secured counts and net profit. Expect some edits. |
 | Attendee List tab | 🟠 Medium | Build it on `GET /api/Event/{eventId}/attendees`. |
 | Event guestlist: select a whole category | 🟠 Medium | Frontend only. |
 | Analytics Export | ⚪ Low | Frontend only. |
@@ -269,18 +269,26 @@ Three tabs: **Account**, **Payout** and **Settings**.
 
 ## 3. Vendors
 
-The vendor dashboard is still being built on the `vendors` branch. This is where
-it stands on `prod`. It will be rechecked after that branch is merged.
+The vendor dashboard was redesigned in November 2026 on the `vendors` branch,
+and merged into `prod`. How the code works: [VENDOR-SIDE.md](./VENDOR-SIDE.md).
 
 | Feature | Priority | Status | Notes |
 |---|---|---|---|
 | Vendor sign-up and registration callout | 🔴 High | ✅ Working | |
-| Discover events (`/vendor/discover`) | 🔴 High | ✅ Working | Real events. The bookmark and "…" buttons on each card do nothing. |
-| Event details for vendors | 🔴 High | 🟡 Partial | Real event, but the application deadline is hard-coded. **View Section Map** and **Register For Slot** do nothing. |
-| Slot details and checkout | 🔴 High | 🧪 Mock | Sample data. **Download** and **Checkout** do nothing. |
-| My Slots and Wishlist | 🟠 Medium | 🧪 Mock | Sample events. |
-| Profile | 🟠 Medium | 🟡 Partial | Shows your real details. The **upload button and gallery arrows** do nothing. |
-| Edit profile | 🟠 Medium | ⛔ Not working | **SAVE**, **Edit picture**, the inbox filters, **Mark all as read** and **Secure Slot** have no actions. |
+| Discover events (`/vendor/discover`) | 🔴 High | ✅ Working | Real events, searched by name. Each card shows slots left out of the total, like "12 / 20". |
+| Event page and requesting slots (`/vendor/discover/:eventId`) | 🔴 High | ✅ Working | The ticket page design: About Event, Available Slots, and Your Slots. Add stalls with + and −, propose a price for service offers, then Request sends them all. Rows and the cart match the fans' ticket rows and cart. Slots already requested, closed, paused or sold out say so. |
+| My Slots (`/vendor/slots`) | 🔴 High | ✅ Working | One card per request with its status (In Review, Approved, Slot Secured, Rejected, Expired, Completed). All / In Review / Approved / Ended filters, and an "n slots need payment" badge. |
+| A request's page (`/vendor/slots/:applicationId`) | 🔴 High | ✅ Working | The event, the slot, its details, and what to do next for each status, for revenue slots and service offers. |
+| Pay for an approved slot | 🔴 High | ✅ Working | **Pay now** calls `initialize-payment` and goes to Paystack, which charges the Amount Due (slot fee + platform fee) and sends the vendor back to the request's page, where the pay endpoint confirms the reference. |
+| Saved events | 🟠 Medium | ✅ Working | The bookmark on Discover and My Slots cards saves an event, or removes it when it's already saved, and the Saved Events toggle on Discover lists them. Unsave uses the new vendor endpoint, **to retest**. |
+| Withdraw a request | 🟠 Medium | ✅ Working | While it's in review, after a confirmation. The slot can be requested again afterwards. |
+| Profile card and summary (sidebar) | 🟠 Medium | ✅ Working | Business name, category, phone, email, saved events and slots secured from the API, and a "Finish setting up your profile" prompt. |
+| Profile: picture, bio, contact details, gallery | 🟠 Medium | ✅ Working | The redesigned modal's Profile tab. Photos upload to Cloudinary; Save sends the profile, and the gallery is replaced with the photos it's sent. |
+| Account details | 🟠 Medium | ✅ Working | Business name (read only), website, category, name, gender, birthday, country, state and phone. The backend added category, country, state and birthday, **to retest**. |
+| Change password | 🟠 Medium | ✅ Working | Settings tab: current, new and confirm new password, on `PATCH /api/profile/vendor/change-password`. |
+| Email notifications setting | ⚪ Low | ⛔ Not working | The checkbox isn't saved; the API has no setting for it. |
+| Contact organizer | ⚪ Low | ✅ Working | Emails the organizer once a slot is secured, or once a service offer is approved. |
+| View receipt | ⚪ Low | ✅ Working | Secured stalls only. Built from the application (slot fee, platform fee, total). |
 
 ---
 
@@ -307,18 +315,11 @@ pretends to. Rows run from High to Low priority.
 | Organizer settings | Email notifications checkbox | ⚪ Low | ⛔ Not working | Not saved. |
 | Sidebar → Tools | Seating Maps | ⚪ Low | 🚧 Coming soon | |
 
-Vendor dashboard buttons (on the `vendors` branch, rechecked after merge):
+Vendor dashboard buttons:
 
 | Where | Button or link | Priority | Status |
 |---|---|---|---|
-| Vendor event details | Register For Slot | 🔴 High | ⛔ Not working |
-| Vendor slot details | Checkout | 🔴 High | ⛔ Not working |
-| Vendor event details | View Section Map | 🟠 Medium | ⛔ Not working |
-| Vendor edit profile | SAVE, Edit picture | 🟠 Medium | ⛔ Not working |
-| Vendor discover | Card bookmark and "…" | ⚪ Low | ⛔ Not working |
-| Vendor slot details | Download | ⚪ Low | ⛔ Not working |
-| Vendor profile | Upload, gallery arrows | ⚪ Low | ⛔ Not working |
-| Vendor edit profile | Inbox filters, Mark all as read, Secure Slot | ⚪ Low | ⛔ Not working |
+| Vendor settings | Email notifications checkbox | ⚪ Low | ⛔ Not working |
 
 ---
 

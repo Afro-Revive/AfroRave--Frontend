@@ -1,54 +1,49 @@
 import { LoadingFallback } from '@/components/loading-fallback'
+import { VendorAuthGuard } from '@/components/auth/vendor-auth-guard'
 import { Suspense, lazy } from 'react'
-import type { RouteObject } from 'react-router-dom'
+import { Navigate, type RouteObject } from 'react-router-dom'
 import { getRoutePath } from './get-route-path'
 
 // Vendor routes
-const ProfilePage = lazy(() => import('../pages/vendor/profile'))
 const DiscoverPage = lazy(() => import('../pages/vendor/discover'))
-const WishlistPage = lazy(() => import('../pages/vendor/wishlist'))
-const VendorEventDetailsPage = lazy(() => import('../pages/vendor/discover/event-details'))
 const SlotsPage = lazy(() => import('../pages/vendor/slots'))
+const SlotDetailsPage = lazy(() => import('../pages/vendor/slots/slot-details'))
 
 export const vendor_dashboard_routes: RouteObject[] = [
   {
+    // The profile lives in the sidebar now. Login and the account menus still send
+    // vendors here, so it forwards to Discover.
     path: getRoutePath('vendor_profile'),
-    element: (
-      <Suspense fallback={<LoadingFallback />}>
-        <ProfilePage />
-      </Suspense>
-    ),
+    element: <Navigate to={getRoutePath('vendor_discover')} replace />,
   },
   {
     path: getRoutePath('vendor_discover'),
     element: (
-      <Suspense fallback={<LoadingFallback />}>
-        <DiscoverPage />
-      </Suspense>
-    ),
-  },
-  {
-    path: getRoutePath('vendor_wishlist'),
-    element: (
-      <Suspense fallback={<LoadingFallback />}>
-        <WishlistPage />
-      </Suspense>
-    ),
-  },
-  {
-    path: getRoutePath('vendor_event_details', { eventId: ':eventId' }),
-    element: (
-      <Suspense fallback={<LoadingFallback />}>
-        <VendorEventDetailsPage />
-      </Suspense>
+      <VendorAuthGuard>
+        <Suspense fallback={<LoadingFallback />}>
+          <DiscoverPage />
+        </Suspense>
+      </VendorAuthGuard>
     ),
   },
   {
     path: getRoutePath('vendor_slots'),
     element: (
-      <Suspense fallback={<LoadingFallback />}>
-        <SlotsPage />
-      </Suspense>
+      <VendorAuthGuard>
+        <Suspense fallback={<LoadingFallback />}>
+          <SlotsPage />
+        </Suspense>
+      </VendorAuthGuard>
     ),
-  }
+  },
+  {
+    path: getRoutePath('vendor_slot_details', { applicationId: ':applicationId' }),
+    element: (
+      <VendorAuthGuard>
+        <Suspense fallback={<LoadingFallback />}>
+          <SlotDetailsPage />
+        </Suspense>
+      </VendorAuthGuard>
+    ),
+  },
 ]

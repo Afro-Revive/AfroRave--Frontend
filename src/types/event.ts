@@ -482,6 +482,8 @@ export interface PurchasableTicket {
 export interface VendorAvailableEventData {
   eventId: string
   eventName: string
+  availableSlot: number;
+  totalSlots?: number
   venue: string
   category: string
   vendorType: string

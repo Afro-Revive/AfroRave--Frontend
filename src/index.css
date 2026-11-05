@@ -11,6 +11,8 @@
 @plugin "tailwind-scrollbar";
 
 @custom-variant dark (&:is(.dark *));
+/* Short screens below lg (an iPhone SE in Safari), where the vendor menu tightens up to fit without scrolling. */
+@custom-variant short (@media (width < 64rem) and (height <= 640px));
 
 /* Tablets in portrait take the phone layout; the same tablet in landscape
    takes the desktop one. Width alone can't separate them — a 9.7" iPad is
