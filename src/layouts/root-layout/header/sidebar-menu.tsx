@@ -326,7 +326,7 @@ const menuLinks = [
   { href: getRoutePath("blog"), name: "Blog" },
   { href: getRoutePath("creators"), name: "Creators" },
   { href: getRoutePath("support"), name: "Support" },
-  { href: getRoutePath("faq"), name: "FAQ" },
+  { href: getRoutePath("help_center"), name: "FAQ" },
 ];
 
 const socials = [

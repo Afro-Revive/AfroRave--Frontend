@@ -31,7 +31,7 @@ const footer_links: IFooterLinks[] = [
     title: 'Helpful Links',
     links: [
       { href: getRoutePath('home'), name: 'Discover events' },
-      { href: getRoutePath('support'), name: 'Support' },
+      { href: getRoutePath('help_center'), name: 'Support' },
     ],
   },
   {
