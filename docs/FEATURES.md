@@ -17,6 +17,7 @@ section (§3) was checked in November 2026, when the `vendors` branch merged.
 | **Organizers** | 13 / 13 done | 23 / 27 | 5 / 16 | **83%** |
 | **Fans + Organizers** | **28 / 30 done (93%)** | 33 / 38 | 6 / 20 | **84%** |
 | Vendors | 6 / 6 done | 6 / 6 | 2 / 3 | 97% |
+| **Whole app** | **34 / 36 done (94%)** | 39 / 44 | 8 / 23 | **86%** |
 
 **How the overall % is worked out:**
 - A High feature counts 3 times as much as a Low one, and a Medium one twice as much.
@@ -145,7 +146,7 @@ tables further down says where it stands today.
 
 | Work | Priority | What's needed |
 |---|---|---|
-| End-to-end test the organizer vendor tabs | 🟠 Medium | **Now that the `vendors` branch is merged.** Run the whole flow with real vendors: create a stall and an offer, vendors apply, review each applicant's page, accept and reject, pause and resume, and the secured counts and net profit. Expect some edits. |
+| End-to-end test the organizer vendor tabs | 🟠 Medium | **Now that the `vendors` branch is merged.** Checklist: [VENDOR-FLOW-TEST-CHECKLIST.md](./VENDOR-FLOW-TEST-CHECKLIST.md). Run the whole flow with real vendors: create a stall and an offer, vendors apply, review each applicant's page, accept and reject, pause and resume, and the secured counts and net profit. Expect some edits. |
 | Attendee List tab | 🟠 Medium | Build it on `GET /api/Event/{eventId}/attendees`. |
 | Event guestlist: select a whole category | 🟠 Medium | Frontend only. |
 | Analytics Export | ⚪ Low | Frontend only. |
