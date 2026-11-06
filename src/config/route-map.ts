@@ -25,6 +25,8 @@ export const ROUTE_PATHS = {
   refund_policy: '/fans/refund-policy',
   work_with_us: '/fans/work-with-us',
   support: '/fans/support',
+  /** The public help pages, for fans and creators alike. */
+  help_center: '/support',
   resale: '/fans/resale',
   individual_resale: '/fans/resale/:eventId',
   sell: '/fans/sell',
@@ -116,6 +118,7 @@ export interface RouteParams {
   refund_policy: never
   work_with_us: never
   support: never
+  help_center: never
   resale: never
   individual_resale: { eventId: string | number }
   sell: never
