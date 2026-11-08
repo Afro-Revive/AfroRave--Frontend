@@ -19,6 +19,7 @@ import {
   ALL_GUESTS_CATEGORY_ID,
   GUESTS_PER_PAGE,
   GUEST_LIMIT,
+  DEFAULT_GUEST_SORT,
   type GuestSort,
 } from './constant'
 import { PaginatedResponse } from '@/types'
@@ -36,7 +37,7 @@ export function GuestlistTab({
   // Default category is the implicit "All guests" category
   const [activeCategoryId, setActiveCategoryId] = useState<string>(ALL_GUESTS_CATEGORY_ID)
   const [search, setSearch] = useState('')
-  const [sort, setSort] = useState<GuestSort>('newest')
+  const [sort, setSort] = useState<GuestSort>(DEFAULT_GUEST_SORT)
   const [page, setPage] = useState(1)
 
   // Trails the field so typing doesn't fire a request per keystroke.

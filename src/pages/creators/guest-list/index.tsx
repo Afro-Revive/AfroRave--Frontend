@@ -17,7 +17,7 @@ import type {
 } from '@/types/guestlist'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { CreatorPageContainer, SelectedEventGate } from '../_components/selected-event-page'
-import type { GuestSort } from '../standalone/guestlist/constant'
+import { DEFAULT_GUEST_SORT, type GuestSort } from '../standalone/guestlist/constant'
 import { AddGuestCard } from './components/add-guest-card'
 import { EventGuestlistCard } from './components/event-guestlist-card'
 import { ImportGuestlistCard } from './components/import-guestlist-card'
@@ -32,7 +32,7 @@ export default function GuestListPage() {
 function EventGuestlist({ eventId }: { eventId: string }) {
   const [activeCategoryId, setActiveCategoryId] = useState<string>(ALL_CATEGORIES_ID)
   const [search, setSearch] = useState('')
-  const [sort, setSort] = useState<GuestSort>('newest')
+  const [sort, setSort] = useState<GuestSort>(DEFAULT_GUEST_SORT)
   const [page, setPage] = useState(1)
   const [selectedIds, setSelectedIds] = useState<string[]>([])
   // 'saved' lists who's on the event; 'import' is the table for changing that.

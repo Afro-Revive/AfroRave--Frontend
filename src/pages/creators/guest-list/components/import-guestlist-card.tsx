@@ -144,7 +144,7 @@ export function ImportGuestlistCard({
           value={sort}
           onChange={(value) => onSortChange(value as GuestSort)}
           placeholder='Newest first'
-          triggerClassName='h-11 w-auto min-w-[150px] shrink-0 rounded-lg border border-[#595959]/50 !bg-white px-3 font-inter-tight text-sm text-black'
+          triggerClassName='h-11 w-auto min-w-[150px] shrink-0 items-center rounded-lg border border-[#595959]/50 !bg-white px-3 py-0 font-inter-tight text-sm text-black'
         />
       </div>
 
