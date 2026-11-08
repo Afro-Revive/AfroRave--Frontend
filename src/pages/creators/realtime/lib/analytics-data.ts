@@ -1,5 +1,6 @@
 import { parseApiDate, stripUnderscores } from '@/lib/helper-func'
 import type { AnalyticsOrder, AnalyticsVendor, EventAttendee } from '@/types'
+import type { VendorSlot } from '@/types/vendor'
 import { addDays, differenceInCalendarDays, format, startOfDay } from 'date-fns'
 
 /** The label the API uses when it doesn't know (no age, gender or town on file). */
@@ -157,6 +158,21 @@ export function vendorStage(status?: string | null): VendorStage {
     default:
       return 'Requested'
   }
+}
+
+/**
+ * Whether an application is for a stall (Revenue) or a service offer. The
+ * analytics vendor list doesn't say, so it's matched by name to the event's
+ * slots: a stall's slotName, or an offer's serviceName.
+ */
+export function vendorKind(vendor: AnalyticsVendor, slots: VendorSlot[]): VendorSlot['vendorType'] | undefined {
+  const name = vendor.stallName?.trim().toLowerCase()
+  if (!name) return undefined
+  return slots.find((slot) => {
+    const details = slot.vendorDetails
+    const slotName = slot.vendorType === 'Revenue' ? details?.slotData?.slotName : details?.serviceData?.serviceName
+    return slotName?.trim().toLowerCase() === name
+  })?.vendorType
 }
 
 export function vendorStageCounts(vendors: AnalyticsVendor[]): Record<VendorStage, number> {

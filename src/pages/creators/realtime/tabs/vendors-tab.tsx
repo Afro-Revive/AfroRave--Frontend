@@ -1,5 +1,7 @@
 import { formatNaira } from '@/lib/format-price'
 import { formatShortDate, stripUnderscores } from '@/lib/helper-func'
+import { useVendorSlotsByType } from '@/hooks/use-vendor-mutation'
+import { useEventSelectorStore } from '@/stores'
 import type { AnalyticsVendor } from '@/types'
 import { BarList, SegmentedBar, STATUS } from '../components/analytics-charts'
 import { AnalyticsGate, type IAnalyticsTabProps } from '../components/analytics-state'
@@ -13,6 +15,7 @@ import {
 } from '../components/analytics-ui'
 import {
   VENDOR_STAGES,
+  vendorKind,
   vendorStage,
   vendorStageCounts,
   vendorsByCategory,
@@ -43,13 +46,22 @@ const STAGE_LABELS: Record<VendorStage, string> = {
 }
 
 export default function VendorsTab(props: IAnalyticsTabProps) {
+  // The event's slots, to tell stalls from service offers. The sidebar loads
+  // them too, so this is usually already cached.
+  const { selectedEventId } = useEventSelectorStore()
+  const { slots, isPending: isLoadingSlots } = useVendorSlotsByType(selectedEventId ?? '')
+
   return (
     <AnalyticsGate {...props}>
       {(data) => {
         const vendors = data.vendorList ?? []
         const stages = vendorStageCounts(vendors)
-        const securedValue = vendors
-          .filter((vendor) => vendorStage(vendor.status) === 'Secured')
+        // Only stalls bring in money: the organizer pays service vendors outside the app.
+        const stallRevenue = vendors
+          .filter(
+            (vendor) =>
+              vendorStage(vendor.status) === 'Secured' && vendorKind(vendor, slots) === 'Revenue',
+          )
           .reduce((sum, vendor) => sum + vendor.amount, 0)
         const categories = vendorsByCategory(vendors)
         // Newest first: the ones most likely to need a look.
@@ -65,7 +77,11 @@ export default function VendorsTab(props: IAnalyticsTabProps) {
                 value={stages.Requested.toLocaleString()}
                 caption={`${stages.Pending.toLocaleString()} more accepted, awaiting payment`}
               />
-              <StatTile label='Secured Slot Value' value={formatNaira(securedValue)} caption='Before the vendor’s fee' />
+              <StatTile
+                label='Revenue from Stalls'
+                value={isLoadingSlots ? '…' : formatNaira(stallRevenue)}
+                caption='Secured stalls only'
+              />
             </SummaryCard>
 
             {vendors.length === 0 ? (
@@ -111,6 +127,13 @@ export default function VendorsTab(props: IAnalyticsTabProps) {
                         ),
                       },
                       { header: 'Slot', cell: (vendor) => vendor.stallName || '—' },
+                      {
+                        header: 'Type',
+                        cell: (vendor) => {
+                          const kind = vendorKind(vendor, slots)
+                          return kind === 'Revenue' ? 'Stall' : kind === 'Service' ? 'Service' : '—'
+                        },
+                      },
                       { header: 'Qty', numeric: true, cell: (vendor) => vendor.quantity },
                       { header: 'Amount', numeric: true, cell: (vendor) => formatNaira(vendor.amount) },
                       { header: 'Applied', cell: (vendor) => formatShortDate(vendor.date) },
