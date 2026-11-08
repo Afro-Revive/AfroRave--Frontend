@@ -6,80 +6,79 @@ import { DateForm } from "@/components/shared/date-form";
 import { FormFieldWithCounter } from "@/components/shared/field-with-counter";
 import type { IBaseCheckbox } from "@/components/reusable/base-boolean-checkbox";
 import { BaseBooleanCheckbox } from "@/components/reusable/base-boolean-checkbox";
+import { BaseCheckbox } from "@/components/reusable/base-checkbox";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
+import type { TicketData } from "@/types";
+import { useState } from "react";
+import { useWatch, type UseFormReturn } from "react-hook-form";
+import { RiArrowUpSLine } from "react-icons/ri";
 import { PriceField } from "../../component/price-field";
 import type { TPromoCodeSchema } from "../../schemas/promo-code-schema";
-import type { UseFormReturn } from "react-hook-form";
-import type { TicketData } from "@/types";
-import { BaseCheckbox } from "@/components/reusable/base-checkbox";
-import { OnlyShowIf } from "@/lib/environment";
 
 /**
- * The promo code fields, used by the Promo Codes page. Create event used to
- * have a promo code step of its own; it's gone, and promo codes are set up
- * from that page instead.
+ * `onSubmit` adds the Remove and Create buttons under the fields, for when the
+ * form sits on the page itself rather than behind a Save button.
  */
 export function PromoCodeFormFields({
   form,
-  onSubmit,
-  isEditMode = false,
-  onCancel,
   eventTickets,
-  isCreating = false,
-  isEditing = false,
+  onSubmit,
+  onRemove,
+  isSubmitting = false,
 }: IPromoCodeFormFields) {
+  const [
+    spendMinimum,
+    ticketsMinimum,
+    isPartnership,
+    hasCommission,
+  ] = useWatch({
+    control: form.control,
+    name: [
+      "promoCodes.conditions.spend.minimum",
+      "promoCodes.conditions.tickets.minimum",
+      "promoCodes.partnership.partnershipCode",
+      "promoCodes.partnership.comission",
+    ],
+  });
+  // Open from the start when editing a code that already uses any of them.
+  const [showAdvanced, setShowAdvanced] = useState(
+    () =>
+      !!(spendMinimum || ticketsMinimum || isPartnership),
+  );
+
   return (
-    <>
-      <div className="flex flex-col gap-5 mb-5">
-        <FormFieldWithCounter
-          name="promo code"
-          field_name="promoCodes.code"
-          form={form}
-          className="font-normal"
-          maxLength={20}
-          showMessage
-        >
-          {(field) => (
-            <Input
-              className="uppercase"
-              {...field}
-              value={field.value == null ? "" : String(field.value)}
-            />
-          )}
-        </FormFieldWithCounter>
+    <div className="flex flex-col gap-6">
+      <FormFieldWithCounter
+        name="promo code"
+        field_name="promoCodes.code"
+        form={form}
+        className="font-normal"
+        maxLength={20}
+        showMessage
+      >
+        {(field) => (
+          <Input
+            className="uppercase"
+            {...field}
+            value={field.value == null ? "" : String(field.value)}
+          />
+        )}
+      </FormFieldWithCounter>
 
-        <FormField form={form} name="promoCodes.tickets" label="APPLY TO" showMessage>
-          {(field) => (
-            <>
-              {eventTickets?.map((item) => (
-                <BaseCheckbox
-                  key={item.eventName}
-                  data={{
-                    items: [{ label: item.ticketName, id: item.ticketId }],
-                  }}
-                  multiSelect={true}
-                  {...field}
-                />
-              ))}
-            </>
-          )}
-        </FormField>
-      </div>
-
-      <div className="grid md:grid-cols-2 gap-5 items-end">
+      <div className="grid md:grid-cols-2 gap-5 items-start">
         <div className="flex flex-col gap-2">
-          <p className="text-sm font-sf-pro-text font-medium text-system-black">
-            DISCOUNT VALUE
+          <p className="text-sm font-sf-pro-text font-medium text-system-black uppercase">
+            Discount value
           </p>
           <div className="grid grid-cols-2 gap-3">
-            <FieldText text="OFF" />
+            <FieldText text="% OFF" />
 
-            <FormField form={form} name="promoCodes.discount" className="mb-2" showMessage>
+            <FormField form={form} name="promoCodes.discount" showMessage>
               {(field) => (
                 <Input
                   type="number"
-                  className="w-full h-9"
+                  className="w-full text-center"
                   {...field}
                   value={field.value == null ? "" : String(field.value)}
                 />
@@ -92,13 +91,12 @@ export function PromoCodeFormFields({
           form={form}
           name="promoCodes.usageLimit"
           label="usage limit"
-          className="mb-2"
           showMessage
         >
           {(field) => (
             <Input
               type="number"
-              className="w-full h-9"
+              className="w-full"
               {...field}
               value={field.value == null ? "" : String(field.value)}
             />
@@ -106,13 +104,34 @@ export function PromoCodeFormFields({
         </FormField>
       </div>
 
-      <div className="flex flex-col my-5">
-        <FormField form={form} name="promoCodes.onePerCustomer">
-          {(field) => <BaseBooleanCheckbox data={checkboxData[0]} {...field} />}
-        </FormField>
-      </div>
+      {/* None picked means the code works on every ticket. */}
+      <FormField
+        form={form}
+        name="promoCodes.tickets"
+        label="APPLY TO"
+        showMessage
+      >
+        {(field) => (
+          <>
+            {eventTickets?.map((item) => (
+              <BaseCheckbox
+                key={item.ticketId}
+                data={{
+                  items: [{ label: item.ticketName, id: item.ticketId }],
+                }}
+                multiSelect={true}
+                {...field}
+              />
+            ))}
+          </>
+        )}
+      </FormField>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
+      <FormField form={form} name="promoCodes.onePerCustomer">
+        {(field) => <BaseBooleanCheckbox data={checkboxData.onePerCustomer} {...field} />}
+      </FormField>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <DateForm
           form={form}
           name="START DATE"
@@ -134,220 +153,182 @@ export function PromoCodeFormFields({
         />
       </div>
 
-      <div className="flex flex-col gap-4">
-        <FormField
-          form={form}
-          name="promoCodes.conditions.spend.minimum"
-          className=""
+      <div className="flex flex-col gap-5">
+        <button
+          type="button"
+          aria-expanded={showAdvanced}
+          onClick={() => setShowAdvanced((open) => !open)}
+          className="flex w-fit items-center gap-2 font-sf-pro-text text-sm font-bold uppercase text-system-black"
         >
-          {(field) => <BaseBooleanCheckbox data={checkboxData[1]} {...field} />}
-        </FormField>
+          <span className="flex size-6 items-center justify-center rounded-full bg-light-red/10 text-light-red">
+            <RiArrowUpSLine
+              className={cn("size-5 transition-transform", !showAdvanced && "rotate-180")}
+            />
+          </span>
+          Advanced options
+        </button>
 
-        <div className="mb-2">
-          <OnlyShowIf
-            condition={
-              form.getValues("promoCodes.conditions.spend.minimum") || false
-            }
-          >
-            <PriceField form={form} name="promoCodes.conditions.spend.amount" />
-          </OnlyShowIf>
-        </div>
-      </div>
+        {showAdvanced && (
+          <div className="flex flex-col gap-6">
+            <div className="flex flex-col gap-3">
+              <FormField form={form} name="promoCodes.conditions.spend.minimum">
+                {(field) => <BaseBooleanCheckbox data={checkboxData.spendMinimum} {...field} />}
+              </FormField>
 
-      <div className="flex flex-col gap-4">
-        <FormField form={form} name="promoCodes.conditions.tickets.minimum">
-          {(field) => <BaseBooleanCheckbox data={checkboxData[2]} {...field} />}
-        </FormField>
-
-        <div className="mb-2">
-          <OnlyShowIf
-            condition={
-              form.getValues("promoCodes.conditions.tickets.minimum") || false
-            }
-          >
-            <FormField
-              form={form}
-              name="promoCodes.conditions.tickets.quantity"
-              showMessage
-              label="TICKET QUANTITY"
-            >
-              {(field) => (
-                <Input
-                  className="w-full"
-                  type="number"
-                  {...field}
-                  value={field.value == null ? "" : String(field.value)}
+              {spendMinimum && (
+                <PriceField
+                  form={form}
+                  name="promoCodes.conditions.spend.amount"
+                  label="PRICE"
+                  showMessage
                 />
               )}
-            </FormField>
-          </OnlyShowIf>
-        </div>
-      </div>
+            </div>
 
-      <FormFieldWithCounter
-        name="NOTES"
-        field_name="promoCodes.notes"
-        form={form}
-        maxLength={250}
-        description="Optional"
-        showMessage
-      >
-        {(field) => (
-          <Textarea
-            placeholder="Add private notes to help you track the purpose or audience for this code (only you can see this)"
-            className="w-full h-[272px] text-black bg-white px-3 py-[11px] rounded-[4px] border border-mid-dark-gray/50 text-sm font-sf-pro-display"
-            {...field}
-            value={field.value == null ? "" : String(field.value)}
-          />
-        )}
-      </FormFieldWithCounter>
+            <div className="flex flex-col gap-3">
+              <FormField form={form} name="promoCodes.conditions.tickets.minimum">
+                {(field) => <BaseBooleanCheckbox data={checkboxData.ticketsMinimum} {...field} />}
+              </FormField>
 
-      <div className="flex flex-col mb-5">
-        <FormField form={form} name="promoCodes.partnership.partnershipCode">
-          {(field) => <BaseBooleanCheckbox data={checkboxData[4]} {...field} />}
-        </FormField>
-      </div>
-
-      <div className="flex flex-col gap-5">
-        <OnlyShowIf
-          condition={
-            form.getValues("promoCodes.partnership.partnershipCode") || false
-          }
-        >
-          <FormFieldWithCounter
-            form={form}
-            field_name="promoCodes.partnership.name"
-            name="NAME"
-            className=""
-            maxLength={20}
-            showMessage
-          >
-            {(field) => (
-              <Input
-                className="w-full uppercase border-mid-dark-gray/50"
-                {...field}
-                value={field.value == null ? "" : String(field.value)}
-              />
-            )}
-          </FormFieldWithCounter>
-
-          <div className="flex flex-col gap-1 mb-10">
-            <FormField
-              form={form}
-              name="promoCodes.partnership.comission"
-              className=""
-            >
-              {(field) => (
-                <BaseBooleanCheckbox data={checkboxData[5]} {...field} />
+              {ticketsMinimum && (
+                <FormField
+                  form={form}
+                  name="promoCodes.conditions.tickets.quantity"
+                  showMessage
+                  label="TICKET QUANTITY"
+                >
+                  {(field) => (
+                    <Input
+                      className="w-full"
+                      type="number"
+                      {...field}
+                      value={field.value == null ? "" : String(field.value)}
+                    />
+                  )}
+                </FormField>
               )}
-            </FormField>
+            </div>
 
-            <div className="mb-5">
-              <OnlyShowIf
-                condition={
-                  form.getValues("promoCodes.partnership.comission") || false
-                }
-              >
-                <div className="w-full grid grid-cols-2 gap-3">
-                  <div className="w-full h-9 flex items-center justify-center bg-[#E6E6E6] rounded-[4px] border border-mid-dark-gray/50 text-xs font-sf-pro-display text-[#686868]">
-                    % AFTER SALES
-                  </div>
+            <div className="flex flex-col gap-5">
+              <FormField form={form} name="promoCodes.partnership.partnershipCode">
+                {(field) => <BaseBooleanCheckbox data={checkboxData.partnershipCode} {...field} />}
+              </FormField>
 
-                  <FormField
+              {isPartnership && (
+                <>
+                  <FormFieldWithCounter
                     form={form}
-                    name="promoCodes.partnership.comissionRate"
+                    field_name="promoCodes.partnership.name"
+                    name="NAME"
+                    maxLength={20}
                     showMessage
                   >
                     {(field) => (
                       <Input
-                        type="number"
-                        className="w-full h-9 border-mid-dark-gray/50"
+                        className="w-full uppercase border-mid-dark-gray/50"
                         {...field}
                         value={field.value == null ? "" : String(field.value)}
                       />
                     )}
-                  </FormField>
-                </div>
-              </OnlyShowIf>
+                  </FormFieldWithCounter>
+
+                  <div className="flex flex-col gap-3">
+                    <FormField form={form} name="promoCodes.partnership.comission">
+                      {(field) => <BaseBooleanCheckbox data={checkboxData.comission} {...field} />}
+                    </FormField>
+
+                    {hasCommission && (
+                      <div className="w-full grid grid-cols-2 gap-3">
+                        <FieldText text="% AFTER SALES" />
+
+                        <FormField
+                          form={form}
+                          name="promoCodes.partnership.comissionRate"
+                          showMessage
+                        >
+                          {(field) => (
+                            <Input
+                              type="number"
+                              className="w-full text-center border-mid-dark-gray/50"
+                              {...field}
+                              value={field.value == null ? "" : String(field.value)}
+                            />
+                          )}
+                        </FormField>
+                      </div>
+                    )}
+                  </div>
+                </>
+              )}
             </div>
           </div>
-        </OnlyShowIf>
+        )}
       </div>
 
-      <div className="flex gap-3">
-        {onSubmit && (
+      {onSubmit && (
+        <div className="flex flex-wrap gap-3">
+          {onRemove && (
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={onRemove}
+              disabled={isSubmitting}
+              className="h-8 w-fit rounded-full px-4 text-xs font-bold font-sf-pro-text uppercase"
+            >
+              Remove promocode
+            </Button>
+          )}
+
           <Button
             type="button"
             onClick={onSubmit}
-            className="w-fit h-8 px-4 rounded-full text-xs font-semibold font-sf-pro-text text-white bg-black hover:bg-black/90"
-            disabled={isCreating || isEditing}
+            disabled={isSubmitting}
+            className="h-8 w-fit rounded-full bg-black px-4 text-xs font-bold font-sf-pro-text uppercase text-white hover:bg-black/90"
           >
-            {isEditMode
-              ? isEditing
-                ? "UPDATING PROMOCODE..."
-                : "UPDATE PROMO CODE"
-              : isCreating
-                ? "CREATING PROMOCODE..."
-                : "CREATE PROMO CODE"}
+            {isSubmitting ? "Creating promocode..." : "Create promocode"}
           </Button>
-        )}
-
-        {isEditMode && onCancel && (
-          <Button
-            type="button"
-            variant="destructive"
-            onClick={onCancel}
-            className="w-[120px] h-8 rounded-full text-xs font-semibold font-sf-pro-text text-charcoal border-mid-dark-gray/50"
-          >
-            CANCEL
-          </Button>
-        )}
-      </div>
-    </>
+        </div>
+      )}
+    </div>
   );
 }
 
 function FieldText({ text }: { text: string }) {
   return (
-    <p className="py-[11px] w-full h-9 flex items-center justify-center bg-[#acacac] rounded-[5px] border border-mid-dark-gray text-xs text-system-black font-sf-pro-text">
-      % {text}
+    <p className="w-full h-10 flex items-center justify-center bg-[#E6E6E6] rounded-[4px] border border-mid-dark-gray/50 text-xs font-sf-pro-display text-[#686868] uppercase">
+      {text}
     </p>
   );
 }
 
-const checkboxData: IBaseCheckbox[] = [
-  {
+const checkboxData: Record<string, IBaseCheckbox> = {
+  onePerCustomer: {
     description: "only 1 use per customer",
     items: { label: "limit per customer", id: "onePerCustomer" },
   },
-  {
+  spendMinimum: {
     description: "Only allow use if cart total exceeds this",
     items: { label: "minimum spend", id: "spendMinimum" },
   },
-  {
+  ticketsMinimum: {
     description: "Only allow use if tickets total exceeds this",
     items: { label: "minimum tickets", id: "purchasedMinimum" },
   },
-  {
-    description: "Promo code won't be displayed on the event page",
-    items: { label: "private", id: "private" },
-  },
-  {
-    description:
-      "Link this code to a partner or influencer for sales tracking.",
+  partnershipCode: {
+    description: "Link this code to a partner or influencer for sales tracking.",
     items: { label: "partnership code?", id: "partnershipCode" },
   },
-  {
+  comission: {
     items: { label: "commission", id: "comission" },
   },
-];
+};
 
 interface IPromoCodeFormFields {
   form: UseFormReturn<{ promoCodes: TPromoCodeSchema }>;
-  onSubmit?: () => void;
-  isEditMode?: boolean;
-  onCancel?: () => void;
   eventTickets?: TicketData[];
-  isCreating?: boolean;
-  isEditing?: boolean;
+  /** Shows the buttons under the fields; Create runs this. */
+  onSubmit?: () => void;
+  /** Remove clears the form. */
+  onRemove?: () => void;
+  isSubmitting?: boolean;
 }

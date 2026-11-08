@@ -46,7 +46,10 @@ import {
   CreatorPageContainer,
   SelectedEventGate,
 } from "../_components/selected-event-page";
-import { AppliedPromoCodesTable } from "./components/applied-promo-codes-table";
+import {
+  AppliedPromoCodesTable,
+  NoAppliedPromoCodes,
+} from "./components/applied-promo-codes-table";
 import { PromoCodeCard } from "./components/promo-code-card";
 import { PromocodeSummaryCard } from "./components/promo-code-summary";
 
@@ -166,6 +169,10 @@ function EventPromoCodes({
     });
   }
 
+  const items = promocodes?.items ?? [];
+  // No codes yet: the add form is on the page itself, instead of behind a button.
+  const hasNoCodes = !isLoading && !error && items.length === 0;
+
   if (isCreating || editing) {
     const isSaving = editing ? isUpdatingPromoCode : isCreatingPromoCode;
 
@@ -221,93 +228,127 @@ function EventPromoCodes({
         </div>
       </div>
       <div className="w-full flex flex-col gap-10 md:gap-14 pt-6 px-4 md:p-14">
-        <div className="flex flex-col gap-[13px]">
-
-          <PromocodeSummaryCard eventId={eventId} />
-
-          {/* The codes come first, then the section to add another. */}
-          {(() => {
-            if (isLoading) {
-              return (
-                <div className="w-full py-8 flex items-center justify-center rounded-2xl bg-white">
-                  <div className="text-center">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-deep-red mx-auto mb-2" />
-                    <p className="text-sm text-gray-600">
-                      Loading promocodes...
-                    </p>
-                  </div>
-                </div>
-              );
-            }
-
-            if (error) {
-              return (
-                <div className="w-full py-8 flex items-center justify-center rounded-2xl bg-white">
-                  <div className="text-center">
-                    <p className="text-sm text-red-600 mb-2">
-                      Failed to load promocodes. Please try again.
-                    </p>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => refetch()}
-                      className="text-xs"
-                    >
-                      Try Again
-                    </Button>
-                  </div>
-                </div>
-              );
-            }
-
-            const items = promocodes?.items ?? [];
-
-            // The list is its own section, only once there are codes; the
-            // section below always offers Add.
-            if (items.length === 0) return null;
-
-            return (
-              // Two per row on desktop; a partnership card spans the row.
-              <div className="w-full grid grid-cols-1 gap-3 md:grid-cols-2">
-                {items.map((promocode) => (
-                  <PromoCodeItem
-                    key={promocode.promocodeId}
-                    promocode={promocode}
-                    // A code nobody has used yet may not be in analytics at
-                    // all; the card counts that as zero.
-                    stats={statsByCode.get(promocode.promoCode.toLowerCase())}
-                    isUsageLoading={isUsageLoading}
-                    onEdit={() => openEdit(promocode)}
-                    onDelete={() => handleDeletePromocode(promocode.promocodeId)}
-                    isLoading={deletePromocodeMutation.isPending}
-                  />
-                ))}
-              </div>
-            );
-          })()}
-
-          <div className="flex flex-col rounded-2xl gap-3 bg-white px-6 py-5">
-            <div className="flex flex-row gap-2 items-center">
-              <TiStarburst size={24} className="text-light-red" />
-              <p className="font-inter-tight text-xl font-bold text-black">
-                Promo Codes
-              </p>
+        {hasNoCodes ? (
+          <div className="flex flex-col gap-[13px]">
+            <div className="flex flex-col rounded-2xl gap-5 bg-white px-6 py-5">
+              <SectionHeading
+                title="Add Promo Codes"
+                description="Create discount codes for this event."
+              />
+              <FormBase form={promocodeForm} onSubmit={() => {}}>
+                <PromoCodeFormFields
+                  form={promocodeForm}
+                  eventTickets={tickets?.items}
+                  onSubmit={() =>
+                    promocodeForm.handleSubmit(handleCreatePromoCode)()
+                  }
+                  onRemove={() =>
+                    promocodeForm.reset({ promoCodes: defaultPromoCodeValues })
+                  }
+                  isSubmitting={isCreatingPromoCode}
+                />
+              </FormBase>
             </div>
-            <p className="font-inter-tight font-medium text-sm text-[#464444] mb-4">
-              Create discount codes for this event.
-            </p>
-            <AddPromoCodeButton onClick={openCreate} className="w-fit" />
-          </div>
 
-          {(promocodes?.items?.length ?? 0) > 0 && (
-            <AppliedPromoCodesTable
-              promocodes={promocodes?.items ?? []}
-              tickets={tickets?.items ?? []}
-            />
-          )}
-        </div>
+            <NoAppliedPromoCodes />
+          </div>
+        ) : (
+          <div className="flex flex-col gap-[13px]">
+            <PromocodeSummaryCard eventId={eventId} />
+
+            {/* The codes come first, then the section to add another. */}
+            {(() => {
+              if (isLoading) {
+                return (
+                  <div className="w-full py-8 flex items-center justify-center rounded-2xl bg-white">
+                    <div className="text-center">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-deep-red mx-auto mb-2" />
+                      <p className="text-sm text-gray-600">
+                        Loading promocodes...
+                      </p>
+                    </div>
+                  </div>
+                );
+              }
+
+              if (error) {
+                return (
+                  <div className="w-full py-8 flex items-center justify-center rounded-2xl bg-white">
+                    <div className="text-center">
+                      <p className="text-sm text-red-600 mb-2">
+                        Failed to load promocodes. Please try again.
+                      </p>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => refetch()}
+                        className="text-xs"
+                      >
+                        Try Again
+                      </Button>
+                    </div>
+                  </div>
+                );
+              }
+
+              return (
+                // Two per row on desktop; a partnership card spans the row.
+                <div className="w-full grid grid-cols-1 gap-3 md:grid-cols-2">
+                  {items.map((promocode) => (
+                    <PromoCodeItem
+                      key={promocode.promocodeId}
+                      promocode={promocode}
+                      // A code nobody has used yet may not be in analytics at
+                      // all; the card counts that as zero.
+                      stats={statsByCode.get(promocode.promoCode.toLowerCase())}
+                      isUsageLoading={isUsageLoading}
+                      onEdit={() => openEdit(promocode)}
+                      onDelete={() => handleDeletePromocode(promocode.promocodeId)}
+                      isLoading={deletePromocodeMutation.isPending}
+                    />
+                  ))}
+                </div>
+              );
+            })()}
+
+            <div className="flex flex-col rounded-2xl gap-3 bg-white px-6 py-5">
+              <SectionHeading
+                title="Promo Codes"
+                description="Create discount codes for this event."
+              />
+              <AddPromoCodeButton onClick={openCreate} className="w-fit mt-1" />
+            </div>
+
+            {items.length > 0 && (
+              <AppliedPromoCodesTable
+                promocodes={items}
+                tickets={tickets?.items ?? []}
+              />
+            )}
+          </div>
+        )}
       </div>
     </CreatorPageContainer>
+  );
+}
+
+function SectionHeading({
+  title,
+  description,
+}: {
+  title: string;
+  description: string;
+}) {
+  return (
+    <div className="flex flex-col gap-3">
+      <div className="flex flex-row gap-2 items-center">
+        <TiStarburst size={24} className="text-light-red" />
+        <p className="font-inter-tight text-xl font-bold text-black">{title}</p>
+      </div>
+      <p className="font-inter-tight font-medium text-sm text-[#464444]">
+        {description}
+      </p>
+    </div>
   );
 }
 
