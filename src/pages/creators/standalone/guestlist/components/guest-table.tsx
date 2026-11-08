@@ -5,6 +5,9 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
@@ -18,8 +21,9 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { parseApiDate } from '@/lib/helper-func'
-import type { GuestListData } from '@/types/guestlist'
+import type { CategoryData, GuestListData } from '@/types/guestlist'
 import { EllipsisVertical, FolderMinus, LoaderCircle, Search, Trash2 } from 'lucide-react'
+import { RiFolderAddLine } from 'react-icons/ri'
 import {
   ALL_GUESTS_CATEGORY_ID,
   GUEST_COLUMNS,
@@ -48,6 +52,8 @@ export function GuestTable({
   totalCount,
   onPageChange,
   isFetching = false,
+  categories,
+  onAddToCategory,
   onRemoveFromCategory,
   onDeleteGuest,
 }: {
@@ -66,6 +72,9 @@ export function GuestTable({
   onPageChange: (page: number) => void
   /** Refetching an already-rendered page, as opposed to the first load. */
   isFetching?: boolean
+  /** The account's categories, offered under Add to category. */
+  categories: CategoryData[]
+  onAddToCategory: (guest: GuestListData, categoryId: string) => void
   onRemoveFromCategory: (guest: GuestListData) => void
   onDeleteGuest: (guest: GuestListData) => void
 }) {
@@ -160,6 +169,12 @@ export function GuestTable({
                       <DropdownMenuContent align='end'>
                         {/* focus:bg-transparent overrides DropdownMenuItem's own
                             focus:bg-secondary, which paints a solid block on hover. */}
+                        <AddToCategoryMenu
+                          guest={guest}
+                          categories={categories}
+                          onSelect={(categoryId) => onAddToCategory(guest, categoryId)}
+                        />
+
                         {isInCategory && (
                           <DropdownMenuItem
                             onClick={() => onRemoveFromCategory(guest)}
@@ -194,6 +209,45 @@ export function GuestTable({
         isLoading={isFetching}
       />
     </div>
+  )
+}
+
+/** Add to category, opening the categories the guest isn't in yet. */
+function AddToCategoryMenu({
+  guest,
+  categories,
+  onSelect,
+}: {
+  guest: GuestListData
+  categories: CategoryData[]
+  onSelect: (categoryId: string) => void
+}) {
+  const options = categories.filter((category) => !guest.categoryIds?.includes(category.id))
+
+  return (
+    <DropdownMenuSub>
+      <DropdownMenuSubTrigger className='focus:bg-transparent focus:text-black data-[state=open]:bg-transparent'>
+        <RiFolderAddLine size={16} className='mr-2' />
+        Add to category
+      </DropdownMenuSubTrigger>
+
+      <DropdownMenuSubContent className='max-h-64 overflow-y-auto'>
+        {options.length === 0 ? (
+          <DropdownMenuItem disabled>
+            {categories.length === 0 ? 'No categories yet' : 'Already in every category'}
+          </DropdownMenuItem>
+        ) : (
+          options.map((category) => (
+            <DropdownMenuItem
+              key={category.id}
+              onClick={() => onSelect(category.id)}
+              className='focus:bg-black/5 focus:text-black'>
+              {category.name}
+            </DropdownMenuItem>
+          ))
+        )}
+      </DropdownMenuSubContent>
+    </DropdownMenuSub>
   )
 }
 

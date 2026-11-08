@@ -88,6 +88,12 @@ class GuestListService {
         return response.data;
     }
 
+    // Add Guest to category
+    async addGuestToCategory(guestId: string, categoryId: string): Promise<void> {
+        const response = await api.post(`/api/GuestList/categories/${categoryId}/guests/${guestId}`);
+        return response.data;
+    }
+
     // Remove Guest from category
     async removeGuestFromCategory(guestId: string, categoryId: string): Promise<void> {
         const response = await api.delete(`/api/GuestList/categories/${categoryId}/guests/${guestId}`);

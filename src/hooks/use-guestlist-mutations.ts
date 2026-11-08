@@ -123,6 +123,25 @@ export function useDeleteCategory() {
   })
 }
 
+/** Puts an existing guest in one more category. */
+export function useAddGuestToCategory() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({ guestId, categoryId }: { guestId: string; categoryId: string }) =>
+      guestListService.addGuestToCategory(guestId, categoryId),
+    onSuccess: () => {
+      toast.success('Guest added to category!')
+      // Guests: the row's category list changes. Categories: that tile's count goes up.
+      queryClient.invalidateQueries({ queryKey: guestlistKeys.guests() })
+      queryClient.invalidateQueries({ queryKey: guestlistKeys.categories() })
+    },
+    onError: () => {
+      toast.error('Failed to add guest to category. Please try again.')
+    },
+  })
+}
+
 /** Takes a guest out of one category. The guest stays on the account. */
 export function useRemoveGuestFromCategory() {
   const queryClient = useQueryClient()

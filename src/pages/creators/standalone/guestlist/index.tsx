@@ -3,6 +3,7 @@ import {
   useAddCategory,
   useAddGuest,
   useDeleteGuest,
+  useAddGuestToCategory,
   useRemoveGuestFromCategory,
   useGetOrganizerCategories,
   useGetOrganizerGuestList,
@@ -66,6 +67,7 @@ export function GuestlistTab({
   const addGuest = useAddGuest()
   const addCategory = useAddCategory()
   const deleteGuest = useDeleteGuest()
+  const addToCategory = useAddGuestToCategory()
   const removeFromCategory = useRemoveGuestFromCategory()
 
   // Two unwraps: the envelope's data is a page, the guests are its items.
@@ -115,6 +117,10 @@ export function GuestlistTab({
           totalCount={guestPage?.totalCount ?? guests.length}
           onPageChange={setPage}
           isFetching={isFetching}
+          categories={categories}
+          onAddToCategory={(guest, categoryId) =>
+            addToCategory.mutate({ guestId: guest.id, categoryId })
+          }
           // Only offered inside a category, so activeCategoryId is a real id
           // here rather than the All-guests sentinel.
           onRemoveFromCategory={(guest) =>
