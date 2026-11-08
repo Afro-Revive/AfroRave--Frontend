@@ -19,12 +19,21 @@ import {
 } from '../../standalone/guestlist/constant'
 import { ALL_CATEGORIES_ID, IMPORT_PAGE_SIZE } from '../constant'
 
+/**
+ * Adding guests to the event from the account guestlist: tick guests, or a whole
+ * category, then Add To Event. Guests and categories already on the event show
+ * ticked and locked; they're removed from the event's guestlist, not here.
+ */
 export function ImportGuestlistCard({
   guests,
   categories,
   totalGuests,
-  selectedIds,
+  pickedIds,
   onToggleGuest,
+  pickedCategoryIds,
+  onToggleCategory,
+  savedIds,
+  savedCategoryIds,
   activeCategoryId,
   onCategoryChange,
   search,
@@ -37,17 +46,22 @@ export function ImportGuestlistCard({
   onPageChange,
   isFetching = false,
   isSaving = false,
-  addedCount,
-  removedCount,
   onAddToEvent,
-  onSaveGuests,
+  onViewGuestlist,
 }: {
   guests: GuestListData[]
   categories: CategoryData[]
   /** Account-wide count, for the All pill. */
   totalGuests: number
-  selectedIds: string[]
+  /** Guests ticked to add. */
+  pickedIds: string[]
   onToggleGuest: (guestId: string) => void
+  /** Whole categories ticked to add, which bring all their guests with them. */
+  pickedCategoryIds: string[]
+  onToggleCategory: (categoryId: string) => void
+  /** What the event has now. */
+  savedIds: string[]
+  savedCategoryIds: string[]
   activeCategoryId: string
   onCategoryChange: (categoryId: string) => void
   search: string
@@ -60,16 +74,16 @@ export function ImportGuestlistCard({
   onPageChange: (page: number) => void
   isFetching?: boolean
   isSaving?: boolean
-  /** Ticked but not yet on the event. */
-  addedCount: number
-  /** On the event but since unticked — saving removes them. */
-  removedCount: number
+  /** Saves the ticks, clears them and opens the event's guestlist. */
   onAddToEvent: () => void
-  /** Saves anything pending, then switches to the event's guestlist. */
-  onSaveGuests: () => void
+  /** Back to the event's guestlist without saving. */
+  onViewGuestlist: () => void
 }) {
   const firstRow = totalCount === 0 ? 0 : (page - 1) * IMPORT_PAGE_SIZE + 1
   const lastRow = Math.min(page * IMPORT_PAGE_SIZE, totalCount)
+  const activeCategory = categories.find((category) => category.id === activeCategoryId)
+  const categoryName = (id: string) => categories.find((category) => category.id === id)?.name
+  const isActiveCategorySaved = !!activeCategory && savedCategoryIds.includes(activeCategory.id)
 
   return (
     <div className='w-full flex flex-col gap-5 rounded-xl bg-white p-5'>
@@ -87,17 +101,17 @@ export function ImportGuestlistCard({
           <Button
             type='button'
             onClick={onAddToEvent}
-            disabled={isSaving || addedCount + removedCount === 0}
+            disabled={isSaving || pickedIds.length + pickedCategoryIds.length === 0}
             className='h-9 rounded-md bg-deep-red px-4 font-inter-tight text-sm font-semibold text-white hover:bg-deep-red/90'>
-            {saveLabel(addedCount, removedCount, isSaving)}
+            {isSaving ? 'Adding...' : addLabel(pickedIds.length, pickedCategoryIds.length)}
           </Button>
 
           <Button
             type='button'
-            onClick={onSaveGuests}
+            onClick={onViewGuestlist}
             disabled={isSaving}
             className='h-9 rounded-md bg-[#1A1A1A] px-4 font-inter-tight text-sm font-semibold text-white hover:bg-[#1A1A1A]/90'>
-            Save Guests
+            View Guestlist
           </Button>
         </div>
       </div>
@@ -116,10 +130,55 @@ export function ImportGuestlistCard({
             label={category.name}
             count={category.guestCount}
             isActive={activeCategoryId === category.id}
+            isIncluded={
+              savedCategoryIds.includes(category.id) || pickedCategoryIds.includes(category.id)
+            }
             onClick={() => onCategoryChange(category.id)}
           />
         ))}
       </div>
+
+      {/* Inside a category, the option to bring the whole of it. */}
+      {activeCategory && (
+        <div
+          role='button'
+          tabIndex={-1}
+          onClick={isActiveCategorySaved ? undefined : () => onToggleCategory(activeCategory.id)}
+          className={cn(
+            'flex items-center gap-3 rounded-lg bg-[#F4F4F4] px-4 py-3',
+            !isActiveCategorySaved && 'cursor-pointer',
+          )}>
+          <SelectCircle
+            isSelected={isActiveCategorySaved || pickedCategoryIds.includes(activeCategory.id)}
+            disabled={isActiveCategorySaved}
+            label={`Add the whole ${activeCategory.name} category`}
+            onToggle={() => onToggleCategory(activeCategory.id)}
+          />
+          <div className='flex flex-col font-inter-tight'>
+            {isActiveCategorySaved ? (
+              <>
+                <p className='text-sm font-semibold text-black'>
+                  The whole {activeCategory.name} category is on this event
+                </p>
+                <p className='text-xs text-mid-dark-gray'>
+                  Anyone you add to {activeCategory.name} joins it. Remove it from the guestlist.
+                </p>
+              </>
+            ) : (
+              <>
+                <p className='text-sm font-semibold text-black'>
+                  Add the whole {activeCategory.name} category
+                </p>
+                <p className='text-xs text-mid-dark-gray'>
+                  All {activeCategory.guestCount}{' '}
+                  {activeCategory.guestCount === 1 ? 'guest' : 'guests'}, and anyone you add to{' '}
+                  {activeCategory.name} later.
+                </p>
+              </>
+            )}
+          </div>
+        </div>
+      )}
 
       <div className='flex items-center gap-3 flex-wrap'>
         <div className='relative min-w-0 flex-1'>
@@ -173,20 +232,31 @@ export function ImportGuestlistCard({
 
             <TableBody>
               {guests.map((guest) => {
-                const isSelected = selectedIds.includes(guest.id)
+                // Already on the event, or coming with a ticked category: either
+                // way it can't be ticked or unticked on its own here.
+                const isOnEvent =
+                  savedIds.includes(guest.id) ||
+                  !!guest.categoryIds?.some((id) => savedCategoryIds.includes(id))
+                const viaCategoryId = isOnEvent
+                  ? undefined
+                  : guest.categoryIds?.find((id) => pickedCategoryIds.includes(id))
+                const isLocked = isOnEvent || !!viaCategoryId
+                const isSelected = isLocked || pickedIds.includes(guest.id)
 
                 return (
                   <TableRow
                     key={guest.id}
-                    onClick={() => onToggleGuest(guest.id)}
+                    onClick={isLocked ? undefined : () => onToggleGuest(guest.id)}
                     className={cn(
-                      'cursor-pointer font-inter-tight text-sm',
+                      'font-inter-tight text-sm',
+                      !isLocked && 'cursor-pointer',
                       // Unpicked rows recede so the selection reads at a glance.
                       isSelected ? 'text-black' : 'text-black/40',
                     )}>
                     <TableCell>
                       <SelectCircle
                         isSelected={isSelected}
+                        disabled={isLocked}
                         label={`Select ${guest.name}`}
                         onToggle={() => onToggleGuest(guest.id)}
                       />
@@ -197,7 +267,19 @@ export function ImportGuestlistCard({
                       <span className='text-xs text-inherit opacity-70'>{guest.email}</span>
                     </TableCell>
 
-                    <TableCell>{formatCategories(guest.categoryNames)}</TableCell>
+                    <TableCell>
+                      <span className='flex flex-col'>
+                        {formatCategories(guest.categoryNames)}
+                        {isOnEvent && (
+                          <span className='text-xs text-mid-dark-gray'>On this event</span>
+                        )}
+                        {viaCategoryId && (
+                          <span className='text-xs text-deep-red'>
+                            Added with {categoryName(viaCategoryId) ?? 'its category'}
+                          </span>
+                        )}
+                      </span>
+                    </TableCell>
                   </TableRow>
                 )
               })}
@@ -231,29 +313,29 @@ export function ImportGuestlistCard({
   )
 }
 
-/**
- * Names what saving will actually do. One button covers adding and removing,
- * since configure replaces the event's list — so a fixed "Add To Event" would
- * be wrong whenever a saved guest has been unticked.
- */
-function saveLabel(added: number, removed: number, isSaving: boolean): string {
-  if (added > 0 && removed > 0) return isSaving ? 'Updating...' : 'Update Guestlist'
-  if (removed > 0) return isSaving ? 'Removing...' : `Remove ${removed} From Event`
-  if (added > 0) return isSaving ? 'Adding...' : `Add ${added} To Event`
+/** Names what Add will put on the event: guests, categories, or both. */
+function addLabel(guests: number, categories: number): string {
+  const parts = [
+    guests > 0 && `${guests} ${guests === 1 ? 'Guest' : 'Guests'}`,
+    categories > 0 && `${categories} ${categories === 1 ? 'Category' : 'Categories'}`,
+  ].filter(Boolean)
 
-  // Nothing to save: the button is disabled, so it keeps the resting label.
-  return 'Add To Event'
+  // Nothing ticked: the button is disabled, so it keeps the resting label.
+  return parts.length ? `Add ${parts.join(' & ')}` : 'Add To Event'
 }
 
 function CategoryPill({
   label,
   count,
   isActive,
+  isIncluded = false,
   onClick,
 }: {
   label: string
   count: number
   isActive: boolean
+  /** The whole category is on the event. */
+  isIncluded?: boolean
   onClick: () => void
 }) {
   return (
@@ -262,11 +344,14 @@ function CategoryPill({
       aria-pressed={isActive}
       onClick={onClick}
       className={cn(
-        'rounded-full border px-4 py-1.5 font-inter-tight text-sm transition-colors',
+        'flex items-center gap-1.5 rounded-full border px-4 py-1.5 font-inter-tight text-sm transition-colors',
         isActive
           ? 'border-deep-red text-deep-red'
           : 'border-black/20 text-black hover:border-black/40',
       )}>
+      {isIncluded && (
+        <Check aria-label='On this event' className='size-3.5 text-deep-red' strokeWidth={3} />
+      )}
       {label} {count}
     </button>
   )
@@ -276,10 +361,12 @@ export function SelectCircle({
   isSelected,
   label,
   onToggle,
+  disabled = false,
 }: {
   isSelected: boolean
   label: string
   onToggle: () => void
+  disabled?: boolean
 }) {
   return (
     <button
@@ -287,13 +374,14 @@ export function SelectCircle({
       role='checkbox'
       aria-checked={isSelected}
       aria-label={label}
+      disabled={disabled}
       onClick={(event) => {
         // The row toggles too, so without this the click would undo itself.
         event.stopPropagation()
         onToggle()
       }}
       className={cn(
-        'flex size-5 items-center justify-center rounded-full border transition-colors',
+        'flex size-5 items-center justify-center rounded-full border transition-colors disabled:cursor-default disabled:opacity-60',
         isSelected ? 'border-deep-red bg-deep-red text-white' : 'border-deep-red bg-transparent',
       )}>
       {isSelected && <Check className='size-3' strokeWidth={3} />}
