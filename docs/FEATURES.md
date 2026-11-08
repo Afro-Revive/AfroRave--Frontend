@@ -120,7 +120,7 @@ Within each table, rows run from High to Low priority.
 | Forgot and reset password | 🔴 High | ✅ Working | |
 | Complete profile from the email link | 🔴 High | ✅ Working | Works even on a device where you aren't logged in. |
 | Wallet: balance and withdraw | 🔴 High | ✅ Working | Withdrawals check the bank account before sending. |
-| Profile | 🟠 Medium | ✅ Working | Name, gender, state, country, date of birth. |
+| Profile | 🟠 Medium | ✅ Working | Name, gender, state, country, date of birth. The birthday saves as "1998-03-07" (it used to send the month's name, "1998-mar-07") and reads back from the date's own digits, so no time zone shifts the day. |
 | Wallet: payout history | 🟠 Medium | ✅ Working | |
 | Settings: change password, log out | 🟠 Medium | ✅ Working | |
 | Support contact form (`/fans/support`) | 🟠 Medium | ⛔ Not working | Shows "Thanks — we will get back to you", but **the message is not sent anywhere**. The API now has `POST /api/Support`, and the organizer website's Contact Us already sends to it with `useSendSupportMessage`. |

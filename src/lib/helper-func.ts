@@ -472,6 +472,25 @@ export function fromDateOfBirth(
   return { month: monthNumberToName(month), day: String(Number(day)), year }
 }
 
+/**
+ * The reverse of fromDateOfBirth: the birthday selects' month ("mar"), day and
+ * year as "1998-03-07". Undefined until all three are picked.
+ */
+export function toDateOfBirth({
+  month,
+  day,
+  year,
+}: {
+  month: string
+  day: string
+  year: string
+}): string | undefined {
+  if (!month || !day || !year) return undefined
+  const monthNumber = Array.from({ length: 12 }, (_, index) => monthNumberToName(index + 1)).indexOf(month) + 1
+  if (monthNumber < 1) return undefined
+  return `${year}-${String(monthNumber).padStart(2, '0')}-${day.padStart(2, '0')}`
+}
+
 
 export function daysUntilEvent(startDate: string): number {
   return differenceInCalendarDays(parseApiDate(startDate), new Date())

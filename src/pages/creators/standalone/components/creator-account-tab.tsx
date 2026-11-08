@@ -1,6 +1,6 @@
 import { date_list } from "@/components/constants";
 import { BaseSelect } from "@/components/reusable/base-select";
-import { fromDateOfBirth } from "@/lib/helper-func";
+import { fromDateOfBirth, toDateOfBirth } from "@/lib/helper-func";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -284,22 +284,6 @@ function splitPhone(phone?: string | null) {
   return value.startsWith("+")
     ? { countryCode: value.slice(0, 4), digits: value.slice(4) }
     : { countryCode: "+234", digits: value };
-}
-
-/** "1998-03-07" from the picked month ("mar"), day and year; undefined until all three are picked. */
-function toDateOfBirth({
-  month,
-  day,
-  year,
-}: {
-  month: string;
-  day: string;
-  year: string;
-}) {
-  if (!month || !day || !year) return undefined;
-  const monthIndex = date_list.items.findIndex((item) => item.value === month);
-  if (monthIndex < 0) return undefined;
-  return `${year}-${String(monthIndex + 1).padStart(2, "0")}-${day.padStart(2, "0")}`;
 }
 
 // The payout tab's bank list style: a dark grey list that reads on this white
