@@ -329,10 +329,14 @@ tab with `?tab=`:
 | Overview | Overview |
 | Audience Insights | Insights |
 | Vendors | Vendors |
-| Tickets (accordion) | Orders, Attendee List ("Coming Soon"), Promo Codes |
+| Tickets (accordion) | Orders, Attendee List (its own endpoint, `useGetEventAttendees`, 20 a page with search), Promo Codes |
 
-- All tabs share one request, `useGetEventAnalytics(selectedEventId)`, and use `components/analytics-state.tsx` for loading, error and empty states.
-- The charts are reusable components in `components/reusable/charts/` (bar, line, pie) built on recharts.
+- The page sits in `SelectedEventGate` like the other organizer pages, and follows the sidebar's selected event (the old event picker in the header is gone). Its header has the tab's title and description, and **Export CSV** (`lib/analytics-export.ts`), which downloads the open tab's data.
+- All tabs share one request, `useGetEventAnalytics(eventId)`, and use `components/analytics-state.tsx` for loading, error and empty states. Besides the totals, the response carries `orderList`, `vendorList`, `attendeeList` and `promoCodes`, which the charts and tables are built from.
+- **Building blocks:** `components/analytics-ui.tsx` (the card, Summary card, stat tile, progress bar, status pill and table) and `components/analytics-charts.tsx` (trend line, columns, donut, bar list and segmented bar, on recharts).
+- **Data helpers:** `lib/analytics-data.ts` merges audience labels that differ only in case, keeps Unknown last, fills sales by day, groups sales by ticket and maps vendor statuses to stages. `lib/audience.ts` turns the audience into chart rows.
+- **Chart colours:** blue, orange and aqua, in that fixed order (validated colour-blind safe as neighbours), grey for Unknown, and green, amber, blue and red only for vendor stages, always with a label.
+- **Backend numbers that don't agree** (seen on dev, November 2026): net revenue leaves out paid invite orders (order totals also include Afrorevive's fee, which is expected), the tickets on orders can be more than `totalTicketsSold`, `totalAttendees` is 0 while the attendee list isn't, `totalNumberOfVendorsAccepted` is 0 while vendors are Secured, and attendee order IDs differ from the order list's. The headline tiles use the totals; the charts use the lists.
 
 ### Vendor management (`pages/vendor/...`, inside the dashboard)
 
