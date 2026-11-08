@@ -4,16 +4,20 @@ import {
   useAddGuest,
   useDeleteGuest,
   useAddGuestToCategory,
+  useAddGuestsToCategory,
   useRemoveGuestFromCategory,
   useGetOrganizerCategories,
   useGetOrganizerGuestList,
 } from '@/hooks/use-guestlist-mutations'
 import type { CategoryData, GuestListAllowanceData, GuestListData } from '@/types/guestlist'
+import { guestListService } from '@/services/guestlist.service'
 import { LoaderCircle, Users } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { toast } from 'sonner'
 import { AddGuestModal } from './components/add-guest-modal'
 import { GuestCategories } from './components/guest-categories'
 import { GuestLimitCard } from './components/guest-limit-card'
+import { GuestSelectionBar } from './components/guest-selection-bar'
 import { GuestTable } from './components/guest-table'
 import { NewCategoryModal } from './components/new-category-modal'
 import {
@@ -47,8 +51,16 @@ export function GuestlistTab({
   // Each of these changes the result set, so the old page number is meaningless.
   useEffect(() => setPage(1), [activeCategoryId, debouncedSearch, sort])
 
+  // The ticked guests, kept across pages. A new category or search is a new
+  // set of guests, so the ticks start again.
+  const [selected, setSelected] = useState<Map<string, GuestListData>>(new Map())
+  const [isSelectingAll, setIsSelectingAll] = useState(false)
+  useEffect(() => setSelected(new Map()), [activeCategoryId, debouncedSearch])
+
+  const categoryFilter = activeCategoryId === ALL_GUESTS_CATEGORY_ID ? undefined : activeCategoryId
+
   const { data, isPending, isFetching } = useGetOrganizerGuestList({
-    categoryId: activeCategoryId === ALL_GUESTS_CATEGORY_ID ? undefined : activeCategoryId,
+    categoryId: categoryFilter,
     pageNumber: page,
     pageSize: GUESTS_PER_PAGE,
     search: debouncedSearch || undefined,
@@ -68,6 +80,7 @@ export function GuestlistTab({
   const addCategory = useAddCategory()
   const deleteGuest = useDeleteGuest()
   const addToCategory = useAddGuestToCategory()
+  const addGuestsToCategory = useAddGuestsToCategory()
   const removeFromCategory = useRemoveGuestFromCategory()
 
   // Two unwraps: the envelope's data is a page, the guests are its items.
@@ -81,6 +94,47 @@ export function GuestlistTab({
 
   const activeCategoryName =
     categories.find((category) => category.id === activeCategoryId)?.name ?? 'All Guests'
+
+  function changeSelection(changed: GuestListData[], isSelected: boolean) {
+    setSelected((current) => {
+      const next = new Map(current)
+      changed.forEach((guest) => (isSelected ? next.set(guest.id, guest) : next.delete(guest.id)))
+      return next
+    })
+  }
+
+  async function selectAllGuests() {
+    setIsSelectingAll(true)
+    try {
+      const all = await guestListService.getAllOrganizerGuests({
+        categoryId: categoryFilter,
+        search: debouncedSearch || undefined,
+        sort,
+      })
+      setSelected(new Map(all.map((guest) => [guest.id, guest])))
+    } catch {
+      toast.error('Couldn’t select every guest. Please try again.')
+    } finally {
+      setIsSelectingAll(false)
+    }
+  }
+
+  function addSelectedToCategory(categoryId: string) {
+    // Guests already in it are skipped rather than sent again.
+    const guestIds = [...selected.values()]
+      .filter((guest) => !guest.categoryIds?.includes(categoryId))
+      .map((guest) => guest.id)
+
+    if (guestIds.length === 0) {
+      toast.info('They’re all in that category already.')
+      return
+    }
+
+    addGuestsToCategory.mutate(
+      { guestIds, categoryId },
+      { onSuccess: () => setSelected(new Map()) },
+    )
+  }
 
   // Only the very first load blanks the card; later fetches keep the rows on
   // screen and show the spinner in the search field instead.
@@ -118,6 +172,22 @@ export function GuestlistTab({
           onPageChange={setPage}
           isFetching={isFetching}
           categories={categories}
+          selectedIds={new Set(selected.keys())}
+          onSelectionChange={changeSelection}
+          toolbar={
+            selected.size > 0 && (
+              <GuestSelectionBar
+                selectedCount={selected.size}
+                totalCount={guestPage?.totalCount ?? guests.length}
+                categories={categories}
+                onSelectAll={selectAllGuests}
+                isSelectingAll={isSelectingAll}
+                onClear={() => setSelected(new Map())}
+                onAddToCategory={addSelectedToCategory}
+                isAdding={addGuestsToCategory.isPending}
+              />
+            )
+          }
           onAddToCategory={(guest, categoryId) =>
             addToCategory.mutate({ guestId: guest.id, categoryId })
           }

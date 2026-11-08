@@ -1,6 +1,7 @@
 import { BaseSelect } from '@/components/reusable'
 import { Pagination } from '@/components/shared/pagination'
 import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -56,6 +57,9 @@ export function GuestTable({
   onAddToCategory,
   onRemoveFromCategory,
   onDeleteGuest,
+  selectedIds,
+  onSelectionChange,
+  toolbar,
 }: {
   guests: GuestListData[]
   /** Heads the card, so it names the category you're looking at. */
@@ -77,8 +81,15 @@ export function GuestTable({
   onAddToCategory: (guest: GuestListData, categoryId: string) => void
   onRemoveFromCategory: (guest: GuestListData) => void
   onDeleteGuest: (guest: GuestListData) => void
+  /** The ticked guests, which can be on other pages too. */
+  selectedIds: Set<string>
+  /** Ticks or unticks these guests. */
+  onSelectionChange: (guests: GuestListData[], selected: boolean) => void
+  /** Shown between the search and the table: the bar for the ticked guests. */
+  toolbar?: React.ReactNode
 }) {
   const isInCategory = activeCategoryId !== ALL_GUESTS_CATEGORY_ID
+  const isPageSelected = guests.length > 0 && guests.every((guest) => selectedIds.has(guest.id))
 
   return (
     <div className='w-full flex flex-col gap-5 rounded-xl bg-white p-5'>
@@ -118,6 +129,8 @@ export function GuestTable({
         />
       </div>
 
+      {toolbar}
+
       {guests.length === 0 ? (
         <p className='py-10 text-center font-inter-tight text-sm text-mid-dark-gray'>
           {search ? `No guests match “${search}”.` : 'No guests to show.'}
@@ -129,6 +142,13 @@ export function GuestTable({
 
             <TableHeader>
               <TableRow className='hover:bg-transparent'>
+                <TableHead className='w-10'>
+                  <Checkbox
+                    aria-label='Select every guest on this page'
+                    checked={isPageSelected}
+                    onCheckedChange={(checked) => onSelectionChange(guests, checked === true)}
+                  />
+                </TableHead>
                 {GUEST_COLUMNS.map((label) => (
                   <TableHead
                     key={label}
@@ -147,6 +167,13 @@ export function GuestTable({
                 <TableRow
                   key={guest.id}
                   className='font-inter-tight text-sm xl:text-base text-black'>
+                  <TableCell>
+                    <Checkbox
+                      aria-label={`Select ${guest.name}`}
+                      checked={selectedIds.has(guest.id)}
+                      onCheckedChange={(checked) => onSelectionChange([guest], checked === true)}
+                    />
+                  </TableCell>
                   <TableCell className='flex flex-col'>
                     <span>{guest.name}</span>
                     <span className='text-xs xl:text-sm text-mid-dark-gray'>{guest.email}</span>

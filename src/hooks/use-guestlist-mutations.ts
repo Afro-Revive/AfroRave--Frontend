@@ -142,6 +142,42 @@ export function useAddGuestToCategory() {
   })
 }
 
+/**
+ * Puts several guests in one category. There's no bulk endpoint, so it's one
+ * request per guest, five at a time, and the toast says how many went in.
+ */
+export function useAddGuestsToCategory() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async ({ guestIds, categoryId }: { guestIds: string[]; categoryId: string }) => {
+      let failed = 0
+      for (let start = 0; start < guestIds.length; start += 5) {
+        const results = await Promise.allSettled(
+          guestIds
+            .slice(start, start + 5)
+            .map((guestId) => guestListService.addGuestToCategory(guestId, categoryId)),
+        )
+        failed += results.filter((result) => result.status === 'rejected').length
+      }
+      return { added: guestIds.length - failed, failed }
+    },
+    onSuccess: ({ added, failed }) => {
+      if (failed === 0) {
+        toast.success(`${added} ${added === 1 ? 'guest' : 'guests'} added to category!`)
+      } else if (added === 0) {
+        toast.error('Failed to add guests to category. Please try again.')
+      } else {
+        toast.warning(`${added} added, but ${failed} couldn’t be. Please try those again.`)
+      }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: guestlistKeys.guests() })
+      queryClient.invalidateQueries({ queryKey: guestlistKeys.categories() })
+    },
+  })
+}
+
 /** Takes a guest out of one category. The guest stays on the account. */
 export function useRemoveGuestFromCategory() {
   const queryClient = useQueryClient()
