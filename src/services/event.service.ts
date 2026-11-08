@@ -6,6 +6,7 @@ import type {
   CreateTicketRequest,
   CreateVendorRequest,
   EventAnalyticsResponse,
+  EventAttendeesResponse,
   EventData,
   EventDetailResponse,
   EventListParams,
@@ -280,6 +281,17 @@ class EventService {
    */
   async getEventAnalytics(eventId: string): Promise<EventAnalyticsResponse> {
     const response = await api.get(`/api/Analytics/organizer/dashboard/${eventId}`)
+    return response.data
+  }
+
+  /**
+   * Get an event's attendees, one page at a time, searchable by name or email
+   */
+  async getEventAttendees(
+    eventId: string,
+    params?: { pageNumber?: number; pageSize?: number; search?: string },
+  ): Promise<EventAttendeesResponse> {
+    const response = await api.get(`/api/Event/${eventId}/attendees`, { params })
     return response.data
   }
 }
