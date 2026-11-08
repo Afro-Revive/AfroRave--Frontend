@@ -5,7 +5,8 @@ each feature is, and whether it actually works yet. Use it to know what's left
 before launch, what's safe to demo, and what to test.
 
 Last checked against the code on the `prod` branch, October 2026. The vendor
-section (§3) was checked in November 2026, when the `vendors` branch merged.
+section (§3) was checked in November 2026, when the `vendors` branch merged, and
+the organizer guest lists and promo codes on 8 November 2026.
 
 ---
 
@@ -14,15 +15,15 @@ section (§3) was checked in November 2026, when the `vendors` branch merged.
 | | Critical (High) | Medium | Low | **Overall, weighted by priority** |
 |---|---|---|---|---|
 | **Fans** | 15 / 17 done | 10 / 11 | 1 / 4 | **86%** |
-| **Organizers** | 13 / 13 done | 23 / 27 | 5 / 16 | **83%** |
-| **Fans + Organizers** | **28 / 30 done (93%)** | 33 / 38 | 6 / 20 | **84%** |
+| **Organizers** | 13 / 13 done | 24 / 27 | 6 / 17 | **85%** |
+| **Fans + Organizers** | **28 / 30 done (93%)** | 34 / 38 | 7 / 21 | **85%** |
 | Vendors | 6 / 6 done | 6 / 6 | 2 / 3 | 97% |
-| **Whole app** | **34 / 36 done (94%)** | 39 / 44 | 8 / 23 | **86%** |
+| **Whole app** | **34 / 36 done (94%)** | 40 / 44 | 9 / 24 | **87%** |
 
 **How the overall % is worked out:**
 - A High feature counts 3 times as much as a Low one, and a Medium one twice as much.
 - Only fully working features score.
-- If half-working ("Partial") and "Awaiting backend" features get half credit, fans and organizers reach 86%.
+- If half-working ("Partial") and "Awaiting backend" features get half credit, fans and organizers reach 87%.
 - **Critical features only:** 93% are fully done, or 95% with half credit for the partly working ones.
 
 Most of the gap is Low priority: small buttons and extra tools.
@@ -148,7 +149,6 @@ tables further down says where it stands today.
 |---|---|---|
 | End-to-end test the organizer vendor tabs | 🟠 Medium | **Now that the `vendors` branch is merged.** Checklist: [VENDOR-FLOW-TEST-CHECKLIST.md](./VENDOR-FLOW-TEST-CHECKLIST.md). Run the whole flow with real vendors: create a stall and an offer, vendors apply, review each applicant's page, accept and reject, pause and resume, and the secured counts and net profit. Expect some edits. |
 | Attendee List tab | 🟠 Medium | Build it on `GET /api/Event/{eventId}/attendees`. |
-| Event guestlist: select a whole category | 🟠 Medium | Frontend only. |
 | Analytics Export | ⚪ Low | Frontend only. |
 | Door tickets | ⚪ Low | Not built yet: how fans see them, and the organizer's "Sell On Mobile App". |
 | ~~Ticket reordering~~ | ⚪ Low | **On `prod` instead**, with `PATCH /api/Event/{eventId}/tickets/reorder`. |
@@ -233,22 +233,23 @@ Three tabs: **Account**, **Payout** and **Settings**.
 
 | Feature | Priority | Status | Notes |
 |---|---|---|---|
-| Account guestlist (dashboard Guestlist tab) | 🟠 Medium | ✅ Working | Categories, search, sort, 20 per page, add guest, CSV upload. |
-| Event guestlist (`/creators/guest-list`) | 🟠 Medium | 🟡 Partial | Add guests one by one or import them from your guestlist. **Selecting a whole category isn't wired.** |
+| Account guestlist (dashboard Guestlist tab) | 🟠 Medium | ✅ Working | Categories, search, sort (newest or oldest first, the only two the API takes), 20 per page, add guest, CSV upload. |
+| Event guestlist (`/creators/guest-list`) | 🟠 Medium | ✅ Working | Add guests one by one, or import them from your guestlist: tick guests, or "Add the whole category" inside a category pill (every guest in it, including anyone added to it later), then Add, which clears the ticks and opens the event's guestlist. Guests and categories already on the event show ticked and locked ("On this event"). They're removed from the guestlist: ⋮ → Remove from event on a guest added one by one, or a whole category's chip → Remove from event, which asks to confirm first. |
 | Delete a guest, remove a guest from a category | ⚪ Low | ✅ Working | |
+| Add guests to a category, one or many at once | ⚪ Low | ✅ Working | One guest from the row's ⋮ menu (Add to category). Many by ticking rows, or Select all for every guest in the view across pages, then Add to category in the bar above the table. The API has no bulk endpoint, so it sends one request per guest, five at a time, and skips guests already in the category. |
 | Guest allowance card | ⚪ Low | ✅ Working | Uses live account and category limits from `GET /api/GuestList/allowance`, including the active category's usage. |
 
 ### Promo codes (`/creators/promo-codes`)
 
 | Feature | Priority | Status | Notes |
 |---|---|---|---|
-| Create, view, edit and delete promo codes | 🟠 Medium | ✅ Working | The redesigned page shows summary cards, usage and redemption data, promo-code cards, and applied promo codes for the event. |
+| Create, view, edit and delete promo codes | 🟠 Medium | ✅ Working | With no codes yet, the page opens on the Add Promo Codes form, with Remove (clears it) and Create, and an empty Apply Promo Code section. Once there are codes it shows summary cards, usage and redemption data, promo-code cards, and the applied promo codes table. The form follows the Figma: code, discount and usage limit, Apply To (tickets), limit per customer and dates, then Advanced Options (minimum spend, minimum tickets, partnership and commission). Notes were dropped; an old code's note is kept when it's edited. |
 
 ### Vendor management
 
 | Feature | Priority | Status | Notes |
 |---|---|---|---|
-| Create revenue slots (stalls) and service offers | 🟠 Medium | ✅ Working | The Revenue Vendor and Service Vendor pages open with a how-it-works note and the form already open. The description is rich text, and the application deadline has a date and a time. After creating, the organizer lands on the new stall's page. |
+| Create revenue slots (stalls) and service offers | 🟠 Medium | ✅ Working | The Revenue Vendor and Service Vendor pages open with a how-it-works note and the form already open. The description is rich text, the number of stalls has − and + buttons, and the application deadline has a date and a time. After creating, the organizer lands on the new stall's page. |
 | Edit a slot | 🟠 Medium | ✅ Working | On the stall's page, the Stall Details tab (Offer Details for services) opens the same form, filled in. |
 | Slot pages listing applicants | 🟠 Medium | ✅ Working | Redesigned in October 2026: the how-it-works note, how long until applications close, a summary (net profit or budget, secured vendors, requests), and the applications list with status filters and search. |
 | Accept or reject a vendor application | 🟠 Medium | ✅ Working | |
@@ -304,7 +305,6 @@ pretends to. Rows run from High to Low priority.
 | Fans footer, home page and mobile menu | App Store / Google Play badges | 🔴 High | ⛔ Not linked | Link to `#`. Waiting for the apps to be published. Fans need the app for their QR code. |
 | Ticket detail page | QR code ("download the app") | 🔴 High | ⛔ Not linked | Depends on the app store links above. |
 | Fans support (`/fans/support`) | Contact form Send | 🟠 Medium | ⛔ Not working | Shows a success message but sends nothing. |
-| Event guestlist page | Selecting a whole category | 🟠 Medium | ⛔ Not working | Only individual guests can be picked. |
 | Analytics | Attendee List tab | 🟠 Medium | 🚧 Coming soon | |
 | Access Control | Download, event picker, Add Code, filter | 🟠 Medium | ⛔ Not working | Mock page. |
 | Fans footer | About Us, Blog, FAQ, Sell, Work With Us | ⚪ Low | 🚧 Coming soon | Open a "Coming Soon" page. |
