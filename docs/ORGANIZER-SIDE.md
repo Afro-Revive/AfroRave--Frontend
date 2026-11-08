@@ -259,12 +259,39 @@ There are **two different guest lists**, so keep them apart:
 |---|---|---|
 | Where | Dashboard → Guestlist tab (`standalone/guestlist/`) | `/creators/guest-list` (`guest-list/`) |
 | What | Every guest the organizer has saved, in categories | Who is on one event's list |
-| Main parts | `GuestCategories`, `GuestTable`, `AddGuestModal`, `NewCategoryModal`, `GuestLimitCard` | `AddGuestCard`, `ImportGuestlistCard`, `EventGuestlistCard` |
-| Paging | Server side, 20 per page, with search and sort | Server side, 8 per page |
+| Main parts | `GuestCategories`, `GuestTable`, `GuestSelectionBar`, `AddGuestModal`, `NewCategoryModal`, `GuestLimitCard` | `AddGuestCard`, `ImportGuestlistCard`, `EventGuestlistCard` |
+| Paging | Server side, 20 per page, with search and sort | Server side, 20 per page |
+| Sort | `newest to oldest` / `oldest to newest`, sent word for word: the only two `GET /api/Guestlist` accepts | Same |
 
 **An important backend rule:** the event's "configure guestlist" call
 **replaces** the whole list. `useAddGuestToEvent` and the import screen always
 send the full selection: what was already saved plus the new guests.
+
+**Adding guests to a category (account guestlist):** one guest from the row's
+⋮ menu (`useAddGuestToCategory`), or many by ticking rows or Select all
+(`guestListService.getAllOrganizerGuests` reads every page of the current view).
+There's no bulk endpoint, so `useAddGuestsToCategory` sends one request per
+guest, five at a time, and skips guests already in the category. The ticks
+clear when the category or search changes.
+
+**Adding to and removing from an event (event guestlist):** the configure call
+takes `categoryIds` as well as `individualGuestIds`.
+- **The import table only adds.** Ticks are new picks: guests, or "Add the whole
+  category" inside a category pill, which brings every guest in it, now and
+  later. Add sends what's saved plus the picks, clears the ticks and opens the
+  event's guestlist. What's already on the event shows ticked and locked.
+- **Removing is on the event's guestlist:** ⋮ → Remove from event for a guest
+  added one by one, and a whole category's chip → Remove from event, confirmed
+  in a dialog first. A guest who's only there
+  through a category can't be removed on their own; the menu says to remove the
+  category.
+
+**Keeping event guestlists fresh:** a category on an event brings its guests
+with it, so anything that changes who's in a category (adding or removing a
+guest, deleting a guest or category, a CSV upload, adding a guest with
+categories) also invalidates `guestlistKeys.events()`, every event's guestlist
+and check-in list. The frontend doesn't know which events use which category,
+so it refreshes them all; only the ones on screen re-fetch.
 
 Hooks live in `use-guestlist-mutations.ts`; query keys are in
 `lib/guestlist-keys.ts`.

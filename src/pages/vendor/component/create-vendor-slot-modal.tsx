@@ -15,14 +15,11 @@ import {
   CustomInput as Input,
 } from "@/components/shared/custom-form";
 import { FormFieldWithCounter } from "@/components/shared/field-with-counter";
-import {
-  QuantityIncreaseBtn,
-  QuantityDecreaseButton,
-} from "@/pages/creators/add-event/component/quantity-buttons";
 import { RichTextEditor } from "@/components/reusable/rich-text-editor";
 import { richTextLength } from "@/lib/rich-text";
 import { Button } from "@/components/ui/button";
-import { RiAddLine } from "react-icons/ri";
+import { ButtonGroup } from "@/components/ui/button-group";
+import { RiAddLine, RiSubtractLine } from "react-icons/ri";
 import { useCreateVendor, useUpdateVendor } from "@/hooks/use-event-mutations";
 import { useEventSelectorStore } from "@/stores";
 import {
@@ -250,12 +247,19 @@ export default function CreateVendorSlot({
   // Revenue puts this under the stall name; service puts it beside the service name.
   const categoryField = (
     <div className="w-full flex flex-col gap-2">
-      <FormField form={form} name="category" label="CATEGORY" showMessage>
+      {/* As tall as a counter field's label row, so the inputs beside it line up. */}
+      <FormField
+        form={form}
+        name="category"
+        label="CATEGORY"
+        labelClassName="flex h-4 items-center"
+        showMessage
+      >
         <BaseSelect
           type="auth"
           items={categoryOptions}
           placeholder="Choose An Applicable category"
-          triggerClassName="w-full text-black !bg-white px-3 rounded-[4px] border border-mid-dark-gray/50 text-sm font-inter-tight uppercase"
+          triggerClassName="h-10 w-full text-black !bg-white px-3 rounded-[4px] border border-mid-dark-gray/50 text-sm font-inter-tight uppercase"
         />
       </FormField>
       {selectedCategory && (
@@ -331,21 +335,25 @@ export default function CreateVendorSlot({
                 form={form}
                 name="slotNumber"
                 label="NUMBER OF STALLS"
+                labelClassName="flex h-4 items-center"
                 showMessage
               >
                 {(field) => (
-                  <div className="flex h-10 w-full border rounded-[4px] border-mid-dark-gray/50">
+                  <ButtonGroup className="w-full">
+                    <StepperButton label="One fewer stall" onClick={decreaseSlotNumber}>
+                      <RiSubtractLine className="size-4" />
+                    </StepperButton>
                     <Input
                       type="number"
-                      className=""
+                      // The − and + do the stepping, so the browser's own arrows are hidden.
+                      className="text-center [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                       {...field}
                       value={String(field.value ?? "")}
                     />
-                    <div className="flex w-10 h-10 flex-col items-center justify-between rounded-r-[4px] border-l border-mid-dark-gray/50">
-                      <QuantityIncreaseBtn action={increaseSlotNumber} />
-                      <QuantityDecreaseButton action={decreaseSlotNumber} />
-                    </div>
-                  </div>
+                    <StepperButton label="One more stall" onClick={increaseSlotNumber}>
+                      <RiAddLine className="size-4" />
+                    </StepperButton>
+                  </ButtonGroup>
                 )}
               </FormField>
             </div>
@@ -608,5 +616,28 @@ export default function CreateVendorSlot({
         </BaseModal>
       </div>
     </>
+  );
+}
+
+/** The − and + either side of the number of stalls. */
+function StepperButton({
+  label,
+  onClick,
+  children,
+}: {
+  label: string;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <Button
+      type="button"
+      variant="outline"
+      aria-label={label}
+      onClick={onClick}
+      className="size-10 shrink-0 rounded-[4px] border-mid-dark-gray/50 bg-white text-black shadow-none hover:bg-black/5 hover:text-black"
+    >
+      {children}
+    </Button>
   );
 }

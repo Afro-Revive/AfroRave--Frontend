@@ -17,6 +17,7 @@ import { creator_dashboard_routes } from './config/creator-dashboard-routes'
 import { getRoutePath } from './config/get-route-path'
 import { routes } from './config/routes'
 import { support_routes } from './config/support-routes'
+import { help_routes } from './config/help-routes'
 import { user_dashboard_routes } from './config/user-dashboard-routes'
 import { useScrollToTop } from './hooks/use-scroll-to-top'
 import { useTokenRefresh } from './hooks/use-token-refresh'
@@ -24,6 +25,7 @@ import CreatorGuideOverlay from './components/shared/creator-guide-overlay'
 import CreatorDashboardLayout from './layouts/creator-dashboard-layout'
 import IndexLayout from './layouts/root-layout'
 import SupportLayout from './layouts/support-layout'
+import HelpLayout from './layouts/help-layout'
 import UserDashboardLayout from './layouts/user-dashboard-layout'
 import CreatorsLandingPageLayout from './layouts/creators-landing-page-layout'
 import { creator_landing_page_routes } from './config/creators-landing-page-routes'
@@ -90,6 +92,12 @@ export const appRoutes: RouteObject[] = createRoutesFromElements(
 
       <Route element={<SupportLayout />}>
         {support_routes.map((route) => (
+          <Route key={route.path} path={route.path} element={route.element} />
+        ))}
+      </Route>
+
+      <Route element={<HelpLayout />}>
+        {help_routes.map((route) => (
           <Route key={route.path} path={route.path} element={route.element} />
         ))}
       </Route>

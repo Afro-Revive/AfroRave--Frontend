@@ -5,7 +5,8 @@ import type { EventDetailData } from '@/types'
 import { Globe, Link2, Lock } from 'lucide-react'
 import { RiShareCircleFill } from 'react-icons/ri'
 import { Link } from 'react-router-dom'
-import { copyToClipboard, formatEventDate, toVisibility } from '@/lib/helper-func'
+import { formatEventDate, toVisibility } from '@/lib/helper-func'
+import { useCopyEventLink } from '@/hooks/use-copy-event-link'
 
 /**
  * Summary of the event currently being worked on, pinned above the sidebar
@@ -16,6 +17,7 @@ export function SelectedEventCard({ eventId }: { eventId?: string }) {
   const { data: response } = useGetEvent(eventId ?? '')
 
   const event = response?.data as EventDetailData | undefined
+  const { copied, copy } = useCopyEventLink(event?.customUrl)
 
   if (!eventId || !event) return null
 
@@ -49,7 +51,7 @@ export function SelectedEventCard({ eventId }: { eventId?: string }) {
       <div className='flex w-full items-center gap-2'>
         <Button
           type='button'
-          onClick={() => copyToClipboard(`${window.location.origin}${eventPath}`)}
+          onClick={copy}
           className='h-9 flex-1 min-w-0 gap-1.5 rounded-lg bg-[#464444] px-3 font-inter-tight text-xs text-white hover:bg-[#232323]/90'>
           <Link2 className='size-3.5 shrink-0' />
           copy link
@@ -64,6 +66,14 @@ export function SelectedEventCard({ eventId }: { eventId?: string }) {
           </Link>
         </Button>
       </div>
+
+      {copied && (
+        <p
+          role='status'
+          className='w-fit rounded-full bg-green px-2.5 py-1 font-inter-tight text-xs font-semibold text-white'>
+          Link copied
+        </p>
+      )}
     </div>
   )
 }

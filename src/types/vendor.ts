@@ -131,7 +131,7 @@ export interface VendorSlotApplication {
   noOfRequestedStalls: number;
   priceOffer: number;
   proposedPrice: number;
-  status: "Pending" | "Acquired" | "Rejected" | "Secured";
+  status: "Pending" | "Accepted" | "Acquired" | "Rejected" | "Secured";
   message: string;
   createdAt: string;
   updatedAt: string;

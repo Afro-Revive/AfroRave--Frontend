@@ -149,10 +149,15 @@ export function toVisibility(accessType?: string): 'public' | 'private' {
   return accessType?.trim().toLowerCase() === 'private' ? 'private' : 'public'
 }
 
-export function copyToClipboard(text: string) {
+/** Resolves to whether the text actually reached the clipboard. */
+export async function copyToClipboard(text: string): Promise<boolean> {
   if (navigator?.clipboard?.writeText) {
-    navigator.clipboard.writeText(text)
-    return
+    try {
+      await navigator.clipboard.writeText(text)
+      return true
+    } catch {
+      // Denied (or no focus): the fallback below may still work.
+    }
   }
 
   // Fallback for insecure origins, where the clipboard API is unavailable.
@@ -163,8 +168,9 @@ export function copyToClipboard(text: string) {
   textarea.style.left = '-9999px'
   document.body.appendChild(textarea)
   textarea.select()
-  document.execCommand('copy')
+  const copied = document.execCommand('copy')
   document.body.removeChild(textarea)
+  return copied
 }
 
 /**

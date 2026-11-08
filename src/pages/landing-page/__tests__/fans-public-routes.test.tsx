@@ -19,10 +19,11 @@ const publicRoutes: { path: string; text: RegExp }[] = [
   { path: '/fans/refund-policy', text: /coming soon/i },
   { path: '/fans/work-with-us', text: /coming soon/i },
   { path: '/fans/sell', text: /coming soon/i },
-  { path: '/fans/terms-and-conditions', text: /coming soon/i },
+  { path: '/fans/terms-and-conditions', text: /terms of use/i },
   { path: '/fans/privacy-policy', text: /coming soon/i },
   { path: '/fans/support', text: /how can we help you/i },
-  { path: '/fans/support/faq', text: /how can we help you/i },
+  { path: '/fans/support/faq', text: /user support/i },
+  { path: '/support', text: /user support/i },
 ]
 
 describe('public /fans routes', () => {

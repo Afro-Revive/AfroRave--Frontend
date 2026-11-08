@@ -1,4 +1,20 @@
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
 import {
   Table,
@@ -12,8 +28,13 @@ import {
 import { cn } from '@/lib/utils'
 import type { EventCheckinGuest } from '@/types/guestlist'
 import { LoaderCircle, Search } from 'lucide-react'
+import { useState } from 'react'
+import { RiArrowDownSLine, RiMore2Fill, RiUserUnfollowLine } from 'react-icons/ri'
 
-/** The guests already on this event — the saved side of the import table. */
+/**
+ * The guests already on this event — the saved side of the import table. Guests
+ * and whole categories are taken off the event from here.
+ */
 export function EventGuestlistCard({
   guests,
   search,
@@ -21,6 +42,11 @@ export function EventGuestlistCard({
   isLoading = false,
   isFetching = false,
   onImportGuests,
+  individualGuestIds,
+  eventCategories,
+  onRemoveGuest,
+  onRemoveCategory,
+  isSaving = false,
 }: {
   guests: EventCheckinGuest[]
   search: string
@@ -30,7 +56,20 @@ export function EventGuestlistCard({
   /** Refetching a list that's already on screen. */
   isFetching?: boolean
   onImportGuests: () => void
+  /** Guests added one by one, who can be removed one by one. */
+  individualGuestIds: string[]
+  /** Whole categories on the event. */
+  eventCategories: { id: string; name: string; guestCount: number }[]
+  onRemoveGuest: (guestId: string) => void
+  onRemoveCategory: (categoryId: string) => void
+  /** A removal is saving. */
+  isSaving?: boolean
 }) {
+  // Taking a whole category off is confirmed first: one slip shouldn't clear it.
+  const [categoryToRemove, setCategoryToRemove] = useState<
+    (typeof eventCategories)[number] | null
+  >(null)
+
   return (
     <div className='w-full flex flex-col gap-5 rounded-xl bg-white p-5'>
       <div className='flex items-start justify-between gap-4 flex-wrap'>
@@ -50,6 +89,60 @@ export function EventGuestlistCard({
           Import Guests
         </Button>
       </div>
+
+      {eventCategories.length > 0 && (
+        <div className='flex flex-wrap items-center gap-2 font-inter-tight text-sm'>
+          <span className='text-mid-dark-gray'>Whole categories:</span>
+          {eventCategories.map((category) => (
+            <DropdownMenu key={category.id}>
+              <DropdownMenuTrigger asChild>
+                <button
+                  type='button'
+                  className='flex items-center gap-1 rounded-full border border-black/20 py-1 pl-3 pr-2 text-black transition-colors hover:border-black/40'>
+                  {category.name}
+                  <RiArrowDownSLine className='size-4 text-mid-dark-gray' />
+                </button>
+              </DropdownMenuTrigger>
+
+              <DropdownMenuContent align='start'>
+                <DropdownMenuItem
+                  disabled={isSaving}
+                  onClick={() => setCategoryToRemove(category)}
+                  className='text-deep-red focus:bg-transparent focus:text-deep-red'>
+                  <RiUserUnfollowLine size={16} className='mr-2' />
+                  Remove from event
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ))}
+        </div>
+      )}
+
+      <AlertDialog
+        open={!!categoryToRemove}
+        onOpenChange={(open) => !open && setCategoryToRemove(null)}>
+        <AlertDialogContent className='w-[90%] max-w-[400px] rounded-xl'>
+          <AlertDialogHeader>
+            <AlertDialogTitle className='font-inter-tight text-xl font-bold'>
+              Remove {categoryToRemove?.name} from this event?
+            </AlertDialogTitle>
+            <AlertDialogDescription className='font-inter-tight text-sm text-mid-dark-gray'>
+              Its {categoryToRemove?.guestCount}{' '}
+              {categoryToRemove?.guestCount === 1 ? 'guest comes' : 'guests come'} off this event’s
+              guestlist, except anyone you also added one by one. You can add the category back
+              from Import Guests.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className='gap-2'>
+            <AlertDialogCancel className='font-inter-tight'>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => categoryToRemove && onRemoveCategory(categoryToRemove.id)}
+              className='bg-deep-red font-inter-tight text-white hover:bg-deep-red/90'>
+              Remove
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <div className='relative'>
         <Search className='pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-mid-dark-gray' />
@@ -91,6 +184,9 @@ export function EventGuestlistCard({
                     {label}
                   </TableHead>
                 ))}
+                <TableHead className='w-10'>
+                  <span className='sr-only'>Actions</span>
+                </TableHead>
               </TableRow>
             </TableHeader>
 
@@ -114,6 +210,38 @@ export function EventGuestlistCard({
                       )}>
                       {guest.isCheckedIn ? 'Checked in' : 'Not arrived'}
                     </span>
+                  </TableCell>
+
+                  <TableCell>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant='ghost'
+                          aria-label={`Actions for ${guest.name}`}
+                          className='h-fit w-fit p-1 hover:bg-black/10'>
+                          <RiMore2Fill className='size-4' />
+                        </Button>
+                      </DropdownMenuTrigger>
+
+                      <DropdownMenuContent align='end'>
+                        {individualGuestIds.includes(guest.guestId) ? (
+                          <DropdownMenuItem
+                            disabled={isSaving}
+                            onClick={() => onRemoveGuest(guest.guestId)}
+                            className='text-deep-red focus:bg-transparent focus:text-deep-red'>
+                            <RiUserUnfollowLine size={16} className='mr-2' />
+                            Remove from event
+                          </DropdownMenuItem>
+                        ) : (
+                          // On the event through a whole category, so only
+                          // removing that category takes them off.
+                          <DropdownMenuItem disabled className='max-w-60 whitespace-normal'>
+                            Added with {guest.categoryName ?? 'a category'}. Remove the category
+                            above to take them off.
+                          </DropdownMenuItem>
+                        )}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </TableCell>
                 </TableRow>
               ))}

@@ -1,4 +1,4 @@
-import type { ApiResponse } from "@/types/api";
+import type { ApiResponse, PaginatedResponse } from "@/types/api";
 import { CategoryResponse, CreateGuestRequest, EventCheckinListResponse, EventGuestlistConfigResponse, GuestListAllowanceResponse, GuestListData, GuestListResponse } from "@/types/guestlist";
 import api from "./http.service";
 
@@ -16,6 +16,22 @@ class GuestListService {
     }): Promise<GuestListResponse> {
         const response = await api.get('/api/GuestList', { params });
         return response.data;
+    }
+
+    // Every guest matching the filters, across all pages: for selecting them
+    // all at once. Reads in pages of 100 until the last one.
+    async getAllOrganizerGuests(params?: {
+        search?: string
+        categoryId?: string
+        sort?: string
+    }): Promise<GuestListData[]> {
+        const guests: GuestListData[] = [];
+        for (let pageNumber = 1; ; pageNumber++) {
+            const response = await api.get('/api/GuestList', { params: { ...params, pageNumber, pageSize: 100 } });
+            const page = response.data?.data as PaginatedResponse<GuestListData> | undefined;
+            guests.push(...(page?.items ?? []));
+            if (!page?.items?.length || pageNumber >= page.totalPages) return guests;
+        }
     }
 
     // Add Guest to Organizer Guest List
@@ -85,6 +101,12 @@ class GuestListService {
     // Configure an event to an organizer's guest list
     async configureEventGuestList(eventId: string, data: { categoryIds: string[], individualGuestIds: string[] }): Promise<void> {
         const response = await api.post(`/api/Guestlist/event/${eventId}/configure`, data);
+        return response.data;
+    }
+
+    // Add Guest to category
+    async addGuestToCategory(guestId: string, categoryId: string): Promise<void> {
+        const response = await api.post(`/api/GuestList/categories/${categoryId}/guests/${guestId}`);
         return response.data;
     }
 

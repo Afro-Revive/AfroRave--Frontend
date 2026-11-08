@@ -1,15 +1,10 @@
-import { lazy, Suspense } from "react";
+import { Navigate } from "react-router-dom";
 import { getRoutePath } from "./get-route-path";
-import { LoadingFallback } from "@/components/loading-fallback";
 
-const FaqPage = lazy(() => import("../pages/support/faq"));
+// The FAQ was a placeholder; its questions now live on the Support page.
 export const support_routes = [
   {
     path: getRoutePath("faq"),
-    element: (
-      <Suspense fallback={<LoadingFallback />}>
-        <FaqPage />
-      </Suspense>
-    ),
+    element: <Navigate to={getRoutePath("help_center")} replace />,
   },
 ];

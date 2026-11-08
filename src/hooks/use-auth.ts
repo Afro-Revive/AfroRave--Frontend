@@ -186,6 +186,11 @@ export function useLogin(options?: { onSuccess?: () => void }) {
       if (data.data.userData && data.data.token) {
         setAuth(data.data.userData, data.data.token, data.data.refreshToken)
 
+        // Nothing cached before login belongs to this account (it may be the
+        // last user's events, still "fresh" for 5 minutes), so drop it all:
+        // the page being shown refetches now, and every other page on open.
+        void queryClient.resetQueries()
+
         // Sync local cart to server on login (needed for checkout flow).
         // Local store is NOT cleared so checkout-summary can still read from it for display.
         const localItems = useCartStore.getState().items

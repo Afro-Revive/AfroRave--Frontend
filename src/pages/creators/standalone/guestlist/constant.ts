@@ -13,12 +13,14 @@ export const GUEST_LIMIT = {
 /** The implicit category holding every guest. Always present, never editable. */
 export const ALL_GUESTS_CATEGORY_ID = 'all'
 
-export type GuestSort = 'newest' | 'oldest' | 'name'
+/** Sent as-is: GET /api/Guestlist only knows these two, word for word. */
+export type GuestSort = 'newest to oldest' | 'oldest to newest'
+
+export const DEFAULT_GUEST_SORT: GuestSort = 'newest to oldest'
 
 export const GUEST_SORT_OPTIONS: { value: GuestSort; label: string }[] = [
-  { value: 'newest', label: 'Newest first' },
-  { value: 'oldest', label: 'Oldest first' },
-  { value: 'name', label: 'Name A–Z' },
+  { value: 'newest to oldest', label: 'Newest first' },
+  { value: 'oldest to newest', label: 'Oldest first' },
 ]
 
 export const GUESTS_PER_PAGE = 20

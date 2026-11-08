@@ -18,7 +18,6 @@ const WorkWithUsPage = lazy(() => import('../pages/landing-page/work-with-us'))
 // )
 const SellPage = lazy(() => import('../pages/landing-page/sell'))
 const AcceptInvitePage = lazy(() => import('../pages/fans/accept-invite'))
-const TermsAndConditionPage = lazy(() => import('../pages/landing-page/terms-and-condition'))
 const PrivacyPolicyPage = lazy(() => import('../pages/landing-page/privacy-policy'))
 
 export const routes: RouteObject[] = [
@@ -117,14 +116,6 @@ export const routes: RouteObject[] = [
     element: (
       <Suspense fallback={<LoadingFallback />}>
         <SellPage />
-      </Suspense>
-    ),
-  },
-  {
-    path: getRoutePath('terms_and_conditions'),
-    element: (
-      <Suspense fallback={<LoadingFallback />}>
-        <TermsAndConditionPage />
       </Suspense>
     ),
   },

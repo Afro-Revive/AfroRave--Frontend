@@ -68,6 +68,9 @@ export function useAddGuest() {
       // Categories too: every tile shows a guest count.
       queryClient.invalidateQueries({ queryKey: guestlistKeys.guests() })
       queryClient.invalidateQueries({ queryKey: guestlistKeys.categories() })
+      // A category on an event brings its guests with it, so any event's
+      // guestlist can change when who's in a category does.
+      queryClient.invalidateQueries({ queryKey: guestlistKeys.events() })
     },
     onError: () => {
       toast.error('Failed to add guest. Please try again.')
@@ -84,6 +87,9 @@ export function useDeleteGuest() {
       toast.success('Guest removed successfully!')
       queryClient.invalidateQueries({ queryKey: guestlistKeys.guests() })
       queryClient.invalidateQueries({ queryKey: guestlistKeys.categories() })
+      // A category on an event brings its guests with it, so any event's
+      // guestlist can change when who's in a category does.
+      queryClient.invalidateQueries({ queryKey: guestlistKeys.events() })
     },
     onError: () => {
       toast.error('Failed to remove guest. Please try again.')
@@ -114,11 +120,75 @@ export function useDeleteCategory() {
     onSuccess: () => {
       toast.success('Category deleted successfully!')
       queryClient.invalidateQueries({ queryKey: guestlistKeys.categories() })
+      // A category on an event brings its guests with it, so any event's
+      // guestlist can change when who's in a category does.
+      queryClient.invalidateQueries({ queryKey: guestlistKeys.events() })
       // Guests carry category names, so their rows go stale with the category.
       queryClient.invalidateQueries({ queryKey: guestlistKeys.guests() })
     },
     onError: () => {
       toast.error('Failed to delete category. Please try again.')
+    },
+  })
+}
+
+/** Puts an existing guest in one more category. */
+export function useAddGuestToCategory() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({ guestId, categoryId }: { guestId: string; categoryId: string }) =>
+      guestListService.addGuestToCategory(guestId, categoryId),
+    onSuccess: () => {
+      toast.success('Guest added to category!')
+      // Guests: the row's category list changes. Categories: that tile's count goes up.
+      queryClient.invalidateQueries({ queryKey: guestlistKeys.guests() })
+      queryClient.invalidateQueries({ queryKey: guestlistKeys.categories() })
+      // A category on an event brings its guests with it, so any event's
+      // guestlist can change when who's in a category does.
+      queryClient.invalidateQueries({ queryKey: guestlistKeys.events() })
+    },
+    onError: () => {
+      toast.error('Failed to add guest to category. Please try again.')
+    },
+  })
+}
+
+/**
+ * Puts several guests in one category. There's no bulk endpoint, so it's one
+ * request per guest, five at a time, and the toast says how many went in.
+ */
+export function useAddGuestsToCategory() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async ({ guestIds, categoryId }: { guestIds: string[]; categoryId: string }) => {
+      let failed = 0
+      for (let start = 0; start < guestIds.length; start += 5) {
+        const results = await Promise.allSettled(
+          guestIds
+            .slice(start, start + 5)
+            .map((guestId) => guestListService.addGuestToCategory(guestId, categoryId)),
+        )
+        failed += results.filter((result) => result.status === 'rejected').length
+      }
+      return { added: guestIds.length - failed, failed }
+    },
+    onSuccess: ({ added, failed }) => {
+      if (failed === 0) {
+        toast.success(`${added} ${added === 1 ? 'guest' : 'guests'} added to category!`)
+      } else if (added === 0) {
+        toast.error('Failed to add guests to category. Please try again.')
+      } else {
+        toast.warning(`${added} added, but ${failed} couldn’t be. Please try those again.`)
+      }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: guestlistKeys.guests() })
+      queryClient.invalidateQueries({ queryKey: guestlistKeys.categories() })
+      // A category on an event brings its guests with it, so any event's
+      // guestlist can change when who's in a category does.
+      queryClient.invalidateQueries({ queryKey: guestlistKeys.events() })
     },
   })
 }
@@ -136,6 +206,9 @@ export function useRemoveGuestFromCategory() {
       // filtered view. Categories: that tile's count goes down.
       queryClient.invalidateQueries({ queryKey: guestlistKeys.guests() })
       queryClient.invalidateQueries({ queryKey: guestlistKeys.categories() })
+      // A category on an event brings its guests with it, so any event's
+      // guestlist can change when who's in a category does.
+      queryClient.invalidateQueries({ queryKey: guestlistKeys.events() })
     },
     onError: () => {
       toast.error('Failed to remove guest from category. Please try again.')
@@ -156,6 +229,9 @@ export function useBulkUploadGuests() {
       toast.success('Guests uploaded successfully!')
       queryClient.invalidateQueries({ queryKey: guestlistKeys.guests() })
       queryClient.invalidateQueries({ queryKey: guestlistKeys.categories() })
+      // A category on an event brings its guests with it, so any event's
+      // guestlist can change when who's in a category does.
+      queryClient.invalidateQueries({ queryKey: guestlistKeys.events() })
     },
     onError: () => {
       toast.error('Failed to upload guests. Check the file and try again.')

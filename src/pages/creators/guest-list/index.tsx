@@ -17,7 +17,7 @@ import type {
 } from '@/types/guestlist'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { CreatorPageContainer, SelectedEventGate } from '../_components/selected-event-page'
-import type { GuestSort } from '../standalone/guestlist/constant'
+import { DEFAULT_GUEST_SORT, type GuestSort } from '../standalone/guestlist/constant'
 import { AddGuestCard } from './components/add-guest-card'
 import { EventGuestlistCard } from './components/event-guestlist-card'
 import { ImportGuestlistCard } from './components/import-guestlist-card'
@@ -32,10 +32,13 @@ export default function GuestListPage() {
 function EventGuestlist({ eventId }: { eventId: string }) {
   const [activeCategoryId, setActiveCategoryId] = useState<string>(ALL_CATEGORIES_ID)
   const [search, setSearch] = useState('')
-  const [sort, setSort] = useState<GuestSort>('newest')
+  const [sort, setSort] = useState<GuestSort>(DEFAULT_GUEST_SORT)
   const [page, setPage] = useState(1)
-  const [selectedIds, setSelectedIds] = useState<string[]>([])
-  // 'saved' lists who's on the event; 'import' is the table for changing that.
+  // Guests and whole categories ticked to add. Only new ones: what's already on
+  // the event shows as locked in the table, and is removed from the guestlist.
+  const [pickedIds, setPickedIds] = useState<string[]>([])
+  const [pickedCategoryIds, setPickedCategoryIds] = useState<string[]>([])
+  // 'saved' lists who's on the event; 'import' is the table for adding to it.
   const [view, setView] = useState<'saved' | 'import'>('import')
   const [savedSearch, setSavedSearch] = useState('')
 
@@ -83,56 +86,63 @@ function EventGuestlist({ eventId }: { eventId: string }) {
   const eventGuests = (checkinResponse?.data as EventCheckinGuest[] | undefined) ?? []
 
   const savedIds = useMemo(() => config?.individualGuestIds ?? [], [config])
-  const savedCategoryIds = config?.categoryIds ?? []
+  const savedCategoryIds = useMemo(() => config?.categoryIds ?? [], [config])
 
-  // Seeded once, from the event's saved list, so guests already on it come back
-  // ticked. Only once: re-seeding on every refetch would wipe ticks made since,
-  // which Add Guest's refetch would otherwise do mid-selection.
-  const hasSeeded = useRef(false)
+  // Land on the guestlist when the event already has guests, and straight on
+  // the import table when there's nobody to show yet. Only once, on first load.
+  const hasChosenView = useRef(false)
 
   useEffect(() => {
-    if (hasSeeded.current || !config) return
+    if (hasChosenView.current || !config) return
 
-    setSelectedIds(config.individualGuestIds ?? [])
-    // Land on the guestlist when the event already has guests, and straight on
-    // the import table when there's nobody to show yet.
     const hasGuests =
       (config.individualGuestIds?.length ?? 0) > 0 || (config.categoryIds?.length ?? 0) > 0
     setView(hasGuests ? 'saved' : 'import')
-    hasSeeded.current = true
+    hasChosenView.current = true
   }, [config])
 
-  // Configure replaces the event's list, so saving sends the whole selection —
-  // which also makes unticking a saved guest a removal. Counted both ways so
-  // the button can say which of the two a save will do.
-  const addedCount = selectedIds.filter((id) => !savedIds.includes(id)).length
-  const removedCount = savedIds.filter((id) => !selectedIds.includes(id)).length
-
-  function saveSelection(options?: { onSuccess?: () => void }) {
+  // Configure replaces the event's whole list, so every save sends what's
+  // already there along with the change.
+  function addPickedToEvent() {
     configureGuestList.mutate(
       {
-        // Resent as-is: under replace, sending [] would wipe the event's
-        // categories. TODO: whole-category selection isn't wired — the pills
-        // filter the list rather than selecting a category.
-        categoryIds: savedCategoryIds,
-        individualGuestIds: selectedIds,
+        categoryIds: Array.from(new Set([...savedCategoryIds, ...pickedCategoryIds])),
+        individualGuestIds: Array.from(new Set([...savedIds, ...pickedIds])),
       },
-      options,
+      {
+        onSuccess: () => {
+          setPickedIds([])
+          setPickedCategoryIds([])
+          setView('saved')
+        },
+      },
     )
   }
 
-  /** Saves anything pending first, so leaving the table never drops ticks. */
-  function saveAndShowGuestlist() {
-    if (addedCount + removedCount === 0) {
-      setView('saved')
-      return
-    }
-
-    saveSelection({ onSuccess: () => setView('saved') })
+  function removeGuestFromEvent(guestId: string) {
+    configureGuestList.mutate({
+      categoryIds: savedCategoryIds,
+      individualGuestIds: savedIds.filter((id) => id !== guestId),
+    })
   }
 
-  function toggleGuest(guestId: string) {
-    setSelectedIds((current) =>
+  function removeCategoryFromEvent(categoryId: string) {
+    configureGuestList.mutate({
+      categoryIds: savedCategoryIds.filter((id) => id !== categoryId),
+      individualGuestIds: savedIds,
+    })
+  }
+
+  function togglePickedCategory(categoryId: string) {
+    setPickedCategoryIds((current) =>
+      current.includes(categoryId)
+        ? current.filter((id) => id !== categoryId)
+        : [...current, categoryId],
+    )
+  }
+
+  function togglePickedGuest(guestId: string) {
+    setPickedIds((current) =>
       current.includes(guestId) ? current.filter((id) => id !== guestId) : [...current, guestId],
     )
   }
@@ -162,14 +172,6 @@ function EventGuestlist({ eventId }: { eventId: string }) {
                   individualGuestIds: savedIds,
                 },
               },
-              {
-                // Ticked locally rather than re-seeded, so it joins whatever
-                // else is ticked instead of replacing it.
-                onSuccess: (guestId) =>
-                  setSelectedIds((current) =>
-                    current.includes(guestId) ? current : [...current, guestId],
-                  ),
-              },
             )
           }
         />
@@ -182,14 +184,28 @@ function EventGuestlist({ eventId }: { eventId: string }) {
             isLoading={isLoadingCheckin}
             isFetching={isFetchingCheckin}
             onImportGuests={() => setView('import')}
+            individualGuestIds={savedIds}
+            eventCategories={savedCategoryIds.map((id) => ({
+              id,
+              // A category deleted since it was added has no name left.
+              name: categories.find((category) => category.id === id)?.name ?? 'Removed category',
+              guestCount: categories.find((category) => category.id === id)?.guestCount ?? 0,
+            }))}
+            onRemoveGuest={removeGuestFromEvent}
+            onRemoveCategory={removeCategoryFromEvent}
+            isSaving={configureGuestList.isPending}
           />
         ) : (
           <ImportGuestlistCard
             guests={guests}
             categories={categories}
             totalGuests={totalGuests}
-            selectedIds={selectedIds}
-            onToggleGuest={toggleGuest}
+            pickedIds={pickedIds}
+            onToggleGuest={togglePickedGuest}
+            pickedCategoryIds={pickedCategoryIds}
+            onToggleCategory={togglePickedCategory}
+            savedIds={savedIds}
+            savedCategoryIds={savedCategoryIds}
             activeCategoryId={activeCategoryId}
             onCategoryChange={setActiveCategoryId}
             search={search}
@@ -202,10 +218,8 @@ function EventGuestlist({ eventId }: { eventId: string }) {
             onPageChange={setPage}
             isFetching={isFetching}
             isSaving={configureGuestList.isPending}
-            addedCount={addedCount}
-            removedCount={removedCount}
-            onAddToEvent={() => saveSelection()}
-            onSaveGuests={saveAndShowGuestlist}
+            onAddToEvent={addPickedToEvent}
+            onViewGuestlist={() => setView('saved')}
           />
         )}
       </div>

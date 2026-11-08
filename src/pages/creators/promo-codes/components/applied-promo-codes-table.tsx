@@ -9,6 +9,7 @@ import {
 } from '@/components/ui/table'
 import { formatShortDate, formatTimeLong, parseApiDate } from '@/lib/helper-func'
 import type { PromoCodeData, TicketData } from '@/types'
+import { RiAddCircleLine } from 'react-icons/ri'
 import { PartnershipTag } from './partnership-tag'
 
 const COLUMNS = ['Promo Code', 'Tickets', 'Date Applied']
@@ -24,8 +25,6 @@ export function AppliedPromoCodesTable({
   promocodes: PromoCodeData[]
   tickets: TicketData[]
 }) {
-  console.log(promocodes)
-  console.log(tickets)
   const ticketNames = new Map(tickets.map((ticket) => [ticket.ticketId, ticket.ticketName]))
 
   return (
@@ -106,4 +105,26 @@ function formatAppliedDate(value: string) {
   if (!value || Number.isNaN(parseApiDate(value).getTime())) return '—'
 
   return `${formatShortDate(value)}, ${formatTimeLong(value)}`
+}
+
+/** The same section before the event has any codes. */
+export function NoAppliedPromoCodes() {
+  return (
+    <div className='w-full flex flex-col gap-5 rounded-xl bg-white p-5'>
+      <div className='flex flex-col gap-1'>
+        <p className='font-inter-tight text-xl font-semibold text-black'>Apply Promo Code</p>
+        <p className='font-inter-tight text-xs xl:text-sm font-medium text-mid-dark-gray'>
+          Choose which promo codes apply to this event’s tickets.
+        </p>
+      </div>
+
+      <div className='flex flex-col items-center gap-2 py-10 text-center'>
+        <RiAddCircleLine aria-hidden className='size-9 text-light-red' />
+        <p className='font-inter-tight text-xl font-medium text-light-red'>No Codes Applied Yet</p>
+        <p className='font-inter-tight text-sm text-mid-gray'>
+          Create a promo code above, and the tickets it applies to will show here.
+        </p>
+      </div>
+    </div>
+  )
 }
