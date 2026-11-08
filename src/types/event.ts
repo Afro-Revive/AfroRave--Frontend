@@ -532,6 +532,30 @@ export interface AnalyticsPromoCode {
   partnerName: string | null
 }
 
+export interface AnalyticsOrder {
+  orderId: string
+  name: string | null
+  email: string | null
+  ticketName: string | null
+  quantity: number
+  amount: number
+  date: string
+  /** e.g. "Successful". */
+  status: string | null
+}
+
+export interface AnalyticsVendor {
+  name: string | null
+  /** A VENDOR_CATEGORIES value, with underscores. */
+  category: string | null
+  stallName: string | null
+  quantity: number
+  amount: number
+  date: string
+  /** e.g. "Requested", "Pending", "Secured", "Rejected". */
+  status: string | null
+}
+
 export interface EventAnalyticsData {
     totalRevenue: number
     totalNetRevenue: number
@@ -550,9 +574,16 @@ export interface EventAnalyticsData {
     promoCodesUsed: number
     discountTotal: number
     topPartner: string
-    topPartnerComission: number
+    /** Spelt with two m's by the API (an earlier one-m version here was always undefined). */
+    topPartnerCommission: number
     topPartnerNetSales: number
     promoCodes?: AnalyticsPromoCode[]
+    /** Every order, newest data the analytics endpoint has. */
+    orderList?: AnalyticsOrder[]
+    /** Every vendor application, any status. */
+    vendorList?: AnalyticsVendor[]
+    /** One row per ticket holder, like GET /api/Event/{eventId}/attendees. */
+    attendeeList?: EventAttendee[]
     audienceInsights: {
       ageGroups: {
         ageRange: string

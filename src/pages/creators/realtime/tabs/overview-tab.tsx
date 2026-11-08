@@ -1,151 +1,144 @@
-import { BaseBarChart, BasePieChart } from "@/components/reusable";
-import { formatNaira } from "@/lib/format-price";
-import {
-  AnalyticsGate,
-  type IAnalyticsTabProps,
-} from "../components/analytics-state";
+import { formatNaira } from '@/lib/format-price'
+import { Link } from 'react-router-dom'
+import { BarList, DonutChart, SERIES, TrendChart } from '../components/analytics-charts'
+import { AnalyticsGate, type IAnalyticsTabProps } from '../components/analytics-state'
+import { AnalyticsCard, EmptyNote, ProgressBar, StatTile, SummaryCard } from '../components/analytics-ui'
+import { countBuyers, formatDay, salesByDay, salesByTicket, vendorStageCounts } from '../lib/analytics-data'
+import { audienceFrom, countBars, genderSlices } from '../lib/audience'
 
-/** Each stream keeps its colour across all three charts, whatever its size. */
-const TICKETS_COLOR = "#00AD2E";
-const VENDORS_COLOR = "#FF9500";
-
-/** The unfilled remainder of a share chart. */
-const REMAINDER_COLOR = "#ebebeb";
-
+const plural = (count: number, one: string, other: string) =>
+  `${count.toLocaleString()} ${count === 1 ? one : other}`
 
 export default function OverviewTab(props: IAnalyticsTabProps) {
   return (
     <AnalyticsGate {...props}>
       {(data) => {
-        const netRevenue = Math.max(data.totalNetRevenue, 0);
-        const vendorRevenue = Math.max(data.totalRevenueFromVendors, 0);
-        // Net revenue is what tickets and vendors add up to, so tickets are the balance.
-        const ticketRevenue = Math.max(netRevenue - vendorRevenue, 0);
-
-        const shareOfNet = (value: number) =>
-          netRevenue ? `${Math.round((value / netRevenue) * 100)}%` : "0%";
+        const orders = data.orderList ?? []
+        const days = salesByDay(orders)
+        const tickets = salesByTicket(orders)
+        const vendors = data.vendorList ?? []
+        const stages = vendorStageCounts(vendors)
+        const { genders, ages, locations } = audienceFrom(data)
+        const soldPercent = data.totalTicketsCreated
+          ? Math.round((data.totalTicketsSold / data.totalTicketsCreated) * 100)
+          : 0
 
         return (
-          <div className="w-full flex flex-col gap-6">
-            <h2 className="font-inter text-3xl font-semibold text-system-black">Overview</h2>
-
-            <div className="w-full flex flex-col lg:flex-row gap-4">
-              <BasePieChart
-                className="flex-1 min-w-0"
-                variant="donut"
-                title="Revenue streams"
-                description={`Tickets ${formatNaira(ticketRevenue)} · Vendors ${formatNaira(vendorRevenue)}`}
-                totalLabel=""
-                valueLabel="Revenue"
-                valueFormatter={formatNaira}
-                sort={false}
-                data={[
-                  {
-                    label: "Tickets",
-                    value: ticketRevenue,
-                    color: TICKETS_COLOR,
-                  },
-                  {
-                    label: "Vendors",
-                    value: vendorRevenue,
-                    color: VENDORS_COLOR,
-                  },
-                ]}
-                emptyMessage="No revenue recorded for this event yet"
+          <>
+            <SummaryCard description='The headline numbers for this event so far.'>
+              <StatTile
+                label='Net Revenue'
+                value={formatNaira(data.totalNetRevenue)}
+                caption={
+                  data.totalRevenueFromVendors > 0
+                    ? `${formatNaira(data.totalRevenueFromVendors)} from vendors`
+                    : 'From ticket sales'
+                }
               />
-
-              <BasePieChart
-                className="flex-1 min-w-0"
-                title="Tickets"
-                description={`${data.totalTicketsIssued.toLocaleString()} tickets issued · ${shareOfNet(
-                  ticketRevenue,
-                )} of net revenue`}
-                valueLabel="Revenue"
-                variant="donut"
-                totalLabel=""
-                valueFormatter={formatNaira}
-                sort={false}
-                data={[
-                  {
-                    label: "Tickets",
-                    value: ticketRevenue,
-                    color: TICKETS_COLOR,
-                  },
-                  {
-                    label: "Rest of net revenue",
-                    value: Math.max(netRevenue - ticketRevenue, 0),
-                    color: REMAINDER_COLOR,
-                  },
-                ]}
-                emptyMessage="No ticket revenue for this event yet"
+              <StatTile
+                label='Tickets Sold'
+                value={`${data.totalTicketsSold.toLocaleString()} / ${data.totalTicketsCreated.toLocaleString()}`}
+                caption={`${soldPercent}% sold`}>
+                <ProgressBar
+                  value={data.totalTicketsSold}
+                  max={data.totalTicketsCreated}
+                  label='Tickets sold out of tickets on sale'
+                />
+              </StatTile>
+              <StatTile
+                label='Orders'
+                value={orders.length.toLocaleString()}
+                caption={plural(countBuyers(orders), 'buyer', 'buyers')}
               />
-
-              <BasePieChart
-                className="flex-1 min-w-0"
-                title="Vendors"
-                variant="donut"
-                description={`Top category: ${data.topVendorCategory || "—"} · ${shareOfNet(
-                  vendorRevenue,
-                )} of net revenue`}
-                valueLabel="Revenue"
-                valueFormatter={formatNaira}
-                sort={false}
-                totalLabel=""
-                data={[
-                  {
-                    label: "Vendors",
-                    value: vendorRevenue,
-                    color: VENDORS_COLOR,
-                  },
-                  {
-                    label: "Rest of net revenue",
-                    value: Math.max(netRevenue - vendorRevenue, 0),
-                    color: REMAINDER_COLOR,
-                  },
-                ]}
-                emptyMessage="No vendor revenue for this event yet"
+              <StatTile
+                label='Vendors Secured'
+                value={stages.Secured.toLocaleString()}
+                caption={`of ${plural(vendors.length || data.totalVendors, 'application', 'applications')}`}
               />
+            </SummaryCard>
+
+            <div className='grid gap-6 xl:grid-cols-3'>
+              <AnalyticsCard
+                className='xl:col-span-2'
+                title='Ticket Sales'
+                description='Tickets sold to date, day by day.'>
+                {days.length === 0 ? (
+                  <EmptyNote>No tickets sold yet. Sales will show here day by day.</EmptyNote>
+                ) : (
+                  <TrendChart
+                    data={days}
+                    xKey='day'
+                    valueKey='totalTickets'
+                    label='Tickets sold to date'
+                    formatX={formatDay}
+                    formatValue={(value) => value.toLocaleString()}
+                    tooltip={(day) => [
+                      { label: 'Sold that day', value: day.tickets.toLocaleString() },
+                      { label: 'Sold to date', value: day.totalTickets.toLocaleString(), color: SERIES[0] },
+                    ]}
+                  />
+                )}
+              </AnalyticsCard>
+
+              <AnalyticsCard title='Sales by Ticket' description='What buyers paid, by ticket type.'>
+                {tickets.length === 0 ? (
+                  <EmptyNote>No orders yet.</EmptyNote>
+                ) : (
+                  <BarList
+                    items={tickets.map((ticket) => ({
+                      label: ticket.ticketName,
+                      value: ticket.revenue,
+                      display: formatNaira(ticket.revenue),
+                      detail: plural(ticket.tickets, 'ticket', 'tickets'),
+                    }))}
+                  />
+                )}
+              </AnalyticsCard>
             </div>
 
+            <div className='grid gap-6 lg:grid-cols-3'>
+              <AnalyticsCard
+                title='Gender'
+                description='Share of buyers.'
+                action={<InsightsLink />}>
+                {genders.length === 0 ? (
+                  <EmptyNote>No buyer details yet.</EmptyNote>
+                ) : (
+                  <DonutChart slices={genderSlices(genders)} totalLabel='Buyers' layout='column' />
+                )}
+              </AnalyticsCard>
 
-            <div className="w-full grid gap-4 lg:grid-cols-2">
+              <AnalyticsCard title='Age Range' description='Buyers by age group.'>
+                {ages.length === 0 ? (
+                  <EmptyNote>No age details yet.</EmptyNote>
+                ) : (
+                  <BarList items={countBars(ages, { one: 'buyer', other: 'buyers' })} />
+                )}
+              </AnalyticsCard>
 
-              <BaseBarChart
-                className="min-w-0"
-                title="Top Towns"
-                description="Attendees by town or city"
-                orientation="horizontal"
-                data={data.audienceInsights?.locations ?? []}
-                xKey="location"
-                series={[{ key: "count", label: "Attendees" }]}
-                emptyMessage="No town data for this event"
-              />
-
-              <BaseBarChart
-                className="min-w-0"
-                title="Top Age Range"
-                description="Attendees by age group"
-                orientation="horizontal"
-                data={data.audienceInsights?.ageGroups ?? []}
-                xKey="ageRange"
-                series={[{ key: "count", label: "Attendees" }]}
-                emptyMessage="No age data for this event"
-              />
-
-              <BaseBarChart
-                className="min-w-0"
-                title="Gender"
-                description="Attendees by gender"
-                orientation="horizontal"
-                data={data.audienceInsights?.genders ?? []}
-                xKey="gender"
-                series={[{ key: "count", label: "Attendees" }]}
-                emptyMessage="No gender data for this event"
-              />
+              <AnalyticsCard title='Top Locations' description='Where buyers are from.'>
+                {locations.length === 0 ? (
+                  <EmptyNote>No location details yet.</EmptyNote>
+                ) : (
+                  <BarList
+                    items={countBars(locations.slice(0, 5), { one: 'buyer', other: 'buyers' })}
+                  />
+                )}
+              </AnalyticsCard>
             </div>
-          </div>
-        );
+          </>
+        )
       }}
     </AnalyticsGate>
-  );
+  )
+}
+
+function InsightsLink() {
+  return (
+    <Link
+      to='?tab=insights'
+      className='shrink-0 font-inter-tight text-xs font-semibold text-tech-blue hover:underline'>
+      View all
+    </Link>
+  )
 }

@@ -1,78 +1,116 @@
 import { formatNaira } from '@/lib/format-price'
-import { cn } from '@/lib/utils'
+import type { AnalyticsPromoCode } from '@/types'
+import { Link } from 'react-router-dom'
+import { getRoutePath } from '@/config/get-route-path'
+import { BarList } from '../components/analytics-charts'
 import { AnalyticsGate, type IAnalyticsTabProps } from '../components/analytics-state'
+import { AnalyticsCard, AnalyticsTable, EmptyNote, StatTile, SummaryCard } from '../components/analytics-ui'
+
+const discountLabel = (code: AnalyticsPromoCode) =>
+  code.discountType === 'Percentage'
+    ? `${code.discountPercentage}% off`
+    : `${formatNaira(code.discountPercentage)} off`
 
 export default function PromoCodesTab(props: IAnalyticsTabProps) {
   return (
     <AnalyticsGate {...props}>
-      {(data) => (
-        <div className='w-full flex flex-col gap-6'>
-          <div className='grid gap-3 sm:grid-cols-2 xl:grid-cols-3'>
-            <Figure
-              label='Promo codes created'
-              value={data.totalPromoCodesCreated.toLocaleString()}
-            />
-            <Figure
-              label='Codes used'
-              value={data.promoCodesUsed.toLocaleString()}
-              caption={`of ${data.totalPromoCodesCreated.toLocaleString()} created`}
-            />
-            <Figure label='Total discount given' value={formatNaira(data.discountTotal)} />
-          </div>
+      {(data) => {
+        const codes = data.promoCodes ?? []
+        const totalUses = codes.reduce((sum, code) => sum + code.uses, 0)
+        const byUses = [...codes].sort((a, b) => b.uses - a.uses)
 
-          <div className='flex flex-col gap-4 rounded-[4px] border border-light-gray bg-white px-5 py-4'>
-            <div className='flex flex-col gap-1'>
-              <span className='text-[11px] uppercase tracking-wider text-mid-dark-gray font-sf-pro-text'>
-                Top partner
-              </span>
-              <span className='text-lg font-medium text-black font-sf-pro-display'>
-                {data.topPartner || '—'}
-              </span>
-            </div>
+        return (
+          <>
+            <SummaryCard description='Redemptions and sales across every promo and partnership code.'>
+              <StatTile
+                label='Codes Created'
+                value={(codes.length || data.totalPromoCodesCreated).toLocaleString()}
+              />
+              <StatTile
+                label='Times Used'
+                // The per-code uses, or the API's own total when it sends no list.
+                value={(codes.length ? totalUses : data.promoCodesUsed).toLocaleString()}
+              />
+              <StatTile label='Discount Given' value={formatNaira(data.discountTotal)} />
+              <StatTile
+                label='Top Partner'
+                value={data.topPartner || '—'}
+                caption={
+                  data.topPartner
+                    ? `${formatNaira(data.topPartnerNetSales)} sales · ${formatNaira(data.topPartnerCommission ?? 0)} commission`
+                    : 'No partner sales yet'
+                }
+              />
+            </SummaryCard>
 
-            <div className='grid gap-3 sm:grid-cols-2'>
-              <Figure
-                label='Partner net sales'
-                value={formatNaira(data.topPartnerNetSales)}
-                className='border-0 px-0 py-0'
-              />
-              <Figure
-                label='Partner commission'
-                value={formatNaira(data.topPartnerComission)}
-                className='border-0 px-0 py-0'
-              />
-            </div>
-          </div>
-        </div>
-      )}
+            {codes.length === 0 ? (
+              <AnalyticsCard title='Codes' description='How each code is doing.'>
+                <EmptyNote>
+                  <span>
+                    No promo codes for this event yet.{' '}
+                    <Link to={getRoutePath('promo_codes')} className='font-semibold text-tech-blue hover:underline'>
+                      Create one
+                    </Link>
+                  </span>
+                </EmptyNote>
+              </AnalyticsCard>
+            ) : (
+              <div className='grid gap-6 xl:grid-cols-5'>
+                {/* Only once a code has been used: until then it would be a card of nothing. */}
+                {totalUses > 0 && (
+                  <AnalyticsCard className='xl:col-span-2' title='Uses by Code' description='Most used first.'>
+                    <BarList
+                      items={byUses.map((code) => ({
+                        label: code.promoCode,
+                        value: code.uses,
+                        display: code.uses.toLocaleString(),
+                        detail: code.uses === 1 ? 'use' : 'uses',
+                      }))}
+                    />
+                  </AnalyticsCard>
+                )}
+
+                <AnalyticsCard
+                  className={totalUses > 0 ? 'xl:col-span-3' : 'xl:col-span-5'}
+                  title='Codes'
+                  description={
+                    totalUses > 0
+                      ? 'Sales and commission for each code.'
+                      : 'None of your codes have been used yet. Sales and commission will show here.'
+                  }>
+                  <AnalyticsTable<AnalyticsPromoCode>
+                    caption='Promo codes for this event'
+                    rows={byUses}
+                    rowKey={(code) => code.promoCode}
+                    columns={[
+                      {
+                        header: 'Code',
+                        cell: (code) => (
+                          <span className='flex flex-col'>
+                            <span className='font-semibold text-green'>{code.promoCode}</span>
+                            {code.partnerName && (
+                              <span className='text-xs text-mid-dark-gray'>Partner: {code.partnerName}</span>
+                            )}
+                          </span>
+                        ),
+                      },
+                      { header: 'Discount', cell: discountLabel },
+                      { header: 'Uses', numeric: true, cell: (code) => code.uses.toLocaleString() },
+                      { header: 'Gross', numeric: true, cell: (code) => formatNaira(code.grossSales) },
+                      { header: 'Net', numeric: true, cell: (code) => formatNaira(code.netSales) },
+                      {
+                        header: 'Commission',
+                        numeric: true,
+                        cell: (code) => (code.partnerName ? formatNaira(code.commissions) : '—'),
+                      },
+                    ]}
+                  />
+                </AnalyticsCard>
+              </div>
+            )}
+          </>
+        )
+      }}
     </AnalyticsGate>
-  )
-}
-
-function Figure({
-  label,
-  value,
-  caption,
-  className,
-}: {
-  label: string
-  value: string
-  caption?: string
-  className?: string
-}) {
-  return (
-    <div
-      className={cn(
-        'flex flex-col gap-1 rounded-[4px] border border-light-gray bg-white px-5 py-4',
-        className,
-      )}>
-      <span className='text-[11px] uppercase tracking-wider text-mid-dark-gray font-sf-pro-text'>
-        {label}
-      </span>
-      <span className='text-2xl font-medium text-black font-sf-pro-display tabular-nums'>
-        {value}
-      </span>
-      {caption && <span className='text-xs text-mid-dark-gray font-sf-pro-text'>{caption}</span>}
-    </div>
   )
 }

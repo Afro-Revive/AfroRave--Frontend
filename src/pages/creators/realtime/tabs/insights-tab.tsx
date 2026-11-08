@@ -1,55 +1,76 @@
-import { BaseBarChart, BasePieChart } from '@/components/reusable'
+import { BarList, ColumnChart, DonutChart, MUTED_FILL, SERIES } from '../components/analytics-charts'
 import { AnalyticsGate, type IAnalyticsTabProps } from '../components/analytics-state'
+import { AnalyticsCard, EmptyNote, StatTile, SummaryCard } from '../components/analytics-ui'
+import { isUnknown } from '../lib/analytics-data'
+import { audienceFrom, countBars, genderSlices, topLabel } from '../lib/audience'
 
-/** Locations are a long tail — show the biggest few and let the rest fall away. */
-const MAX_LOCATIONS = 8
+/** Locations are a long tail: the biggest ten, then a count of the rest. */
+const MAX_LOCATIONS = 10
 
 export default function InsightsTab(props: IAnalyticsTabProps) {
   return (
     <AnalyticsGate {...props}>
       {(data) => {
-        const { ageGroups = [], genders = [], locations = [] } = data.audienceInsights ?? {}
-
-        const topLocations = [...locations]
-          .sort((a, b) => b.count - a.count)
-          .slice(0, MAX_LOCATIONS)
+        const { genders, ages, locations } = audienceFrom(data)
+        const buyers = genders.reduce((sum, item) => sum + item.count, 0)
+        const unknownGender = genders.find((item) => isUnknown(item.label))?.count ?? 0
 
         return (
-          <div className='w-full flex flex-col gap-6'>
-            <div className='grid gap-6 xl:grid-cols-2'>
-              <BasePieChart
-                title='Gender'
-                description='Share of attendees'
-                variant='donut'
-                totalLabel='Attendees'
-                data={genders.map((item) => ({ label: item.gender, value: item.count }))}
-                emptyMessage='No gender data for this event'
+          <>
+            <SummaryCard description='Built from the profiles of the people who bought tickets.'>
+              <StatTile label='Buyers' value={buyers.toLocaleString()} caption='With a profile on Afrorevive' />
+              <StatTile label='Top Age Range' value={topLabel(ages)} />
+              <StatTile label='Top Location' value={topLabel(locations)} />
+              <StatTile
+                label='Details Missing'
+                value={unknownGender.toLocaleString()}
+                caption='Buyers who haven’t added their gender'
               />
+            </SummaryCard>
 
-              <BaseBarChart
-                title='Age groups'
-                description='Attendees by age range'
-                data={ageGroups}
-                xKey='ageRange'
-                series={[{ key: 'count', label: 'Attendees' }]}
-                emptyMessage='No age data for this event'
-              />
+            <div className='grid gap-6 lg:grid-cols-5'>
+              <AnalyticsCard className='lg:col-span-2' title='Gender' description='Share of buyers.'>
+                {genders.length === 0 ? (
+                  <EmptyNote>No buyer details yet.</EmptyNote>
+                ) : (
+                  <DonutChart slices={genderSlices(genders)} totalLabel='Buyers' layout='column' />
+                )}
+              </AnalyticsCard>
+
+              <AnalyticsCard className='lg:col-span-3' title='Age Groups' description='Buyers by age range.'>
+                {ages.length === 0 ? (
+                  <EmptyNote>No age details yet.</EmptyNote>
+                ) : (
+                  <ColumnChart
+                    data={ages}
+                    xKey='label'
+                    valueKey='count'
+                    label='Buyers by age range'
+                    formatValue={(value) => value.toLocaleString()}
+                    colorOf={(item) => (isUnknown(item.label) ? MUTED_FILL : SERIES[0])}
+                    tooltip={(item) => [
+                      { label: 'Buyers', value: item.count.toLocaleString(), color: isUnknown(item.label) ? MUTED_FILL : SERIES[0] },
+                      { label: 'Share', value: buyers ? `${Math.round((item.count / buyers) * 100)}%` : '0%' },
+                    ]}
+                  />
+                )}
+              </AnalyticsCard>
             </div>
 
-            <BaseBarChart
+            <AnalyticsCard
               title='Locations'
               description={
                 locations.length > MAX_LOCATIONS
-                  ? `Top ${MAX_LOCATIONS} of ${locations.length} locations`
-                  : 'Attendees by location'
-              }
-              data={topLocations}
-              xKey='location'
-              series={[{ key: 'count', label: 'Attendees' }]}
-              orientation='horizontal'
-              emptyMessage='No location data for this event'
-            />
-          </div>
+                  ? `The top ${MAX_LOCATIONS} of ${locations.length} places buyers are from.`
+                  : 'Where buyers are from.'
+              }>
+              {locations.length === 0 ? (
+                <EmptyNote>No location details yet.</EmptyNote>
+              ) : (
+                <BarList items={countBars(locations.slice(0, MAX_LOCATIONS), { one: 'buyer', other: 'buyers' })} />
+              )}
+            </AnalyticsCard>
+          </>
         )
       }}
     </AnalyticsGate>
