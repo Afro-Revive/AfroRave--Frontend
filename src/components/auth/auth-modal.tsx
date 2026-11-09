@@ -20,7 +20,12 @@ import { Link } from "react-router";
 const FULL_SCREEN_MODAL =
   "inset-0 h-screen max-h-screen w-screen max-w-none translate-x-0 translate-y-0 rounded-none sm:rounded-none bg-gradient-to-b from-[#F3F3F3] to-[#D9D9D9]";
 
-export function AuthModal() {
+interface AuthModalProps {
+  /** On fan pages, signup skips the role choice and goes straight to the fan form. */
+  fanSignup?: boolean;
+}
+
+export function AuthModal({ fanSignup = false }: AuthModalProps) {
   const {
     isAuthModalOpen,
     authType,
@@ -31,19 +36,15 @@ export function AuthModal() {
     switchToSignup,
     showAuthVideo,
     authNotice,
+    signupNotice,
     stayOnPage,
   } = useAuth();
   const isMobile = useIsMobile();
   const [showForgotPassword, setShowForgotPassword] = useState(false);
 
-  // Check if we are on the fans page — fans get a different signup experience
-  const isFansPage =
-    window.location.pathname === "/fans" ||
-    window.location.pathname.startsWith("/fans/");
-
   const renderSignupForm = () => {
-    // On /fans, skip role selection and go straight to fan signup form
-    if (signupType === "guest" && authType === "signup" && !isFansPage) {
+    // On fan pages, skip role selection and go straight to fan signup form
+    if (signupType === "guest" && authType === "signup" && !fanSignup) {
       return <RoleSelection onContinue={(role) => switchToSignup(role)} />;
     }
 
@@ -84,22 +85,23 @@ export function AuthModal() {
 
   // A notice is a full-width bar across the top of the screen, so the modal
   // goes full screen like the video layout, with the form centred below it.
-  const showNoticeBar =
-    !!authNotice && authType === "login" && !showForgotPassword && !showVideoPanel;
+  // Login and signup can each have their own.
+  const notice = authType === "login" ? authNotice : signupNotice;
+  const showNoticeBar = !!notice && !showForgotPassword && !showVideoPanel;
 
   const getModalSize = () => {
     if (showVideoPanel || showNoticeBar) return "full";
     if (authType === "login") return "small";
     if (signupType === "creator" || signupType === "vendor") return "large";
     // Role selection modal should be large, but NOT on fans page (fans get small form)
-    if (signupType === "guest" && authType === "signup" && !isFansPage)
+    if (signupType === "guest" && authType === "signup" && !fanSignup)
       return "large";
     return "small";
   };
 
   const shouldShowCreatorLogo = () => {
     // Never show creator logo on the fans page
-    if (isFansPage) return false;
+    if (fanSignup) return false;
     // Show logo for creator login or vendor login, role selection, or creator signup
     // Vendor signup has its own logo inside the form, so don't show floating logo
     if (authType === "signup" && signupType === "vendor") {
@@ -149,14 +151,14 @@ export function AuthModal() {
           authType === "signup" &&
           (signupType === "creator" ||
             signupType === "vendor" ||
-            (signupType === "guest" && !isFansPage)),
+            (signupType === "guest" && !fanSignup)),
         "bg-[#F5F5F5]":
           !showForgotPassword &&
           authType === "signup" &&
           !(
             signupType === "creator" ||
             signupType === "vendor" ||
-            (signupType === "guest" && !isFansPage)
+            (signupType === "guest" && !fanSignup)
           ),
       })}
       overlayClassName="bg-[#F5F5F5] !opacity-100"
@@ -178,7 +180,7 @@ export function AuthModal() {
             role="status"
             className="w-full shrink-0 bg-green/25 px-4 py-4 text-center font-sf-pro-text text-xs md:text-sm text-green"
           >
-            {authNotice}
+            {notice}
           </p>
         </OnlyShowIf>
 
@@ -195,6 +197,10 @@ export function AuthModal() {
               // Mobile only: a card so the form stays readable over the video.
               "w-full max-w-md rounded-2xl p-6 shadow-2xl md:max-w-none md:rounded-none md:bg-none md:p-0 md:shadow-none":
                 showVideoPanel,
+              // Centred under a notice, the signup form (w-full, unlike the
+              // fixed-width login) has nothing to fill, so it's given the
+              // width it has in the regular small modal.
+              "w-full sm:max-w-[415px]": showNoticeBar && authType === "signup",
             })}
           >
           <AnimatePresence mode="wait" initial={false}>

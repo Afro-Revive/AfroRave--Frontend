@@ -39,29 +39,30 @@ in `.env.local`. It refuses to start without it. Staging is
 src/
 ├── pages/
 │   ├── landing-page/          Public fan pages (no login needed)
-│   │   ├── home/              /fans — the fans home page
-│   │   ├── event-page/        /fans/events and each event's page
+│   │   ├── home/              / — the fans home page
+│   │   ├── event-page/        /events and each event's page
 │   │   │   ├── individual-event/   One event: details, tickets, map, contacts
 │   │   │   └── cart/               Cart modal (opens checkout)
 │   │   ├── checkout/          Checkout modal content + Paystack hand-off
 │   │   ├── payment-confirmation/   Where Paystack sends the fan back
-│   │   ├── resell-page/       /fans/resell — explains resale
+│   │   ├── resell-page/       /resell — explains resale
 │   │   ├── resale-marketplace/     Built but NOT routed (waiting on the API)
 │   │   ├── _component/        EmptyPage ("Coming Soon"), promo code, totals
-│   │   └── about-us, blog, faq, privacy-policy, refund-policy,
-│   │       sell, terms-and-condition, work-with-us   → all "Coming Soon"
+│   │   └── faq, privacy-policy, refund-policy, sell,
+│   │       terms-and-condition, work-with-us   → "Coming Soon" (or unused)
 │   ├── fans/                  Logged-in fan pages
-│   │   ├── account/           /fans/account — profile and wallet tabs
+│   │   ├── account/           /account — profile and wallet tabs
 │   │   ├── my-tickets/        Active/past tickets, ticket detail, resell, transfer
+│   │   ├── accept-invite/     /invite/accept — where an invite email's link lands
 │   │   ├── listed-tickets/    Tickets the fan is reselling
 │   │   ├── settings/          Change password, log out
 │   │   └── complete-profile/  /complete-profile — reached from an email link
 │   ├── auth/                  Login, sign-up and reset-password forms
-│   └── support/               /fans/support — contact form (not sent anywhere yet)
+│   └── support/               /contact-support — contact form, sent to POST /api/Support
 ├── layouts/
 │   ├── root-layout/           Header, search, footer for public fan pages
 │   ├── user-dashboard-layout/ Account sidebar for logged-in fan pages
-│   ├── support-layout/        Used by /fans/support/faq
+│   ├── support-layout/        Used by /support/faq, which redirects to /support
 │   └── components/            Pieces shared by layouts (login button, footer links, socials)
 ├── components/auth/           Auth modal, role selection, forgot password, route guards
 ├── hooks/                     Data hooks (TanStack Query) — one file per area
@@ -79,21 +80,37 @@ All route paths live in one map, `src/config/route-map.ts`. Code never types a
 URL by hand. It calls `getRoutePath('key', params)` from
 `src/config/get-route-path.ts`, so renaming a URL is a one-line change.
 
+> **Fan pages are at the root.** They used to live under `/fans`. Old links
+> (`/fans/...`) are redirected permanently to the same path without `/fans`,
+> keeping the query string: in `vercel.json` before the app loads, and in the
+> app by `LegacyFansRedirect` (`src/config/legacy-fans-redirect.tsx`).
+> `/fans/support` goes to `/contact-support`, since `/support` is the public
+> Support page. The login popup gets the fan signup from an `AuthModal fanSignup`
+> prop on the fan layout and checkout, not from the URL. About Us and Blog are
+> one page each for fans and creators (the creators site's pages). The creators
+> waitlist that used to be at `/` is gone.
+
 | URL | Page folder | Layout | Login needed |
 |---|---|---|---|
-| `/fans` | `landing-page/home` | root | No |
-| `/fans/events` | `landing-page/event-page` | root | No |
-| `/fans/events/:eventId` | `landing-page/event-page/individual-event` | root | No |
-| `/fans/resell` | `landing-page/resell-page` | root | No |
-| `/fans/about-us`, `/blog`, `/refund-policy`, `/work-with-us`, `/sell`, `/terms-and-conditions`, `/privacy-policy` | `landing-page/*` | root | No (all "Coming Soon") |
-| `/fans/support` | `support` | user dashboard | No |
-| `/fans/support/faq` | `support/faq` | support | No ("Coming Soon") |
-| `/fans/account` (`?account=wallet` for the wallet) | `fans/account` | user dashboard | Yes |
-| `/fans/settings` | `fans/settings` | user dashboard | Yes |
-| `/fans/my-tickets` | `fans/my-tickets` | user dashboard | Yes |
-| `/fans/my-tickets/:eventId` | `fans/my-tickets/individual-active-tickets` | user dashboard | Yes |
-| `/fans/listed-tickets` | `fans/listed-tickets` | user dashboard | Yes |
-| `/fans/payment-confirmation` | `landing-page/payment-confirmation` | none | No |
+| `/` | `landing-page/home` | root | No |
+| `/events` | `landing-page/event-page` | root | No |
+| `/events/:eventId` | `landing-page/event-page/individual-event` | root | No |
+| `/resell` | `landing-page/resell-page` | root | No |
+| `/refund-policy`, `/work-with-us`, `/sell`, `/privacy-policy` | `landing-page/*` | root | No (all "Coming Soon") |
+| `/about-us`, `/blog` | `creators/about-us`, `creators/blog` | creators website | No (one page each for fans and creators; Blog is "Coming Soon") |
+| `/support`, `/terms-and-conditions` | `help/support`, `help/terms` | help | No |
+| `/contact-support` | `support` | user dashboard | No |
+| `/support/faq` | none | support | No (redirects to `/support`) |
+| `/account` (`?account=wallet` for the wallet) | `fans/account` | user dashboard | Yes |
+| `/settings` | `fans/settings` | user dashboard | Yes |
+| `/my-tickets` | `fans/my-tickets` | user dashboard | Yes |
+| `/my-tickets/:eventId` | `fans/my-tickets/individual-active-tickets` | user dashboard | Yes |
+| `/listed-tickets` | `fans/listed-tickets` | user dashboard | Yes |
+| `/invite/accept?token=…` | `fans/accept-invite` | root | No (it opens the login itself) |
+| `/events/:eventId/cart` | `landing-page/event-page/cart` | none (full screen) | No |
+| `/events/:eventId/checkout` | `landing-page/checkout` | none (full screen) | No (it shows the login form) |
+| `/payment-confirmation` |
+| `/fans/...` (old links) | none | none | No (redirects to the same path at the root) | `landing-page/payment-confirmation` | none | No |
 | `/complete-profile?token=…` | `fans/complete-profile` | none | No (the token is the proof) |
 | `/reset-password?token=…` | `auth/reset-password` | none | No |
 | `*` | `landing-page/not-found` | root | No |
@@ -157,8 +174,16 @@ log in.
 | Option | What it does |
 |---|---|
 | `withVideo: true` | Shows the video panel. Used by the fans header login. |
-| `notice: '…'` | Turns the modal full screen with a green bar across the top. The private-event card uses this. |
+| `notice: '…'` | Turns the modal full screen with a green bar across the top of the login form. The private-event card and the invite page use this. |
+| `signupNotice: '…'` | The same bar for the sign-up form, when it needs different wording. The invite page uses it to say only the invited email can accept. |
 | `stayOnPage: true` | After login the user stays where they were, instead of going to their dashboard. |
+
+Opening or switching forms only changes `?login=` / `?signup=`. The page's other
+query params stay, so a page that needs its query (an invite's `?token=`) still
+has it after logging in.
+
+`useLogout({ stayOnPage: true })` logs out without leaving the page. The invite
+page uses it when someone is signed in with the wrong email.
 
 **The session:**
 - The logged-in user and tokens live in `useAfroStore` (`src/stores/index.ts`), saved to `localStorage` under `afro-store-v1`.
@@ -182,12 +207,39 @@ chips filter the events shown), `ResaleSection`, `BecomeCreatorSection` and
 ### Event discovery (`landing-page/event-page`)
 
 - `index.tsx` renders `EventCategoryBlocks`.
-- `event-category-blocks.tsx` reads the filters from the URL: `q`, `date`, `month`, `category`, `when` (`tonight` or `week`) and `resale`. It filters `useGetAllEvents()` in the browser with `filterEvents()`.
+- `event-category-blocks.tsx` reads the filters from the URL: `q`, `category`, `resale`, `date`, `month`, `when` (`tonight` or `week`), `minPrice`, `maxPrice` and `page`. Changing any filter resets `page`.
 - The header search (`layouts/root-layout/header/animated-search-bar.tsx`) builds those same URL parameters and navigates here.
 
-> Filtering happens in the browser, on the one page of events the API returns.
-> The search bar also sets `minPrice` and `maxPrice`, but `filterEvents()`
-> ignores them.
+**Server or browser?** `useGetAllEvents(params)` calls `GET /api/Event`, which
+takes `pageNumber`, `pageSize`, `search`, `category`, `hasResaleTickets`,
+`includeEnded`, `date`, `startDate`, `endDate`, `minPrice` and `maxPrice`.
+
+| Filter | Where it runs |
+|---|---|
+| `q` → `search` (name and venue) | Server |
+| `category` (one value from `eventCategories`, matched exactly) | Server |
+| `resale` → `hasResaleTickets` | Server |
+| `page` → `pageNumber`, 12 per page | Server |
+| `when`, `month`, `date` → `date`, or `startDate` + `endDate` | Server. `toDateFilter()` turns the one selected date filter into `YYYY-MM-DD` params: Tonight and a picked date are a single `date`; This Week is today to today+7, and a month is its first to last day (next year's if it has passed). The server returns events *running* on those days, so a two-day event matches either day. |
+| `minPrice`, `maxPrice` | Server. `toPriceRange()` ignores anything that isn't a price of 0 or more, and swaps the two if min is above max. An event matches if any of its tickets is in the range; free events count as ₦0. |
+
+Date filters are one at a time: picking Tonight, This Week, a month or a date
+clears whichever was set before (`setDateFilter()`), so there's only one to
+send.
+
+Under the filter row, a "Results From" line names what's active, with the
+count once it loads: `Results From “afro” in Concert · This Week · ₦5,000 and
+up · 4 events`. `dateFilterLabel()` and `priceFilterLabel()` word the date and
+price filters. Resale isn't listed.
+
+The fan home page (`/`) chips work the same way, all on the server: Concert
+(`category: 'concert'`), Resale (`hasResaleTickets`) and This Week
+(`thisWeekRange()`).
+
+> Categories come from the organizer list (`eventCategories` in
+> `pages/creators/edit-event/constant.ts`), so a filter matches what was saved.
+> The price filter seems to compare prices before the booking fee, while fans
+> see them with it; that's with the backend to confirm.
 
 ### One event (`event-page/individual-event`)
 
@@ -196,8 +248,7 @@ IndividualEventPage (index.tsx)        loads the event with useGetEventByCustomU
 └── EventDetails (event-details.tsx)
     ├── EventDetailsSection            left column, pinned on desktop: flyer, date, venue
     ├── EventBookmarkButton            logged-in only; save to or remove from watchlist
-    ├── Cart (event-page/cart)         cart + checkout modals (see below)
-    ├── EventDescription
+    ├── EventDescription               rich text, sanitized (see below)
     ├── PrivateEventGuard              public events → tickets; private → access card
     │   └── TicketSection (sections/tickets.tsx)
     │         Tickets / Resale tabs, + and − per ticket, invite-only padlock,
@@ -215,6 +266,19 @@ IndividualEventPage (index.tsx)        loads the event with useGetEventByCustomU
   - **Ended:** "Requests have closed".
   - **Not requested:** the request card, which sends the request with `useRequestAccess`.
 
+**The description** (`components/reusable/show-more-text.tsx`, also on the cart
+page): organizers write it in a rich text editor, so it can be HTML with
+headings, bold, italic, underline, strikethrough, code, links, lists, quotes,
+code blocks and dividers. It's passed through DOMPurify (`sanitizeRichText` in
+`lib/rich-text.ts`), which keeps only the tags the editor makes and, on links,
+only the address; every link is forced to open in a new tab with
+`rel="noopener noreferrer nofollow"`, and `javascript:` links are dropped. So
+nothing an organizer types can run on a fan's screen. Long ones are clipped to a few lines with a fade until **Read more**.
+Older plain-text descriptions still show as before, line breaks and all.
+Ticket descriptions are rich text too, shown in full in the ticket's details
+modal by `RichTextContent` (`components/reusable/rich-text-content.tsx`), with the
+same sanitizing.
+
 ### Cart and checkout
 
 The cart is the most involved fan flow. The rules:
@@ -222,12 +286,18 @@ The cart is the most involved fan flow. The rules:
 1. **The browser cart is the single source of truth.** `useCartStore` (saved to `localStorage` as `afro-cart`) holds every line. Fans can fill a cart without an account.
 2. **Adding** goes through `useCreateCart` and `useUpdateCartQuantity` (`hooks/use-cart.ts`). Both write to the store.
 3. **Logging in syncs the cart.** `useLogin` sends the local cart to the server with `cartService.syncCart`, including resale lines (`listingId`, `resellTicketId`), and waits for that before navigating.
-4. **Cart modal:** `event-page/cart/index.tsx` opens `CartContainer`. Continue syncs to the server, then opens the checkout modal. Both modals ask "are you sure?" before closing, and closing clears the cart.
-5. **Checkout** (`checkout/index.tsx`):
+4. **One event per cart.** The store records the cart's `eventSlug`. On the event page, adding a ticket takes the fan to the cart page. If the saved cart holds another event's tickets (say, from a closed tab), the fan is asked to replace them first.
+5. **Cart page** (`/events/:eventId/cart`, `event-page/cart/index.tsx`): a full-screen page with `CartContainer`, styled like the modal it replaced. Continue syncs to the server, then goes to the checkout page.
+6. **Checkout page** (`/events/:eventId/checkout`, `checkout/index.tsx`). It has no layout, so it brings its own `AuthProvider` and `<AuthModal />`.
    - Signed out: shows `UserLoginForm` with `onLoginSuccess={() => {}}` so the fan stays in checkout.
-   - Signed in: shows `CheckoutSummary` with the promo code, the totals accordion, and a reservation countdown.
-6. **Paying:** `CheckoutSummary` sends the fan to Paystack, with the callback set to `${origin}/fans/payment-confirmation`.
-7. **Payment confirmation** (`payment-confirmation/index.tsx`) reads Paystack's reference from the URL, calls `useProcessCheckout`, and shows success or failure. `useProcessCheckout` clears the local cart when it succeeds.
+   - Signed in: shows `CheckoutSummary` with the promo code, the totals accordion, and a 15-minute countdown.
+   - **The countdown** starts the moment the server reserves the tickets: when `useSyncCartToServer` succeeds (Continue on the cart page) and when `useLogin` syncs the cart (logging in at checkout). Each sync restarts it. The start is saved in the store, so a refresh carries on counting. The summary only displays it.
+   - **Extending:** in the last two minutes, while the reservation still exists, a "Need more time?" link appears. `useExtendReservation` fetches the fan's server cart (`GET /api/Cart`), calls `POST /api/Cart/{cartId}/extend-reservation` for every line, since each line has its own reservation, and restarts the countdown.
+   - **Expiry:** when the countdown reaches zero, the server has already deleted the cart and would reject payment. The summary clears the browser's cart and says the tickets were released. The empty cart then sends the fan back to the event page, without the "are you sure?" step. A refresh or Back onto an expired checkout does the same.
+7. **Leaving asks first.** `useCheckoutFlowGuard` (`hooks/use-checkout-flow-guard.ts`) uses React Router's `useBlocker`. Any way out of the cart or checkout (the ✕, a link, the browser's Back) shows "Exit Cart?" or "Exit Checkout?", and confirming clears the cart. Moving between this event's cart and checkout isn't blocked, and neither is the redirect to Paystack. `useBlocker` needs a data router, which is why `application.tsx` uses `createBrowserRouter`.
+8. **Refresh and empty carts.** A refresh keeps the fan on the cart or checkout page, because the cart and promo code are saved. An empty cart, or one for another event, sends the fan back to the event page.
+9. **Paying:** `CheckoutSummary` sends the fan to Paystack, with the callback set to `${origin}/payment-confirmation` (from `getRoutePath('payment_confirmation')`).
+10. **Payment confirmation** (`payment-confirmation/index.tsx`) reads Paystack's reference from the URL, calls `useProcessCheckout`, and shows success or failure. `useProcessCheckout` clears the local cart when it succeeds.
 
 `lib/purchasable-tickets.ts` turns normal tickets and resale listings into one
 shape (`PurchasableTicket`), so the ticket list and cart can treat both alike.
@@ -240,6 +310,41 @@ shape (`PurchasableTicket`), so the ticket list and cart can treat both alike.
 | `individual-active-tickets/index.tsx` | One event's tickets: order cards, receipt modal (`useOrderReceiptDetails`), and the Resell and Transfer actions. |
 | `tickets-resale/modals/ticket-resale.tsx` | Resell: choose tickets, then set prices (`useTicketResale`). |
 | `tickets-transfer/index.tsx` | Transfer: choose tickets, then enter recipients. Each recipient is verified first (`useTransferTickets`). |
+
+**Tickets that can't be resold or transferred.** `resaleBlockedReason()` and
+`transferBlockedReason()` (`lib/helper-func.ts`) say why, or return nothing
+when a ticket is allowed:
+
+| Ticket | Resell | Transfer |
+|---|---|---|
+| Invite-only (`accessType: 'Invite'`) | No | No |
+| Group (`isGroupTicket()`) | No | Yes |
+
+- **In the modals,** a blocked ticket is faded, can't be picked, and shows the reason.
+- **With only one ticket for the event,** a blocked ticket turns the Resell or Transfer button off, with the reason as its tooltip. With more than one, the buttons stay on and the modals do the blocking.
+- **An ended event** turns both buttons off.
+
+### Accepting an invite (`fans/accept-invite`)
+
+An organizer's invite email links to `/invite/accept?token=…` (older emails link to `/fans/invite/accept`, which redirects there). The route
+sits with the public pages because it needs the login modal, and it checks the
+user itself:
+
+1. **No token:** "This invite link is incomplete".
+2. **Signed out:** the login opens over the invite (`notice`, `signupNotice`, `stayOnPage`), so the guest lands back here with the token.
+3. **The invite** comes from `useGetInviteTicketByToken`. Expired or cancelled invites, and errors, show a message.
+4. **Wrong account:** signed in with an email other than the invited one, the guest sees Email Mismatch. "Log out and continue" uses `useLogout({ stayOnPage: true })`, so the login reopens here.
+5. **The invite:** "You're invited to {event}" with the event card. **Accept Ticket** calls `useAcceptInviteTicket`:
+   - `requiresPayment: false` (free): the ticket is issued, and the guest sees You're In.
+   - `requiresPayment: true` (paid): the Pay step. **Pay ₦…** goes to the Paystack `authorizationUrl`. The invite's status is now `PaymentPending`, so a reload comes back to Pay.
+6. **Back from Paystack** (`?reference=`): the payment webhook issues the ticket, so the invite read on arrival usually says `Issued`, and the guest sees You're In. If it doesn't yet, the page calls `useVerifyInviteTicketPayment` once as a backup, showing "Confirming your payment" until it answers:
+   - `Issued`: You're In. The reference is removed from the URL, so a refresh doesn't verify again.
+   - Anything else: back to Pay, with the server's reason and a **Check again** button that verifies again.
+
+You're In links to the ticket in My Tickets and to the app for the QR code.
+
+Invite statuses: `Queued`, `Sent`, `Accepted`, `PaymentPending`, `Issued`,
+`Expired`, `Cancelled`.
 
 ### Listed tickets (`fans/listed-tickets`)
 
@@ -302,11 +407,11 @@ refreshes that event's tickets, promo codes and analytics.
 | `use-cart.ts` | `useCreateCart`, `useUpdateCartQuantity`, `useDeleteCart`, `useClearCart`, `useSyncCartToServer`, `useCheckoutCart`, `useProcessCheckout`, `useValidatePromocode`, `useExtendReservation` |
 | `use-tickets-mutations.ts` | `useTicketResale`, `useGetUsersResaleTickets`, `useEditResaleListingPrice`, `useCancelResaleListing`, `useTransferTickets`, `useVerifyTransferRecipient` |
 | `use-profile-mutations.ts` | `useUserProfile`, `useUpdateUserProfile`, `useUserActiveTickets`, `useUserPastTickets`, `useWalletDetails`, `useWithdrawFunds`, `usePayoutHistory`, `useChangePassword` |
-| `use-payments.ts` | `useGetNigerianBanks`, `useVerifyBankAccount` |
+| `use-payments.ts` | `useGetNigerianBanks` (a cached query, fresh for a day, so the withdraw modal's bank list doesn't come back empty; `enabled` waits until the modal opens), `useVerifyBankAccount` |
 | `use-order-mutations.ts` | `useOrderReceiptDetails` |
 | `use-private-event-mutations.ts` | `useGetViewerAccessStatus`, `useRequestAccess` |
 | `use-newsletter.ts` | `useNewsletterSubscription` |
-| `use-invite-ticket-mutations.ts` | `useGetInviteTicketByToken`, `useAcceptInviteTicket`. Ready, but no page uses them yet. |
+| `use-invite-ticket-mutations.ts` | `useGetInviteTicketByToken`, `useAcceptInviteTicket`, `useVerifyInviteTicketPayment` |
 
 ---
 
@@ -315,7 +420,7 @@ refreshes that event's tickets, promo codes and analytics.
 | Store | Saved in the browser? | Holds |
 |---|---|---|
 | `useAfroStore` | Yes (`afro-store-v1`) | The user, tokens, `isAuthenticated`, `isFan`, `isCreator`, `isVendor` |
-| `useCartStore` | Yes (`afro-cart`) | Cart lines, the applied promo code, whether a sync is running |
+| `useCartStore` | Yes (`afro-cart`, version 2) | Cart lines, the event they belong to (`eventSlug`), the applied promo code, when the checkout countdown started, and whether a sync is running |
 
 Use a store only for state many pages share. Server data belongs in TanStack
 Query, not in a store.
@@ -350,4 +455,6 @@ Query, not in a store.
 
 Jest tests for the fan routes live in `src/pages/fans/__tests__` and
 `src/pages/landing-page/__tests__`. Shared setup (an API mock, fixtures and a
-render helper with providers) is in `src/test/`. Run `yarn test`.
+render helper with providers) is in `src/test/`. Run `yarn test`. The public
+routes test also checks that old `/fans/...` links redirect with their query
+string. 8 tests still expect page text from before earlier redesigns and fail.

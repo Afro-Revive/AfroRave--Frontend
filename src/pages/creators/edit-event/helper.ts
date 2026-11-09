@@ -1,5 +1,5 @@
 import type { EventDetailData } from '@/types'
-import { toVisibility } from '@/lib/helper-func'
+import { parseApiDate, toVisibility } from '@/lib/helper-func'
 import { africanTimezones } from './constant'
 
 export function convertTime(time: string) {
@@ -39,8 +39,31 @@ function getOffset(timeZone: string): string {
   return match ? match[1] : '+0'
 }
 
+/**
+ * The zone shown for each saved offset. The API keeps only the offset ("+1"),
+ * not the zone picked, so Lagos can't round-trip as Lagos; without this the
+ * first zone in the list with that offset came back (Lagos saved, Algiers shown).
+ */
+const PREFERRED_ZONE_BY_OFFSET: Record<string, string> = {
+  '+0': 'Africa/Accra',
+  '+1': 'Africa/Lagos',
+  '+2': 'Africa/Johannesburg',
+  '+3': 'Africa/Nairobi',
+}
+
+/** "+1", "UTC+1", "GMT+01:00" and "1" all read as "+1"; anything else as is. */
+function normaliseOffset(offset: string): string {
+  const match = offset?.trim().match(/^(?:UTC|GMT)?\s*([+-])?0?(\d{1,2})(?::?00)?$/i)
+  return match ? `${match[1] ?? '+'}${Number(match[2])}` : offset
+}
+
 export function getAfricanTimezoneByOffset(offset: string) {
-  return africanTimezones.find((tz) => getOffset(tz.value) === offset) || undefined
+  const normalised = normaliseOffset(offset)
+  const preferred = PREFERRED_ZONE_BY_OFFSET[normalised]
+  return (
+    africanTimezones.find((tz) => tz.value === preferred) ??
+    africanTimezones.find((tz) => getOffset(tz.value) === normalised)
+  )
 }
 
 export function transformEventToSchema(event: EventDetailData) {
@@ -62,20 +85,23 @@ export function transformEventToSchema(event: EventDetailData) {
     // fallback for events saved before that field existed.
     poster_url: event.posterUrl || event.eventDetails.desktopMedia?.flyer || '',
     time_zone: getAfricanTimezoneByOffset(eventDate.timezone)?.value,
+    // Event days are plain calendar days ('2026-10-20'): parseApiDate keeps
+    // the day, where new Date reads it as UTC midnight and can land a day off.
     start_date: {
-      date: new Date(eventDate.startDate),
+      date: parseApiDate(eventDate.startDate),
       hour: convertTime(eventDate.startTime).hour,
       minute: convertTime(eventDate.startTime).minute,
       period: convertTime(eventDate.startTime).period as 'AM' | 'PM',
     },
     end_date: {
-      date: new Date(eventDate.endDate),
+      date: parseApiDate(eventDate.endDate),
       hour: convertTime(eventDate.endTime).hour,
       minute: convertTime(eventDate.endTime).minute,
       period: convertTime(eventDate.endTime).period as 'AM' | 'PM',
     },
     email: event.eventDetails.eventContact.email,
-    website_url: event.eventDetails.eventContact.website,
+    // Optional, so an event saved without one comes back as null.
+    website_url: event.eventDetails.eventContact.website ?? '',
     socials: {
       instagram: event.eventDetails.socials.instagram,
       tiktok: event.eventDetails.socials.tiktok,

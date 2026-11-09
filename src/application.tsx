@@ -1,14 +1,25 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { Suspense, lazy } from 'react'
-import { Route, BrowserRouter as Router, Routes } from 'react-router-dom'
+import {
+  Outlet,
+  Route,
+  RouterProvider,
+  createBrowserRouter,
+  createRoutesFromElements,
+  type RouteObject,
+} from 'react-router-dom'
 import { Toaster } from 'sonner'
 import { OrganizerAuthGuard } from './components/auth/organizer-auth-guard'
+import { VendorAuthGuard } from './components/auth/vendor-auth-guard'
 import { LoadingFallback } from './components/loading-fallback'
 import { creator_dashboard_routes } from './config/creator-dashboard-routes'
 import { getRoutePath } from './config/get-route-path'
+import { LegacyFansRedirect } from './config/legacy-fans-redirect'
+import { LEGACY_FANS_PATH } from './config/route-map'
 import { routes } from './config/routes'
 import { support_routes } from './config/support-routes'
+import { help_routes } from './config/help-routes'
 import { user_dashboard_routes } from './config/user-dashboard-routes'
 import { useScrollToTop } from './hooks/use-scroll-to-top'
 import { useTokenRefresh } from './hooks/use-token-refresh'
@@ -16,6 +27,7 @@ import CreatorGuideOverlay from './components/shared/creator-guide-overlay'
 import CreatorDashboardLayout from './layouts/creator-dashboard-layout'
 import IndexLayout from './layouts/root-layout'
 import SupportLayout from './layouts/support-layout'
+import HelpLayout from './layouts/help-layout'
 import UserDashboardLayout from './layouts/user-dashboard-layout'
 import CreatorsLandingPageLayout from './layouts/creators-landing-page-layout'
 import { creator_landing_page_routes } from './config/creators-landing-page-routes'
@@ -23,10 +35,12 @@ import { vendor_dashboard_routes } from './config/vendor-dashboard-routes'
 import VendorDashboardLayout from './layouts/vendor-dashboard-layout'
 
 const AddEventPage = lazy(() => import('./pages/creators/add-event'))
-const SlotDetailsPage = lazy(() => import('./pages/vendor/slots/slot-details'))
+const VendorEventDetailsPage = lazy(() => import('./pages/vendor/discover/event-details'))
 const CompleteProfilePage = lazy(() => import('./pages/fans/complete-profile'))
 const ResetPasswordPage = lazy(() => import('./pages/auth/reset-password'))
 const PaymentConfirmationPage = lazy(() => import('./pages/landing-page/payment-confirmation'))
+const EventCartPage = lazy(() => import('./pages/landing-page/event-page/cart'))
+const EventCheckoutPage = lazy(() => import('./pages/landing-page/checkout'))
 
 // Create a client
 const queryClient = new QueryClient({
@@ -38,13 +52,31 @@ const queryClient = new QueryClient({
   },
 })
 
-export function AppRoutes() {
+/**
+ * Runs once around every page: what used to sit beside <Routes> when the app
+ * used <BrowserRouter>.
+ */
+function AppShell() {
   useScrollToTop()
   useTokenRefresh()
 
   return (
     <>
-    <Routes>
+      <Outlet />
+      <CreatorGuideOverlay />
+    </>
+  )
+}
+
+/**
+ *  A data router, so pages can use useBlocker — the cart and
+ * checkout pages use it to confirm before the fan leaves.
+ */
+export const appRoutes: RouteObject[] = createRoutesFromElements(
+  <Route element={<AppShell />}>
+      {/* Fan pages moved from /fans to the root; old links follow them. */}
+      <Route path={`${LEGACY_FANS_PATH}/*`} element={<LegacyFansRedirect />} />
+
       <Route element={<IndexLayout />}>
         {routes.map((route) => (
           <Route key={route.path} path={route.path} element={route.element} />
@@ -69,6 +101,12 @@ export function AppRoutes() {
         ))}
       </Route>
 
+      <Route element={<HelpLayout />}>
+        {help_routes.map((route) => (
+          <Route key={route.path} path={route.path} element={route.element} />
+        ))}
+      </Route>
+
       <Route element={<CreatorsLandingPageLayout />}>
         {creator_landing_page_routes.map((route) => (
           <Route key={route.path} path={route.path} element={route.element} />
@@ -76,11 +114,13 @@ export function AppRoutes() {
       </Route>
 
       <Route
-        path={getRoutePath('vendor_slot_details', { eventId: ':eventId' })}
+        path={getRoutePath('vendor_event_details', { eventId: ':eventId' })}
         element={
-          <Suspense fallback={<LoadingFallback />}>
-            <SlotDetailsPage />
-          </Suspense>
+          <VendorAuthGuard>
+            <Suspense fallback={<LoadingFallback />}>
+              <VendorEventDetailsPage />
+            </Suspense>
+          </VendorAuthGuard>
         }
       />
 
@@ -120,6 +160,24 @@ export function AppRoutes() {
       />
 
       <Route
+        path={getRoutePath('event_cart', { eventId: ':eventId' })}
+        element={
+          <Suspense fallback={<LoadingFallback />}>
+            <EventCartPage />
+          </Suspense>
+        }
+      />
+
+      <Route
+        path={getRoutePath('event_checkout', { eventId: ':eventId' })}
+        element={
+          <Suspense fallback={<LoadingFallback />}>
+            <EventCheckoutPage />
+          </Suspense>
+        }
+      />
+
+      <Route
         path={getRoutePath('payment_confirmation')}
         element={
           <Suspense fallback={<LoadingFallback />}>
@@ -127,18 +185,15 @@ export function AppRoutes() {
           </Suspense>
         }
       />
-    </Routes>
-    <CreatorGuideOverlay />
-    </>
-  )
-}
+  </Route>,
+)
+
+const router = createBrowserRouter(appRoutes)
 
 export default function Application() {
   return (
     <QueryClientProvider client={queryClient}>
-      <Router>
-        <AppRoutes />
-      </Router>
+      <RouterProvider router={router} />
       <ReactQueryDevtools initialIsOpen={false} />
       <Toaster position='top-right' richColors closeButton duration={4000} />
     </QueryClientProvider>

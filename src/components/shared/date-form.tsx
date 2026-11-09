@@ -1,59 +1,72 @@
-import type { FieldValues, UseFormReturn, Path } from 'react-hook-form'
-import { BaseDatePicker } from '../reusable/base-date-picker'
+import { useWatch, type FieldValues, type Path, type PathValue, type UseFormReturn } from 'react-hook-form'
 import { FormField } from '../reusable'
-import { TimeForm } from './time-form'
-import { cn } from '@/lib/utils'
+import { DateTimePicker, type DateTimePickerTone } from './date-time-picker'
 
+/**
+ * A date and time field. The picker is one control, but the form keeps the
+ * four values it always has (date, hour, minute, period), so schemas and
+ * toApiDateTime don't change.
+ */
 export function DateForm<T extends FieldValues>({
   form,
+  name,
   input_name,
   hour_name,
-  period_name,
   minute_name,
+  period_name,
   date_label,
-  time_label,
-  flow = 'column',
+  tone,
 }: IDateFormProps<T>) {
-  return (
-    <div
-      className={cn('w-full', {
-        'flex flex-col gap-8': flow === 'column',
-        'grid grid-cols-2 gap-5 items-start': flow === 'row',
-      })}>
-      <FormField
-        form={form}
-        name={input_name}
-        label={date_label}
-        className='w-full flex flex-col gap-1 text-black text-xs uppercase font-sf-pro-text'>
-        {(field) => (
-          <BaseDatePicker
-            value={field.value as Date}
-            onChange={field.onChange}
-            onBlur={field.onBlur}
-            className='w-full min-h-10 bg-white border-mid-dark-gray/50 rounded-[4px] hover:bg-black/10 font-sf-pro-display'
-          />
-        )}
-      </FormField>
+  const [hour, minute, period] = useWatch({
+    control: form.control,
+    name: [hour_name, minute_name, period_name],
+  })
 
-      <TimeForm
-        form={form}
-        hour_name={hour_name}
-        period_name={period_name}
-        minute_name={minute_name}
-        label={time_label}
-      />
-    </div>
+  const setTimePart = (path: Path<T>, value: string) =>
+    form.setValue(path, value as PathValue<T, Path<T>>, {
+      shouldDirty: true,
+      shouldValidate: form.formState.isSubmitted,
+    })
+
+  return (
+    <FormField
+      form={form}
+      name={input_name}
+      label={date_label}
+      className='w-full flex flex-col gap-1 text-black text-xs uppercase font-sf-pro-text'>
+      {(field) => (
+        <DateTimePicker
+          label={name}
+          value={{
+            date: field.value as Date | undefined,
+            hour: hour ?? '12',
+            minute: minute ?? '00',
+            period: period ?? 'AM',
+          }}
+          onChange={(next) => {
+            field.onChange(next.date)
+            setTimePart(hour_name, next.hour)
+            setTimePart(minute_name, next.minute)
+            setTimePart(period_name, next.period)
+          }}
+          onBlur={field.onBlur}
+          tone={tone}
+        />
+      )}
+    </FormField>
   )
 }
 
 interface IDateFormProps<T extends FieldValues> {
+  /** Heads the picker's popover: 'START DATE'. */
   name: string
   input_name: Path<T>
   form: UseFormReturn<T>
   hour_name: Path<T>
   minute_name: Path<T>
   period_name: Path<T>
+  /** The label above the field, if it has one. */
   date_label?: string
-  time_label?: string
-  flow?: 'row' | 'column'
+  /** Light (the default) for white screens, dark for dark ones. */
+  tone?: DateTimePickerTone
 }

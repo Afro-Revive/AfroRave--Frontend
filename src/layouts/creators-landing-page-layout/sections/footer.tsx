@@ -31,13 +31,13 @@ const footer_links: IFooterLinks[] = [
     title: 'Helpful Links',
     links: [
       { href: getRoutePath('home'), name: 'Discover events' },
-      { href: getRoutePath('support'), name: 'Support' },
+      { href: getRoutePath('help_center'), name: 'Support' },
     ],
   },
   {
     title: 'Company',
     links: [
-      { href: getRoutePath('creators_blog'), name: 'Blog' },
+      { href: getRoutePath('blog'), name: 'Blog' },
       { href: getRoutePath('work_with_us'), name: 'Work With Us' },
     ],
   },

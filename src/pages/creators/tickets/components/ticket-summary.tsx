@@ -1,20 +1,16 @@
 import { Button } from '@/components/ui/button'
 import { getRoutePath } from '@/config/get-route-path'
-import { useGetEventAnalytics } from '@/hooks/use-event-mutations'
+import { useGetEvent } from '@/hooks/use-event-mutations'
 import { formatNaira } from '@/lib/format-price'
-import type { EventAnalyticsData } from '@/types'
+import type { EventDetailData } from '@/types'
 import { ArrowRight, Ticket } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
 export function SummaryCard({ eventId }: { eventId: string }) {
-  const { data: response, isPending } = useGetEventAnalytics(eventId)
-  const analytics = response?.data as EventAnalyticsData | undefined
-
-  // Net revenue counts vendor payments too, so the ticket share is what's left —
-  // the same split the analytics Overview tab makes.
-  const ticketNetSales = analytics
-    ? Math.max(analytics.totalNetRevenue - analytics.totalRevenueFromVendors, 0)
-    : 0
+  // The event's own stats, the same ones its card on the events dashboard shows.
+  // The sidebar loads this event too, so it's usually already cached.
+  const { data: response, isPending } = useGetEvent(eventId)
+  const stats = (response?.data as EventDetailData | undefined)?.eventStat
 
   return (
     <div className='w-full flex flex-col gap-5 rounded-xl bg-white p-5'>
@@ -38,13 +34,13 @@ export function SummaryCard({ eventId }: { eventId: string }) {
       </div>
 
       <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
-        <SummaryStat label='Total Net Sales' isLoading={isPending} hasData={!!analytics}>
-          {formatNaira(ticketNetSales)}
+        <SummaryStat label='Total Net Sales' isLoading={isPending} hasData={!!stats}>
+          {formatNaira(stats?.netProfit ?? 0)}
         </SummaryStat>
 
-        <SummaryStat label='Total Tickets Issued' isLoading={isPending} hasData={!!analytics}>
+        <SummaryStat label='Total Tickets Issued' isLoading={isPending} hasData={!!stats}>
           <Ticket className='size-5 shrink-0' />
-          {analytics?.totalTicketsIssued} / {analytics?.totalTicketsCreated}
+          {stats?.ticketSold} / {stats?.totalTicket}
         </SummaryStat>
       </div>
     </div>

@@ -186,6 +186,11 @@ export function useLogin(options?: { onSuccess?: () => void }) {
       if (data.data.userData && data.data.token) {
         setAuth(data.data.userData, data.data.token, data.data.refreshToken)
 
+        // Nothing cached before login belongs to this account (it may be the
+        // last user's events, still "fresh" for 5 minutes), so drop it all:
+        // the page being shown refetches now, and every other page on open.
+        void queryClient.resetQueries()
+
         // Sync local cart to server on login (needed for checkout flow).
         // Local store is NOT cleared so checkout-summary can still read from it for display.
         const localItems = useCartStore.getState().items
@@ -199,6 +204,8 @@ export function useLogin(options?: { onSuccess?: () => void }) {
                   : { ticketId, quantity },
               ),
             )
+            // The server has just reserved the tickets: start the checkout countdown.
+            useCartStore.getState().startReservation()
             await queryClient.invalidateQueries({ queryKey: cartKeys.lists() })
           } finally {
             useCartStore.getState().setSyncing(false)
@@ -227,7 +234,11 @@ export function useLogin(options?: { onSuccess?: () => void }) {
 }
 
 // Logout Hook
-export function useLogout() {
+/**
+ * stayOnPage skips the landing-page redirect, for a page that carries on
+ * signed out (an invite asking for a different account).
+ */
+export function useLogout(options?: { stayOnPage?: boolean }) {
   const queryClient = useQueryClient()
   const clearAuth = useAfroStore((state) => state.clearAuth)
   const navigate = useNavigate()
@@ -241,7 +252,7 @@ export function useLogout() {
       // Determine destination before clearing auth
       const destination =
         accountType === 'User'
-          ? getRoutePath('home')          // /fans — fans landing page
+          ? getRoutePath('home')          // / — fans landing page
           : getRoutePath('creators_home') // /home — creators/vendor landing page
 
       // Clear auth first so the store is clean
@@ -250,7 +261,7 @@ export function useLogout() {
 
       // Navigate after clearing — auth guard will now redirect to the correct
       // landing page for the account type (fixed in AuthGuard) so there's no conflict
-      navigate(destination, { replace: true })
+      if (!options?.stayOnPage) navigate(destination, { replace: true })
       authToasts.logoutSuccess()
     },
     onError: (error: unknown) => {

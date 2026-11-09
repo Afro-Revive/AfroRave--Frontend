@@ -7,6 +7,8 @@ export const eventKeys = {
   detail: (id: string) => [...eventKeys.details(), id] as const,
   detailUrl: (customUrl: string) => [...eventKeys.details(), customUrl] as const,
   organizer: () => [...eventKeys.all, 'organizer'] as const,
+  /** The create-event mutation, so a button outside its form can tell it's running. */
+  create: () => [...eventKeys.all, 'create'] as const,
   trending: () => [...eventKeys.all, 'trending'] as const,
   tickets: (eventId: string) => [...eventKeys.detail(eventId), 'tickets'] as const,
   promoCodes: (eventId: string) => [...eventKeys.detail(eventId), 'promocodes'] as const,
@@ -18,4 +20,9 @@ export const eventKeys = {
   vendorSlotById: (vendorId: string) => [...eventKeys.all, 'vendor', 'slot', vendorId] as const,
   organizerVendorListings: (eventVendorId: string) => [...eventKeys.all, 'vendor', 'slot', eventVendorId, 'applications'] as const,
   analytics: (eventId: string) => [...eventKeys.detail(eventId), 'analytics'] as const,
+  // The logged-in vendor's own requests, across every event.
+  myVendorApplications: () => [...eventKeys.all, 'vendor', 'application'] as const,
+  myVendorApplication: (applicationId: string) => [...eventKeys.myVendorApplications(), applicationId] as const,
+  vendorSummary: () => [...eventKeys.all, 'vendor', 'summary'] as const,
+  vendorSaved: () => [...eventKeys.all, 'vendor', 'saved'] as const,
 }

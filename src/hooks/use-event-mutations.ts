@@ -1,13 +1,16 @@
 import { eventKeys } from '@/lib/event-keys'
+import { apiErrorMessage } from '@/lib/api-error'
 import { eventService } from '@/services/event.service'
+import { vendorService } from '@/services/vendor.service'
 import type {
   CreateEventRequest,
   CreatePromoCodeRequest,
   CreateThemeRequest,
   CreateTicketRequest,
   CreateVendorRequest,
+  EventListParams,
 } from '@/types'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 
 // Event mutations
@@ -15,16 +18,19 @@ export function useCreateEvent() {
   const queryClient = useQueryClient()
 
   return useMutation({
+    mutationKey: eventKeys.create(),
     mutationFn: (data: CreateEventRequest) => eventService.createEvent(data),
     onSuccess: (data) => {
       toast.success('Event created successfully!')
       console.log('Event created:', data)
       // Invalidate and refetch events list
       queryClient.invalidateQueries({ queryKey: eventKeys.lists() })
+      // The new draft belongs on the organizer's events dashboard too.
+      queryClient.invalidateQueries({ queryKey: eventKeys.organizer() })
     },
     onError: (error) => {
       console.error('Failed to create event:', error)
-      toast.error('Failed to create event. Please try again.')
+      toast.error(apiErrorMessage(error, 'Failed to create event. Please try again.'))
     },
   })
 }
@@ -41,6 +47,11 @@ export function useUpdateEvent() {
       // Invalidate and refetch specific event and events list
       queryClient.invalidateQueries({ queryKey: eventKeys.detail(variables.eventId) })
       queryClient.invalidateQueries({ queryKey: eventKeys.lists() })
+      // The organizer's events dashboard has its own list, so it's refreshed too.
+      queryClient.invalidateQueries({ queryKey: eventKeys.organizer() })
+      // The public page (View Event) is cached by custom URL, not id.
+      queryClient.invalidateQueries({ queryKey: eventKeys.detailUrl(variables.data.customUrl) })
+      queryClient.invalidateQueries({ queryKey: eventKeys.trending() })
     },
     onError: (error) => {
       console.error('Failed to update event:', error)
@@ -242,11 +253,14 @@ export function useUpdateVendor() {
   return useMutation({
     mutationFn: ({ vendorId, data }: { vendorId: string; data: CreateVendorRequest }) =>
       eventService.updateVendor(vendorId, data),
-    onSuccess: () => {
+    onSuccess: (_, { vendorId, data }) => {
       toast.success('Vendor updated successfully!')
       console.log('Vendor updated successfully')
       // Invalidate and refetch vendors list
       queryClient.invalidateQueries({ queryKey: eventKeys.lists() })
+      // The slot's own page and the sidebar's slot list show what was edited.
+      queryClient.invalidateQueries({ queryKey: eventKeys.vendorSlotById(vendorId) })
+      queryClient.invalidateQueries({ queryKey: eventKeys.vendorSlots(data.eventId) })
     },
     onError: (error) => {
       console.error('Failed to update vendor:', error)
@@ -411,10 +425,15 @@ export function useGetEventVendors(eventId?: string) {
   })
 }
 
-export function useGetAllEvents() {
+/** Published events for fans, filtered and paged by the server. */
+export function useGetAllEvents(params?: EventListParams) {
   return useQuery({
-    queryKey: eventKeys.lists(),
-    queryFn: () => eventService.getAllEvents(),
+    // Params in the key so each filter and page has its own cache entry.
+    queryKey: [...eventKeys.lists(), params ?? {}],
+    queryFn: () => eventService.getAllEvents(params),
+    // Keep the current events on screen while the next filter or page loads,
+    // instead of flashing back to skeletons.
+    placeholderData: keepPreviousData,
   })
 }
 
@@ -447,6 +466,25 @@ export function useGetEventResaleListings(eventId?: string, enabled = true) {
       return eventService.getEventResaleListings(eventId)
     },
     enabled: enabled && !!eventId,
+  })
+}
+
+// Same endpoint as useGetEventVendors, so it shares that cache entry.
+export function useGetVendorSlots(eventId: string) {
+  return useQuery({
+    queryKey: eventKeys.vendors(eventId || ''),
+    queryFn: () => {
+      if (!eventId) throw new Error('Event ID is required')
+      return vendorService.getVendorSlots(eventId)
+    },
+    enabled: !!eventId,
+  })
+}
+
+export function useGetVendorApplications() {
+  return useQuery({
+    queryKey: eventKeys.myVendorApplications(),
+    queryFn: () => vendorService.getVendorApplications(),
   })
 }
 

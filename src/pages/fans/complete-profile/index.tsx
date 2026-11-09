@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { getRoutePath } from "@/config/get-route-path";
 import { useCompleteProfile } from "@/hooks";
-import { africanCountryCodes } from "@/pages/creators/add-event/constant";
+import { africanCountryCodes, nigerianStates } from "@/pages/creators/add-event/constant";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LoaderCircle } from "lucide-react";
 import { useEffect } from "react";
@@ -48,6 +48,7 @@ export default function CompleteProfilePage() {
 
   const { formState: { errors, isSubmitting }, watch, setValue } = form
   const category = watch('category')
+  const isNigeria = watch('country') === 'nigeria'
 
   useEffect(() => {
     if (!token) {
@@ -381,7 +382,13 @@ export default function CompleteProfilePage() {
                 <div className="relative w-full">
                   <label className={insetLabelStyle}>Country</label>
                   <BaseSelect
-                    onChange={(value) => field.onChange(value)}
+                    onChange={(value) => {
+                      // A state picked or typed for one country means nothing
+                      // for another, and the field switches between a select
+                      // and a text box.
+                      if (value !== field.value) setValue('state', '')
+                      field.onChange(value)
+                    }}
                     placeholder=""
                     value={field.value as string}
                     items={[
@@ -400,12 +407,22 @@ export default function CompleteProfilePage() {
               {(field) => (
                 <div className="relative w-full">
                   <label className={insetLabelStyle}>State</label>
-                  <Input
-                    {...field}
-                    placeholder=""
-                    className={editableInputStyle}
-                    value={field.value as string}
-                  />
+                  {isNigeria ? (
+                    <BaseSelect
+                      onChange={(value) => field.onChange(value)}
+                      placeholder=""
+                      value={field.value as string}
+                      items={nigerianStates}
+                      triggerClassName={editableSelectStyle}
+                    />
+                  ) : (
+                    <Input
+                      {...field}
+                      placeholder=""
+                      className={editableInputStyle}
+                      value={field.value as string}
+                    />
+                  )}
                 </div>
               )}
             </FormField>

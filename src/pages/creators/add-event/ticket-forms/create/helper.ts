@@ -16,6 +16,9 @@ export interface SavedTicket {
   ticketName: string
   ticketType: string
   invite_only?: boolean
+  accessType?: 'Free' | 'Paid' | 'Invite'
+  groupSize?: number
+  basePrice: number
   price: number
   quantity?: number
   description?: string
@@ -215,9 +218,9 @@ export function fillCurrentFormWithSampleData(
   form.setValue('ticket', sampleTicket, { shouldDirty: true })
 }
 
-export function onSubmit(eventId: string | null, handleFormChange: (form: string) => void) {
+export function onSubmit(eventId: string | null, onContinue: () => void) {
   if (!eventId) return
-  handleFormChange('promocode')
+  onContinue()
 }
 
 export function transformTicketsResponse(
@@ -229,8 +232,11 @@ export function transformTicketsResponse(
   return (ticketInformation.items).map((ticket) => ({
     ticketId: ticket.ticketId,
     ticketName: ticket.ticketName,
-    ticketType: 'single_ticket',
+    ticketType: ticket.ticketType,
+    accessType: ticket.accessType,
+    groupSize: ticket.groupSize,
     invite_only: false,
+    basePrice: ticket.basePrice,
     price: ticket.price,
     quantity: ticket.quantity,
     description: ticket.description,

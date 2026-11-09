@@ -89,6 +89,33 @@ export interface EventData {
 
 export type EventsResponse = ApiResponse<EventData>
 
+/** Query params for GET /api/Event, the public list of published events. */
+export interface EventListParams {
+  pageNumber?: number
+  pageSize?: number
+  /** Matches the event name and venue. */
+  search?: string
+  /** One category, matched exactly (case-insensitive): 'concert', not 'Concerts & Festivals'. */
+  category?: string
+  hasResaleTickets?: boolean
+  /** Ended events are left out unless this is true. */
+  includeEnded?: boolean
+  /**
+   * 'YYYY-MM-DD'. Events running that day: one that spans it counts, not only
+   * one that starts on it.
+   */
+  date?: string
+  /**
+   * 'YYYY-MM-DD'. Events running at any point between the two: one that
+   * overlaps the range counts. Sent together, they win over `date`.
+   */
+  startDate?: string
+  endDate?: string
+  // Naira. Events with at least one ticket priced in the range; free events count as 0.
+  minPrice?: number
+  maxPrice?: number
+}
+
 // Detailed Event Data for GET /api/Event/{eventId}
 export interface EventDetailData {
   eventId: string
@@ -128,7 +155,13 @@ export interface EventDetailData {
     netProfit: number
     ticketSold: number
     totalTicket: number
+    totalDiscountValue: number
     activePromoCodes: number
+    confirmedVendors: number
+    pendingVendors: number
+    totalResale: number
+    usedPromocode: number
+    totalCheckedIn: number
   }
   isOnWatchlist?: boolean
 }
@@ -147,6 +180,8 @@ export interface TicketData {
   basePrice: number
   salesPrice: number
   resalePrice: number
+  soldQuantity: number
+  usedQuantity: number
   fee: number
   feePercentage: number
   quantity: number
@@ -199,9 +234,17 @@ export interface PromoCodeData {
   eventId: string
   eventName: string
   promoDetails: {
-    description: string
-    terms: string
-    restrictions: string
+    tickets: { id: string }[]
+    isMinimumSpend: boolean
+    minimumSpend: number
+    isMinimumTicket: boolean
+    minimumTicket: number
+    note: string | null
+    isPrivate: boolean
+    isPartnership: boolean
+    partnerName: string
+    commisionType: string
+    commission: number
   }
 }
 
@@ -299,7 +342,7 @@ export interface VendorSlotData {
   slotName: string | null
   slotNumber: number | null
   price: number | null
-  applicationDeadline: Date | null
+  applicationDeadline: string | null
 }
 
 export interface VendorServiceData {
@@ -311,7 +354,7 @@ export interface VendorServiceData {
   stopTime: string | null
   startDate: string | null
   endDate: string | null
-  applicationDeadline: Date | null
+  applicationDeadline: string | null
 }
 
 export interface VendorContact {
@@ -439,6 +482,8 @@ export interface PurchasableTicket {
 export interface VendorAvailableEventData {
   eventId: string
   eventName: string
+  availableSlot: number;
+  totalSlots?: number
   venue: string
   category: string
   vendorType: string
@@ -475,6 +520,18 @@ export interface VendorAvailableEventData {
 export type VendorAvailableEventsResponse = ApiResponse<VendorAvailableEventData[]>
 
 
+export interface AnalyticsPromoCode {
+  codeName: string
+  promoCode: string
+  uses: number
+  grossSales: number
+  discountPercentage: number
+  discountType: string
+  netSales: number
+  commissions: number
+  partnerName: string | null
+}
+
 export interface EventAnalyticsData {
     totalRevenue: number
     totalNetRevenue: number
@@ -495,6 +552,7 @@ export interface EventAnalyticsData {
     topPartner: string
     topPartnerComission: number
     topPartnerNetSales: number
+    promoCodes?: AnalyticsPromoCode[]
     audienceInsights: {
       ageGroups: {
         ageRange: string

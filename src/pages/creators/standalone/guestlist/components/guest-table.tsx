@@ -1,10 +1,14 @@
 import { BaseSelect } from '@/components/reusable'
 import { Pagination } from '@/components/shared/pagination'
 import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
@@ -17,8 +21,10 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import type { GuestListData } from '@/types/guestlist'
+import { parseApiDate } from '@/lib/helper-func'
+import type { CategoryData, GuestListData } from '@/types/guestlist'
 import { EllipsisVertical, FolderMinus, LoaderCircle, Search, Trash2 } from 'lucide-react'
+import { RiFolderAddLine } from 'react-icons/ri'
 import {
   ALL_GUESTS_CATEGORY_ID,
   GUEST_COLUMNS,
@@ -47,8 +53,13 @@ export function GuestTable({
   totalCount,
   onPageChange,
   isFetching = false,
+  categories,
+  onAddToCategory,
   onRemoveFromCategory,
   onDeleteGuest,
+  selectedIds,
+  onSelectionChange,
+  toolbar,
 }: {
   guests: GuestListData[]
   /** Heads the card, so it names the category you're looking at. */
@@ -65,10 +76,20 @@ export function GuestTable({
   onPageChange: (page: number) => void
   /** Refetching an already-rendered page, as opposed to the first load. */
   isFetching?: boolean
+  /** The account's categories, offered under Add to category. */
+  categories: CategoryData[]
+  onAddToCategory: (guest: GuestListData, categoryId: string) => void
   onRemoveFromCategory: (guest: GuestListData) => void
   onDeleteGuest: (guest: GuestListData) => void
+  /** The ticked guests, which can be on other pages too. */
+  selectedIds: Set<string>
+  /** Ticks or unticks these guests. */
+  onSelectionChange: (guests: GuestListData[], selected: boolean) => void
+  /** Shown between the search and the table: the bar for the ticked guests. */
+  toolbar?: React.ReactNode
 }) {
   const isInCategory = activeCategoryId !== ALL_GUESTS_CATEGORY_ID
+  const isPageSelected = guests.length > 0 && guests.every((guest) => selectedIds.has(guest.id))
 
   return (
     <div className='w-full flex flex-col gap-5 rounded-xl bg-white p-5'>
@@ -104,9 +125,11 @@ export function GuestTable({
           value={sort}
           onChange={(value) => onSortChange(value as GuestSort)}
           placeholder='Newest first'
-          triggerClassName='h-11 w-auto min-w-[150px] shrink-0 rounded-lg border border-[#595959]/50 !bg-white px-3 font-inter-tight text-sm text-black'
+          triggerClassName='h-11 w-auto min-w-[150px] shrink-0 items-center rounded-lg border border-[#595959]/50 !bg-white px-3 py-0 font-inter-tight text-sm text-black'
         />
       </div>
+
+      {toolbar}
 
       {guests.length === 0 ? (
         <p className='py-10 text-center font-inter-tight text-sm text-mid-dark-gray'>
@@ -119,6 +142,13 @@ export function GuestTable({
 
             <TableHeader>
               <TableRow className='hover:bg-transparent'>
+                <TableHead className='w-10'>
+                  <Checkbox
+                    aria-label='Select every guest on this page'
+                    checked={isPageSelected}
+                    onCheckedChange={(checked) => onSelectionChange(guests, checked === true)}
+                  />
+                </TableHead>
                 {GUEST_COLUMNS.map((label) => (
                   <TableHead
                     key={label}
@@ -137,6 +167,13 @@ export function GuestTable({
                 <TableRow
                   key={guest.id}
                   className='font-inter-tight text-sm xl:text-base text-black'>
+                  <TableCell>
+                    <Checkbox
+                      aria-label={`Select ${guest.name}`}
+                      checked={selectedIds.has(guest.id)}
+                      onCheckedChange={(checked) => onSelectionChange([guest], checked === true)}
+                    />
+                  </TableCell>
                   <TableCell className='flex flex-col'>
                     <span>{guest.name}</span>
                     <span className='text-xs xl:text-sm text-mid-dark-gray'>{guest.email}</span>
@@ -159,6 +196,12 @@ export function GuestTable({
                       <DropdownMenuContent align='end'>
                         {/* focus:bg-transparent overrides DropdownMenuItem's own
                             focus:bg-secondary, which paints a solid block on hover. */}
+                        <AddToCategoryMenu
+                          guest={guest}
+                          categories={categories}
+                          onSelect={(categoryId) => onAddToCategory(guest, categoryId)}
+                        />
+
                         {isInCategory && (
                           <DropdownMenuItem
                             onClick={() => onRemoveFromCategory(guest)}
@@ -196,6 +239,45 @@ export function GuestTable({
   )
 }
 
+/** Add to category, opening the categories the guest isn't in yet. */
+function AddToCategoryMenu({
+  guest,
+  categories,
+  onSelect,
+}: {
+  guest: GuestListData
+  categories: CategoryData[]
+  onSelect: (categoryId: string) => void
+}) {
+  const options = categories.filter((category) => !guest.categoryIds?.includes(category.id))
+
+  return (
+    <DropdownMenuSub>
+      <DropdownMenuSubTrigger className='focus:bg-transparent focus:text-black data-[state=open]:bg-transparent'>
+        <RiFolderAddLine size={16} className='mr-2' />
+        Add to category
+      </DropdownMenuSubTrigger>
+
+      <DropdownMenuSubContent className='max-h-64 overflow-y-auto'>
+        {options.length === 0 ? (
+          <DropdownMenuItem disabled>
+            {categories.length === 0 ? 'No categories yet' : 'Already in every category'}
+          </DropdownMenuItem>
+        ) : (
+          options.map((category) => (
+            <DropdownMenuItem
+              key={category.id}
+              onClick={() => onSelect(category.id)}
+              className='focus:bg-black/5 focus:text-black'>
+              {category.name}
+            </DropdownMenuItem>
+          ))
+        )}
+      </DropdownMenuSubContent>
+    </DropdownMenuSub>
+  )
+}
+
 /**
  * "No category" rather than a dash: an ungrouped guest is a real state the
  * organizer can act on, not missing data.
@@ -205,7 +287,8 @@ function formatCategories(categoryNames?: string[]): string {
 }
 
 function formatDateAdded(dateAdded: string): string {
-  const date = new Date(dateAdded)
+  // API timestamps are UTC without a zone ('2026-10-08T14:44:09.7').
+  const date = parseApiDate(dateAdded)
 
   if (Number.isNaN(date.getTime())) return '—'
 

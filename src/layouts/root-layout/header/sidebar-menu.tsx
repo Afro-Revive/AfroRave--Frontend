@@ -293,7 +293,7 @@ const account_sections: AccountSection[] = [
       {
         name: "Support",
         icon: MdOutlineContactSupport,
-        to: getRoutePath("support"),
+        to: getRoutePath("contact_support"),
       },
     ],
   },
@@ -325,8 +325,7 @@ const menuLinks = [
   { href: getRoutePath("home"), name: "Discover" },
   { href: getRoutePath("blog"), name: "Blog" },
   { href: getRoutePath("creators"), name: "Creators" },
-  { href: getRoutePath("support"), name: "Support" },
-  { href: getRoutePath("faq"), name: "FAQ" },
+  { href: getRoutePath("help_center"), name: "Support" },
 ];
 
 const socials = [

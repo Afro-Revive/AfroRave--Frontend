@@ -1,4 +1,9 @@
 {
+  "redirects": [
+    { "source": "/fans", "destination": "/", "permanent": true },
+    { "source": "/fans/support", "destination": "/contact-support", "permanent": true },
+    { "source": "/fans/:path*", "destination": "/:path*", "permanent": true }
+  ],
   "rewrites": [
     {
       "source": "/(.*)",

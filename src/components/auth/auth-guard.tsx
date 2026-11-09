@@ -18,7 +18,7 @@ export function AuthGuard({ children, requiredAccountType }: AuthGuardProps) {
     // Check if user is authenticated
     if (!isAuthenticated || !user) {
       // Redirect to the landing page that matches the required account type
-      // so logging out of creators/vendor dashboard lands on /home, not /fans
+      // so logging out of creators/vendor dashboard lands on /home, not the fan home at /
       const destination =
         requiredAccountType === 'Organizer' || requiredAccountType === 'Vendor'
           ? getRoutePath('creators_home')

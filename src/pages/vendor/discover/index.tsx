@@ -1,152 +1,146 @@
-import { CalendarIcon } from '@/components/icons/calendar'
-import { DashboardCardSkeleton, DashboardCards } from '@/components/shared/dashboard-cards'
 import { getRoutePath } from '@/config/get-route-path'
 import { useGetVendorAvailableEvents } from '@/hooks/use-vendor-mutation'
-import { AddFilterBUtton } from '@/pages/creators/standalone/components/add-filter-btn'
-import { Bookmark } from 'lucide-react'
-import { Link } from 'react-router-dom'
-import WishListBtn from '../component/wishlist-button'
-import { useAfroStore } from '@/stores'
-import type { VendorAvailableEventData } from '@/types'
+import { useToggleVendorSavedEvent, useVendorSavedEvents } from '@/hooks/use-vendor'
+import { cn } from '@/lib/utils'
+import type { PaginatedResponse, VendorAvailableEventData } from '@/types'
+import { useMemo, useState } from 'react'
+import { RiSearchLine } from 'react-icons/ri'
+import {
+  SlotsCountPill,
+  VendorCardGrid,
+  VendorEventCard,
+  VendorEventCardSkeleton,
+} from '../component/vendor-event-card'
+import { VendorEmptyState } from '../component/vendor-empty-state'
+import { formatVendorDate } from '../lib/format-date'
 
-const SKELETON_IDS = ['1', '2', '3', '4', '5', '6']
+const SKELETON_COUNT = 8
 
-function useProfileCompletion() {
-  const { user } = useAfroStore()
-  if (!user) return 0
-  let score = 0
-  if (user.profile.firstName) score++
-  if (user.profile.businessName || user.profile.companyName) score++
-  if (user.profile.phoneNumber) score++
-  if (user.email) score++
-  if (user.profile.gender) score++
-  if (user.profile.businessData?.portfolio.webUrl || user.profile.businessData?.portfolio.fileUrl) score++
-  const socials = user.profile.businessData?.socials
-  const hasSocials = socials && Object.values(socials).some(link => !!link)
-  if (hasSocials) score++
-  if (user.profile.description) score++
-  if (user.profile.profilePicture) score++
-  if (user.profile.gallery && user.profile.gallery.length > 0) score++
-  return (score / 10) * 100
+/** What a Discover card needs, from either the available events or the saved events list. */
+interface DiscoverEvent {
+  eventId: string
+  name: string
+  image?: string
+  startDate: string
+  endDate: string
+  venue: string
+  availableSlots?: number
+  totalSlots?: number
 }
 
 export default function VendorDiscoverPage() {
-  const completionPercentage = useProfileCompletion()
-  const { data: response, isPending: isLoading } = useGetVendorAvailableEvents()
-  console.log(response)
+  const [search, setSearch] = useState('')
+  const [showSaved, setShowSaved] = useState(false)
 
-  const events = response?.data as VendorAvailableEventData[] | undefined
+  const { data: response, isPending: isLoadingAvailable } = useGetVendorAvailableEvents()
+  const { data: savedEvents = [], isPending: isLoadingSaved } = useVendorSavedEvents()
+  const toggleSave = useToggleVendorSavedEvent()
 
-  if (isLoading) {  
-    return (
-      <section className='w-full h-full flex flex-col justify-start items-start px-[1px]'>
-        <div className='w-full h-14 flex items-center justify-between px-8 bg-white'>
-          <AddFilterBUtton />
-          <WishListBtn />
-        </div>
-        <div className='flex flex-wrap gap-7 px-5 md:px-[60px] lg:px-[120px] py-6 md:py-12 lg:py-24'>
-          {SKELETON_IDS.map((id) => (
-            <DashboardCardSkeleton key={id} />
-          ))}
-        </div>
-      </section>
-    )
-  }
+  const availableEvents = useMemo<DiscoverEvent[]>(() => {
+    const items = (response?.data as PaginatedResponse<VendorAvailableEventData> | undefined)?.items ?? []
+    return items.map((event) => ({
+      eventId: event.eventId,
+      name: event.eventName,
+      image: event.metadata?.desktopMedia?.flyer,
+      startDate: event.startDate,
+      endDate: event.endDate,
+      venue: event.venue,
+      availableSlots: event.availableSlot,
+      totalSlots: event.totalSlots,
+    }))
+  }, [response])
 
-  if (completionPercentage < 100) {
-    return (
-      <section className='w-full h-full flex flex-col justify-start items-start px-[1px]'>
-        <div className='w-full h-14 flex items-center justify-between px-4 md:px-8 bg-white'>
-          <AddFilterBUtton />
-          <WishListBtn />
-        </div>
-        <div className='w-full h-[70vh] flex flex-col items-center justify-center gap-4 px-4 text-center'>
-          <p className='text-xl md:text-2xl font-bold font-sf-pro-display text-black'>Complete your profile to discover events</p>
-          <p className='text-sm text-gray-400 max-w-sm font-sf-pro-text'>You need a complete profile before you can browse and apply for event slots.</p>
-          <Link
-            to={getRoutePath('vendor_profile')}
-            className='mt-2 h-9 px-6 rounded-[6px] bg-deep-red text-white text-xs font-sf-pro-text font-semibold flex items-center justify-center hover:bg-deep-red/90 transition-colors'
-          >
-            Complete Profile
-          </Link>
-        </div>
-      </section>
-    )
-  }
+  const savedIds = useMemo(() => new Set(savedEvents.map((event) => event.eventId)), [savedEvents])
+
+  const events = useMemo<DiscoverEvent[]>(() => {
+    const source = showSaved
+      ? savedEvents.map((event) => {
+          // Saved events don't carry slot counts; take them from the same event in the available list.
+          const available = availableEvents.find((item) => item.eventId === event.eventId)
+          return {
+            eventId: event.eventId,
+            name: event.eventName,
+            image: event.posterUrl,
+            startDate: event.startDate,
+            endDate: event.endDate,
+            venue: event.venue,
+            availableSlots: available?.availableSlots,
+            totalSlots: available?.totalSlots,
+          }
+        })
+      : availableEvents
+    const query = search.trim().toLowerCase()
+    return query ? source.filter((event) => event.name.toLowerCase().includes(query)) : source
+  }, [showSaved, savedEvents, availableEvents, search])
+
+  const isLoading = showSaved ? isLoadingSaved : isLoadingAvailable
 
   return (
-    <section className='w-full h-full flex flex-col justify-start items-start px-[1px]'>
-      <div className="w-full h-14 flex items-center justify-between px-4 md:px-8 bg-white">
-        <AddFilterBUtton />
-        <WishListBtn />
+    <section className='flex w-full flex-col gap-7 px-4 py-5 md:px-7'>
+      <div className='flex items-center gap-3 rounded-full bg-[#1F1F1F] p-3 md:gap-4 md:p-[18px]'>
+        <label className='flex h-9 min-w-0 flex-1 items-center gap-2 rounded-full bg-[#3D3D3D] px-4'>
+          <RiSearchLine className='size-4 shrink-0 text-white' />
+          <span className='sr-only'>Search event name</span>
+          <input
+            type='search'
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder='Search event name'
+            className='h-full w-full min-w-0 bg-transparent font-sf-pro-text text-sm text-white outline-none placeholder:text-xs placeholder:text-[#9A9A9A]'
+          />
+        </label>
+
+        <button
+          type='button'
+          aria-pressed={showSaved}
+          onClick={() => setShowSaved((prev) => !prev)}
+          className={cn(
+            'h-9 shrink-0 rounded-full border border-white px-4 font-mono text-[11px] tracking-[0.12em] uppercase transition-colors md:px-[18px]',
+            showSaved ? 'bg-white text-black' : 'text-white hover:bg-white/10',
+          )}>
+          Saved Events
+        </button>
       </div>
 
-      <div className="w-full px-4 md:px-8 lg:px-16 py-6 md:py-8">
-        <h2 className="text-xl md:text-2xl lg:text-3xl font-bold font-sf-pro-display text-black mb-6 md:mb-8">
-          Discover events near you!
-        </h2>
-
-        {events && events.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
-            {events.map((event) => {
-              const availableSlots = (event.totalTicket || 0) - (event.ticketSold || 0)
-              const isEnded = new Date(event.endDate) < new Date()
-
-              return (
-                <DiscoverCard
-                  key={event.eventId}
-                  eventId={event.eventId}
-                  image={event.metadata.desktopMedia.flyer}
-                  name={event.eventName}
-                  startDate={event.startDate}
-                  availableSlots={availableSlots > 0 ? availableSlots : 0}
-                  status={isEnded ? 'ended' : undefined}
-                />
-              )
-            })}
-          </div>
-        ) : (
-          <div className="w-full h-[60vh] flex flex-col items-center justify-center">
-            <div className="w-fit flex items-center gap-2 stroke-medium-gray text-medium-gray">
-              <CalendarIcon stroke="inherit" className="size-6 md:size-8" />
-              <p className="text-lg md:text-2xl font-bold font-sf-pro-display uppercase">no available events</p>
-            </div>
-          </div>
-        )}
-      </div>
+      {isLoading ? (
+        <VendorCardGrid>
+          {Array.from({ length: SKELETON_COUNT }).map((_, index) => (
+            <VendorEventCardSkeleton key={index} />
+          ))}
+        </VendorCardGrid>
+      ) : events.length > 0 ? (
+        <VendorCardGrid>
+          {events.map((event) => {
+            const isSaved = savedIds.has(event.eventId)
+            return (
+              <VendorEventCard
+                key={event.eventId}
+                to={getRoutePath('vendor_event_details', { eventId: event.eventId })}
+                image={event.image}
+                name={event.name}
+                date={formatVendorDate(event.startDate)}
+                venue={event.venue}
+                isEnded={!!event.endDate && new Date(event.endDate) < new Date()}
+                isSaved={isSaved}
+                onToggleSave={() => toggleSave.mutate({ eventId: event.eventId, isSaved })}
+                footer={event.availableSlots !== undefined && <SlotsCountPill available={event.availableSlots} total={event.totalSlots} />}
+              />
+            )
+          })}
+        </VendorCardGrid>
+      ) : (
+        <VendorEmptyState
+          className='py-32'
+          title={search ? 'No Events Found' : showSaved ? 'No Saved Events' : 'No Slots Available'}
+          description={
+            search
+              ? `Nothing matches “${search.trim()}”.`
+              : showSaved
+                ? 'Tap the bookmark on an event to save it for later.'
+                : undefined
+          }
+        />
+      )}
     </section>
   )
-}
-
-function DiscoverCard({ eventId, image, name, startDate, availableSlots, status }: IDiscoverCardProps) {
-  return (
-    <Link to={getRoutePath('vendor_event_details', { eventId })}>
-      <DashboardCards
-        eventId={eventId}
-        image={image}
-        name={name}
-        startDate={startDate}
-        status={status}
-        cardButtons={[
-          { Icon: Bookmark, alt: 'Bookmark' },
-          { src: '/assets/dashboard/creator/ellipses.png', alt: 'Ellipses' },
-        ]}
-        cardInfo={[
-          <p key="available_slots" className="font-sf-pro-rounded text-xs text-mid-dark-gray">
-            Available Slots: <span className="text-[#34C759] font-medium">{availableSlots}</span>
-          </p>,
-        ]}
-        className="w-full"
-      />
-    </Link>
-  )
-}
-
-interface IDiscoverCardProps {
-  eventId: string
-  image: string
-  name: string
-  startDate: string
-  availableSlots: number
-  status?: 'ended' | 'drafts'
 }

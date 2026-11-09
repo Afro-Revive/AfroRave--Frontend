@@ -1,3 +1,4 @@
+import { SidebarToggle } from '@/components/shared/sidebar-toggle'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { Pause, Play } from 'lucide-react'
@@ -22,13 +23,17 @@ export function AudienceHeader({
 }) {
   return (
     // Same padding as the body below, so the two line up.
-    <div className='w-full bg-white flex flex-col md:flex-row md:items-end md:justify-between gap-4 px-5 md:px-14 py-6'>
+    <div className='w-full bg-white flex flex-col md:flex-row md:items-end md:justify-between gap-4 px-5 py-6'>
       <div className='flex flex-col gap-4'>
-        <div className='flex flex-col gap-1'>
-          <p className='font-work-sans text-2xl font-bold text-black'>Audience</p>
-          <p className='font-inter-tight text-sm text-black'>
-            Approve fans to enable them to purchase tickets for this private event.
-          </p>
+        <div className='flex items-start gap-4'>
+          <SidebarToggle />
+
+          <div className='flex flex-col gap-1'>
+            <p className='font-work-sans text-2xl font-bold text-black'>Audience</p>
+            <p className='font-inter-tight text-sm text-black'>
+              Approve fans to enable them to purchase tickets for this private event.
+            </p>
+          </div>
         </div>
 
         <div className='flex items-center gap-2 flex-wrap'>

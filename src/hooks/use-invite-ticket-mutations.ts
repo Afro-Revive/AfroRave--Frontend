@@ -3,6 +3,7 @@ import { inviteTicketKeys } from '@/lib/invite-ticket-keys'
 import { inviteTicketService } from '@/services/invite-ticket.service'
 import type { PaginatedResponse } from '@/types/api'
 import type {
+  AcceptInviteTicketData,
   EventOrdersData,
   EventOrdersResponse,
   InviteTicketData,
@@ -154,6 +155,32 @@ export function useAcceptInviteTicket() {
     },
     onError: (error) => {
       toast.error(errorMessage(error, 'Failed to accept the invite. Please try again.'))
+    },
+  })
+}
+
+/**
+ * Confirms a paid invite's Paystack payment and issues the ticket. The backup
+ * for when the webhook hasn't issued it by the time the guest is back from
+ * Paystack.
+ */
+export function useVerifyInviteTicketPayment() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({ reference, token }: { reference: string; token: string }) =>
+      inviteTicketService.verifyInviteTicketPayment(reference, token),
+    onSuccess: (result, { token }) => {
+      // Also Issued when the webhook got there first.
+      if ((result?.data as AcceptInviteTicketData | undefined)?.status === 'Issued') {
+        toast.success('Payment confirmed. Your ticket is ready!')
+      }
+      // The invite and My Tickets both change once it's issued.
+      queryClient.invalidateQueries({ queryKey: inviteTicketKeys.byToken(token) })
+      queryClient.invalidateQueries({ queryKey: ['user-active-tickets'] })
+    },
+    onError: (error) => {
+      toast.error(errorMessage(error, 'We couldn’t confirm your payment. Please try again.'))
     },
   })
 }

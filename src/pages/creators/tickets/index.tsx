@@ -143,50 +143,19 @@ function EventTickets({ eventId, accessType }: IEventTickets) {
     <CreatorPageContainer>
       <TicketsHeader filter={filter} onFilterChange={setFilter} />
 
-      <div className='w-full flex flex-col gap-6 px-5 md:px-14 py-6 md:py-8'>
+      <div className='w-full flex flex-col gap-6 px-5 py-6 md:py-8'>
         <TicketNotice filter={filter} isPrivateEvent={isPrivateEvent} />
-
-        <SummaryCard eventId={eventId} />
-
-        <div className='flex flex-col gap-[13px]'>
-          {(() => {
-            if (isLoading) return <LoadingState />
-
-            if (error) return <ErrorState onClick={refetch} />
-
-            // Only the filtered views get an empty state. On 'all' the format
-            // list below is always on screen, so it already says what to do.
-            if (visibleTickets.length === 0 && filter !== 'all') {
-              return <NoMatchesState filter={filter} />
-            }
-
-            return visibleTickets.map((ticket) => (
-              <TicketCard
-                key={ticket.ticketId}
-                ticket={ticket}
-                onDelete={() => handleDeleteTicket(ticket.ticketId)}
-                onEdit={() => handleEditTicket(ticket)}
-                onSendInvite={() => setInviteTicket(ticket)}
-                isSelected={selectedTicket?.ticketId === ticket.ticketId}
-                // Clicking the selected ticket again deselects it.
-                onSelect={() =>
-                  setSelectedTicketId((current) =>
-                    current === ticket.ticketId ? null : ticket.ticketId,
-                  )
-                }
-                isLoading={deleteTicketMutation.isPending}
-                isUpdating={isUpdatingTicket && editingTicketId === ticket.ticketId}
-              />
-            ))
-          })()}
-        </div>
 
         {/* Inline composer, same shape as the create-event flow: the format
             list stands by default and the form replaces it once one is picked.
-            No modal in either direction. */}
+            No modal in either direction. Both sit on a white card, like the
+            cards below. */}
         <OnlyShowIf condition={!isLoading && !error}>
           {selectedType ? (
-            <FormBase form={ticketForm} onSubmit={() => {}} className='flex flex-col gap-5'>
+            <FormBase
+              form={ticketForm}
+              onSubmit={() => {}}
+              className='flex flex-col gap-5 rounded-xl bg-white p-5'>
               <TicketForm
                 form={ticketForm}
                 type={selectedType}
@@ -208,9 +177,52 @@ function EventTickets({ eventId, accessType }: IEventTickets) {
               header='Add Tickets'
               description='Create Tickets for your event'
               hiddenFormats={isPrivateEvent ? ['group_ticket'] : []}
+              layout='grid'
+              className='rounded-xl bg-white p-5'
             />
           )}
         </OnlyShowIf>
+
+
+        {(() => {
+          // A white card like the rest, left out when there's nothing in it.
+          const ticketList = (children: React.ReactNode) => (
+            <div className='flex flex-col gap-[13px] rounded-xl bg-white p-5'>{children}</div>
+          )
+
+          if (isLoading) return ticketList(<LoadingState />)
+
+          if (error) return ticketList(<ErrorState onClick={refetch} />)
+
+          // Only the filtered views get an empty state. On 'all' the format
+          // list below is always on screen, so it already says what to do.
+          if (visibleTickets.length === 0) {
+            return filter === 'all' ? null : ticketList(<NoMatchesState filter={filter} />)
+          }
+
+          return ticketList(
+            visibleTickets.map((ticket) => (
+              <TicketCard
+                key={ticket.ticketId}
+                ticket={ticket}
+                onDelete={() => handleDeleteTicket(ticket.ticketId)}
+                onEdit={() => handleEditTicket(ticket)}
+                onSendInvite={() => setInviteTicket(ticket)}
+                isSelected={selectedTicket?.ticketId === ticket.ticketId}
+                // Clicking the selected ticket again deselects it.
+                onSelect={() =>
+                  setSelectedTicketId((current) =>
+                    current === ticket.ticketId ? null : ticket.ticketId,
+                  )
+                }
+                isLoading={deleteTicketMutation.isPending}
+                isUpdating={isUpdatingTicket && editingTicketId === ticket.ticketId}
+              />
+            )),
+          )
+        })()}
+
+        <SummaryCard eventId={eventId} />
 
         {/* A selected invite-only ticket shows who it's been sent to; otherwise
             the event's orders. */}

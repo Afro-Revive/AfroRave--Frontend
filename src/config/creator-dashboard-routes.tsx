@@ -23,6 +23,12 @@ const ServiceVendorPage = lazy(() => import('../pages/vendor/service-vendors'))
 const IndividualServicePage = lazy(
   () => import('../pages/vendor/service-vendors/individual-service'),
 )
+const RevenueVendorApplicationPage = lazy(
+  () => import('../pages/vendor/revenue-vendor/application'),
+)
+const ServiceVendorApplicationPage = lazy(
+  () => import('../pages/vendor/service-vendors/application'),
+)
 const SeatingMapsPage = lazy(() => import('../pages/vendor/seating-maps'))
 
 export const creator_dashboard_routes: RouteObject[] = [
@@ -150,6 +156,19 @@ export const creator_dashboard_routes: RouteObject[] = [
     ),
   },
   {
+    path: getRoutePath('revenue_vendor_application', {
+      slotId: ':slotId',
+      applicationId: ':applicationId',
+    }),
+    element: (
+      <OrganizerAuthGuard>
+        <Suspense fallback={<LoadingFallback />}>
+          <RevenueVendorApplicationPage />
+        </Suspense>
+      </OrganizerAuthGuard>
+    ),
+  },
+  {
     path: getRoutePath('service_vendor'),
     element: (
       <OrganizerAuthGuard>
@@ -167,6 +186,19 @@ export const creator_dashboard_routes: RouteObject[] = [
       <OrganizerAuthGuard>
         <Suspense fallback={<LoadingFallback />}>
           <IndividualServicePage />
+        </Suspense>
+      </OrganizerAuthGuard>
+    ),
+  },
+  {
+    path: getRoutePath('service_vendor_application', {
+      slotId: ':slotId',
+      applicationId: ':applicationId',
+    }),
+    element: (
+      <OrganizerAuthGuard>
+        <Suspense fallback={<LoadingFallback />}>
+          <ServiceVendorApplicationPage />
         </Suspense>
       </OrganizerAuthGuard>
     ),

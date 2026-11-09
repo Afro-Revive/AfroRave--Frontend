@@ -1,6 +1,5 @@
 import { EventLocation } from "@/pages/landing-page/event-page/event-location";
 import type { EventDetailData } from "@/types";
-import Cart from "../cart";
 import { SectionContainer } from "./_components/section-container";
 import ContactSection from "./sections/contact";
 import EventDescription from "./sections/event-description";
@@ -32,8 +31,6 @@ export default function EventDetails({ event }: IEventDetailsProp) {
 
         {/* Everything else scrolls past the pinned column. */}
         <div className="flex min-w-0 flex-col gap-8 md:gap-16 md:mt-14 mb-8">
-
-          <Cart event={event} />
 
           {/**Event Description */}
           <EventDescription event={event} />

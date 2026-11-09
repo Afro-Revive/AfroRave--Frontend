@@ -56,8 +56,8 @@ export function BaseAccordion({
               </span>
             )}
             {/* Text — always black, dims slightly when inactive */}
-            <p className={cn("font-['Inter'] uppercase", {
-              "text-[14px] font-normal tracking-normal leading-none text-[#1E1E1E]": style === "dashboard",
+            <p className={cn("font-['Inter'] capitalize", {
+              "text-[14px] font-normal font-inter-tight tracking-normal leading-none text-[#1E1E1E]": style === "dashboard",
               "": !isActive && style === "dashboard",
             })}>{trigger}</p>
           </div>

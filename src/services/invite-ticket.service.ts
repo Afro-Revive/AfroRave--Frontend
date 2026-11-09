@@ -1,4 +1,4 @@
-import { InviteTicketResponse, InviteTicketRequest, InviteTicketByTokenResponse, InviteOnlyTicketAudienceResponse, EventOrdersResponse} from "@/types/invite-tickets";
+import { InviteTicketResponse, InviteTicketRequest, InviteTicketByTokenResponse, AcceptInviteTicketResponse, InviteOnlyTicketAudienceResponse, EventOrdersResponse} from "@/types/invite-tickets";
 import api from "./http.service";
 
 class InviteTicketService {
@@ -22,7 +22,7 @@ class InviteTicketService {
     }
 
     // Accept Invite Ticket
-    async acceptInviteTicket(token: string): Promise<void> {
+    async acceptInviteTicket(token: string): Promise<AcceptInviteTicketResponse> {
         const response = await api.post('/api/InviteTicket/accept', { token });
         return response.data;
     }
@@ -45,6 +45,12 @@ class InviteTicketService {
         params?: { pageNumber?: number; pageSize?: number },
     ): Promise<EventOrdersResponse> {
         const response = await api.get(`/api/InviteTicket/${eventId}/orders`, { params });
+        return response.data;
+    }
+
+    // verify invite ticket payments (answers like accepting does)
+    async verifyInviteTicketPayment(reference: string,  token: string): Promise<AcceptInviteTicketResponse> {
+        const response = await api.post(`/api/InviteTicket/verify-payment`, { reference, token });
         return response.data;
     }
 }

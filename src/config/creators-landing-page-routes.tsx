@@ -4,10 +4,10 @@ import { Navigate, type RouteObject } from 'react-router-dom'
 import { getRoutePath } from './get-route-path'
 
 const CreatorsHomePage = lazy(() => import('../pages/creators/home'))
+// About Us and Blog are the one page of each for fans and creators alike.
 const AboutUsPage = lazy(() => import('../pages/creators/about-us'))
 const ContactUsPage = lazy(() => import('../pages/creators/contact-us'))
 const CreatorsBlogPage = lazy(() => import('../pages/creators/blog'))
-const CreatorsWishlistPage = lazy(() => import('../pages/creators/wishlist'))
 // const CreatorsLandingPage = lazy(() => import('../pages/landing-page/creators'))
 
 export const creator_landing_page_routes: RouteObject[] = [
@@ -24,7 +24,7 @@ export const creator_landing_page_routes: RouteObject[] = [
     ),
   },
   {
-    path: getRoutePath('creators_about'),
+    path: getRoutePath('about_us'),
     element: (
       <Suspense fallback={<LoadingFallback />}>
         <AboutUsPage />
@@ -40,18 +40,10 @@ export const creator_landing_page_routes: RouteObject[] = [
     ),
   },
   {
-    path: getRoutePath('creators_blog'),
+    path: getRoutePath('blog'),
     element: (
       <Suspense fallback={<LoadingFallback />}>
         <CreatorsBlogPage />
-      </Suspense>
-    ),
-  },
-  {
-    path: getRoutePath('creators_wishlist'),
-    element: (
-      <Suspense fallback={<LoadingFallback />}>
-        <CreatorsWishlistPage />
       </Suspense>
     ),
   },

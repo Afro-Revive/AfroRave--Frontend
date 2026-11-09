@@ -1,5 +1,5 @@
-import type { ApiResponse } from "@/types/api";
-import { CategoryResponse, CreateGuestRequest, EventCheckinListResponse, EventGuestlistConfigResponse, GuestListData, GuestListResponse } from "@/types/guestlist";
+import type { ApiResponse, PaginatedResponse } from "@/types/api";
+import { CategoryResponse, CreateGuestRequest, EventCheckinListResponse, EventGuestlistConfigResponse, GuestListAllowanceResponse, GuestListData, GuestListResponse } from "@/types/guestlist";
 import api from "./http.service";
 
 class GuestListService {
@@ -16,6 +16,22 @@ class GuestListService {
     }): Promise<GuestListResponse> {
         const response = await api.get('/api/GuestList', { params });
         return response.data;
+    }
+
+    // Every guest matching the filters, across all pages: for selecting them
+    // all at once. Reads in pages of 100 until the last one.
+    async getAllOrganizerGuests(params?: {
+        search?: string
+        categoryId?: string
+        sort?: string
+    }): Promise<GuestListData[]> {
+        const guests: GuestListData[] = [];
+        for (let pageNumber = 1; ; pageNumber++) {
+            const response = await api.get('/api/GuestList', { params: { ...params, pageNumber, pageSize: 100 } });
+            const page = response.data?.data as PaginatedResponse<GuestListData> | undefined;
+            guests.push(...(page?.items ?? []));
+            if (!page?.items?.length || pageNumber >= page.totalPages) return guests;
+        }
     }
 
     // Add Guest to Organizer Guest List
@@ -88,9 +104,21 @@ class GuestListService {
         return response.data;
     }
 
+    // Add Guest to category
+    async addGuestToCategory(guestId: string, categoryId: string): Promise<void> {
+        const response = await api.post(`/api/GuestList/categories/${categoryId}/guests/${guestId}`);
+        return response.data;
+    }
+
     // Remove Guest from category
     async removeGuestFromCategory(guestId: string, categoryId: string): Promise<void> {
         const response = await api.delete(`/api/GuestList/categories/${categoryId}/guests/${guestId}`);
+        return response.data;
+    }
+
+    // Get Organizer Guest List allowance
+    async getGuestListAllowance(): Promise<GuestListAllowanceResponse>{
+        const response = await api.get('/api/GuestList/allowance');
         return response.data;
     }
 }

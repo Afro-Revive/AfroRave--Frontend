@@ -1,7 +1,7 @@
 import { useOrderReceiptDetails } from "@/hooks/use-order-mutations";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { formatNaira } from "@/lib/format-price";
-import { formatEventDate, formatShortDate, formatTimeLong } from "@/lib/helper-func";
+import { formatDateLong, formatShortDate, formatTimeLong } from "@/lib/helper-func";
 import { Loader2, X } from "lucide-react";
 import { useEffect } from "react";
 import { OrderReceiptDetailsData } from "@/types/order";
@@ -64,7 +64,7 @@ export default function OrderDetailsModal({
                 <Row label="CUSTOMER" value={receipt.customerName} />
                 <Row
                   label="PURCHASE DATE"
-                  value={`${formatEventDate(receipt.purchaseDate)} at ${formatTimeLong(receipt.purchaseDate)}`}
+                  value={`${formatDateLong(receipt.purchaseDate)} at ${formatTimeLong(receipt.purchaseDate)}`}
                   capitalize
                 />
                 <Row

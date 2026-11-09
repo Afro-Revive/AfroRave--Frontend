@@ -11,6 +11,7 @@ import {
   useGetOrganizerEvents,
 } from "@/hooks/use-event-mutations";
 import { formatNaira } from "@/lib/format-price";
+import { LuCalendarPlus } from "react-icons/lu";
 import { cn } from "@/lib/utils";
 import type { EventData, EventDetailData } from "@/types";
 import type { PaginatedResponse } from "@/types/api";
@@ -34,7 +35,7 @@ import {
   getListEventStatus,
   type EventListFilter,
 } from "./components/event-filters";
-import { useEventSelectorStore, useGuideStore } from "@/stores";
+import { useEventSelectorStore} from "@/stores";
 import { FiBarChart } from "react-icons/fi";
 
 function formatEventDate(dateStr: string): string {
@@ -76,7 +77,6 @@ export default function StandalonePage() {
   const bulkUploadGuests = useBulkUploadGuests();
   const [activeFilter, setActiveFilter] = useState<EventListFilter>("all");
   const [page, setPage] = useState(1);
-  const { startGuide } = useGuideStore();
 
   // Memoised because `?? []` hands back a new array every render, which would
   // otherwise invalidate both useMemos below on every pass.
@@ -190,7 +190,7 @@ export default function StandalonePage() {
                 />
               ))
             ) : (
-              <EmptyState onStartGuide={startGuide} />
+              <EmptyState />
             )}
           </div>
 
@@ -207,21 +207,16 @@ export default function StandalonePage() {
   );
 }
 
-function EmptyState({ onStartGuide }: { onStartGuide: () => void }) {
+function EmptyState() {
   return (
-    <div className="col-span-full w-full py-20 flex flex-col items-center gap-4">
-      <p className="text-2xl font-bold text-charcoal font-sf-pro-display">
-        No events yet
+    <div className="col-span-full w-full justify-center h-[60vh] flex flex-col items-center gap-2">
+      <LuCalendarPlus size={48} className="text-light-red" />
+      <p className="text-2xl font-bold font-inter-tight text-light-red">
+        No Events Created
       </p>
-      <p className="text-sm text-gray-400 max-w-xs font-sf-pro-text leading-relaxed text-center">
-        Tap the + to start a quick tutorial on creating your first event.
+      <p className="text-base text-gray-400 max-w-sm font-sf-pro-text leading-relaxed text-center">
+        Create your first event to start selling tickets.
       </p>
-      <button
-        onClick={onStartGuide}
-        className="w-16 h-16 rounded-full bg-deep-red/10 flex items-center justify-center mt-2 hover:bg-deep-red/20 transition-colors"
-      >
-        <Plus color="#8B0000" size={28} strokeWidth={1.5} />
-      </button>
     </div>
   );
 }
@@ -304,6 +299,7 @@ function StandAloneEvents({
       status={status}
       visibility={toEventVisibility(accessType)}
       eventId={event.eventId}
+      customUrl={event.customUrl}
       cardInfo={[
         <StatParagraph
           key="sold_tickets"

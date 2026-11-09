@@ -8,6 +8,7 @@ import type {
   EventAnalyticsResponse,
   EventData,
   EventDetailResponse,
+  EventListParams,
   EventPromoCodesResponse,
   EventTicketsResponse,
   EventVendorsResponse,
@@ -24,10 +25,10 @@ import api from './http.service'
 // Event service class
 class EventService {
   /**
-   * Get all events
+   * Get published events, paged and filtered on the server
    */
-  async getAllEvents(): Promise<EventsResponse> {
-    const response = await api.get('/api/Event')
+  async getAllEvents(params?: EventListParams): Promise<EventsResponse> {
+    const response = await api.get('/api/Event', { params })
     return response.data
   }
 

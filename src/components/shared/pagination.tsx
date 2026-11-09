@@ -51,6 +51,7 @@ export function Pagination({
   onPageChange,
   itemLabel = { one: 'item', other: 'items' },
   isLoading = false,
+  tone = 'light',
   className,
 }: {
   page: number
@@ -60,9 +61,13 @@ export function Pagination({
   /** Named per caller so the summary doesn't read "13 events" on a ticket list. */
   itemLabel?: { one: string; other: string }
   isLoading?: boolean
+  /** `dark` for pages on a dark background, like the fan events page. */
+  tone?: 'light' | 'dark'
   className?: string
 }) {
   if (totalPages <= 1) return null
+
+  const isDark = tone === 'dark'
 
   return (
     <div
@@ -70,7 +75,7 @@ export function Pagination({
         'w-full flex flex-wrap items-center justify-between gap-4',
         className,
       )}>
-      <p className='font-sf-pro-text text-xs text-black/50'>
+      <p className={cn('font-sf-pro-text text-xs', isDark ? 'text-white/50' : 'text-black/50')}>
         Page {page} of {totalPages} · {totalCount}{' '}
         {totalCount === 1 ? itemLabel.one : itemLabel.other}
       </p>
@@ -78,6 +83,7 @@ export function Pagination({
       <div className='flex items-center gap-2'>
         <PagerButton
           label='Previous page'
+          isDark={isDark}
           disabled={isLoading || page <= 1}
           onClick={() => onPageChange(page - 1)}>
           <ChevronLeft className='size-4' />
@@ -90,7 +96,10 @@ export function Pagination({
             <span
               key={`gap-${index}`}
               aria-hidden
-              className='size-8 flex items-center justify-center font-sf-pro-text text-xs text-black/40'>
+              className={cn(
+                'size-8 flex items-center justify-center font-sf-pro-text text-xs',
+                isDark ? 'text-white/40' : 'text-black/40',
+              )}>
               …
             </span>
           ) : (
@@ -106,7 +115,9 @@ export function Pagination({
                 'size-8 p-0 rounded-md font-sf-pro-text text-xs',
                 number === page
                   ? 'bg-deep-red text-white hover:bg-deep-red/90 hover:text-white'
-                  : 'text-black/60 hover:bg-black/5',
+                  : isDark
+                    ? 'text-white/70 hover:bg-white/10 hover:text-white'
+                    : 'text-black/60 hover:bg-black/5',
               )}>
               {number}
             </Button>
@@ -115,6 +126,7 @@ export function Pagination({
 
         <PagerButton
           label='Next page'
+          isDark={isDark}
           disabled={isLoading || page >= totalPages}
           onClick={() => onPageChange(page + 1)}>
           <ChevronRight className='size-4' />
@@ -128,10 +140,12 @@ function PagerButton({
   label,
   disabled,
   onClick,
+  isDark,
   children,
 }: {
   label: string
   disabled: boolean
+  isDark: boolean
   onClick: () => void
   children: React.ReactNode
 }) {
@@ -142,7 +156,10 @@ function PagerButton({
       aria-label={label}
       disabled={disabled}
       onClick={onClick}
-      className='size-8 p-0 rounded-md text-black/60 hover:bg-black/5 disabled:opacity-40'>
+      className={cn(
+        'size-8 p-0 rounded-md disabled:opacity-40',
+        isDark ? 'text-white/70 hover:bg-white/10 hover:text-white' : 'text-black/60 hover:bg-black/5',
+      )}>
       {children}
     </Button>
   )

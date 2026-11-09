@@ -71,6 +71,7 @@ export interface UserTicketTicketDetails {
   price: number
   totalQuantity: number
   ticketType?: 'Single' | 'Group' | 'MultiDay'
+  accessType?: 'Free' | 'Paid' | 'Invite'
   groupSize?: number
   purchaseHistory: {
     orderId: string
@@ -99,13 +100,61 @@ export interface VendorProfileData {
   vendorId: string
   businessName: string
   description: string
+  profilePicture?: string
   contactEmail: string
   contactPhone: string
   website: string
   businessCategory: string
+  category?: string
+  vendorCategory?: string
   services: string
+  vendorType?: string
+  state?: string
+  country?: string
+  /** yyyy-MM-dd */
+  dateOfBirth?: string | null
   location: string
+  businessData?: VendorBusinessData
   createdDate: string
+}
+
+export interface VendorBusinessData {
+  aboutBusiness?: string | null
+  profilePicture?: string | null
+  gallery?: string[] | null
+  /** Old spelling the API still sends. */
+  gallary?: string[] | null
+  portfolio?: { webUrl?: string; fileUrl?: string } | null
+  socials?: Partial<Record<'facebook' | 'instagram' | 'x' | 'linkedIn' | 'tikTok' | 'youTube' | 'socialLink', string>> | null
+}
+
+// PATCH /api/Profile/vendor
+export interface UpdateVendorProfileRequest {
+  firstName?: string
+  lastName?: string
+  businessName?: string
+  email?: string
+  phoneNumber?: string
+  telephone?: string
+  gender?: string
+  businessData?: VendorBusinessData
+  category?: string
+  /** Same as category. Sent only; the app reads category. */
+  services?: string
+  vendorType?: string
+  /** Same as businessData.portfolio.webUrl. Sent only; the app reads webUrl. */
+  website?: string
+  country?: string
+  state?: string
+  dateOfBirth?: string
+}
+
+// PATCH /api/Profile/{role}/change-password
+export interface ChangePasswordRequest {
+  currentPassword: string
+  oldPassword: string
+  newPassword: string
+  confirmNewPassword: string
 }
 
 export type VendorProfileResponse = ApiResponse<VendorProfileData>
@@ -113,14 +162,38 @@ export type VendorProfileResponse = ApiResponse<VendorProfileData>
 // Organizer Profile Data for GET /api/Profile/organizer
 export interface OrganizerProfileData {
   organizerId: string
+  userId: string
+  firstName: string
+  lastName: string
+  companyName: string
+  telphone: string
+  gender: string
   businessName: string
   description: string
   contactEmail: string
+  email: string
   contactPhone: string
+  phoneNumber: string
+  telephone: string
+  dateOfBirth: string
+  birthday: string
+  dob: string
   website: string
   businessCategory: string
   services: string
   location: string
+  state?: string | null
+  country?: string | null
+  bankName?: string | null
+  bankCode?: string | null
+  accountNumber?: string | null
+  accountName?: string | null
+  balance: number
+  walletBalance: number
+  amountInWallet: number
+  totalRevenue: number
+  accountType: string
+  userType: string
   createdDate: string
 }
 
@@ -160,6 +233,26 @@ export interface NotificationData {
   createdDate: string
 }
 
+export interface BankDetailsRequest{
+  bankName: string
+  bankCode: string
+  accountNumber: string
+  accountName: string
+}
+
+export type BankDetailsResponse = ApiResponse<BankDetailsRequest>
+
+/** GET /api/Profile/organizer/wallet: what the organizer has earned and can be paid. */
+export interface OrganizerWalletData {
+  balance: number
+  walletBalance: number
+  /** What can be paid out now. */
+  amountInWallet: number
+  /** Everything earned from tickets and vendor slots. */
+  totalRevenue: number
+}
+
+export type OrganizerWalletResponse = ApiResponse<OrganizerWalletData>
 // ApiResponse already wraps the payload (and may paginate it) — the element type
 // goes in, not an array of them.
 export type NotificationResponse = ApiResponse<NotificationData>

@@ -1,7 +1,7 @@
 import type { ProfileSchema } from '@/schema/profile-shema'
 import type { UpdateUserProfileRequest, UserProfileData } from '@/types'
 import type { z } from 'zod'
-import { monthNumberToName } from './helper-func'
+import { fromDateOfBirth, toDateOfBirth } from './helper-func'
 
 /**
  * Transforms profile form data to API request format
@@ -9,8 +9,9 @@ import { monthNumberToName } from './helper-func'
 export function transformProfileToUpdateRequest(
   formData: z.infer<typeof ProfileSchema>,
 ): UpdateUserProfileRequest {
-  // Format date of birth as YYYY-MM-DD
-  const dateOfBirth = `${formData.birthday.year}-${formData.birthday.month.padStart(2, '0')}-${formData.birthday.day.padStart(2, '0')}`
+  // The month select holds "mar", so it's turned back into "03": "1998-03-07".
+  // The schema makes all three required, so there's always a date here.
+  const dateOfBirth = toDateOfBirth(formData.birthday) ?? ''
 
   // Format phone number with country code
   const telephone = `${formData.number.country_code}${formData.number.digits}`
@@ -33,13 +34,9 @@ export function transformProfileToUpdateRequest(
 export function transformProfileFromResponse(
   apiData: UserProfileData,
 ): z.infer<typeof ProfileSchema> {
-  // Parse date of birth
-  // currently using createdDate as a placeholder for dateOfBirth 
-  // would be updated once the backend provides a dateOfBirth field
-  const dateOfBirth = new Date(apiData.dateOfBirth)
-  const year = dateOfBirth.getFullYear().toString()
-  const month = monthNumberToName((dateOfBirth.getMonth() + 1).toString())
-  const day = dateOfBirth.getDate().toString()
+  // Read from the date's own digits, so a time zone can't shift the day; no
+  // date on file leaves the selects empty.
+  const birthday = fromDateOfBirth(apiData.dateOfBirth) ?? { month: '', day: '', year: '' }
 
   // Parse phone number
   const phoneNumber = apiData.phoneNumber || ''
@@ -52,11 +49,7 @@ export function transformProfileFromResponse(
     email: apiData.email || '',
     password: '', // Don't populate password from API
     gender: apiData.gender || '',
-    birthday: {
-      month,
-      day,
-      year,
-    },
+    birthday,
     country: apiData.country || '',
     state: apiData.state || '',
     number: {

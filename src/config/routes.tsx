@@ -8,8 +8,6 @@ const EventsPage = lazy(() => import('../pages/landing-page/event-page'))
 const IndividualEventPage = lazy(() => import('../pages/landing-page/event-page/individual-event'))
 const ResellPage = lazy(() => import('../pages/landing-page/resell-page'))
 const NotFoundPage = lazy(() => import('../pages/landing-page/not-found'))
-const AboutUsPage = lazy(() => import('../pages/landing-page/about-us'))
-const BlogPage = lazy(() => import('../pages/landing-page/blog'))
 const RefundPolicyPage = lazy(() => import('../pages/landing-page/refund-policy'))
 const WorkWithUsPage = lazy(() => import('../pages/landing-page/work-with-us'))
 // const ResaleMarketPlacePage = lazy(() => import('../pages/landing-page/resale-marketplace'))
@@ -17,10 +15,20 @@ const WorkWithUsPage = lazy(() => import('../pages/landing-page/work-with-us'))
 //   () => import('../pages/landing-page/resale-marketplace/individual-resale-event'),
 // )
 const SellPage = lazy(() => import('../pages/landing-page/sell'))
-const TermsAndConditionPage = lazy(() => import('../pages/landing-page/terms-and-condition'))
+const AcceptInvitePage = lazy(() => import('../pages/fans/accept-invite'))
 const PrivacyPolicyPage = lazy(() => import('../pages/landing-page/privacy-policy'))
 
 export const routes: RouteObject[] = [
+  {
+    // Signs the guest in itself, so it sits with the public pages, where the
+    // login modal lives.
+    path: getRoutePath('accept_invite'),
+    element: (
+      <Suspense fallback={<LoadingFallback />}>
+        <AcceptInvitePage />
+      </Suspense>
+    ),
+  },
   {
     path: getRoutePath('home'),
     element: (
@@ -50,22 +58,6 @@ export const routes: RouteObject[] = [
     element: (
       <Suspense fallback={<LoadingFallback />}>
         <ResellPage />
-      </Suspense>
-    ),
-  },
-  {
-    path: getRoutePath('about_us'),
-    element: (
-      <Suspense fallback={<LoadingFallback />}>
-        <AboutUsPage />
-      </Suspense>
-    ),
-  },
-  {
-    path: getRoutePath('blog'),
-    element: (
-      <Suspense fallback={<LoadingFallback />}>
-        <BlogPage />
       </Suspense>
     ),
   },
@@ -106,14 +98,6 @@ export const routes: RouteObject[] = [
     element: (
       <Suspense fallback={<LoadingFallback />}>
         <SellPage />
-      </Suspense>
-    ),
-  },
-  {
-    path: getRoutePath('terms_and_conditions'),
-    element: (
-      <Suspense fallback={<LoadingFallback />}>
-        <TermsAndConditionPage />
       </Suspense>
     ),
   },

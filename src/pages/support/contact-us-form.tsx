@@ -2,10 +2,11 @@ import { FormBase, FormField } from '@/components/reusable'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
+import { useSendSupportMessage } from '@/hooks/use-support-mutations'
 import { cn } from '@/lib/utils'
+import { useAfroStore } from '@/stores'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
-import { toast } from 'sonner'
 import { z } from 'zod'
 
 const supportContactSchema = z.object({
@@ -20,10 +21,10 @@ const supportContactSchema = z.object({
     .max(1000, { message: 'Message must be at most 1000 characters' }),
 })
 
-const defaultSupportContactValue: z.infer<typeof supportContactSchema> = {
-  email: '',
-  message: '',
-}
+type SupportContactValues = z.infer<typeof supportContactSchema>
+
+/** What the support team sees it's about; the creators' Contact Us has the same category. */
+const FAN_SUPPORT_CATEGORY = 'Platform support'
 
 // Matches the settings page's fields, which sit on the same radial backdrop.
 const fieldClass = 'w-full bg-transparent border border-white rounded-sm px-3 h-fit'
@@ -31,15 +32,34 @@ const fieldClass = 'w-full bg-transparent border border-white rounded-sm px-3 h-
 const labelClass = 'text-white pt-3 font-sf-pro-display md:text-sm text-xs text-white'
 
 export default function ContactUsForm() {
-  const form = useForm<z.infer<typeof supportContactSchema>>({
+  const user = useAfroStore((state) => state.user)
+  const sendMessage = useSendSupportMessage()
+
+  // A signed-in fan's email is filled in; the page is open to everyone, as old
+  // /fans/support links land here.
+  const defaultValues: SupportContactValues = { email: user?.email ?? '', message: '' }
+
+  const form = useForm<SupportContactValues>({
     resolver: zodResolver(supportContactSchema),
-    defaultValues: defaultSupportContactValue,
+    defaultValues,
   })
 
-  // TODO: there is no support endpoint yet, so the message is acknowledged but
-  function onSubmit() {
-    toast.success('Thanks — we will get back to you shortly.')
-    form.reset()
+  function onSubmit(values: SupportContactValues) {
+    const name = [user?.profile?.firstName, user?.profile?.lastName].filter(Boolean).join(' ')
+
+    sendMessage.mutate(
+      {
+        // The form asks for no name: the profile's, or the email for a visitor.
+        name: name || values.email,
+        email: values.email,
+        category: FAN_SUPPORT_CATEGORY,
+        subject: FAN_SUPPORT_CATEGORY,
+        message: values.message,
+        phoneNumber: user?.profile?.phoneNumber || undefined,
+      },
+      // Cleared only once it's sent, so a failed send keeps what they wrote.
+      { onSuccess: () => form.reset(defaultValues) },
+    )
   }
 
   return (
@@ -54,8 +74,11 @@ export default function ContactUsForm() {
           showMessage
           labelClassName={labelClass}
           className={fieldClass}>
+          {/* The id matches the label's htmlFor, which FormField sets to the name. */}
           <Input
+            id='email'
             type='email'
+            autoComplete='email'
             className='w-full px-0 py-5 border-none text-white placeholder:text-white/40'
           />
         </FormField>
@@ -67,6 +90,7 @@ export default function ContactUsForm() {
           labelClassName={labelClass}
           className={cn(fieldClass, 'pb-5')}>
           <Textarea
+            id='message'
             className='h-[240px] w-full px-0 bg-transparent border-none resize-none text-white placeholder:text-white/40 focus-visible:ring-0'
           />
         </FormField>
@@ -75,8 +99,9 @@ export default function ContactUsForm() {
       <Button
         type='submit'
         variant='default'
-        className='w-full h-11 bg-white text-deep-red rounded-md font-inter-tight text-sm font-semibold'>
-        Submit
+        disabled={sendMessage.isPending}
+        className='w-full h-11 bg-white text-deep-red rounded-md font-inter-tight text-sm font-semibold disabled:opacity-60'>
+        {sendMessage.isPending ? 'Sending...' : 'Submit'}
       </Button>
     </FormBase>
   )
