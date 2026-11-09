@@ -14,16 +14,16 @@ the organizer guest lists and promo codes on 8 November 2026.
 
 | | Critical (High) | Medium | Low | **Overall, weighted by priority** |
 |---|---|---|---|---|
-| **Fans** | 15 / 17 done | 10 / 11 | 1 / 4 | **86%** |
+| **Fans** | 15 / 17 done | 11 / 11 | 1 / 4 | **88%** |
 | **Organizers** | 13 / 13 done | 24 / 27 | 6 / 17 | **85%** |
-| **Fans + Organizers** | **28 / 30 done (93%)** | 34 / 38 | 7 / 21 | **85%** |
+| **Fans + Organizers** | **28 / 30 done (93%)** | 35 / 38 | 7 / 21 | **86%** |
 | Vendors | 6 / 6 done | 6 / 6 | 2 / 3 | 97% |
-| **Whole app** | **34 / 36 done (94%)** | 40 / 44 | 9 / 24 | **87%** |
+| **Whole app** | **34 / 36 done (94%)** | 41 / 44 | 9 / 24 | **88%** |
 
 **How the overall % is worked out:**
 - A High feature counts 3 times as much as a Low one, and a Medium one twice as much.
 - Only fully working features score.
-- If half-working ("Partial") and "Awaiting backend" features get half credit, fans and organizers reach 87%.
+- If half-working ("Partial") and "Awaiting backend" features get half credit, fans and organizers reach 88%.
 - **Critical features only:** 93% are fully done, or 95% with half credit for the partly working ones.
 
 Most of the gap is Low priority: small buttons and extra tools.
@@ -80,17 +80,17 @@ Within each table, rows run from High to Low priority.
 
 | Work | Priority | What's needed |
 |---|---|---|
-| **Move every `/fans` page to the root** | 🟠 Medium | Fans get `/`, `/events/:eventId`, `/my-tickets` and so on, instead of `/fans/...`. Change the ~27 fan paths in `src/config/route-map.ts`; the code links through `getRoutePath`, so most links follow on their own. **Decided:** the creators waitlist page at `/` goes (fan home takes `/`); `/about-us` becomes one About Us for everyone (today's creators page); `/support` stays the one general Support page; `/blog` becomes one Blog for everyone (both are Coming Soon now). **Still to decide:** a new home for the fan dashboard's contact form, now at `/fans/support` (the Support tab on the fan Account page, or e.g. `/contact-support`). **Code that checks `/fans` by hand:** the login popup picks fan signup when the URL starts with `/fans` (`auth-modal.tsx`); the fan dashboard sidebar goes to `/fans/account` and `/fans/settings` directly; checkout sends Paystack `/fans/payment-confirmation` as its return address. **Keep old links working:** a permanent redirect from `/fans/...` to the same path without `/fans`, keeping the query string, in `vercel.json` and as an in-app route. It covers shared event links and invite emails (`/fans/invite/accept?token=…`); ask the backend to update the links in their emails too. **Also:** the 3 test files with `/fans` paths, and USER-SIDE.md, FEATURES.md and DEAD-CODE.md. |
-| Fix the organizer's invite link | ⚪ Low | `ticket-card.tsx` builds invite links as `/events/{eventId}/invite/{ticketId}`, a page that doesn't exist, so it opens Not Found. Fix it alongside the move above. |
+| Old `/fans` links in backend emails | ⚪ Low | Fan pages moved from `/fans/...` to the root. Old links still work: they redirect permanently, keeping the query string (`vercel.json`, and `LegacyFansRedirect` in the app). Ask the backend to send root links in new emails (`/invite/accept?token=…` instead of `/fans/invite/accept?token=…`). |
+| Fix the organizer's invite link | ⚪ Low | `ticket-card.tsx` builds invite links as `/events/{eventId}/invite/{ticketId}`, a page that doesn't exist, so it opens Not Found. |
 
 ### Finding events
 
 | Feature | Priority | Status | Notes |
 |---|---|---|---|
-| Fans home page (`/fans`) | 🔴 High | ✅ Working | Hero, discover events with category chips, resale, become a creator, and mobile app sections. |
-| Events page (`/fans/events`) | 🔴 High | ✅ Working | Search, category and "Resale" are filtered by the server, 12 events per page. |
-| Date filters: "Tonight", "This Week", month, a picked date | 🟠 Medium | ✅ Working | On the events page and the `/fans` "This Week" chip. Tonight and a picked date are sent as `date`; This Week and a month as `startDate` and `endDate`. An event shows if it's running on those days, not only if it starts on them. |
-| Event page (`/fans/events/:customUrl`) | 🔴 High | ✅ Working | Details, description, map with directions, organizer contacts. |
+| Fans home page (`/`) | 🔴 High | ✅ Working | Hero, discover events with category chips, resale, become a creator, and mobile app sections. |
+| Events page (`/events`) | 🔴 High | ✅ Working | Search, category and "Resale" are filtered by the server, 12 events per page. |
+| Date filters: "Tonight", "This Week", month, a picked date | 🟠 Medium | ✅ Working | On the events page and the fan home's "This Week" chip. Tonight and a picked date are sent as `date`; This Week and a month as `startDate` and `endDate`. An event shows if it's running on those days, not only if it starts on them. |
+| Event page (`/events/:customUrl`) | 🔴 High | ✅ Working | Details, description, map with directions, organizer contacts. |
 | Private events | 🔴 High | ✅ Working | Tickets are hidden behind a "Request access" card. Fans see their request as pending until the organizer approves it. Signed-out fans are asked to log in first. |
 | Search bar in the header | 🟠 Medium | ✅ Working | Search by text, date, category, and min/max price. The price filter shows events with at least one ticket in the range. |
 | Bookmark an event | ⚪ Low | 🟡 Partial | The bookmark button works, but there is **no page that lists your bookmarks**. |
@@ -101,8 +101,8 @@ Within each table, rows run from High to Low priority.
 |---|---|---|---|
 | Add tickets to cart without an account | 🔴 High | ✅ Working | The cart is saved in the browser and synced when the fan logs in. |
 | Resale tickets on the event page | 🔴 High | ✅ Working | A "Resale" tab appears when other fans are reselling tickets. |
-| Checkout and payment (Paystack) | 🔴 High | ✅ Working | Paystack redirects back to `/fans/payment-confirmation`, which confirms the order. |
-| Accept an invite from an email link | 🔴 High | ✅ Working | `/fans/invite/accept?token=…`. Signed-out guests get the login, with a bar saying to use the invited email; signed in with another email, they're told to log out. A free invite is issued on Accept. A paid one is accepted, then paid on Paystack, then issued by the payment webhook, or by the page verifying the payment if the webhook hasn't yet. New fans sign up and verify their email, then log in to accept. |
+| Checkout and payment (Paystack) | 🔴 High | ✅ Working | Paystack redirects back to `/payment-confirmation`, which confirms the order. |
+| Accept an invite from an email link | 🔴 High | ✅ Working | `/invite/accept?token=…` (older emails' `/fans/invite/accept` links redirect there). Signed-out guests get the login, with a bar saying to use the invited email; signed in with another email, they're told to log out. A free invite is issued on Accept. A paid one is accepted, then paid on Paystack, then issued by the payment webhook, or by the page verifying the payment if the webhook hasn't yet. New fans sign up and verify their email, then log in to accept. |
 | Purchase limits | 🟠 Medium | ✅ Working | Fans can't add more than a ticket's purchase limit. |
 | Invite-only tickets on the event page | 🟠 Medium | ✅ Working | Shown with a padlock. They can't be bought, only received by invite. |
 | Promo codes at checkout | 🟠 Medium | ✅ Working | Validated as you type, and the discount is applied to the total. |
@@ -130,16 +130,16 @@ Within each table, rows run from High to Low priority.
 | Profile | 🟠 Medium | ✅ Working | Name, gender, state, country, date of birth. The birthday saves as "1998-03-07" (it used to send the month's name, "1998-mar-07") and reads back from the date's own digits, so no time zone shifts the day. |
 | Wallet: payout history | 🟠 Medium | ✅ Working | |
 | Settings: change password, log out | 🟠 Medium | ✅ Working | |
-| Support contact form (`/fans/support`) | 🟠 Medium | ⛔ Not working | Shows "Thanks — we will get back to you", but **the message is not sent anywhere**. The API now has `POST /api/Support`, and the organizer website's Contact Us already sends to it with `useSendSupportMessage`. |
+| Support contact form (`/contact-support`) | 🟠 Medium | ✅ Working | Sends to `POST /api/Support` with `useSendSupportMessage`, like the creators' Contact Us. A signed-in fan's email is filled in and their profile name is sent with it (a signed-out visitor's email stands in for the name); the category is "Platform support". The message is cleared only once it's sent. |
 
 ### Information pages
 
 | Page | Priority | Status | Notes |
 |---|---|---|---|
 | Privacy Policy, Refund Policy, Terms and Conditions | 🔴 High | 🚧 Coming soon | Legal pages. Needed before going live with payments. |
-| About Us, Blog, FAQ | ⚪ Low | 🚧 Coming soon | When fans move to the root, About Us and Blog join the creators' pages: one `/about-us` and one `/blog` for everyone. The FAQ is now the general Support page (`/support`). |
+| About Us, Blog, FAQ | ⚪ Low | 🚧 Coming soon | About Us and Blog are one page each for fans and creators: `/about-us` (built) and `/blog` (Coming Soon). The FAQ is now the general Support page (`/support`). |
 | Sell, Work With Us | ⚪ Low | 🚧 Coming soon | |
-| Resell info page (`/fans/resell`) | ⚪ Low | ✅ Working | Explains resale and links to My Tickets. |
+| Resell info page (`/resell`) | ⚪ Low | ✅ Working | Explains resale and links to My Tickets. |
 | Resale marketplace | — | Parked | The pages exist in code but are switched off until the backend endpoint is ready. Not counted. |
 
 ---
@@ -272,8 +272,7 @@ Three tabs: **Account**, **Payout** and **Settings**.
 |---|---|---|---|
 | Creators home (`/home`) and About Us | 🟠 Medium | ✅ Working | Redesigned in October 2026. Home: "All-in-one hub for creators", with Organizer and Vendor buttons that open sign up for that role, over a background video. About Us: who Afrorevive is, what organizers and vendors get, the team, and Work With Us. The header's menu is a slide-out sidebar with Organizer and Vendor log ins, the pages, and the app. |
 | Contact Us (`/contact-us`) | 🟠 Medium | ✅ Working | Redesigned as "Get in touch". The form (name, email, service category, message) is sent to the support team through `POST /api/Support`. |
-| Waitlist page (`/`) | ⚪ Low | ✅ Working | Joins the newsletter. Also shows the vendor registration callout. **No longer needed:** it goes when fans move to the root and the fan home takes `/`. |
-| Blog (`/blog`) | ⚪ Low | 🚧 Coming soon | Becomes the one Blog for fans and creators when fans move to the root. |
+| Blog (`/blog`) | ⚪ Low | 🚧 Coming soon | The one Blog for fans and creators. |
 
 ---
 
@@ -309,13 +308,12 @@ pretends to. Rows run from High to Low priority.
 
 | Where | Button or link | Priority | Status | What happens |
 |---|---|---|---|---|
-| Fans footer | Privacy, Refund, Terms | 🔴 High | 🚧 Coming soon | Open a "Coming Soon" page. |
+| Fans footer | Privacy, Refund | 🔴 High | 🚧 Coming soon | Open a "Coming Soon" page. Terms opens the Terms of Use page. |
 | Fans footer, home page and mobile menu | App Store / Google Play badges | 🔴 High | ⛔ Not linked | Link to `#`. Waiting for the apps to be published. Fans need the app for their QR code. |
 | Ticket detail page | QR code ("download the app") | 🔴 High | ⛔ Not linked | Depends on the app store links above. |
-| Fans support (`/fans/support`) | Contact form Send | 🟠 Medium | ⛔ Not working | Shows a success message but sends nothing. |
 | Analytics | Attendee List tab | 🟠 Medium | 🚧 Coming soon | |
 | Access Control | Download, event picker, Add Code, filter | 🟠 Medium | ⛔ Not working | Mock page. |
-| Fans footer | About Us, Blog, FAQ, Sell, Work With Us | ⚪ Low | 🚧 Coming soon | Open a "Coming Soon" page. |
+| Fans footer | Blog, Sell, Work With Us | ⚪ Low | 🚧 Coming soon | Open a "Coming Soon" page. About Us opens the shared About Us page, and Support the general Support page (`/support`), which replaced the separate FAQ link. |
 | Fans social links | YouTube icon | ⚪ Low | ⛔ Not linked | Goes to the home page instead of YouTube. |
 | Tickets page | Door ticket "Sell On Mobile App" | ⚪ Low | ⛔ Not working | No action. |
 | Tickets page (private event) | "Drag tickets to change the order" notice | ⚪ Low | ⛔ Not working | Reordering isn't built. |

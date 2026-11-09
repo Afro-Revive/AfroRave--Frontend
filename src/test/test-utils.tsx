@@ -10,7 +10,6 @@ import { render } from '@testing-library/react'
 import { HelmetProvider } from 'react-helmet-async'
 import { RouterProvider, createMemoryRouter } from 'react-router-dom'
 import { appRoutes } from '@/application'
-import { WishlistProvider } from '@/contexts/wishlist-context'
 import { useAfroStore } from '@/stores'
 import type { User } from '@/types/auth'
 
@@ -61,14 +60,12 @@ export function renderRoute(path: string) {
 
   const router = createMemoryRouter(appRoutes, { initialEntries: [path] })
 
-  // Mirrors the provider stack in main.tsx — pages call Helmet and the wishlist context.
+  // Mirrors the provider stack in main.tsx — pages call Helmet.
   const view = render(
     <HelmetProvider>
-      <WishlistProvider>
-        <QueryClientProvider client={queryClient}>
-          <RouterProvider router={router} />
-        </QueryClientProvider>
-      </WishlistProvider>
+      <QueryClientProvider client={queryClient}>
+        <RouterProvider router={router} />
+      </QueryClientProvider>
     </HelmetProvider>,
   )
 

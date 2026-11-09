@@ -20,7 +20,12 @@ import { Link } from "react-router";
 const FULL_SCREEN_MODAL =
   "inset-0 h-screen max-h-screen w-screen max-w-none translate-x-0 translate-y-0 rounded-none sm:rounded-none bg-gradient-to-b from-[#F3F3F3] to-[#D9D9D9]";
 
-export function AuthModal() {
+interface AuthModalProps {
+  /** On fan pages, signup skips the role choice and goes straight to the fan form. */
+  fanSignup?: boolean;
+}
+
+export function AuthModal({ fanSignup = false }: AuthModalProps) {
   const {
     isAuthModalOpen,
     authType,
@@ -37,14 +42,9 @@ export function AuthModal() {
   const isMobile = useIsMobile();
   const [showForgotPassword, setShowForgotPassword] = useState(false);
 
-  // Check if we are on the fans page — fans get a different signup experience
-  const isFansPage =
-    window.location.pathname === "/fans" ||
-    window.location.pathname.startsWith("/fans/");
-
   const renderSignupForm = () => {
-    // On /fans, skip role selection and go straight to fan signup form
-    if (signupType === "guest" && authType === "signup" && !isFansPage) {
+    // On fan pages, skip role selection and go straight to fan signup form
+    if (signupType === "guest" && authType === "signup" && !fanSignup) {
       return <RoleSelection onContinue={(role) => switchToSignup(role)} />;
     }
 
@@ -94,14 +94,14 @@ export function AuthModal() {
     if (authType === "login") return "small";
     if (signupType === "creator" || signupType === "vendor") return "large";
     // Role selection modal should be large, but NOT on fans page (fans get small form)
-    if (signupType === "guest" && authType === "signup" && !isFansPage)
+    if (signupType === "guest" && authType === "signup" && !fanSignup)
       return "large";
     return "small";
   };
 
   const shouldShowCreatorLogo = () => {
     // Never show creator logo on the fans page
-    if (isFansPage) return false;
+    if (fanSignup) return false;
     // Show logo for creator login or vendor login, role selection, or creator signup
     // Vendor signup has its own logo inside the form, so don't show floating logo
     if (authType === "signup" && signupType === "vendor") {
@@ -151,14 +151,14 @@ export function AuthModal() {
           authType === "signup" &&
           (signupType === "creator" ||
             signupType === "vendor" ||
-            (signupType === "guest" && !isFansPage)),
+            (signupType === "guest" && !fanSignup)),
         "bg-[#F5F5F5]":
           !showForgotPassword &&
           authType === "signup" &&
           !(
             signupType === "creator" ||
             signupType === "vendor" ||
-            (signupType === "guest" && !isFansPage)
+            (signupType === "guest" && !fanSignup)
           ),
       })}
       overlayClassName="bg-[#F5F5F5] !opacity-100"

@@ -16,7 +16,7 @@ side, and are explained in [USER-SIDE.md](./USER-SIDE.md) §1, §7 and §10.
 
 | Area | Who sees it | Layout | URLs |
 |---|---|---|---|
-| **Creators website** | Anyone. It's the organizer marketing site and waitlist. | `layouts/creators-landing-page-layout` | `/`, `/home`, `/about-us`, `/contact-us`, `/blog`, `/creators` (redirects to `/home`) |
+| **Creators website** | Anyone. It's the organizer marketing site. About Us and Blog are also the fans' pages. | `layouts/creators-landing-page-layout` | `/home`, `/about-us`, `/contact-us`, `/blog`, `/creators` (redirects to `/home`) |
 | **Creator dashboard** | Logged-in organizers | `layouts/creator-dashboard-layout` | `/creators/...` |
 
 The create-event wizard (`/creators/add-event`) is a third case: a full-screen
@@ -48,7 +48,7 @@ src/
 │   ├── realtime/              /creators/realtime — analytics
 │   ├── access-control/        /creators/access-control — mock data
 │   ├── reports/, season/      "Coming Soon" pages
-│   └── home/, about-us/, contact-us/, blog/, wishlist/   the creators website
+│   └── home/, about-us/, contact-us/, blog/   the creators website
 ├── pages/vendor/              Vendor dashboard, AND the organizer's vendor pages:
 │   ├── revenue-vendor/        /creators/revenue-vendor (+ /:slotId)
 │   ├── service-vendors/       /creators/service-vendor (+ /:serviceId)
@@ -57,8 +57,7 @@ src/
 ├── layouts/
 │   ├── creator-dashboard-layout/   header, sidebar, selected-event card
 │   └── creators-landing-page-layout/   the creators website: the new header, sidebar and
-│                                       footer (creators-*), and the old ones blog and the
-│                                       waitlist still use
+│                                       footer (creators-*), and the old ones blog still uses
 └── components/shared/
     ├── dashboard-cards.tsx         the event card on the dashboard
     ├── ticket-summary-card.tsx     the ticket card used on the Tickets page and in the wizard
@@ -66,8 +65,8 @@ src/
     └── creator-guide-overlay.tsx   the first-time "how to create an event" guide
 ```
 
-The `wishlist/` folder is really the **waitlist** page at `/`. The name is
-historical.
+The waitlist page that used to be at `/` is gone: `/` is now the fans' home
+page.
 
 ---
 
@@ -362,7 +361,7 @@ before, preferring the name just typed.
 
 The public organizer site, redesigned in October 2026. The layout
 (`layouts/creators-landing-page-layout/index.tsx`) gives these three pages the
-new header (`REDESIGNED_PAGES`); blog and the waitlist (`/`) keep the old header
+new header (`REDESIGNED_PAGES`); blog keeps the old header
 and footer.
 
 ```

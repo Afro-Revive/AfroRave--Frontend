@@ -22,7 +22,7 @@ import { Navigate, useNavigate, useParams } from 'react-router-dom'
 import CartContainer from './cart-container'
 
 /**
- * /fans/events/:eventId/cart — the first step of buying, a full-screen page
+ * /events/:eventId/cart — the first step of buying, a full-screen page
  * styled like the modal it replaced. Reached by adding a ticket on the event
  * page; leaving it asks first and clears the cart.
  */

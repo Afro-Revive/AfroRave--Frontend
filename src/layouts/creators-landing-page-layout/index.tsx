@@ -8,7 +8,7 @@ import Header from './sections/header'
 /** The pages on the new design, which get its header. Blog and the waitlist keep the old one. */
 const REDESIGNED_PAGES = [
   getRoutePath('creators_home'),
-  getRoutePath('creators_about'),
+  getRoutePath('about_us'),
   getRoutePath('creators_contact'),
 ]
 

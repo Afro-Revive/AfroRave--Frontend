@@ -136,8 +136,7 @@ const footer_links: IFooterLinks[] = [
     title: "Helpful Links",
     links: [
       { href: getRoutePath("sell"), name: "Sell" },
-      { href: getRoutePath("support"), name: "Support" },
-      { href: getRoutePath("help_center"), name: "FAQ" },
+      { href: getRoutePath("help_center"), name: "Support" },
       { href: getRoutePath("refund_policy"), name: "Refund Policy" },
     ],
   },

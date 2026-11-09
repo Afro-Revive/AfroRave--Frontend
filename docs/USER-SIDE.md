@@ -39,30 +39,30 @@ in `.env.local`. It refuses to start without it. Staging is
 src/
 ├── pages/
 │   ├── landing-page/          Public fan pages (no login needed)
-│   │   ├── home/              /fans — the fans home page
-│   │   ├── event-page/        /fans/events and each event's page
+│   │   ├── home/              / — the fans home page
+│   │   ├── event-page/        /events and each event's page
 │   │   │   ├── individual-event/   One event: details, tickets, map, contacts
 │   │   │   └── cart/               Cart modal (opens checkout)
 │   │   ├── checkout/          Checkout modal content + Paystack hand-off
 │   │   ├── payment-confirmation/   Where Paystack sends the fan back
-│   │   ├── resell-page/       /fans/resell — explains resale
+│   │   ├── resell-page/       /resell — explains resale
 │   │   ├── resale-marketplace/     Built but NOT routed (waiting on the API)
 │   │   ├── _component/        EmptyPage ("Coming Soon"), promo code, totals
-│   │   └── about-us, blog, faq, privacy-policy, refund-policy,
-│   │       sell, terms-and-condition, work-with-us   → all "Coming Soon"
+│   │   └── faq, privacy-policy, refund-policy, sell,
+│   │       terms-and-condition, work-with-us   → "Coming Soon" (or unused)
 │   ├── fans/                  Logged-in fan pages
-│   │   ├── account/           /fans/account — profile and wallet tabs
+│   │   ├── account/           /account — profile and wallet tabs
 │   │   ├── my-tickets/        Active/past tickets, ticket detail, resell, transfer
-│   │   ├── accept-invite/     /fans/invite/accept — where an invite email's link lands
+│   │   ├── accept-invite/     /invite/accept — where an invite email's link lands
 │   │   ├── listed-tickets/    Tickets the fan is reselling
 │   │   ├── settings/          Change password, log out
 │   │   └── complete-profile/  /complete-profile — reached from an email link
 │   ├── auth/                  Login, sign-up and reset-password forms
-│   └── support/               /fans/support — contact form (not sent anywhere yet)
+│   └── support/               /contact-support — contact form, sent to POST /api/Support
 ├── layouts/
 │   ├── root-layout/           Header, search, footer for public fan pages
 │   ├── user-dashboard-layout/ Account sidebar for logged-in fan pages
-│   ├── support-layout/        Used by /fans/support/faq
+│   ├── support-layout/        Used by /support/faq, which redirects to /support
 │   └── components/            Pieces shared by layouts (login button, footer links, socials)
 ├── components/auth/           Auth modal, role selection, forgot password, route guards
 ├── hooks/                     Data hooks (TanStack Query) — one file per area
@@ -80,32 +80,37 @@ All route paths live in one map, `src/config/route-map.ts`. Code never types a
 URL by hand. It calls `getRoutePath('key', params)` from
 `src/config/get-route-path.ts`, so renaming a URL is a one-line change.
 
-> **Planned: fans move to the root.** Every `/fans/...` URL below becomes
-> `/...` (`/fans` → `/`, `/fans/events/:eventId` → `/events/:eventId`), with a
-> permanent redirect from the old addresses. A few places still type `/fans` by
-> hand and need changing with it: the login popup's fan check
-> (`auth-modal.tsx`), the dashboard sidebar (`/fans/account`, `/fans/settings`)
-> and checkout's Paystack return address. See FEATURES.md §1, "Left to do", for
-> the decisions and what's still open.
+> **Fan pages are at the root.** They used to live under `/fans`. Old links
+> (`/fans/...`) are redirected permanently to the same path without `/fans`,
+> keeping the query string: in `vercel.json` before the app loads, and in the
+> app by `LegacyFansRedirect` (`src/config/legacy-fans-redirect.tsx`).
+> `/fans/support` goes to `/contact-support`, since `/support` is the public
+> Support page. The login popup gets the fan signup from an `AuthModal fanSignup`
+> prop on the fan layout and checkout, not from the URL. About Us and Blog are
+> one page each for fans and creators (the creators site's pages). The creators
+> waitlist that used to be at `/` is gone.
 
 | URL | Page folder | Layout | Login needed |
 |---|---|---|---|
-| `/fans` | `landing-page/home` | root | No |
-| `/fans/events` | `landing-page/event-page` | root | No |
-| `/fans/events/:eventId` | `landing-page/event-page/individual-event` | root | No |
-| `/fans/resell` | `landing-page/resell-page` | root | No |
-| `/fans/about-us`, `/blog`, `/refund-policy`, `/work-with-us`, `/sell`, `/terms-and-conditions`, `/privacy-policy` | `landing-page/*` | root | No (all "Coming Soon") |
-| `/fans/support` | `support` | user dashboard | No |
-| `/fans/support/faq` | `support/faq` | support | No ("Coming Soon") |
-| `/fans/account` (`?account=wallet` for the wallet) | `fans/account` | user dashboard | Yes |
-| `/fans/settings` | `fans/settings` | user dashboard | Yes |
-| `/fans/my-tickets` | `fans/my-tickets` | user dashboard | Yes |
-| `/fans/my-tickets/:eventId` | `fans/my-tickets/individual-active-tickets` | user dashboard | Yes |
-| `/fans/listed-tickets` | `fans/listed-tickets` | user dashboard | Yes |
-| `/fans/invite/accept?token=…` | `fans/accept-invite` | root | No (it opens the login itself) |
-| `/fans/events/:eventId/cart` | `landing-page/event-page/cart` | none (full screen) | No |
-| `/fans/events/:eventId/checkout` | `landing-page/checkout` | none (full screen) | No (it shows the login form) |
-| `/fans/payment-confirmation` | `landing-page/payment-confirmation` | none | No |
+| `/` | `landing-page/home` | root | No |
+| `/events` | `landing-page/event-page` | root | No |
+| `/events/:eventId` | `landing-page/event-page/individual-event` | root | No |
+| `/resell` | `landing-page/resell-page` | root | No |
+| `/refund-policy`, `/work-with-us`, `/sell`, `/privacy-policy` | `landing-page/*` | root | No (all "Coming Soon") |
+| `/about-us`, `/blog` | `creators/about-us`, `creators/blog` | creators website | No (one page each for fans and creators; Blog is "Coming Soon") |
+| `/support`, `/terms-and-conditions` | `help/support`, `help/terms` | help | No |
+| `/contact-support` | `support` | user dashboard | No |
+| `/support/faq` | none | support | No (redirects to `/support`) |
+| `/account` (`?account=wallet` for the wallet) | `fans/account` | user dashboard | Yes |
+| `/settings` | `fans/settings` | user dashboard | Yes |
+| `/my-tickets` | `fans/my-tickets` | user dashboard | Yes |
+| `/my-tickets/:eventId` | `fans/my-tickets/individual-active-tickets` | user dashboard | Yes |
+| `/listed-tickets` | `fans/listed-tickets` | user dashboard | Yes |
+| `/invite/accept?token=…` | `fans/accept-invite` | root | No (it opens the login itself) |
+| `/events/:eventId/cart` | `landing-page/event-page/cart` | none (full screen) | No |
+| `/events/:eventId/checkout` | `landing-page/checkout` | none (full screen) | No (it shows the login form) |
+| `/payment-confirmation` |
+| `/fans/...` (old links) | none | none | No (redirects to the same path at the root) | `landing-page/payment-confirmation` | none | No |
 | `/complete-profile?token=…` | `fans/complete-profile` | none | No (the token is the proof) |
 | `/reset-password?token=…` | `auth/reset-password` | none | No |
 | `*` | `landing-page/not-found` | root | No |
@@ -227,7 +232,7 @@ count once it loads: `Results From “afro” in Concert · This Week · ₦5,00
 up · 4 events`. `dateFilterLabel()` and `priceFilterLabel()` word the date and
 price filters. Resale isn't listed.
 
-The `/fans` home page chips work the same way, all on the server: Concert
+The fan home page (`/`) chips work the same way, all on the server: Concert
 (`category: 'concert'`), Resale (`hasResaleTickets`) and This Week
 (`thisWeekRange()`).
 
@@ -282,8 +287,8 @@ The cart is the most involved fan flow. The rules:
 2. **Adding** goes through `useCreateCart` and `useUpdateCartQuantity` (`hooks/use-cart.ts`). Both write to the store.
 3. **Logging in syncs the cart.** `useLogin` sends the local cart to the server with `cartService.syncCart`, including resale lines (`listingId`, `resellTicketId`), and waits for that before navigating.
 4. **One event per cart.** The store records the cart's `eventSlug`. On the event page, adding a ticket takes the fan to the cart page. If the saved cart holds another event's tickets (say, from a closed tab), the fan is asked to replace them first.
-5. **Cart page** (`/fans/events/:eventId/cart`, `event-page/cart/index.tsx`): a full-screen page with `CartContainer`, styled like the modal it replaced. Continue syncs to the server, then goes to the checkout page.
-6. **Checkout page** (`/fans/events/:eventId/checkout`, `checkout/index.tsx`). It has no layout, so it brings its own `AuthProvider` and `<AuthModal />`.
+5. **Cart page** (`/events/:eventId/cart`, `event-page/cart/index.tsx`): a full-screen page with `CartContainer`, styled like the modal it replaced. Continue syncs to the server, then goes to the checkout page.
+6. **Checkout page** (`/events/:eventId/checkout`, `checkout/index.tsx`). It has no layout, so it brings its own `AuthProvider` and `<AuthModal />`.
    - Signed out: shows `UserLoginForm` with `onLoginSuccess={() => {}}` so the fan stays in checkout.
    - Signed in: shows `CheckoutSummary` with the promo code, the totals accordion, and a 15-minute countdown.
    - **The countdown** starts the moment the server reserves the tickets: when `useSyncCartToServer` succeeds (Continue on the cart page) and when `useLogin` syncs the cart (logging in at checkout). Each sync restarts it. The start is saved in the store, so a refresh carries on counting. The summary only displays it.
@@ -291,7 +296,7 @@ The cart is the most involved fan flow. The rules:
    - **Expiry:** when the countdown reaches zero, the server has already deleted the cart and would reject payment. The summary clears the browser's cart and says the tickets were released. The empty cart then sends the fan back to the event page, without the "are you sure?" step. A refresh or Back onto an expired checkout does the same.
 7. **Leaving asks first.** `useCheckoutFlowGuard` (`hooks/use-checkout-flow-guard.ts`) uses React Router's `useBlocker`. Any way out of the cart or checkout (the ✕, a link, the browser's Back) shows "Exit Cart?" or "Exit Checkout?", and confirming clears the cart. Moving between this event's cart and checkout isn't blocked, and neither is the redirect to Paystack. `useBlocker` needs a data router, which is why `application.tsx` uses `createBrowserRouter`.
 8. **Refresh and empty carts.** A refresh keeps the fan on the cart or checkout page, because the cart and promo code are saved. An empty cart, or one for another event, sends the fan back to the event page.
-9. **Paying:** `CheckoutSummary` sends the fan to Paystack, with the callback set to `${origin}/fans/payment-confirmation`.
+9. **Paying:** `CheckoutSummary` sends the fan to Paystack, with the callback set to `${origin}/payment-confirmation` (from `getRoutePath('payment_confirmation')`).
 10. **Payment confirmation** (`payment-confirmation/index.tsx`) reads Paystack's reference from the URL, calls `useProcessCheckout`, and shows success or failure. `useProcessCheckout` clears the local cart when it succeeds.
 
 `lib/purchasable-tickets.ts` turns normal tickets and resale listings into one
@@ -321,7 +326,7 @@ when a ticket is allowed:
 
 ### Accepting an invite (`fans/accept-invite`)
 
-An organizer's invite email links to `/fans/invite/accept?token=…`. The route
+An organizer's invite email links to `/invite/accept?token=…` (older emails link to `/fans/invite/accept`, which redirects there). The route
 sits with the public pages because it needs the login modal, and it checks the
 user itself:
 
@@ -450,4 +455,6 @@ Query, not in a store.
 
 Jest tests for the fan routes live in `src/pages/fans/__tests__` and
 `src/pages/landing-page/__tests__`. Shared setup (an API mock, fixtures and a
-render helper with providers) is in `src/test/`. Run `yarn test`.
+render helper with providers) is in `src/test/`. Run `yarn test`. The public
+routes test also checks that old `/fans/...` links redirect with their query
+string. 8 tests still expect page text from before earlier redesigns and fail.

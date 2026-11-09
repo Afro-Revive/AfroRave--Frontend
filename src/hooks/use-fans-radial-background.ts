@@ -10,6 +10,6 @@ import { ROUTE_PATHS } from '@/config/route-map'
 export function useFansRadialBackground(): boolean {
   const { pathname } = useLocation()
 
-  // Covers both /fans/events and /fans/events/:eventId.
+  // Covers both /events and /events/:eventId.
   return !pathname.startsWith(ROUTE_PATHS.events)
 }

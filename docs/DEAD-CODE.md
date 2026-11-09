@@ -86,7 +86,7 @@ Older versions of screens that still exist in a redesigned form.
 | File | Replaced by |
 |---|---|
 | `pages/fans/account/tabs/payout-tab.tsx` | The wallet tab's withdraw modal. |
-| `pages/fans/account/tabs/support-tab.tsx` | `/fans/support`. |
+| `pages/fans/account/tabs/support-tab.tsx` | `/contact-support`. |
 | `hooks/use-account-tabs.tsx` | The `?account=` switch in `fans/account/index.tsx`. |
 | `pages/fans/account/components/account-input.tsx` | The inset-label fields in `profile-tab.tsx`. |
 | `pages/fans/account/components/transaction-details-modal.tsx` | Nothing. The wallet no longer opens transaction details. |

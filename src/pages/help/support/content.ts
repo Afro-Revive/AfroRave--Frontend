@@ -1,7 +1,9 @@
 import { getRoutePath } from '@/config/get-route-path'
 import { link, list, note, p, steps, sub, type Section } from '../_components/content'
 
-const CONTACT_SUPPORT = getRoutePath('support')
+// The fan dashboard's contact form. Other pages' "contact support" links go to
+// this Support page; from here, the next step is the form itself.
+const CONTACT_SUPPORT = getRoutePath('contact_support')
 const RESALE_TERMS = `${getRoutePath('terms_and_conditions')}#transfers-and-resale`
 
 export const SUPPORT_SECTIONS: Section[] = [

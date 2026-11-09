@@ -16,7 +16,7 @@ export default function IndexLayout() {
         className={cn("min-h-screen", hasRadialBackground && "bg-fans-radial")}
       >
         <Header />
-        <AuthModal />
+        <AuthModal fanSignup />
 
         <main className="w-full flex flex-col items-center">
           <Outlet />

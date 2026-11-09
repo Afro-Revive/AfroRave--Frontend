@@ -17,7 +17,7 @@ export default function AccountSidebar() {
     const location = useLocation()
 
     const isProfileActive = () => {
-        return location.pathname === '/fans/account' && !location.search.includes('account=wallet')
+        return location.pathname === getRoutePath('account') && !location.search.includes('account=wallet')
     }
 
     return (
@@ -39,7 +39,7 @@ export default function AccountSidebar() {
                     {/* PROFILE */}
                     <div className='mb-4'>
                         <button
-                            onClick={() => navigate('/fans/account')}
+                            onClick={() => navigate(getRoutePath('account'))}
                             className={cn(link_class, isProfileActive() && 'text-white')}
                         >
                             <div className='w-5 h-5 flex items-center justify-center shrink-0 text-deep-red'>
@@ -53,10 +53,10 @@ export default function AccountSidebar() {
                     {/* SETTINGS */}
                     <div className='mb-4'>
                         <button
-                            onClick={() => navigate('/fans/settings')}
+                            onClick={() => navigate(getRoutePath('settings'))}
                             className={cn(
                                 link_class,
-                                location.pathname === '/fans/settings' && 'text-white',
+                                location.pathname === getRoutePath('settings') && 'text-white',
                             )}
                         >
                             <div className='w-5 h-5 flex items-center justify-center shrink-0 text-deep-red'>
@@ -70,10 +70,10 @@ export default function AccountSidebar() {
                     {/* SUPPORT */}
                     <div className='mb-4'>
                         <button
-                            onClick={() => navigate(getRoutePath('support'))}
+                            onClick={() => navigate(getRoutePath('contact_support'))}
                             className={cn(
                                 link_class,
-                                location.pathname === getRoutePath('support') && 'text-white',
+                                location.pathname === getRoutePath('contact_support') && 'text-white',
                             )}
                         >
                             <div className='w-5 h-5 flex items-center justify-center shrink-0 text-deep-red'>

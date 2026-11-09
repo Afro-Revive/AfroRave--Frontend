@@ -9,7 +9,7 @@ import { useAfroStore } from '@/stores'
 import { Search } from 'lucide-react'
 import { useLocation } from 'react-router-dom'
 import { NavLogo } from './nav-logo'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 
 import { AnimatedSearchBar } from './animated-search-bar'
 
@@ -17,7 +17,6 @@ export default function Header() {
   const { hasScrolled } = useScroll()
   const { user, isAuthenticated, isCreator, isFan, isVendor } = useAfroStore()
   const location = useLocation()
-  const isLandingPage = location.pathname === '/'
   // The events page paints its own flat backdrop, so the bar gets a solid tone
   // instead of the transparent-until-scrolled treatment.
   const isEventsPage = location.pathname === getRoutePath('events')
@@ -40,10 +39,7 @@ export default function Header() {
       <nav className='relative px-4 xl:px-15 md:px-10 tablet:px-12 w-full flex items-center justify-between py-4'>
         <NavLogo />
 
-        {isLandingPage ? (
-          <CountdownTimer />
-        ) : (
-          <div className='flex items-center gap-5'>
+        <div className='flex items-center gap-5'>
             <Search
               size={20}
               color='var(--foreground)'
@@ -66,7 +62,6 @@ export default function Header() {
             {!isAuthenticated && <LoginButton />}
             { !isAuthenticated && <NavSheet /> }
           </div>
-        )}
       </nav>
 
       <AnimatedSearchBar
@@ -74,52 +69,5 @@ export default function Header() {
         onClose={() => setIsSearchOpen(false)}
       />
     </header>
-  )
-}
-
-function CountdownTimer() {
-  const [timeLeft, setTimeLeft] = useState({
-    days: 0,
-    hours: 0,
-    minutes: 0,
-    seconds: 0,
-  })
-
-  useEffect(() => {
-    // Target date: March 29, 2026 (30 days from Feb 27, 2026)
-    const targetDate = new Date(2026, 2, 29, 0, 0, 0, 0).getTime()
-
-    function updateCountdown() {
-      const now = new Date().getTime()
-      const difference = targetDate - now
-
-      if (difference > 0) {
-        const days = Math.floor(difference / (1000 * 60 * 60 * 24))
-        const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
-        const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60))
-        const seconds = Math.floor((difference % (1000 * 60)) / 1000)
-
-        setTimeLeft({ days, hours, minutes, seconds })
-      } else {
-        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 })
-      }
-    }
-
-    updateCountdown()
-    const interval = setInterval(updateCountdown, 1000)
-
-    return () => clearInterval(interval)
-  }, [])
-
-  return (
-    <div className="flex items-center gap-1 text-white font-mono text-sm md:text-base">
-      <span>{String(timeLeft.days).padStart(2, '0')}</span>
-      <span>:</span>
-      <span>{String(timeLeft.hours).padStart(2, '0')}</span>
-      <span>:</span>
-      <span>{String(timeLeft.minutes).padStart(2, '0')}</span>
-      <span className="hidden sm:inline">:</span>
-      <span className="hidden sm:inline">{String(timeLeft.seconds).padStart(2, '0')}</span>
-    </div>
   )
 }

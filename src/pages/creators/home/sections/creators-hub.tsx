@@ -49,7 +49,7 @@ export default function CreatorsHubSection() {
           </div>
 
           <Link
-            to={getRoutePath('creators_about')}
+            to={getRoutePath('about_us')}
             className='mt-4 w-fit font-work-sans text-sm uppercase underline text-tech-blue decoration-2 underline-offset-[6px] hover:text-white/70'>
             About Us
           </Link>

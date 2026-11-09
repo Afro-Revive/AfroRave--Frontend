@@ -5,7 +5,7 @@ import { useState } from 'react'
 
 /**
  * The original support centre: two entry cards, then a sidebar of FAQ sections.
- * No longer routed — /fans/support is the contact form — but kept because the
+ * No longer routed — /contact-support is the contact form — but kept because the
  * question copy below is hand-written and worth reinstating if it finds a home.
  */
 export default function SupportCenter() {
