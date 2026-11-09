@@ -1,6 +1,6 @@
 import { stripUnderscores } from '@/lib/helper-func'
 import type { EventAnalyticsData } from '@/types'
-import { mergeCounts, sortAgeGroups, vendorStage } from './analytics-data'
+import { attendeeOrderLabel, mergeCounts, sortAgeGroups, vendorStage } from './analytics-data'
 
 type Cell = string | number | boolean | null | undefined
 
@@ -83,7 +83,7 @@ export function buildAnalyticsExport(tab: string, data: EventAnalyticsData): Csv
           attendee.name,
           attendee.email,
           attendee.phoneNumber,
-          attendee.orderId,
+          attendeeOrderLabel(attendee.orderId),
           attendee.ticketName ?? attendee.ticket,
           attendee.quantity,
           attendee.orderDate,

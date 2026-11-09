@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { BarList, DonutChart, SERIES, TrendChart } from '../components/analytics-charts'
 import { AnalyticsGate, type IAnalyticsTabProps } from '../components/analytics-state'
 import { AnalyticsCard, EmptyNote, ProgressBar, StatTile, SummaryCard } from '../components/analytics-ui'
-import { countBuyers, formatDay, salesByDay, salesByTicket, vendorStageCounts } from '../lib/analytics-data'
+import { countBuyers, countOrders, formatDay, salesByDay, salesByTicket, vendorStageCounts } from '../lib/analytics-data'
 import { audienceFrom, countBars, genderSlices } from '../lib/audience'
 
 const plural = (count: number, one: string, other: string) =>
@@ -47,7 +47,7 @@ export default function OverviewTab(props: IAnalyticsTabProps) {
               </StatTile>
               <StatTile
                 label='Orders'
-                value={orders.length.toLocaleString()}
+                value={countOrders(orders).toLocaleString()}
                 caption={plural(countBuyers(orders), 'buyer', 'buyers')}
               />
               <StatTile

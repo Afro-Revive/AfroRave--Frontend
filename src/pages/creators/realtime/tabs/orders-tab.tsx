@@ -16,7 +16,7 @@ import {
   StatusPill,
   SummaryCard,
 } from '../components/analytics-ui'
-import { countBuyers, formatDay, salesByDay } from '../lib/analytics-data'
+import { countBuyers, countOrders, formatDay, salesByDay } from '../lib/analytics-data'
 
 const ORDERS_PER_PAGE = 20
 
@@ -64,7 +64,7 @@ function Orders({ data }: { data: EventAnalyticsData }) {
         </StatTile>
         <StatTile
           label='Orders'
-          value={orders.length.toLocaleString()}
+          value={countOrders(orders).toLocaleString()}
           caption={`${buyers.toLocaleString()} ${buyers === 1 ? 'buyer' : 'buyers'}`}
         />
         <StatTile label='Resales' value={data.totalResales.toLocaleString()} caption='Tickets resold by fans' />

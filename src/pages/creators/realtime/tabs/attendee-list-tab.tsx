@@ -27,7 +27,7 @@ import {
   StatTile,
   SummaryCard,
 } from "../components/analytics-ui";
-import { attendeeCounts } from "../lib/analytics-data";
+import { attendeeCounts, attendeeOrderLabel } from "../lib/analytics-data";
 
 const ATTENDEES_PER_PAGE = 20;
 const COLUMNS = ["Name", "Ticket", "Order ID", "Order Date", "Check-in"];
@@ -173,7 +173,7 @@ export default function AttendeeListTab({
                     </TableCell>
 
                     <TableCell className="whitespace-nowrap">
-                      {attendee.orderId || "—"}
+                      {attendeeOrderLabel(attendee.orderId) || "—"}
                     </TableCell>
 
                     <TableCell className="whitespace-nowrap">

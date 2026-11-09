@@ -130,6 +130,23 @@ export function salesByTicket(orders: AnalyticsOrder[]): TicketSales[] {
   return [...byTicket.values()].sort((a, b) => b.revenue - a.revenue)
 }
 
+/**
+ * How many orders there are. The order list has one row per ticket type in an
+ * order, so an order for two ticket types is two rows sharing one order ID.
+ */
+export function countOrders(orders: AnalyticsOrder[]) {
+  return new Set(orders.map((order, index) => order.orderId || `row-${index}`)).size
+}
+
+/**
+ * The order ID to show for an attendee. Guest-list invitees have no order, and
+ * the API marks them with the placeholder "GUESTLIST".
+ */
+export function attendeeOrderLabel(orderId?: string | null) {
+  if (!orderId) return ''
+  return orderId.toUpperCase() === 'GUESTLIST' ? 'Guest list' : orderId
+}
+
 /** How many people bought, counting each email once. */
 export function countBuyers(orders: AnalyticsOrder[]) {
   return new Set(orders.map((order) => order.email?.toLowerCase()).filter(Boolean)).size
