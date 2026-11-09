@@ -20,8 +20,7 @@ const publicRoutes: { path: string; text: RegExp }[] = [
   { path: '/refund-policy', text: /coming soon/i },
   { path: '/work-with-us', text: /coming soon/i },
   { path: '/sell', text: /coming soon/i },
-  { path: '/terms-and-conditions', text: /terms of use/i },
-  { path: '/privacy-policy', text: /coming soon/i },
+  { path: '/terms-and-conditions', text: /afrorevive terms & conditions/i },
   { path: '/contact-support', text: /how can we help\?/i },
   { path: '/support/faq', text: /user support/i },
   { path: '/support', text: /user support/i },
@@ -63,6 +62,15 @@ describe('old /fans links', () => {
 
     await waitFor(() => expect(router.state.location.pathname).toBe(pathname))
     expect(router.state.location.search).toBe(search)
+  })
+})
+
+describe('privacy policy', () => {
+  it('opens the Terms page at its Privacy section', async () => {
+    const { router } = renderRoute('/privacy-policy')
+
+    await waitFor(() => expect(router.state.location.pathname).toBe('/terms-and-conditions'))
+    expect(router.state.location.hash).toBe('#privacy')
   })
 })
 

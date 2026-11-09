@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react'
-import type { RouteObject } from 'react-router-dom'
+import { Navigate, type RouteObject } from 'react-router-dom'
 import { LoadingFallback } from '../components/loading-fallback'
+import { PRIVACY_SECTION_ID } from '../pages/help/terms/content'
 import { getRoutePath } from './get-route-path'
 
 const LandingPage = lazy(() => import('../pages/landing-page/home'))
@@ -16,7 +17,6 @@ const WorkWithUsPage = lazy(() => import('../pages/landing-page/work-with-us'))
 // )
 const SellPage = lazy(() => import('../pages/landing-page/sell'))
 const AcceptInvitePage = lazy(() => import('../pages/fans/accept-invite'))
-const PrivacyPolicyPage = lazy(() => import('../pages/landing-page/privacy-policy'))
 
 export const routes: RouteObject[] = [
   {
@@ -102,12 +102,9 @@ export const routes: RouteObject[] = [
     ),
   },
   {
+    // The privacy terms are a section of the Terms page.
     path: getRoutePath('privacy_policy'),
-    element: (
-      <Suspense fallback={<LoadingFallback />}>
-        <PrivacyPolicyPage />
-      </Suspense>
-    ),
+    element: <Navigate to={`${getRoutePath('terms_and_conditions')}#${PRIVACY_SECTION_ID}`} replace />,
   },
   {
     path: '*',
