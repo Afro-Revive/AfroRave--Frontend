@@ -281,7 +281,7 @@ class EventService {
    */
   async getEventAnalytics(eventId: string): Promise<EventAnalyticsResponse> {
     const response = await api.get(`/api/Analytics/organizer/dashboard/${eventId}`)
-    return response.data
+    return throwIfFailed(response.data)
   }
 
   /**
@@ -292,8 +292,19 @@ class EventService {
     params?: { pageNumber?: number; pageSize?: number; search?: string },
   ): Promise<EventAttendeesResponse> {
     const response = await api.get(`/api/Event/${eventId}/attendees`, { params })
-    return response.data
+    return throwIfFailed(response.data)
   }
+}
+
+/**
+ * Some endpoints report a server failure as HTTP 200 with `status: false` and
+ * `data: null`. Left alone, that reads as "no sales yet"; throwing makes the
+ * query fail, so the page shows its error state instead.
+ */
+function throwIfFailed<T>(body: T): T {
+  const result = body as { status?: boolean; message?: string } | null
+  if (result?.status === false) throw new Error(result.message || 'The request failed')
+  return body
 }
 
 // Export service instance
