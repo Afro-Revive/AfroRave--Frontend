@@ -22,7 +22,7 @@ const publicRoutes: { path: string; text: RegExp }[] = [
   { path: '/sell', text: /coming soon/i },
   { path: '/terms-and-conditions', text: /terms of use/i },
   { path: '/privacy-policy', text: /coming soon/i },
-  { path: '/contact-support', text: /how can we help you/i },
+  { path: '/contact-support', text: /how can we help\?/i },
   { path: '/support/faq', text: /user support/i },
   { path: '/support', text: /user support/i },
 ]

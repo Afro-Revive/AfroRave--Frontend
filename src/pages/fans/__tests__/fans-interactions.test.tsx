@@ -6,6 +6,7 @@ import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { mockApi } from '@/test/api-mock'
 import { apiResponse, makeUserTicket, paginated } from '@/test/fixtures'
+import api from '@/services/http.service'
 import { renderRoute, signIn } from '@/test/test-utils'
 
 describe('fan dashboard navigation', () => {
@@ -105,5 +106,52 @@ describe('payment confirmation', () => {
       expect(screen.queryByText(/processing payment/i)).not.toBeInTheDocument(),
     )
     expect(screen.queryByText(/thank you for your purchase/i)).not.toBeInTheDocument()
+  })
+})
+
+describe('fan contact form', () => {
+  const MESSAGE = 'My ticket QR code will not load in the app.'
+
+  it('sends the message to support with the fan’s name and email, then clears it', async () => {
+    const user = userEvent.setup()
+    signIn()
+    renderRoute('/contact-support')
+
+    const email = await screen.findByLabelText(/email/i)
+    expect(email).toHaveValue('fan@example.com')
+
+    await user.type(screen.getByLabelText(/how can we help/i), MESSAGE)
+    await user.click(screen.getByRole('button', { name: /submit/i }))
+
+    await waitFor(() =>
+      expect(api.post).toHaveBeenCalledWith('/api/Support', {
+        name: 'Ada Fan',
+        email: 'fan@example.com',
+        category: 'Platform support',
+        subject: 'Platform support',
+        message: MESSAGE,
+        phoneNumber: undefined,
+      }),
+    )
+    await waitFor(() => expect(screen.getByLabelText(/how can we help/i)).toHaveValue(''))
+  })
+
+  it('keeps what the fan wrote when the message fails to send', async () => {
+    const user = userEvent.setup()
+    jest.mocked(api.post).mockRejectedValueOnce(new Error('Network down'))
+    renderRoute('/contact-support')
+
+    await user.type(await screen.findByLabelText(/email/i), 'visitor@example.com')
+    await user.type(screen.getByLabelText(/how can we help/i), MESSAGE)
+    await user.click(screen.getByRole('button', { name: /submit/i }))
+
+    // A signed-out visitor has no profile name, so the email stands in.
+    await waitFor(() =>
+      expect(api.post).toHaveBeenCalledWith(
+        '/api/Support',
+        expect.objectContaining({ name: 'visitor@example.com', email: 'visitor@example.com' }),
+      ),
+    )
+    expect(screen.getByLabelText(/how can we help/i)).toHaveValue(MESSAGE)
   })
 })
