@@ -48,7 +48,7 @@ src/
 │   │   ├── resell-page/       /resell — explains resale
 │   │   ├── resale-marketplace/     Built but NOT routed (waiting on the API)
 │   │   ├── _component/        EmptyPage ("Coming Soon"), promo code, totals
-│   │   └── faq, privacy-policy, refund-policy, sell,
+│   │   └── faq, refund-policy, sell,
 │   │       terms-and-condition, work-with-us   → "Coming Soon" (or unused)
 │   ├── fans/                  Logged-in fan pages
 │   │   ├── account/           /account — profile and wallet tabs
@@ -96,7 +96,8 @@ URL by hand. It calls `getRoutePath('key', params)` from
 | `/events` | `landing-page/event-page` | root | No |
 | `/events/:eventId` | `landing-page/event-page/individual-event` | root | No |
 | `/resell` | `landing-page/resell-page` | root | No |
-| `/refund-policy`, `/work-with-us`, `/sell`, `/privacy-policy` | `landing-page/*` | root | No (all "Coming Soon") |
+| `/refund-policy`, `/work-with-us`, `/sell` | `landing-page/*` | root | No (all "Coming Soon") |
+| `/privacy-policy` | none | none | No (opens `/terms-and-conditions#privacy`, the Terms page's Privacy section) |
 | `/about-us`, `/blog` | `creators/about-us`, `creators/blog` | creators website | No (one page each for fans and creators; Blog is "Coming Soon") |
 | `/support`, `/terms-and-conditions` | `help/support`, `help/terms` | help | No |
 | `/contact-support` | `support` | user dashboard | No |
