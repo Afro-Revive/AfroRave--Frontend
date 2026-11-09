@@ -76,6 +76,13 @@ Within each table, rows run from High to Low priority.
 
 ## 1. Fans
 
+### Left to do (on `prod`)
+
+| Work | Priority | What's needed |
+|---|---|---|
+| **Move every `/fans` page to the root** | 🟠 Medium | Fans get `/`, `/events/:eventId`, `/my-tickets` and so on, instead of `/fans/...`. Change the ~27 fan paths in `src/config/route-map.ts`; the code links through `getRoutePath`, so most links follow on their own. **Decided:** the creators waitlist page at `/` goes (fan home takes `/`); `/about-us` becomes one About Us for everyone (today's creators page); `/support` stays the one general Support page; `/blog` becomes one Blog for everyone (both are Coming Soon now). **Still to decide:** a new home for the fan dashboard's contact form, now at `/fans/support` (the Support tab on the fan Account page, or e.g. `/contact-support`). **Code that checks `/fans` by hand:** the login popup picks fan signup when the URL starts with `/fans` (`auth-modal.tsx`); the fan dashboard sidebar goes to `/fans/account` and `/fans/settings` directly; checkout sends Paystack `/fans/payment-confirmation` as its return address. **Keep old links working:** a permanent redirect from `/fans/...` to the same path without `/fans`, keeping the query string, in `vercel.json` and as an in-app route. It covers shared event links and invite emails (`/fans/invite/accept?token=…`); ask the backend to update the links in their emails too. **Also:** the 3 test files with `/fans` paths, and USER-SIDE.md, FEATURES.md and DEAD-CODE.md. |
+| Fix the organizer's invite link | ⚪ Low | `ticket-card.tsx` builds invite links as `/events/{eventId}/invite/{ticketId}`, a page that doesn't exist, so it opens Not Found. Fix it alongside the move above. |
+
 ### Finding events
 
 | Feature | Priority | Status | Notes |
@@ -130,7 +137,7 @@ Within each table, rows run from High to Low priority.
 | Page | Priority | Status | Notes |
 |---|---|---|---|
 | Privacy Policy, Refund Policy, Terms and Conditions | 🔴 High | 🚧 Coming soon | Legal pages. Needed before going live with payments. |
-| About Us, Blog, FAQ | ⚪ Low | 🚧 Coming soon | |
+| About Us, Blog, FAQ | ⚪ Low | 🚧 Coming soon | When fans move to the root, About Us and Blog join the creators' pages: one `/about-us` and one `/blog` for everyone. The FAQ is now the general Support page (`/support`). |
 | Sell, Work With Us | ⚪ Low | 🚧 Coming soon | |
 | Resell info page (`/fans/resell`) | ⚪ Low | ✅ Working | Explains resale and links to My Tickets. |
 | Resale marketplace | — | Parked | The pages exist in code but are switched off until the backend endpoint is ready. Not counted. |
@@ -139,19 +146,20 @@ Within each table, rows run from High to Low priority.
 
 ## 2. Organizers
 
-### Left to do (`organizer-fixes` branch)
+### Left to do (on `prod`)
 
-Everything below is planned for the `organizer-fixes` branch, except **ticket
-reordering**, which will be built on the latest `prod`. Each item's row in the
-tables further down says where it stands today.
+`organizer-fixes` was merged into `prod` on 8 November 2026, so new work
+branches from `prod`. Each item's row in the tables further down says where it
+stands today.
 
 | Work | Priority | What's needed |
 |---|---|---|
 | End-to-end test the organizer vendor tabs | 🟠 Medium | **Now that the `vendors` branch is merged.** Checklist: [VENDOR-FLOW-TEST-CHECKLIST.md](./VENDOR-FLOW-TEST-CHECKLIST.md). Run the whole flow with real vendors: create a stall and an offer, vendors apply, review each applicant's page, accept and reject, pause and resume, and the secured counts and net profit. Expect some edits. |
-| Attendee List tab | 🟠 Medium | Build it on `GET /api/Event/{eventId}/attendees`. |
-| Analytics Export | ⚪ Low | Frontend only. |
+| Attendee List tab | 🟠 Medium | **Built on the `analytics-redesign` branch** with the analytics redesign; parked until the backend answers the analytics mismatch report. |
+| Analytics Export | ⚪ Low | **Built on `analytics-redesign`** (Export CSV); same as above. |
 | Door tickets | ⚪ Low | Not built yet: how fans see them, and the organizer's "Sell On Mobile App". |
-| ~~Ticket reordering~~ | ⚪ Low | **On `prod` instead**, with `PATCH /api/Event/{eventId}/tickets/reorder`. |
+| Ticket reordering | ⚪ Low | With `PATCH /api/Event/{eventId}/tickets/reorder`. The Tickets page already says tickets can be dragged. |
+| Resell and Transfer checks from the backend | ⚪ Low | Use the tickets' `canResell` / `canTransfer` instead of the frontend's own rules (`resaleBlockedReason`, `transferBlockedReason`); update the table in USER-SIDE.md. |
 
 Still waiting on the backend, so not planned yet: Delete Account, Audience
 search and approved fans' orders, saving email
@@ -264,8 +272,8 @@ Three tabs: **Account**, **Payout** and **Settings**.
 |---|---|---|---|
 | Creators home (`/home`) and About Us | 🟠 Medium | ✅ Working | Redesigned in October 2026. Home: "All-in-one hub for creators", with Organizer and Vendor buttons that open sign up for that role, over a background video. About Us: who Afrorevive is, what organizers and vendors get, the team, and Work With Us. The header's menu is a slide-out sidebar with Organizer and Vendor log ins, the pages, and the app. |
 | Contact Us (`/contact-us`) | 🟠 Medium | ✅ Working | Redesigned as "Get in touch". The form (name, email, service category, message) is sent to the support team through `POST /api/Support`. |
-| Waitlist page (`/`) | ⚪ Low | ✅ Working | Joins the newsletter. Also shows the vendor registration callout. |
-| Blog (`/blog`) | ⚪ Low | 🚧 Coming soon | |
+| Waitlist page (`/`) | ⚪ Low | ✅ Working | Joins the newsletter. Also shows the vendor registration callout. **No longer needed:** it goes when fans move to the root and the fan home takes `/`. |
+| Blog (`/blog`) | ⚪ Low | 🚧 Coming soon | Becomes the one Blog for fans and creators when fans move to the root. |
 
 ---
 

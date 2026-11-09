@@ -80,6 +80,14 @@ All route paths live in one map, `src/config/route-map.ts`. Code never types a
 URL by hand. It calls `getRoutePath('key', params)` from
 `src/config/get-route-path.ts`, so renaming a URL is a one-line change.
 
+> **Planned: fans move to the root.** Every `/fans/...` URL below becomes
+> `/...` (`/fans` → `/`, `/fans/events/:eventId` → `/events/:eventId`), with a
+> permanent redirect from the old addresses. A few places still type `/fans` by
+> hand and need changing with it: the login popup's fan check
+> (`auth-modal.tsx`), the dashboard sidebar (`/fans/account`, `/fans/settings`)
+> and checkout's Paystack return address. See FEATURES.md §1, "Left to do", for
+> the decisions and what's still open.
+
 | URL | Page folder | Layout | Login needed |
 |---|---|---|---|
 | `/fans` | `landing-page/home` | root | No |
