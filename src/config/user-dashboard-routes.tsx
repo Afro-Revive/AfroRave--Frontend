@@ -5,7 +5,7 @@ import { UserAuthGuard } from "@/components/auth/user-auth-guard";
 import { getRoutePath } from "./get-route-path";
 
 const AccountPage = lazy(() => import("../pages/fans/account"));
-const SettingsPage = lazy(() => import("../pages/fans/settings")); // Added import
+const SettingsPage = lazy(() => import("../pages/fans/settings"));
 const MyTicketsPage = lazy(() => import("../pages/fans/my-tickets"));
 const IndividualActiveTicketsPage = lazy(
   () => import("../pages/fans/my-tickets/individual-active-tickets")
@@ -35,9 +35,9 @@ export const user_dashboard_routes: RouteObject[] = [
     ),
   },
   {
-    // No UserAuthGuard: the footer and the nav menu both link here for signed
-    // out visitors, so gating it would bounce them off a public page.
-    path: getRoutePath("support"),
+    // No UserAuthGuard: old /fans/support links land here (see
+    // LEGACY_FANS_PATH), signed in or not.
+    path: getRoutePath("contact_support"),
     element: (
       <Suspense fallback={<LoadingFallback />}>
         <SupportPage />

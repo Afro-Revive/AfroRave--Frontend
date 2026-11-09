@@ -124,7 +124,7 @@ function DashboardLink({ onClose }: { onClose: () => void }) {
 
 const LINKS = [
   { href: getRoutePath('creators_home'), name: 'Home' },
-  { href: getRoutePath('creators_about'), name: 'About Us' },
+  { href: getRoutePath('about_us'), name: 'About Us' },
   { href: getRoutePath('creators_contact'), name: 'Contact Us' },
 ]
 

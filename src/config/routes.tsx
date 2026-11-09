@@ -8,8 +8,6 @@ const EventsPage = lazy(() => import('../pages/landing-page/event-page'))
 const IndividualEventPage = lazy(() => import('../pages/landing-page/event-page/individual-event'))
 const ResellPage = lazy(() => import('../pages/landing-page/resell-page'))
 const NotFoundPage = lazy(() => import('../pages/landing-page/not-found'))
-const AboutUsPage = lazy(() => import('../pages/landing-page/about-us'))
-const BlogPage = lazy(() => import('../pages/landing-page/blog'))
 const RefundPolicyPage = lazy(() => import('../pages/landing-page/refund-policy'))
 const WorkWithUsPage = lazy(() => import('../pages/landing-page/work-with-us'))
 // const ResaleMarketPlacePage = lazy(() => import('../pages/landing-page/resale-marketplace'))
@@ -60,22 +58,6 @@ export const routes: RouteObject[] = [
     element: (
       <Suspense fallback={<LoadingFallback />}>
         <ResellPage />
-      </Suspense>
-    ),
-  },
-  {
-    path: getRoutePath('about_us'),
-    element: (
-      <Suspense fallback={<LoadingFallback />}>
-        <AboutUsPage />
-      </Suspense>
-    ),
-  },
-  {
-    path: getRoutePath('blog'),
-    element: (
-      <Suspense fallback={<LoadingFallback />}>
-        <BlogPage />
       </Suspense>
     ),
   },

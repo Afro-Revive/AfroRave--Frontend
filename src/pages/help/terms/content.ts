@@ -55,7 +55,7 @@ export const TERMS_SECTIONS: Section[] = [
             blocks: [
               p(
                 'Account deletion may be requested through the Support page. Afrorevive may retain records as required by law, and Tickets for upcoming Events may be forfeited upon deletion.',
-                { text: 'contact support', to: getRoutePath('support') },
+                { text: 'contact support', to: getRoutePath('help_center') },
               ),
             ],
           },

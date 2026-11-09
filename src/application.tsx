@@ -15,6 +15,8 @@ import { VendorAuthGuard } from './components/auth/vendor-auth-guard'
 import { LoadingFallback } from './components/loading-fallback'
 import { creator_dashboard_routes } from './config/creator-dashboard-routes'
 import { getRoutePath } from './config/get-route-path'
+import { LegacyFansRedirect } from './config/legacy-fans-redirect'
+import { LEGACY_FANS_PATH } from './config/route-map'
 import { routes } from './config/routes'
 import { support_routes } from './config/support-routes'
 import { help_routes } from './config/help-routes'
@@ -72,6 +74,9 @@ function AppShell() {
  */
 export const appRoutes: RouteObject[] = createRoutesFromElements(
   <Route element={<AppShell />}>
+      {/* Fan pages moved from /fans to the root; old links follow them. */}
+      <Route path={`${LEGACY_FANS_PATH}/*`} element={<LegacyFansRedirect />} />
+
       <Route element={<IndexLayout />}>
         {routes.map((route) => (
           <Route key={route.path} path={route.path} element={route.element} />

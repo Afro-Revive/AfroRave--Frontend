@@ -37,7 +37,7 @@ const footer_links: IFooterLinks[] = [
   {
     title: 'Company',
     links: [
-      { href: getRoutePath('creators_blog'), name: 'Blog' },
+      { href: getRoutePath('blog'), name: 'Blog' },
       { href: getRoutePath('work_with_us'), name: 'Work With Us' },
     ],
   },

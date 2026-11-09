@@ -1,5 +1,5 @@
 /**
- * Route-level coverage for the signed-in half of /fans — the pages behind UserAuthGuard.
+ * Route-level coverage for the signed-in fan pages — the pages behind UserAuthGuard.
  * Covers both the guard (signed out) and the pages themselves (signed in).
  */
 import { screen, waitFor } from '@testing-library/react'
@@ -8,11 +8,11 @@ import { apiResponse, makeProfile, makeUserTicket, paginated } from '@/test/fixt
 import { renderRoute, signIn } from '@/test/test-utils'
 
 const dashboardRoutes: { path: string; text: RegExp }[] = [
-  { path: '/fans/account', text: /user information/i },
-  { path: '/fans/settings', text: /danger zone/i },
-  { path: '/fans/my-tickets', text: /no past tickets/i },
-  { path: '/fans/my-tickets/evt-1', text: /your orders/i },
-  { path: '/fans/listed-tickets', text: /listed tickets/i },
+  { path: '/account', text: /user information/i },
+  { path: '/settings', text: /danger zone/i },
+  { path: '/my-tickets', text: /no past tickets/i },
+  { path: '/my-tickets/evt-1', text: /your orders/i },
+  { path: '/listed-tickets', text: /listed tickets/i },
 ]
 
 describe('fan dashboard routes when signed in', () => {
@@ -27,7 +27,7 @@ describe('fan dashboard routes when signed in', () => {
   })
 
   it('shows the dashboard navigation on every page', async () => {
-    renderRoute('/fans/account')
+    renderRoute('/account')
 
     expect(await screen.findByText(/my tickets/i)).toBeInTheDocument()
     expect(screen.getByText(/wallet/i)).toBeInTheDocument()
@@ -41,7 +41,7 @@ describe('fan dashboard routes when signed in', () => {
       apiResponse(makeProfile({ firstName: 'Chidinma', lastName: 'Okoye' })),
     )
 
-    renderRoute('/fans/account')
+    renderRoute('/account')
 
     await waitFor(() => expect(screen.getByDisplayValue('Chidinma')).toBeInTheDocument())
     expect(screen.getByDisplayValue('Okoye')).toBeInTheDocument()
@@ -54,7 +54,7 @@ describe('fan dashboard routes when signed in', () => {
       apiResponse(paginated([makeUserTicket({ eventName: 'Burna Live' })])),
     )
 
-    renderRoute('/fans/my-tickets')
+    renderRoute('/my-tickets')
 
     expect(await screen.findByText(/burna live/i)).toBeInTheDocument()
   })
@@ -62,7 +62,7 @@ describe('fan dashboard routes when signed in', () => {
   it('shows an empty state when the fan holds no tickets', async () => {
     mockApi('get', '/api/profile/user/ticket/active', apiResponse(paginated([])))
 
-    renderRoute('/fans/my-tickets')
+    renderRoute('/my-tickets')
 
     expect(await screen.findByText(/no active tickets/i)).toBeInTheDocument()
   })

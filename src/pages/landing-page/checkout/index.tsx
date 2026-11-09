@@ -28,7 +28,7 @@ export default function EventCheckoutPage() {
   return (
     <AuthProvider>
       <EventCheckout event={event} eventSlug={eventSlug} />
-      <AuthModal />
+      <AuthModal fanSignup />
     </AuthProvider>
   )
 }

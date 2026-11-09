@@ -15,7 +15,7 @@ describe('fan dashboard navigation', () => {
 
   it('moves from the account page to my tickets', async () => {
     const user = userEvent.setup()
-    renderRoute('/fans/account')
+    renderRoute('/account')
 
     await screen.findByText(/user information/i)
     await user.click(screen.getByRole('link', { name: /my tickets/i }))
@@ -25,14 +25,14 @@ describe('fan dashboard navigation', () => {
   })
 
   it('shows the wallet section when the account query param asks for it', async () => {
-    renderRoute('/fans/account?account=wallet')
+    renderRoute('/account?account=wallet')
 
     expect(await screen.findByText(/available balance/i)).toBeInTheDocument()
     expect(screen.queryByText(/user information/i)).not.toBeInTheDocument()
   })
 
   it('defaults the account page to the profile section', async () => {
-    renderRoute('/fans/account')
+    renderRoute('/account')
 
     expect(await screen.findByText(/user information/i)).toBeInTheDocument()
     expect(screen.queryByText(/available balance/i)).not.toBeInTheDocument()
@@ -58,7 +58,7 @@ describe('my tickets tabs', () => {
       apiResponse(paginated([makeUserTicket({ eventId: 'evt-2', eventName: 'Wizkid 2019' })])),
     )
 
-    renderRoute('/fans/my-tickets')
+    renderRoute('/my-tickets')
 
     expect(await screen.findByText(/asake live/i)).toBeInTheDocument()
 
@@ -71,7 +71,7 @@ describe('my tickets tabs', () => {
     const user = userEvent.setup()
     mockApi('get', '/api/profile/user/ticket/active', apiResponse(paginated([])))
 
-    renderRoute('/fans/my-tickets')
+    renderRoute('/my-tickets')
 
     const discover = await screen.findAllByRole('link', { name: /discover events/i })
     await user.click(discover[0])
@@ -84,7 +84,7 @@ describe('payment confirmation', () => {
   it('confirms the order when Paystack sends back a reference', async () => {
     mockApi('post', '/api/Cart/checkout', apiResponse({ orderId: 'ord-1' }))
 
-    renderRoute('/fans/payment-confirmation?reference=ref_123')
+    renderRoute('/payment-confirmation?reference=ref_123')
 
     expect(await screen.findByText(/thank you for your purchase/i)).toBeInTheDocument()
   })
@@ -93,13 +93,13 @@ describe('payment confirmation', () => {
     const { default: api } = await import('@/services/http.service')
     ;(api.post as jest.Mock).mockRejectedValueOnce(new Error('checkout failed'))
 
-    renderRoute('/fans/payment-confirmation?reference=ref_456')
+    renderRoute('/payment-confirmation?reference=ref_456')
 
     expect(await screen.findByText(/an error occurred/i)).toBeInTheDocument()
   })
 
   it('stays idle when there is no payment reference to confirm', async () => {
-    renderRoute('/fans/payment-confirmation')
+    renderRoute('/payment-confirmation')
 
     await waitFor(() =>
       expect(screen.queryByText(/processing payment/i)).not.toBeInTheDocument(),

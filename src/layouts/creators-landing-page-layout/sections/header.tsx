@@ -17,11 +17,6 @@ export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const location = useLocation()
 
-  const isWaitlistPage =
-    location.pathname === '/creators' ||
-    location.pathname === '/creators/' ||
-    location.pathname === '/'
-
   // Close menus on route change
   useEffect(() => {
     setMobileMenuOpen(false)
@@ -49,8 +44,7 @@ export default function Header() {
         </NavLink>
 
         {/* Desktop center nav links (hidden on mobile) */}
-        {!isWaitlistPage && (
-          <div className='hidden md:flex items-center gap-8 lg:gap-10'>
+        <div className='hidden md:flex items-center gap-8 lg:gap-10'>
             {links.map((item) => (
               <NavLink
                 key={item.name}
@@ -67,17 +61,12 @@ export default function Header() {
                 {item.name}
               </NavLink>
             ))}
-          </div>
-        )}
+        </div>
 
         {/* Right side */}
         <div className='flex items-center gap-3'>
-          {/* Countdown timer — waitlist page only */}
-          {isWaitlistPage && <CountdownTimer />}
-
-          {/* Desktop right action — /home only */}
-          {!isWaitlistPage && (
-            <div className='relative hidden md:block'>
+          {/* Desktop right action */}
+          <div className='relative hidden md:block'>
               {isAuthenticated ? (
                 <CreatorMenuButton
                   user={user}
@@ -118,16 +107,15 @@ export default function Header() {
                   )}
                 </>
               )}
-            </div>
-          )}
+          </div>
 
-          {/* Hamburger — mobile only, /home pages only */}
-          {!isWaitlistPage && <button
+          {/* Hamburger — mobile only */}
+          <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             className='md:hidden text-white p-1'
             aria-label='Toggle menu'>
             {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
-          </button>}
+          </button>
         </div>
       </div>
 
@@ -149,9 +137,8 @@ export default function Header() {
             </NavLink>
           ))}
 
-          {/* Auth section — only on /home pages */}
-          {!isWaitlistPage && (
-            <div className='flex flex-col gap-2 pt-4'>
+          {/* Auth section */}
+          <div className='flex flex-col gap-2 pt-4'>
               {isAuthenticated ? (
                 <>
                   <p className='text-white/50 text-xs font-input-mono uppercase mb-1'>
@@ -185,8 +172,7 @@ export default function Header() {
                   </button>
                 </>
               )}
-            </div>
-          )}
+          </div>
         </div>
       )}
     </header>
@@ -194,59 +180,12 @@ export default function Header() {
 }
 
 const links: ILinks[] = [
-  { href: getRoutePath('creators_about'), name: 'About Us' },
+  { href: getRoutePath('about_us'), name: 'About Us' },
   { href: getRoutePath('creators_contact'), name: 'Contact Us' },
-  { href: getRoutePath('creators_blog'), name: 'Blog' },
+  { href: getRoutePath('blog'), name: 'Blog' },
 ]
 
 interface ILinks {
   href: string
   name: string
-}
-
-function CountdownTimer() {
-  const [timeLeft, setTimeLeft] = useState({
-    days: 0,
-    hours: 0,
-    minutes: 0,
-    seconds: 0,
-  })
-
-  useEffect(() => {
-    const targetDate = new Date(2026, 2, 29, 0, 0, 0, 0).getTime()
-
-    function updateCountdown() {
-      const now = new Date().getTime()
-      const difference = targetDate - now
-
-      if (difference > 0) {
-        setTimeLeft({
-          days: Math.floor(difference / (1000 * 60 * 60 * 24)),
-          hours: Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
-          minutes: Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60)),
-          seconds: Math.floor((difference % (1000 * 60)) / 1000),
-        })
-      } else {
-        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 })
-      }
-    }
-
-    updateCountdown()
-    const interval = setInterval(updateCountdown, 1000)
-    return () => clearInterval(interval)
-  }, [])
-
-  return (
-    <div
-      className='flex items-center gap-1 text-white text-center font-bold text-lg md:text-3xl lg:text-4xl'
-      style={{ fontFamily: 'Inter', lineHeight: '100%', letterSpacing: '0.02em' }}>
-      <span>{timeLeft.days}</span>
-      <span>:</span>
-      <span>{String(timeLeft.hours).padStart(2, '0')}</span>
-      <span>:</span>
-      <span>{String(timeLeft.minutes).padStart(2, '0')}</span>
-      <span>:</span>
-      <span>{String(timeLeft.seconds).padStart(2, '0')}</span>
-    </div>
-  )
 }

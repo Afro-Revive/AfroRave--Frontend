@@ -10,46 +10,48 @@
  * ```
  */
 export const ROUTE_PATHS = {
-  // fans Landing page routes
-  home: '/fans',
-  events: '/fans/events',
-  individual_event: '/fans/events/:eventId',
+  // Fan pages sit at the root. They used to live under /fans; LEGACY_FANS_PATH
+  // below redirects those old links.
+  home: '/',
+  events: '/events',
+  individual_event: '/events/:eventId',
   // Buying: the cart, then checkout, each a full-screen page of its own.
-  event_cart: '/fans/events/:eventId/cart',
-  event_checkout: '/fans/events/:eventId/checkout',
-  resell: '/fans/resell',
-  about_us: '/fans/about-us',
-  blog: '/fans/blog',
+  event_cart: '/events/:eventId/cart',
+  event_checkout: '/events/:eventId/checkout',
+  resell: '/resell',
+  /** One About Us for fans and creators (the creators site's page). */
+  about_us: '/about-us',
+  /** One Blog for fans and creators. */
+  blog: '/blog',
   creators: '/creators',
-  faq: '/fans/support/faq',
-  refund_policy: '/fans/refund-policy',
-  work_with_us: '/fans/work-with-us',
-  support: '/fans/support',
-  /** The public help pages, for fans and creators alike. */
+  /** The old FAQ address; it redirects to the Support page. */
+  faq: '/support/faq',
+  refund_policy: '/refund-policy',
+  work_with_us: '/work-with-us',
+  /** The fan dashboard's contact form. */
+  contact_support: '/contact-support',
+  /** The public Support page, for fans and creators alike. */
   help_center: '/support',
-  resale: '/fans/resale',
-  individual_resale: '/fans/resale/:eventId',
-  sell: '/fans/sell',
-  terms_and_conditions: '/fans/terms-and-conditions',
-  privacy_policy: '/fans/privacy-policy',
+  resale: '/resale',
+  individual_resale: '/resale/:eventId',
+  sell: '/sell',
+  terms_and_conditions: '/terms-and-conditions',
+  privacy_policy: '/privacy-policy',
   not_found: '*',
-  payment_confirmation: '/fans/payment-confirmation',
+  payment_confirmation: '/payment-confirmation',
 
   // User dashboard routes
-  account: '/fans/account',
-  settings: '/fans/settings', // Added settings route
-  my_tickets: '/fans/my-tickets',
+  account: '/account',
+  settings: '/settings',
+  my_tickets: '/my-tickets',
   /** The invite email's link lands here with ?token=. */
-  accept_invite: '/fans/invite/accept',
-  active_tickets: '/fans/my-tickets/:eventId',
-  listed_tickets: '/fans/listed-tickets',
+  accept_invite: '/invite/accept',
+  active_tickets: '/my-tickets/:eventId',
+  listed_tickets: '/listed-tickets',
 
   // Creator dashboard routes
   creators_home: '/home',
-  creators_about: '/about-us',
   creators_contact: '/contact-us',
-  creators_blog: '/blog',
-  creators_wishlist: '/',
   standalone: '/creators/events',
   season: '/creators/season',
   reports: '/creators/reports',
@@ -85,6 +87,13 @@ export const ROUTE_PATHS = {
 } as const
 
 /**
+ * Where fan pages used to live. Old links (shared event links, invite emails,
+ * bookmarks) are redirected to the same path without the prefix, here and in
+ * vercel.json.
+ */
+export const LEGACY_FANS_PATH = '/fans'
+
+/**
  * Type representing all valid route keys from ROUTE_PATHS.
  * Used for type-safe route access throughout the application.
  */
@@ -117,7 +126,7 @@ export interface RouteParams {
   faq: never
   refund_policy: never
   work_with_us: never
-  support: never
+  contact_support: never
   help_center: never
   resale: never
   individual_resale: { eventId: string | number }
@@ -137,10 +146,7 @@ export interface RouteParams {
 
   // Creator dashboard routes
   creators_home: never
-  creators_about: never
   creators_contact: never
-  creators_blog: never
-  creators_wishlist: never
   standalone: never
   season: never
   reports: never

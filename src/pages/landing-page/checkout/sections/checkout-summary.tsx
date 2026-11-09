@@ -31,6 +31,7 @@ import { useEffect, useMemo, useState } from "react";
 import TotalAccordion from "@/pages/landing-page/_component/totalPrice-accordion";
 import { InitializePaymentResponse } from "@/types/cart";
 import { toast } from "sonner";
+import { getRoutePath } from "@/config/get-route-path";
 
 /** How long the server holds the tickets once the cart is synced. */
 const RESERVATION_SECONDS = 15 * 60;
@@ -127,7 +128,7 @@ export default function CheckoutSummary({
     checkoutMutation(
       {
         promoCodeId: promoCodeId || "",
-        callbackUrl: `${window.location.origin}/fans/payment-confirmation`,
+        callbackUrl: `${window.location.origin}${getRoutePath('payment_confirmation')}`,
       },
       {
         onSuccess: (data: InitializePaymentResponse) => {

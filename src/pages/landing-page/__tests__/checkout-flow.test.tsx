@@ -11,7 +11,7 @@ import { renderRoute, signIn } from '@/test/test-utils'
 import { useCartStore } from '@/stores'
 
 const EVENT_SLUG = 'afro-nation-lagos'
-const EVENT_PATH = `/fans/events/${EVENT_SLUG}`
+const EVENT_PATH = `/events/${EVENT_SLUG}`
 const CHECKOUT_PATH = `${EVENT_PATH}/checkout`
 
 /**
