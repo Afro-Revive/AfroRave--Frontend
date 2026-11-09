@@ -3,6 +3,9 @@ import { list, p, type Section } from '../_components/content'
 
 export const TERMS_LAST_UPDATED = '5 November 2026'
 
+/** The Privacy section's anchor; /privacy-policy opens the Terms page here. */
+export const PRIVACY_SECTION_ID = 'privacy'
+
 export const TERMS_SECTIONS: Section[] = [
   {
     title: 'General Terms',
@@ -187,7 +190,8 @@ export const TERMS_SECTIONS: Section[] = [
     ],
   },
   {
-    title: 'Legal Terms',
+    title: 'Privacy',
+    id: PRIVACY_SECTION_ID,
     children: [
       {
         title: 'Privacy Policy',
@@ -256,7 +260,7 @@ export const TERMS_SECTIONS: Section[] = [
         blocks: [p('Afrorevive may suspend Accounts, remove listings or hold payouts where these Terms are breached.')],
       },
       {
-        title: 'Governing Law & Changes',
+        title: 'Using the Afrorevive Vendor App',
         heading: 'h3',
         blocks: [
           p(
