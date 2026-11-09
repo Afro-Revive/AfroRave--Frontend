@@ -58,7 +58,7 @@ src/
 │   │   ├── settings/          Change password, log out
 │   │   └── complete-profile/  /complete-profile — reached from an email link
 │   ├── auth/                  Login, sign-up and reset-password forms
-│   └── support/               /contact-support — contact form (not sent anywhere yet)
+│   └── support/               /contact-support — contact form, sent to POST /api/Support
 ├── layouts/
 │   ├── root-layout/           Header, search, footer for public fan pages
 │   ├── user-dashboard-layout/ Account sidebar for logged-in fan pages

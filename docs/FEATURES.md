@@ -14,16 +14,16 @@ the organizer guest lists and promo codes on 8 November 2026.
 
 | | Critical (High) | Medium | Low | **Overall, weighted by priority** |
 |---|---|---|---|---|
-| **Fans** | 15 / 17 done | 10 / 11 | 1 / 4 | **86%** |
+| **Fans** | 15 / 17 done | 11 / 11 | 1 / 4 | **88%** |
 | **Organizers** | 13 / 13 done | 24 / 27 | 6 / 17 | **85%** |
-| **Fans + Organizers** | **28 / 30 done (93%)** | 34 / 38 | 7 / 21 | **85%** |
+| **Fans + Organizers** | **28 / 30 done (93%)** | 35 / 38 | 7 / 21 | **86%** |
 | Vendors | 6 / 6 done | 6 / 6 | 2 / 3 | 97% |
-| **Whole app** | **34 / 36 done (94%)** | 40 / 44 | 9 / 24 | **87%** |
+| **Whole app** | **34 / 36 done (94%)** | 41 / 44 | 9 / 24 | **88%** |
 
 **How the overall % is worked out:**
 - A High feature counts 3 times as much as a Low one, and a Medium one twice as much.
 - Only fully working features score.
-- If half-working ("Partial") and "Awaiting backend" features get half credit, fans and organizers reach 87%.
+- If half-working ("Partial") and "Awaiting backend" features get half credit, fans and organizers reach 88%.
 - **Critical features only:** 93% are fully done, or 95% with half credit for the partly working ones.
 
 Most of the gap is Low priority: small buttons and extra tools.
@@ -130,7 +130,7 @@ Within each table, rows run from High to Low priority.
 | Profile | 🟠 Medium | ✅ Working | Name, gender, state, country, date of birth. The birthday saves as "1998-03-07" (it used to send the month's name, "1998-mar-07") and reads back from the date's own digits, so no time zone shifts the day. |
 | Wallet: payout history | 🟠 Medium | ✅ Working | |
 | Settings: change password, log out | 🟠 Medium | ✅ Working | |
-| Support contact form (`/contact-support`) | 🟠 Medium | ⛔ Not working | Shows "Thanks — we will get back to you", but **the message is not sent anywhere**. The API now has `POST /api/Support`, and the organizer website's Contact Us already sends to it with `useSendSupportMessage`. |
+| Support contact form (`/contact-support`) | 🟠 Medium | ✅ Working | Sends to `POST /api/Support` with `useSendSupportMessage`, like the creators' Contact Us. A signed-in fan's email is filled in and their profile name is sent with it (a signed-out visitor's email stands in for the name); the category is "Platform support". The message is cleared only once it's sent. |
 
 ### Information pages
 
@@ -308,10 +308,9 @@ pretends to. Rows run from High to Low priority.
 
 | Where | Button or link | Priority | Status | What happens |
 |---|---|---|---|---|
-| Fans footer | Privacy, Refund, Terms | 🔴 High | 🚧 Coming soon | Open a "Coming Soon" page. |
+| Fans footer | Privacy, Refund | 🔴 High | 🚧 Coming soon | Open a "Coming Soon" page. Terms opens the Terms of Use page. |
 | Fans footer, home page and mobile menu | App Store / Google Play badges | 🔴 High | ⛔ Not linked | Link to `#`. Waiting for the apps to be published. Fans need the app for their QR code. |
 | Ticket detail page | QR code ("download the app") | 🔴 High | ⛔ Not linked | Depends on the app store links above. |
-| Fans support (`/contact-support`) | Contact form Send | 🟠 Medium | ⛔ Not working | Shows a success message but sends nothing. |
 | Analytics | Attendee List tab | 🟠 Medium | 🚧 Coming soon | |
 | Access Control | Download, event picker, Add Code, filter | 🟠 Medium | ⛔ Not working | Mock page. |
 | Fans footer | Blog, Sell, Work With Us | ⚪ Low | 🚧 Coming soon | Open a "Coming Soon" page. About Us opens the shared About Us page, and Support the general Support page (`/support`), which replaced the separate FAQ link. |
