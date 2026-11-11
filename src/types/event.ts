@@ -465,7 +465,10 @@ export interface PurchasableTicket {
   /** Only set for resale rows — the specific listing being bought. */
   listingId?: string
   name: string
+  // ticket base price
   price: number
+  // ticket fee
+  fee?: number
   available: number
   /** Max a single buyer may take. Falls back to `available` for resale listings. */
   purchaseLimit: number

@@ -8,17 +8,18 @@ import { formatNaira } from "@/lib/format-price";
 import type { PromoDiscount } from "./promo-code";
 
 const TotalAccordion = ({
-  totalPrice,
+  baseTotalPrice,
+  fee,
   discount,
 }: {
-  totalPrice: number;
+  baseTotalPrice: number;
+  fee: number;
   discount?: PromoDiscount | null;
 }) => {
-  const serviceFee = parseFloat(import.meta.env.VITE_TICKET_SALES_PERCENTAGE || "0") * totalPrice;
   const discountAmount = discount?.discountAmount ?? 0;
   const hasDiscount = discountAmount > 0;
-  const discountedTicketPrice = Math.max(totalPrice - discountAmount, 0);
-  const originalTotal = totalPrice + serviceFee;
+  const discountedTicketPrice = Math.max(baseTotalPrice - discountAmount, 0);
+  const originalTotal = baseTotalPrice + fee;
   const total = Math.max(originalTotal - discountAmount, 0);
   const discountLabel =
     discount?.discountType?.toLowerCase() === "percentage"
@@ -58,7 +59,7 @@ const TotalAccordion = ({
             <span className="flex items-center gap-2">
               {hasDiscount && (
                 <span className="line-through text-white/50">
-                  {formatNaira(totalPrice)}
+                  {formatNaira(baseTotalPrice)}
                 </span>
               )}
               <span>
@@ -70,7 +71,7 @@ const TotalAccordion = ({
           </div>
           <div className="flex items-center justify-between py-2  ">
             <p>Service Fee</p>
-            <p>{formatNaira(serviceFee)}</p>
+            <p>{formatNaira(fee)}</p>
           </div>
          
         </AccordionContent>

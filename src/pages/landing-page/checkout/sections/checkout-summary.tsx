@@ -82,7 +82,7 @@ export default function CheckoutSummary({
   const [promoDiscount, setPromoDiscount] = useState<PromoDiscount | null>(
     null,
   );
-
+  console.log(ticketsResponse?.data)
   const purchasables = useMemo(
     () =>
       // Index all purchasable tickets(resale and primary) by cartKey (ticketId for primary, listingId for resale)
@@ -109,6 +109,7 @@ export default function CheckoutSummary({
       eventId: eventId ?? "",
       name: ticket?.name ?? "Ticket",
       price: ticket?.price ?? 0,
+      fee: ticket?.fee ?? 0,
       quantity: item.quantity,
       resale: ticket?.source === "resale",
     };
@@ -118,6 +119,11 @@ export default function CheckoutSummary({
 
   const totalPrice = cartItems.reduce(
     (sum, item) => sum + item.price * item.quantity,
+    0,
+  );
+
+  const totalFee = cartItems.reduce(
+    (sum, item) => sum + item.fee * item.quantity,
     0,
   );
 
@@ -241,7 +247,7 @@ export default function CheckoutSummary({
           onApply={setPromoDiscount}
         />
 
-        <TotalAccordion totalPrice={totalPrice} discount={promoDiscount} />
+        <TotalAccordion baseTotalPrice={totalPrice} fee ={totalFee} discount={promoDiscount} />
 
         {isFanAccount && (
           <Button
