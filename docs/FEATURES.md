@@ -108,7 +108,7 @@ Within each table, rows run from High to Low priority.
 | Purchase limits | 🟠 Medium | ✅ Working | Fans can't add more than a ticket's purchase limit. |
 | Invite-only tickets on the event page | 🟠 Medium | ✅ Working | Shown with a padlock. They can't be bought, only received by invite. |
 | Promo codes at checkout | 🟠 Medium | ✅ Working | Validated as you type, and the discount is applied to the total. Since 11 November the promo subtotal is the base price total (to reconfirm with the backend). |
-| Ticket prices and fees | 🔴 High | ✅ Working | Tickets show their base price, captioned "(fees at checkout)". Checkout adds each ticket's fee from the API (`fee`, a naira amount; 6% today, moving to the agreed 8%) times the quantity, and the TOTAL shows base + fee − discount. It used to add the app's own 8% on top of a price that already included the backend's fee. Resale lines carry no buyer fee; whether they should is open. |
+| Ticket prices and fees | 🔴 High | ✅ Working | Tickets show their base price, captioned "(fees at checkout)". Checkout adds each ticket's fee from the API (`fee`, a naira amount: 8%, `feePercentage` 0.08; a ₦10,000 ticket has `fee` 800 and `salesPrice` 10,800) times the quantity, and the TOTAL shows base + fee − discount. It used to add the app's own 8% on top of a price that already included the backend's fee. Resale lines carry no buyer fee; whether they should is open. |
 
 ### After buying
 

@@ -186,19 +186,24 @@ Tags:
 ## 3. Contradictions in copy, data and logic
 
 ### 3.1 Visibility rule stated two opposite ways
-- [ ] [add-event/tabs/event-details-tab.tsx:150-153](../src/pages/creators/add-event/tabs/event-details-tab.tsx#L150-L153) says "Public events can be switched to private one time only". That's wrong.
+- [x] [add-event/tabs/event-details-tab.tsx:150-153](../src/pages/creators/add-event/tabs/event-details-tab.tsx#L150-L153) says "Public events can be switched to private one time only". That's wrong.
   - Use the agreed rule from [edit-event/tabs/event-details-tab.tsx:169](../src/pages/creators/edit-event/tabs/event-details-tab.tsx#L169): private → public at any time, public → private never.
 
 ### 3.2 Resale left on while the banner says it's off
-- [ ] [ticket-form.tsx:38-47](../src/pages/creators/add-event/ticket-forms/create/ticket-form.tsx#L38-L47) turns resell off only for invite-only and group tickets. The form doesn't know the event is private.
-  - Add an `isPrivateEvent` prop.
-  - Force `allow_ticket_resell` to `false` when it's set.
-  - Show `UnavailableNote` instead of the checkbox. The checkbox is at [ticket-form.tsx:300-320](../src/pages/creators/add-event/ticket-forms/create/ticket-form.tsx#L300-L320), and the reasons are in `UNAVAILABLE_REASON` (around [ticket-form.tsx:447](../src/pages/creators/add-event/ticket-forms/create/ticket-form.tsx#L447)). Add a `private_event` reason.
-- [ ] Pass the prop from [tickets/index.tsx:159](../src/pages/creators/tickets/index.tsx#L159), which already knows the event is private (it renders [ticket-notice.tsx:23](../src/pages/creators/tickets/components/ticket-notice.tsx#L23)). Pass it from the add-event tickets step too.
-- [ ] **[BE]** Tickets already saved with `allowResell: true` on private events need the backend to enforce this. It's the existing `canResell` / `canTransfer` item. The banner text is in [tickets/constant.ts:17](../src/pages/creators/tickets/constant.ts#L17).
+- [x] The ticket form didn't know the event was private, so "Allow ticket resell" stayed available. **Fixed 2026-11-11.**
+  - [ticket-form.tsx](../src/pages/creators/add-event/ticket-forms/create/ticket-form.tsx) takes `isPrivateEvent`. It forces `allow_ticket_resell` off, which also clears it on a saved ticket opened for editing, and shows "Unavailable for private events. Tickets stay with the attendees you approve." instead of the checkbox (a new `private_event` reason).
+  - The "allows attendees to resell…" line now shows only beside the checkbox; it used to show under the group-ticket note too.
+  - Passed from the Tickets page (`isPrivateEvent`) and from Create Event's tickets step (`visibility === "private"`).
+  - [x] Not checked in a browser yet (it needs the dev organizer login).
+- [x] **[BE]** The backend enforces no resale on private events, so tickets saved earlier with `allowResell: true` are covered.
 
 ### 3.3 Ticket price differs between the list and the form ⚠️
-- [ ] **[verify]** **[BE]**
+- [x] **Fixed 2026-11-11:** the backend now returns the same value for `price` and `basePrice` (they used to differ by the fee). For consistency, the organizer side reads `basePrice` everywhere a ticket's own price is meant:
+  - the Tickets page edit form, for both the price and the Paid/Free choice ([tickets/helper.ts](../src/pages/creators/tickets/helper.ts));
+  - Create Event's edit of a saved ticket ([ticket-forms/create/helper.ts](../src/pages/creators/add-event/ticket-forms/create/helper.ts));
+  - the Send Invites modal's price label and paid check ([send-invites-modal.tsx](../src/pages/creators/tickets/components/send-invites-modal.tsx)).
+  - The card already showed `basePrice`, so the list and the form now agree. What follows is the original analysis.
+- **Original analysis:**
   - **What each side reads:**
     - The card shows `ticket.basePrice` ([ticket-card.tsx:74](../src/pages/creators/tickets/components/ticket-card.tsx#L74)).
     - The edit form loads `ticket.price` ([tickets/helper.ts:28](../src/pages/creators/tickets/helper.ts#L28)).
@@ -206,39 +211,54 @@ Tags:
   - **Why it matters:** 53,000 / 50,000 = 1.06, so `price` looks like the fan price with fees added. If the backend treats the `price` it receives as the organizer's base, every edit-and-save adds the fee again.
   - **How to check:** on dev, open a ticket, save it without changes, and see whether `basePrice` moves.
   - **Likely fix:** load `basePrice` into the form, and label the card so it says which figure it shows.
-  - **Confirmed from the API (2026-11-11):** a ticket comes back with `basePrice` 50,000, `fee` 3,000 (a naira amount per ticket, currently 6%), and `price` and `salesPrice` both 53,000. So the form loads the fan price, not the organizer's. This organizer-side item is **still open**.
+  - **Confirmed from the API (2026-11-11), before the backend change:** a ticket came back with `basePrice` 50,000, `fee` 3,000 (a naira amount per ticket, currently 6%), and `price` and `salesPrice` both 53,000, so the form loaded the fan price.
 - [x] **Fan side, found while checking this: checkout charged the fee twice.** Fixed 2026-11-11 (`b9439f9`).
   - **Before:** tickets showed `salesPrice` (53,000, which already includes the backend's fee), and checkout added the app's own 8% (`VITE_TICKET_SALES_PERCENTAGE`) on top of that.
   - **Now:** tickets show `basePrice`, captioned "(fees at checkout)". Checkout adds each line's API `fee` × quantity, and the TOTAL accordion shows base total + fee − discount. Nothing is calculated from the env rate.
-  - **Agreed with the PO:** the fee is 8%. The backend still charges 6% and will be moved to 8%; the checkout follows it automatically.
-  - [ ] **[BE]** Confirm that the amount actually charged is base × quantity + fee × quantity − discount. Checkout doesn't send an amount, so the backend's number is what fans pay.
-  - [ ] **[BE]** The promo code's subtotal is now the base total. Reconfirm that discounts apply to the base price.
+  - **Agreed with the PO:** the fee is 8%. **The backend now charges it (2026-11-11).** A ₦10,000 ticket comes back as:
+
+    | Field | Value | Meaning |
+    |---|---|---|
+    | `price` | 10,000 | the organizer's price (same as `basePrice`) |
+    | `basePrice` | 10,000 | the organizer's price; what the app shows and edits |
+    | `fee` | 800 | the fan's fee per ticket, in naira |
+    | `feePercentage` | 0.08 | the fee rate |
+    | `salesPrice` | 10,800 | what a fan pays per ticket: base + fee |
+    | `resalePrice` | 10,800 | same as `salesPrice` |
+
+    Checkout uses `basePrice` and `fee`, so it already shows the 8%; nothing in the app changed for it.
+  - [x] **[BE]** Confirm that the amount actually charged is base × quantity + fee × quantity − discount, plus the Paystack fee below. Checkout doesn't send an amount, so the backend's number is what fans pay.
+  - [ ] **[PO]** **Paystack's fee: who pays it?** Customers currently pay Paystack's charge on top: 1.5% + ₦100, capped at ₦2,000. Paystack's published Nigeria pricing also waives the ₦100 on payments under ₦2,500; confirm that applies.
+    - **Deliberately not shown in the checkout total yet.** The PO is being asked to absorb it, in which case customers wouldn't pay it at all.
+    - **Until that's decided,** a fan's Paystack charge is higher than the TOTAL shown at checkout. For example, a ₦10,800 total becomes ₦11,062.
+    - **If the PO absorbs it:** nothing to change in checkout; the backend stops passing it on.
+    - **If customers keep paying it:** add a "Payment processing" line to the TOTAL accordion, using the backend's figure rather than calculating it in the app, the same as the ticket fee.
+  - [x] **[BE]** The promo code's subtotal is the base total. **Confirmed 2026-11-11:** discounts apply to the base price.
   - [ ] Once confirmed, remove `VITE_TICKET_SALES_PERCENTAGE` from `.env`, Vercel and `src/test/setup.ts`; nothing else uses it. (`VITE_TICKET_RESALE_PERCENTAGE` is still used for seller payouts.)
 - [ ] **[PO]** **[BE]** **Resale pricing and fees.** How it works now:
-  - The seller's price picker starts at the ticket's sales price (53,000) and has no upper limit. The listing stores one `price` ([ticket-resale.tsx](../src/pages/fans/my-tickets/tickets-resale/modals/ticket-resale.tsx)).
+  - The seller's price picker starts at the seller's ticket `price`, from `GET /api/profile/user/ticket/active`. That was the sales price (53,000) when this was written. If that endpoint follows the tickets endpoint (`price` = `basePrice`), it now starts at the base price; **[verify]** on dev. It has no upper limit. The listing stores one `price` ([ticket-resale.tsx](../src/pages/fans/my-tickets/tickets-resale/modals/ticket-resale.tsx)).
   - The seller's payout is `price − price × VITE_TICKET_RESALE_PERCENTAGE`.
   - The buyer pays the listing price. Resale lines carry no fee, so no buyer fee shows at checkout; before `b9439f9` the app added 8% to resale lines too.
   - **To decide:**
     - Does a resale buyer pay a fee? If yes, the backend sends a per-listing `fee` and `toPurchasableResaleListings` passes it through ([purchasable-tickets.ts](../src/lib/purchasable-tickets.ts)).
-    - Should the picker start at the base price (50,000) rather than the sales price, so a seller keeping the default doesn't re-charge the original fee?
-    - Is the API's `resalePrice` (53,000, the same as the sales price; unused in the app) meant as the most a ticket can be resold for? If so, enforce it in the picker and on the backend.
+    - Should the picker start at the base price rather than the sales price? Likely settled by the backend making `price` the base price; confirm with the check above.
+    - Is the API's `resalePrice` (the same as `salesPrice`, ₦10,800 on a ₦10,000 ticket; unused in the app) meant as the most a ticket can be resold for? If so, enforce it in the picker and on the backend.
 
 ### 3.4 "Tickets issued" differs between pages
-- [ ] **[BE]** Analytics Overview shows `data.totalTicketsIssued` ([overview-tab.tsx:60](../src/pages/creators/realtime/tabs/overview-tab.tsx#L60)), and the backend currently returns capacity there. This is already on the backend list ("totalTicketsIssued equals created").
-  - The Tickets page uses `eventStat` ([ticket-summary.tsx:41](../src/pages/creators/tickets/components/ticket-summary.tsx#L41)).
-  - Until the backend fix, either relabel it or compute it from sold. This file is also touched on `analytics-redesign`.
-  - **On `analytics-redesign`:** Overview no longer shows "tickets issued". Its tile is **Tickets Sold** (`totalTicketsSold / totalTicketsCreated`, for example 13 / 275).
-    - The numbers now mean the same thing as the Tickets page's "Total Tickets Issued 0 / 10", but the labels still differ. Rename the Tickets page's label to "Tickets Sold" in [ticket-summary.tsx:41](../src/pages/creators/tickets/components/ticket-summary.tsx#L41).
-    - The Tickets page reads `eventStat`, which the backend still has stale. That's an open backend item.
+The Tickets page said "Total Tickets Issued 0 / 10" while Analytics Overview said "10 tickets issued", because the analytics endpoint's `totalTicketsIssued` returns tickets created (capacity), not issued.
+- [x] **Tickets page label renamed to "Tickets Sold"** (2026-11-11) in [ticket-summary.tsx](../src/pages/creators/tickets/components/ticket-summary.tsx). It shows `eventStat.ticketSold / totalTicket`, which is what it always meant.
+- [ ] **Merge `analytics-redesign`.** Its Overview drops "tickets issued" for a **Tickets Sold** tile (`totalTicketsSold / totalTicketsCreated`), so both pages then show sold out of total under the same name.
+- [ ] **[BE]** `eventStat`, which the Tickets page reads, is still known to be stale, so its sold count can trail the analytics until the backend fixes it.
 
 ### 3.5 Copy pasted into the wrong place
-- [ ] Create Event > Contact Details helper ([add-event/tabs/event-details-tab.tsx:314](../src/pages/creators/add-event/tabs/event-details-tab.tsx#L314)): use "Shown on your event page so attendees can reach you.", as Edit Event does.
-- [ ] Create Event > Date & Time helper ([add-event/tabs/event-details-tab.tsx:270](../src/pages/creators/add-event/tabs/event-details-tab.tsx#L270)): "Ticket holders will be notified" makes no sense on a new event. Reword it.
-- [ ] Service Vendor contact note ([create-vendor-slot-modal.tsx:539](../src/pages/vendor/component/create-vendor-slot-modal.tsx#L539)): "until a revenue vendor successfully pays for a slot" is revenue-only.
-  - Branch on `isRevenue`.
-  - **[PO]** Supply the copy for service vendors.
-- [ ] Service Vendor banner ([vendor-how-it-works.tsx:14](../src/pages/vendor/component/vendor-how-it-works.tsx#L14)): change "How service vendor stalls work" to "How service vendor offers work".
-- [ ] Shared description ([create-vendor-slot-modal.tsx:290](../src/pages/vendor/component/create-vendor-slot-modal.tsx#L290)): split it by `isRevenue`, one line for marketplace sellers and one for event services.
+All fixed 2026-11-11:
+- [x] Create Event > Contact Details helper ([add-event/tabs/event-details-tab.tsx](../src/pages/creators/add-event/tabs/event-details-tab.tsx)): now "Shown on your event page so attendees can reach you.", as on Edit Event.
+- [x] Create Event > Date & Time helper: now "Set when your event starts and ends." (a new event has no ticket holders to notify).
+- [x] Contact note in the vendor slot modal ([create-vendor-slot-modal.tsx](../src/pages/vendor/component/create-vendor-slot-modal.tsx)) branches on `isRevenue`:
+  - revenue stalls keep "…hidden until a revenue vendor successfully pays for a slot…";
+  - service offers say "Service vendors see your contact details once you accept their application." (agreed with the PO).
+- [x] Service vendor banner ([vendor-how-it-works.tsx](../src/pages/vendor/component/vendor-how-it-works.tsx)): "How service vendor offers work".
+- [x] The modal's description is split by `isRevenue`: "Open your event to marketplace sellers." for stalls, "Reach out for professional event services." for offers.
 
 ### 3.6 Flyer size guidance differs
 - [x] **Decided with the PO on 2026-11-11: 3:4 everywhere on the site.** The organizer guidance and every place a flyer shows use it. The two labels that currently disagree:
