@@ -1,4 +1,3 @@
-import { BaseSelect } from '@/components/reusable'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -13,10 +12,8 @@ import {
 import { cn } from '@/lib/utils'
 import type { CategoryData, GuestListData } from '@/types/guestlist'
 import { Check, ChevronLeft, ChevronRight, LoaderCircle, Search } from 'lucide-react'
-import {
-  GUEST_SORT_OPTIONS,
-  type GuestSort,
-} from '../../standalone/guestlist/constant'
+import { GuestSortControl } from '../../standalone/guestlist/components/guest-sort-control'
+import type { GuestSort } from '../../standalone/guestlist/constant'
 import { ALL_CATEGORIES_ID, IMPORT_PAGE_SIZE } from '../constant'
 
 /**
@@ -84,6 +81,33 @@ export function ImportGuestlistCard({
   const activeCategory = categories.find((category) => category.id === activeCategoryId)
   const categoryName = (id: string) => categories.find((category) => category.id === id)?.name
   const isActiveCategorySaved = !!activeCategory && savedCategoryIds.includes(activeCategory.id)
+
+  // Already on the event, or coming with a ticked category: either way a guest
+  // can't be ticked or unticked on their own here.
+  const guestState = (guest: GuestListData) => {
+    const isOnEvent =
+      savedIds.includes(guest.id) ||
+      !!guest.categoryIds?.some((id) => savedCategoryIds.includes(id))
+    const viaCategoryId = isOnEvent
+      ? undefined
+      : guest.categoryIds?.find((id) => pickedCategoryIds.includes(id))
+    const isLocked = isOnEvent || !!viaCategoryId
+
+    return { isOnEvent, viaCategoryId, isLocked, isSelected: isLocked || pickedIds.includes(guest.id) }
+  }
+
+  const guestNote = (guest: GuestListData) => {
+    const { isOnEvent, viaCategoryId } = guestState(guest)
+
+    if (isOnEvent) return <span className='text-xs text-mid-dark-gray'>On this event</span>
+    if (viaCategoryId)
+      return (
+        <span className='text-xs text-deep-red'>
+          Added with {categoryName(viaCategoryId) ?? 'its category'}
+        </span>
+      )
+    return null
+  }
 
   return (
     <div className='w-full flex flex-col gap-5 rounded-xl bg-white p-5'>
@@ -180,7 +204,7 @@ export function ImportGuestlistCard({
         </div>
       )}
 
-      <div className='flex items-center gap-3 flex-wrap'>
+      <div className='flex items-center gap-3'>
         <div className='relative min-w-0 flex-1'>
           <Search className='pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-mid-dark-gray' />
 
@@ -197,14 +221,7 @@ export function ImportGuestlistCard({
           )}
         </div>
 
-        <BaseSelect
-          type='auth'
-          items={GUEST_SORT_OPTIONS}
-          value={sort}
-          onChange={(value) => onSortChange(value as GuestSort)}
-          placeholder='Newest first'
-          triggerClassName='h-11 w-auto min-w-[150px] shrink-0 items-center rounded-lg border border-[#595959]/50 !bg-white px-3 py-0 font-inter-tight text-sm text-black'
-        />
+        <GuestSortControl sort={sort} onSortChange={onSortChange} />
       </div>
 
       {guests.length === 0 ? (
@@ -212,80 +229,103 @@ export function ImportGuestlistCard({
           {search ? `No guests match “${search}”.` : 'No guests to import yet.'}
         </p>
       ) : (
-        <div className='w-full overflow-x-auto'>
-          <Table className='w-full'>
-            <TableCaption className='sr-only'>Guests you can add to this event</TableCaption>
+        <>
+          {/* Below lg the table's columns ended up off-screen, so each guest is
+              a card: name, email and category stacked, as on the event's
+              guestlist. The whole card ticks the guest, as the row does. */}
+          <ul aria-label='Guests you can add to this event' className='flex flex-col gap-3 lg:hidden'>
+            {guests.map((guest) => {
+              const { isLocked, isSelected } = guestState(guest)
 
-            <TableHeader>
-              <TableRow className='hover:bg-transparent'>
-                <TableHead className='w-10'>
-                  <span className='sr-only'>Select</span>
-                </TableHead>
-                <TableHead className='font-inter-tight text-xs xl:text-sm font-medium text-[#0A0A0A]'>
-                  Name
-                </TableHead>
-                <TableHead className='font-inter-tight text-xs xl:text-sm font-medium text-[#0A0A0A]'>
-                  Category
-                </TableHead>
-              </TableRow>
-            </TableHeader>
+              return (
+                <li
+                  key={guest.id}
+                  onClick={isLocked ? undefined : () => onToggleGuest(guest.id)}
+                  className={cn(
+                    'flex items-start gap-3 rounded-lg shadow-sm border border-black/10 pl-2 py-4 font-inter-tight',
+                    !isLocked && 'cursor-pointer',
+                    // Unpicked guests recede so the selection reads at a glance.
+                    isSelected ? 'text-black' : 'text-black/40',
+                  )}>
+                  <span className='mt-0.5 shrink-0'>
+                    <SelectCircle
+                      isSelected={isSelected}
+                      disabled={isLocked}
+                      label={`Select ${guest.name}`}
+                      onToggle={() => onToggleGuest(guest.id)}
+                    />
+                  </span>
 
-            <TableBody>
-              {guests.map((guest) => {
-                // Already on the event, or coming with a ticked category: either
-                // way it can't be ticked or unticked on its own here.
-                const isOnEvent =
-                  savedIds.includes(guest.id) ||
-                  !!guest.categoryIds?.some((id) => savedCategoryIds.includes(id))
-                const viaCategoryId = isOnEvent
-                  ? undefined
-                  : guest.categoryIds?.find((id) => pickedCategoryIds.includes(id))
-                const isLocked = isOnEvent || !!viaCategoryId
-                const isSelected = isLocked || pickedIds.includes(guest.id)
+                  <div className='flex min-w-0 flex-col items-start gap-1'>
+                    <span className='wrap-break-word'>{guest.name}</span>
+                    <span className='text-xs break-all opacity-70'>{guest.email}</span>
+                    <span className='text-xs opacity-70'>{formatCategories(guest.categoryNames)}</span>
+                    {guestNote(guest)}
+                  </div>
+                </li>
+              )
+            })}
+          </ul>
 
-                return (
-                  <TableRow
-                    key={guest.id}
-                    onClick={isLocked ? undefined : () => onToggleGuest(guest.id)}
-                    className={cn(
-                      'font-inter-tight text-sm',
-                      !isLocked && 'cursor-pointer',
-                      // Unpicked rows recede so the selection reads at a glance.
-                      isSelected ? 'text-black' : 'text-black/40',
-                    )}>
-                    <TableCell>
-                      <SelectCircle
-                        isSelected={isSelected}
-                        disabled={isLocked}
-                        label={`Select ${guest.name}`}
-                        onToggle={() => onToggleGuest(guest.id)}
-                      />
-                    </TableCell>
+          <div className='hidden w-full overflow-x-auto lg:block'>
+            <Table className='w-full'>
+              <TableCaption className='sr-only'>Guests you can add to this event</TableCaption>
 
-                    <TableCell className='flex flex-col'>
-                      <span>{guest.name}</span>
-                      <span className='text-xs text-inherit opacity-70'>{guest.email}</span>
-                    </TableCell>
+              <TableHeader>
+                <TableRow className='hover:bg-transparent'>
+                  <TableHead className='w-10'>
+                    <span className='sr-only'>Select</span>
+                  </TableHead>
+                  <TableHead className='font-inter-tight text-xs xl:text-sm font-medium text-[#0A0A0A]'>
+                    Name
+                  </TableHead>
+                  <TableHead className='font-inter-tight text-xs xl:text-sm font-medium text-[#0A0A0A]'>
+                    Category
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
 
-                    <TableCell>
-                      <span className='flex flex-col'>
-                        {formatCategories(guest.categoryNames)}
-                        {isOnEvent && (
-                          <span className='text-xs text-mid-dark-gray'>On this event</span>
-                        )}
-                        {viaCategoryId && (
-                          <span className='text-xs text-deep-red'>
-                            Added with {categoryName(viaCategoryId) ?? 'its category'}
-                          </span>
-                        )}
-                      </span>
-                    </TableCell>
-                  </TableRow>
-                )
-              })}
-            </TableBody>
-          </Table>
-        </div>
+              <TableBody>
+                {guests.map((guest) => {
+                  const { isLocked, isSelected } = guestState(guest)
+
+                  return (
+                    <TableRow
+                      key={guest.id}
+                      onClick={isLocked ? undefined : () => onToggleGuest(guest.id)}
+                      className={cn(
+                        'font-inter-tight text-sm',
+                        !isLocked && 'cursor-pointer',
+                        // Unpicked rows recede so the selection reads at a glance.
+                        isSelected ? 'text-black' : 'text-black/40',
+                      )}>
+                      <TableCell>
+                        <SelectCircle
+                          isSelected={isSelected}
+                          disabled={isLocked}
+                          label={`Select ${guest.name}`}
+                          onToggle={() => onToggleGuest(guest.id)}
+                        />
+                      </TableCell>
+
+                      <TableCell className='flex flex-col'>
+                        <span>{guest.name}</span>
+                        <span className='text-xs text-inherit opacity-70'>{guest.email}</span>
+                      </TableCell>
+
+                      <TableCell>
+                        <span className='flex flex-col'>
+                          {formatCategories(guest.categoryNames)}
+                          {guestNote(guest)}
+                        </span>
+                      </TableCell>
+                    </TableRow>
+                  )
+                })}
+              </TableBody>
+            </Table>
+          </div>
+        </>
       )}
 
       <div className='flex items-center justify-between gap-4'>

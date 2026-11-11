@@ -26,7 +26,7 @@ export function GuestCategories({
         </p>
       </div>
 
-      <div className='flex items-stretch gap-3 flex-wrap'>
+      <div className='sm:flex grid grid-cols-2 items-stretch gap-3 sm:flex-wrap'>
         <CategoryTile
           name='All guests'
           guestCount={totalGuests}
@@ -48,11 +48,11 @@ export function GuestCategories({
           type='button'
           onClick={onNewCategory}
           className={cn(
-            'flex w-[120px] flex-col items-center justify-center gap-1.5 rounded-lg p-5',
+            'flex sm:w-[120px] w-[100px] flex-col items-center justify-center gap-1.5 rounded-lg sm:p-5 p-3',
             'border border-dashed border-deep-red bg-deep-red/5 transition-colors hover:bg-deep-red/10',
           )}>
-          <span className='flex size-8 items-center justify-center rounded-full border border-deep-red text-deep-red'>
-            <Plus className='size-5' />
+          <span className='flex sm:size-8 size-6 items-center justify-center rounded-full border border-deep-red text-deep-red'>
+            <Plus className='sm:size-5 size-4' />
           </span>
           <span className='font-inter text-xs font-bold text-deep-red'>New category</span>
         </button>

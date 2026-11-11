@@ -171,84 +171,141 @@ export function EventGuestlistCard({
             : 'No guests on this event yet. Import them from your guestlist.'}
         </p>
       ) : (
-        <div className='w-full overflow-x-auto'>
-          <Table className='w-full'>
-            <TableCaption className='sr-only'>Guests on this event</TableCaption>
+        <>
+          {/* Below lg the table doesn't fit beside the sidebar, and its Status
+              and actions columns ended up off-screen, so each guest is a card. */}
+          <ul aria-label='Guests on this event' className='flex flex-col gap-3 lg:hidden'>
+            {guests.map((guest) => (
+              <li
+                key={guest.guestId}
+                className='flex items-start justify-between gap-3 rounded-lg shadow-sm border border-black/10 pl-2 py-4 font-inter-tight'>
+                <div className='flex min-w-0 flex-col items-start gap-1'>
+                  <span
+                    className={cn(
+                      'wrap-break-word',
+                      guest.isCheckedIn ? 'text-[#00AD2E]' : 'text-black',
+                    )}>
+                    {guest.name}
+                  </span>
+                  <span className='text-xs text-mid-dark-gray break-all'>{guest.email}</span>
+                  <span className='text-xs text-mid-dark-gray'>{guest.categoryName ?? 'No Category'}</span>
+                </div>
 
-            <TableHeader>
-              <TableRow className='hover:bg-transparent'>
-                {['Name', 'Category', 'Status'].map((label) => (
-                  <TableHead
-                    key={label}
-                    className='font-inter-tight text-xs xl:text-sm font-medium text-[#0A0A0A]'>
-                    {label}
+                <GuestActions
+                  guest={guest}
+                  canRemove={individualGuestIds.includes(guest.guestId)}
+                  onRemove={onRemoveGuest}
+                  isSaving={isSaving}
+                />
+              </li>
+            ))}
+          </ul>
+
+          <div className='hidden w-full overflow-x-auto lg:block'>
+            <Table className='w-full'>
+              <TableCaption className='sr-only'>Guests on this event</TableCaption>
+
+              <TableHeader>
+                <TableRow className='hover:bg-transparent'>
+                  {['Name', 'Category', 'Status'].map((label) => (
+                    <TableHead
+                      key={label}
+                      className='font-inter-tight text-xs xl:text-sm font-medium text-[#0A0A0A]'>
+                      {label}
+                    </TableHead>
+                  ))}
+                  <TableHead className='w-10'>
+                    <span className='sr-only'>Actions</span>
                   </TableHead>
-                ))}
-                <TableHead className='w-10'>
-                  <span className='sr-only'>Actions</span>
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-
-            <TableBody>
-              {guests.map((guest) => (
-                <TableRow key={guest.guestId} className='font-inter-tight text-sm text-black'>
-                  <TableCell className='flex flex-col'>
-                    <span>{guest.name}</span>
-                    <span className='text-xs text-mid-dark-gray'>{guest.email}</span>
-                  </TableCell>
-
-                  <TableCell>{guest.categoryName ?? 'No Category'}</TableCell>
-
-                  <TableCell>
-                    <span
-                      className={cn(
-                        'rounded-full px-2.5 py-1 text-xs font-medium',
-                        guest.isCheckedIn
-                          ? 'bg-[#00AD2E]/15 text-[#00AD2E]'
-                          : 'bg-black/5 text-mid-dark-gray',
-                      )}>
-                      {guest.isCheckedIn ? 'Checked in' : 'Not arrived'}
-                    </span>
-                  </TableCell>
-
-                  <TableCell>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button
-                          variant='ghost'
-                          aria-label={`Actions for ${guest.name}`}
-                          className='h-fit w-fit p-1 hover:bg-black/10'>
-                          <RiMore2Fill className='size-4' />
-                        </Button>
-                      </DropdownMenuTrigger>
-
-                      <DropdownMenuContent align='end'>
-                        {individualGuestIds.includes(guest.guestId) ? (
-                          <DropdownMenuItem
-                            disabled={isSaving}
-                            onClick={() => onRemoveGuest(guest.guestId)}
-                            className='text-deep-red focus:bg-transparent focus:text-deep-red'>
-                            <RiUserUnfollowLine size={16} className='mr-2' />
-                            Remove from event
-                          </DropdownMenuItem>
-                        ) : (
-                          // On the event through a whole category, so only
-                          // removing that category takes them off.
-                          <DropdownMenuItem disabled className='max-w-60 whitespace-normal'>
-                            Added with {guest.categoryName ?? 'a category'}. Remove the category
-                            above to take them off.
-                          </DropdownMenuItem>
-                        )}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
+              </TableHeader>
+
+              <TableBody>
+                {guests.map((guest) => (
+                  <TableRow key={guest.guestId} className='font-inter-tight text-sm text-black'>
+                    <TableCell className='flex flex-col'>
+                      <span>{guest.name}</span>
+                      <span className='text-xs text-mid-dark-gray'>{guest.email}</span>
+                    </TableCell>
+
+                    <TableCell>{guest.categoryName ?? 'No Category'}</TableCell>
+
+                    <TableCell>
+                      <GuestStatus isCheckedIn={guest.isCheckedIn} />
+                    </TableCell>
+
+                    <TableCell>
+                      <GuestActions
+                        guest={guest}
+                        canRemove={individualGuestIds.includes(guest.guestId)}
+                        onRemove={onRemoveGuest}
+                        isSaving={isSaving}
+                      />
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </>
       )}
     </div>
+  )
+}
+
+function GuestStatus({ isCheckedIn }: { isCheckedIn: boolean }) {
+  return (
+    <span
+      className={cn(
+        'whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-medium',
+        isCheckedIn ? 'bg-[#00AD2E]/15 text-[#00AD2E]' : 'bg-black/5 text-mid-dark-gray',
+      )}>
+      {isCheckedIn ? 'Checked in' : 'Not arrived'}
+    </span>
+  )
+}
+
+function GuestActions({
+  guest,
+  canRemove,
+  onRemove,
+  isSaving,
+}: {
+  guest: EventCheckinGuest
+  /** Added one by one, so they can be removed one by one. */
+  canRemove: boolean
+  onRemove: (guestId: string) => void
+  isSaving: boolean
+}) {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          variant='ghost'
+          aria-label={`Actions for ${guest.name}`}
+          className='h-fit w-fit shrink-0 p-1 text-black hover:bg-black/10'>
+          <RiMore2Fill className='size-4' />
+        </Button>
+      </DropdownMenuTrigger>
+
+      <DropdownMenuContent align='end'>
+        {canRemove ? (
+          <DropdownMenuItem
+            disabled={isSaving}
+            onClick={() => onRemove(guest.guestId)}
+            className='text-deep-red focus:bg-transparent focus:text-deep-red'>
+            <RiUserUnfollowLine size={16} className='mr-2' />
+            Remove from event
+          </DropdownMenuItem>
+        ) : (
+          // On the event through a whole category, so only removing that
+          // category takes them off.
+          <DropdownMenuItem disabled className='max-w-60 whitespace-normal'>
+            Added with {guest.categoryName ?? 'a category'}. Remove the category above to take
+            them off.
+          </DropdownMenuItem>
+        )}
+      </DropdownMenuContent>
+    </DropdownMenu>
   )
 }
