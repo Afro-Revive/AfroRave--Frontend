@@ -1,4 +1,3 @@
-import { Badge } from "@/components/ui/badge";
 import { formatNaira } from "@/lib/format-price";
 import { cn } from "@/lib/utils";
 import {
@@ -7,7 +6,7 @@ import {
 } from "@/pages/creators/add-event/component/action-popover";
 import { BiGroup } from "react-icons/bi";
 import { Send } from "lucide-react";
-import { BsTicketPerforated } from "react-icons/bs";
+import { Menu } from "lucide-react";
 
 /**
  * One saved ticket, as listed while building an event and while editing one.
@@ -75,11 +74,11 @@ export function TicketSummaryCard({
         )}
       >
         <div className="flex flex-row gap-1 items-center">
-          <BsTicketPerforated size={20} color="#AE0D0D" className="rotate-90" />
+          <Menu size={20} color="black" />
 
           <div className="flex flex-col gap-1 ml-2">
             <div className="flex flex-row gap-2 items-center">
-              <p className="capitalize md:text-sm text-xs font-semibold font-inter-tight leading-[100%] text-black">
+              <p className="capitalize text-sm md:text-base md:uppercase font-semibold font-inter-tight leading-[100%] text-black">
                 {name}
               </p>
               {isGroupTicket && (
@@ -97,16 +96,28 @@ export function TicketSummaryCard({
               )}
             </div>
 
-            <div className="flex flex-row gap-2 items-center">
-              <p className="capitalize md:text-xs text-[10px] font-medium font-inter-tight leading-[100%] text-soft-gray">
+            <div className="flex flex-col gap-3 ">
+              {/* One badge in one spot: invite-only tickets show that (their
+                  type is always Single, so it says nothing), every other
+                  ticket shows its type. Falls back to "Invite" for callers
+                  that only know the boolean: the create flow has no accessType. */}
+              {isInviteOnly ? (
+                <TicketBadge type="invite-only" text={accessLabel ?? "Invite"} />
+              ) : (
+                <TicketBadge text={typeLabel} />
+              )}
+              <div className="flex flex-row gap-2">
+              <p className="capitalize text-sm font-medium font-inter-tight leading-[100%] text-soft-gray">
                 {formatNaira(price, { free: true })}
               </p>
               {availableQuantity !== undefined &&
                 usedQuantity !== undefined && (
-                  <p className="capitalize text-xs font-medium font-inter-tight leading-[100%] text-soft-gray">
+                  <p className="capitalize text-sm font-medium font-inter-tight leading-[100%] text-soft-gray">
                     {usedQuantity} / {availableQuantity} sold
                   </p>
                 )}
+              </div>
+
             </div>
           </div>
         </div>
@@ -116,17 +127,6 @@ export function TicketSummaryCard({
           className="flex items-center gap-3"
           onClick={(event) => event.stopPropagation()}
         >
-          <TicketBadge text={typeLabel} />
-
-          {/* Falls back to Invite so callers that only know the boolean — the
-              create flow holds no accessType — keep their badge. */}
-          {(accessLabel ?? (isInviteOnly ? "Invite" : undefined)) && (
-            <TicketBadge
-              type={isInviteOnly ? "invite-only" : "access"}
-              text={accessLabel ?? "Invite"}
-            />
-          )}
-
           {isInviteOnly && (
             <span
               title={`${invitesSent ?? 0} ${invitesSent === 1 ? "invite" : "invites"} sent`}
@@ -170,17 +170,17 @@ function TicketBadge({
   text?: string;
 }) {
   return (
-    <Badge
+    <div
       className={cn(
-        "py-1.5 px-2 rounded-[6px] md:text-xs text-[10px] font-sf-pro-rounded leading-[100%] whitespace-nowrap capitalize",
+        "text-sm  font-inter-tight leading-[100%] mt-1 capitalize",
         {
-          "bg-[#00AD2E4D] text-[#00AD2E]": type === "default",
-          "bg-[#409BFF]/60 text-tech-blue": type === "invite-only",
-          "bg-black/10 text-black/70": type === "access",
+          "text-[#00AD2E]": type === "default",
+          "text-tech-blue": type === "invite-only",
+          "text-black/70": type === "access",
         },
       )}
     >
       {text}
-    </Badge>
+    </div>
   );
 }
