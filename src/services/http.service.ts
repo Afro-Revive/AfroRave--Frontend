@@ -103,15 +103,16 @@ async function renewTokens(): Promise<string | null> {
 }
 
 api.interceptors.request.use(
-  async (req) => {
+  (req) => {
     if (req.url?.includes('login') || req.url?.includes('register')) return req
 
-    let token = useAfroStore.getState().token
-    
-    if (token && isTokenExpired(token)) {
-      token = await refreshSession()
+    const token = useAfroStore.getState().token
 
-      if (!token) return Promise.reject(new Error('Session expired. Please log in again.'))
+    // Expired means 15 minutes without a refresh, i.e. inactive: by design the
+    // API won't renew it, so the session ends here.
+    if (token && isTokenExpired(token)) {
+      useAfroStore.getState().clearAuth()
+      return Promise.reject(new Error('Session expired. Please log in again.'))
     }
 
     if (token) req.headers.Authorization = `Bearer ${token}`
