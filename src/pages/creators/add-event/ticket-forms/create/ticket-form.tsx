@@ -26,12 +26,18 @@ export function TicketForm({
   isLoading,
   isEditMode = false,
   onCancel,
+  isPrivateEvent = false,
 }: ITicketFormProps) {
   const [openAdvancedOptions, setOpenAdvancedOptions] = useState(false);
   const availabilityValue = form.watch("ticket.quantity.availability");
   const isInviteOnly = form.watch("ticket.invite_only");
   const whenToStart = form.watch("whenToStart");
   const isGroupTicket = type === "group_ticket";
+  const resellUnavailableReason = isGroupTicket
+    ? "group_ticket"
+    : isPrivateEvent
+      ? "private_event"
+      : null;
 
   const formatCopy = TICKET_FORMAT_COPY[isInviteOnly ? "invite_only" : type];
 
@@ -41,11 +47,13 @@ export function TicketForm({
       form.setValue("ticket.purchase_limit", "1");
     }
 
-    // Resell is unavailable to both, so it can't be left switched on.
-    if (isInviteOnly || isGroupTicket) {
+    // Resell is unavailable to invite-only and group tickets, and to every
+    // ticket on a private event, so it can't be left switched on. That also
+    // clears it on a saved ticket opened for editing.
+    if (isInviteOnly || isGroupTicket || isPrivateEvent) {
       form.setValue("allow_ticket_resell", false);
     }
-  }, [isInviteOnly, isGroupTicket, form]);
+  }, [isInviteOnly, isGroupTicket, isPrivateEvent, form]);
 
   return (
     <>
@@ -298,33 +306,35 @@ DESCRIBE WHAT THIS TICKET INCLUDES.`}
               )}
             </FormField>
 
-            {isGroupTicket ? (
+            {resellUnavailableReason ? (
               <UnavailableNote
                 label="Allow Ticket Resell"
-                reason="group_ticket"
+                reason={resellUnavailableReason}
               />
             ) : (
-              <FormField form={form} name="allow_ticket_resell">
-                {(field) => (
-                  <BaseBooleanCheckbox
-                    data={{
-                      items: {
-                        label: "ALLOW TICKET RESELL",
-                        id: "allow-ticket-resell",
-                      },
-                    }}
-                    showCheckbox={true}
-                    labelClassName="font-work-sans font-medium text-sm uppercase text-[#464444] leading-none"
-                    checkedClassName="border border-red-800"
-                    {...field}
-                  />
-                )}
-              </FormField>
+              <>
+                <FormField form={form} name="allow_ticket_resell">
+                  {(field) => (
+                    <BaseBooleanCheckbox
+                      data={{
+                        items: {
+                          label: "ALLOW TICKET RESELL",
+                          id: "allow-ticket-resell",
+                        },
+                      }}
+                      showCheckbox={true}
+                      labelClassName="font-work-sans font-medium text-sm uppercase text-[#464444] leading-none"
+                      checkedClassName="border border-red-800"
+                      {...field}
+                    />
+                  )}
+                </FormField>
+                <p className="font-inter-tight font-normal text-sm lowercase text-[#1E1E1E] leading-snug -mt-3">
+                  This option allows attendees to resell their tickets to other
+                  fans.
+                </p>
+              </>
             )}
-            <p className="font-inter-tight font-normal text-sm lowercase text-[#1E1E1E] leading-snug -mt-3">
-              This option allows attendees to resell their tickets to other
-              fans.
-            </p>
           </div>
           {/* watch, not getValues: getValues doesn't re-render, so picking a
               scheduled start never revealed the date picker. */}
@@ -439,6 +449,8 @@ const UNAVAILABLE_REASON = {
     "Unavailable for invite-only tickets. Each invitation is tied to the invited guest.",
   group_ticket:
     "Unavailable for group tickets. Each group ticket stays with the original buyer.",
+  private_event:
+    "Unavailable for private events. Tickets stay with the attendees you approve.",
 } as const;
 
 /** Keeps a disabled control's heading in place so the form doesn't lose its shape. */
@@ -545,4 +557,6 @@ interface ITicketFormProps {
   isLoading?: boolean;
   isEditMode?: boolean;
   onCancel?: () => void;
+  /** Private events have no resale, so the resell option is switched off. */
+  isPrivateEvent?: boolean;
 }

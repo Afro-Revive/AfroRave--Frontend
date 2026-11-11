@@ -177,6 +177,7 @@ function EventTickets({ eventId, accessType }: IEventTickets) {
                   }
                   isLoading={editingTicketId ? isUpdatingTicket : isCreatingTIcket}
                   onCancel={closeComposer}
+                  isPrivateEvent={isPrivateEvent}
                 />
               </FormBase>
             </div>

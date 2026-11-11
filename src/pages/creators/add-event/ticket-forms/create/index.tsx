@@ -180,6 +180,7 @@ export default function CreateTicketForm({
                 }
                 isEditMode={!!editingTicketId}
                 onCancel={handleCancelEditWrapper}
+                isPrivateEvent={visibility === "private"}
               />
             )}
           </div>
