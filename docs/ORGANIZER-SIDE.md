@@ -121,8 +121,11 @@ export default function TicketsPage() {
 
 ```
 CreatorDashboardLayout
-├── CreatorDashboardHeader         logo, CreatorMenuButton (Dashboard / Settings / Log out),
-│                                  mobile hamburger
+├── CreatorDashboardHeader         logo, CreatorMenuButton (Dashboard / Settings / Log out).
+│                                  Mobile: the avatar always shows, plus a ☰ that turns into ✕
+│                                  while the menu is open, only on pages with a sidebar
+│                                  (hasSidebar). The notifications bell is commented out
+│                                  until notifications are live.
 └── main
     ├── CreatorSidebar             hidden on /creators/events (that page is full width)
     │   ├── SelectedEventCard      the selected event: name, date, visibility,
@@ -204,6 +207,7 @@ A wizard driven by `?tab=` in the URL:
   - It reads `useIsMutating({ mutationKey: eventKeys.create() })` to show SAVING… while the form it doesn't own is creating the event.
 - **Errors:** if creating fails, the toast shows the server's reason (`apiErrorMessage` in `lib/api-error.ts`: a field's validation message, then the response message, then its title).
 - **Event Info fields:** the website URL is optional, the custom URL field is labelled "URL", and the refund terms field is commented out.
+- **Custom URL field** (`components/shared/field-with-absolute-text.tsx`, here and on edit event): the prefix reads `afrorevive.com/events/`. On mobile it sits above the input, inside the same box, so the slug gets the full width; from `sm` up they share one row.
 - **The description is rich text.** `components/reusable/rich-text-editor.tsx` (Tiptap, react-icons Remix toolbar) offers headings (H2, H3), bold, italic, underline, strikethrough, inline code, links, bullet and numbered lists, quotes, code blocks, dividers and undo/redo, and saves HTML. Links open in a new tab; a click while editing doesn't follow them. Older plain-text descriptions open as paragraphs (`toRichText` in `lib/rich-text.ts`). The 2000 limit and the counter count visible text, not tags (`richTextLength`). Edit event uses the same editor.
 - **Old links:** `?tab=theme` (the removed theme step) redirects to `publish`.
 - **The ticket form:**
@@ -234,8 +238,12 @@ TicketsPage → SelectedEventGate → EventTickets
 │                          hide group tickets
 ├── TicketForm             reused from add-event to create or edit a ticket
 ├── TicketCard (each)      built on shared TicketSummaryCard: price before fees, sold /
-│                          available, group size on the group icon; menu: Edit /
-│                          Delete / Send Invite (invite-only); invites-sent count
+│                          available, group size on the group icon; one badge (Invite on
+│                          invite-only tickets, else the format); menu: Edit / Delete /
+│                          Send Invite (invite-only); invites-sent count. The menu
+│                          (ActionPopover) opens to the left of the ⋮, inside the card,
+│                          and closes when an option is picked; Edit scrolls the form
+│                          (composerRef) into view
 ├── SummaryCard            net sales and tickets sold / total, from the event's
 │                          eventStat (useGetEvent), as on its dashboard card;
 │                          View Analytics
@@ -258,9 +266,10 @@ There are **two different guest lists**, so keep them apart:
 |---|---|---|
 | Where | Dashboard → Guestlist tab (`standalone/guestlist/`) | `/creators/guest-list` (`guest-list/`) |
 | What | Every guest the organizer has saved, in categories | Who is on one event's list |
-| Main parts | `GuestCategories`, `GuestTable`, `GuestSelectionBar`, `AddGuestModal`, `NewCategoryModal`, `GuestLimitCard` | `AddGuestCard`, `ImportGuestlistCard`, `EventGuestlistCard` |
+| Main parts | `GuestCategories`, `GuestTable`, `GuestSelectionBar`, `AddGuestModal`, `NewCategoryModal`, `GuestLimitCard`, `GuestSortControl` | `AddGuestCard`, `ImportGuestlistCard`, `EventGuestlistCard` |
+| Mobile (below lg) | Cards: checkbox, name / email / category, ⋮ menu; "Select all on this page" above them | Cards: name / email / category (name green when checked in) with ⋮; the import list's cards tick the guest when tapped |
 | Paging | Server side, 20 per page, with search and sort | Server side, 20 per page |
-| Sort | `newest to oldest` / `oldest to newest`, sent word for word: the only two `GET /api/Guestlist` accepts | Same |
+| Sort | `newest to oldest` / `oldest to newest`, sent word for word: the only two `GET /api/Guestlist` accepts. `GuestSortControl`: a filter icon below lg, the select from lg up | Same |
 
 **An important backend rule:** the event's "configure guestlist" call
 **replaces** the whole list. `useAddGuestToEvent` and the import screen always

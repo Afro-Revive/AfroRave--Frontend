@@ -13,9 +13,9 @@ Tags:
 
 ## Fix first
 
-1. **1.1**: the live site is a development build, and the devtools button covers content.
-2. **1.2 / 1.3**: the SF Pro fonts (about 60 MB on disk), three broken font paths, and quoted `"sans-serif"`. Paths and quotes are fixed; SF Pro's removal comes after the 3:4 change.
-3. **2.1**: the Service Vendor time pickers make the whole page scroll sideways.
+1. ~~**1.1**: the live site is a development build, and the devtools button covers content.~~ Fixed.
+2. **1.2 / 1.3**: the SF Pro fonts (about 60 MB on disk), three broken font paths, and quoted `"sans-serif"`. Paths and quotes are fixed; SF Pro's removal is **next**, now that the 3:4 change is done.
+3. ~~**2.1**: the Service Vendor time pickers make the whole page scroll sideways.~~ Fixed.
 4. **3.1**: the visibility rule is stated two opposite ways.
 5. **3.3**: the ticket price differs between the list and the form. This may also change saved prices (see 3.3).
 
@@ -55,7 +55,7 @@ Tags:
   - [src/styles/fonts.css:200](../src/styles/fonts.css#L200): `SFMonoBold.otf`. Only `SFMonoBold.woff` exists. The report didn't catch this one.
 - [ ] Remove SF Pro from the whole site. Apple's licence doesn't cover web self-hosting.
   - **Decided with the PO on 2026-11-11:** remove it completely. No system-font fallback that keeps SF on Apple devices.
-  - **Order:** this comes **after** the 3:4 flyer change (**3.6**). The two are done one after the other, not together.
+  - **Order:** this comes **after** the 3:4 flyer change (**3.6**), which is done (`ddf9ff1`). **Next up.**
   - **Still open:** which font replaces it. The report suggests Inter Tight plus at most one display face.
   - **Font declarations:** [src/styles/fonts.css](../src/styles/fonts.css) (all 302 lines are SF `@font-face` blocks), imported from [src/index.css:5](../src/index.css#L5).
   - **Files to delete:**
@@ -152,12 +152,24 @@ Tags:
 - The card is rendered from [standalone/index.tsx:290](../src/pages/creators/standalone/index.tsx#L290).
 
 ### 2.7 Edit Ticket opens off-screen, and the menu stays open
-- [ ] [tickets/index.tsx:118-122](../src/pages/creators/tickets/index.tsx#L118-L122) (`handleEditTicket`): put a ref on the composer card ([tickets/index.tsx:156](../src/pages/creators/tickets/index.tsx#L156)) and `scrollIntoView({ behavior: 'smooth' })` after the form loads.
-- [ ] [src/pages/creators/add-event/component/action-popover.tsx](../src/pages/creators/add-event/component/action-popover.tsx): `BasePopover` is uncontrolled, so the menu stays open after a choice. Make it controlled and close it in `ActionPopoverItem`'s click. It's used by [ticket-summary-card.tsx:146](../src/components/shared/ticket-summary-card.tsx#L146) and the promo and vendor cards.
+- **The ticket card's design is changing.** Fix this with the new design, not on the current card.
+  - **Files:** [ticket-card.tsx](../src/pages/creators/tickets/components/ticket-card.tsx) (Tickets page), [ticket-summary-card.tsx](../src/components/shared/ticket-summary-card.tsx) (the shared card, with the ⋮ menu) and [action-popover.tsx](../src/pages/creators/add-event/component/action-popover.tsx).
+  - **Also uses the shared card:** the Create Event flow ([publish-tab.tsx](../src/pages/creators/add-event/tabs/publish-tab.tsx), [ticket-forms/create/index.tsx](../src/pages/creators/add-event/ticket-forms/create/index.tsx)).
+- [x] [tickets/index.tsx:118-122](../src/pages/creators/tickets/index.tsx#L118-L122) (`handleEditTicket`): Edit Ticket on a ticket further down loaded the form at the top, out of sight. **Fixed 2026-11-11.**
+  - The composer has a ref, and the page scrolls it into view once editing starts. A `scroll-mt` offset keeps it clear of the sticky header.
+  - **Also needed:** the menu handed focus back to its ⋮ on closing, which scrolled the page straight back down. It now keeps focus put when an option is picked; Escape and clicking outside still return it.
+  - **Checked** at 375px and 1440px: editing the last ticket brings the form's top to 88px, just under the 72px header.
+- [x] [src/pages/creators/add-event/component/action-popover.tsx](../src/pages/creators/add-event/component/action-popover.tsx): the ticket ⋮ menu stayed open after a choice and hung past the card. **Fixed 2026-11-11.**
+  - **Closing:** the menu is controlled, and every `ActionPopoverItem` closes it before running its action. That includes items passed in as `extraActions`, like Send Invite.
+  - **Position:** it opens to the left of the ⋮, centred on it, instead of centred below it. `BasePopover` gained optional `open`, `onOpenChange`, `side`, `align` and `collisionPadding`.
+  - **Checked** on the Tickets page at 375px and 1440px: the menu sits fully inside its card, and Edit Ticket closes it and opens the form.
+  - **Correction:** it's used only by the ticket card ([ticket-summary-card.tsx](../src/components/shared/ticket-summary-card.tsx)), not the promo and vendor cards.
 
 ### 2.8 Custom URL field truncated
-- [ ] [src/components/shared/field-with-absolute-text.tsx:31-33](../src/components/shared/field-with-absolute-text.tsx#L31-L33): the prefix takes about 40% of the row. On mobile, stack the prefix above the input or shrink it, and give the input `min-w-0`.
-- [ ] Change the prefix text from `afrorevive/events/` to `afrorevive.com/events/`. Event pages are now at the root after the /fans move.
+- [x] [src/components/shared/field-with-absolute-text.tsx:31-33](../src/components/shared/field-with-absolute-text.tsx#L31-L33): the prefix took about 40% of the row. **Fixed 2026-11-11.**
+  - On mobile the prefix sits on its own line above the input, inside the same box. From `sm` up they share one row; the prefix keeps its width and the input (`min-w-0`) takes the rest.
+  - **Checked** on Event Details and Create Event: at 375px the slug input is 293–333px wide and "wizkid-live-abuja" fits whole; at 1440px it's 597–696px wide. No sideways scroll.
+- [x] Change the prefix text from `afrorevive/events/` to `afrorevive.com/events/`. **Done 2026-11-11** on both pages. Event pages are now at the root after the /fans move.
   - [add-event/tabs/event-details-tab.tsx:250](../src/pages/creators/add-event/tabs/event-details-tab.tsx#L250)
   - [edit-event/tabs/event-details-tab.tsx:254](../src/pages/creators/edit-event/tabs/event-details-tab.tsx#L254)
 
@@ -165,7 +177,7 @@ Tags:
 - [ ] **[PO]** Wire up the bell, or hide it. It's a plain `<img>` in [creator-dashboard-layout/header.tsx:21](../src/layouts/creator-dashboard-layout/header.tsx#L21).
   - The hooks already exist: `useOrganizerNotifications` and `useMarkNotificationAsRead` in [src/hooks/use-profile-mutations.ts:171](../src/hooks/use-profile-mutations.ts#L171).
   - Wiring it up means a button and a dropdown or sheet.
-- [ ] Fix the ☰ behaviour in [header.tsx:23-29](../src/layouts/creator-dashboard-layout/header.tsx#L23-L29). When the mobile sidebar is open, the ☰ trigger is swapped for `CreatorMenuButton`, so Settings takes a second tap. Either:
+- [x] Fix the ☰ behaviour in [header.tsx:23-29](../src/layouts/creator-dashboard-layout/header.tsx#L23-L29). When the mobile sidebar is open, the ☰ trigger is swapped for `CreatorMenuButton`, so Settings takes a second tap. Either:
   - keep a close (X) control and show the avatar beside it; or
   - add Settings to the sidebar footer ([creator-side-bar.tsx:176](../src/layouts/creator-dashboard-layout/creator-side-bar.tsx#L176)).
 
@@ -194,6 +206,22 @@ Tags:
   - **Why it matters:** 53,000 / 50,000 = 1.06, so `price` looks like the fan price with fees added. If the backend treats the `price` it receives as the organizer's base, every edit-and-save adds the fee again.
   - **How to check:** on dev, open a ticket, save it without changes, and see whether `basePrice` moves.
   - **Likely fix:** load `basePrice` into the form, and label the card so it says which figure it shows.
+  - **Confirmed from the API (2026-11-11):** a ticket comes back with `basePrice` 50,000, `fee` 3,000 (a naira amount per ticket, currently 6%), and `price` and `salesPrice` both 53,000. So the form loads the fan price, not the organizer's. This organizer-side item is **still open**.
+- [x] **Fan side, found while checking this: checkout charged the fee twice.** Fixed 2026-11-11 (`b9439f9`).
+  - **Before:** tickets showed `salesPrice` (53,000, which already includes the backend's fee), and checkout added the app's own 8% (`VITE_TICKET_SALES_PERCENTAGE`) on top of that.
+  - **Now:** tickets show `basePrice`, captioned "(fees at checkout)". Checkout adds each line's API `fee` × quantity, and the TOTAL accordion shows base total + fee − discount. Nothing is calculated from the env rate.
+  - **Agreed with the PO:** the fee is 8%. The backend still charges 6% and will be moved to 8%; the checkout follows it automatically.
+  - [ ] **[BE]** Confirm that the amount actually charged is base × quantity + fee × quantity − discount. Checkout doesn't send an amount, so the backend's number is what fans pay.
+  - [ ] **[BE]** The promo code's subtotal is now the base total. Reconfirm that discounts apply to the base price.
+  - [ ] Once confirmed, remove `VITE_TICKET_SALES_PERCENTAGE` from `.env`, Vercel and `src/test/setup.ts`; nothing else uses it. (`VITE_TICKET_RESALE_PERCENTAGE` is still used for seller payouts.)
+- [ ] **[PO]** **[BE]** **Resale pricing and fees.** How it works now:
+  - The seller's price picker starts at the ticket's sales price (53,000) and has no upper limit. The listing stores one `price` ([ticket-resale.tsx](../src/pages/fans/my-tickets/tickets-resale/modals/ticket-resale.tsx)).
+  - The seller's payout is `price − price × VITE_TICKET_RESALE_PERCENTAGE`.
+  - The buyer pays the listing price. Resale lines carry no fee, so no buyer fee shows at checkout; before `b9439f9` the app added 8% to resale lines too.
+  - **To decide:**
+    - Does a resale buyer pay a fee? If yes, the backend sends a per-listing `fee` and `toPurchasableResaleListings` passes it through ([purchasable-tickets.ts](../src/lib/purchasable-tickets.ts)).
+    - Should the picker start at the base price (50,000) rather than the sales price, so a seller keeping the default doesn't re-charge the original fee?
+    - Is the API's `resalePrice` (53,000, the same as the sales price; unused in the app) meant as the most a ticket can be resold for? If so, enforce it in the picker and on the backend.
 
 ### 3.4 "Tickets issued" differs between pages
 - [ ] **[BE]** Analytics Overview shows `data.totalTicketsIssued` ([overview-tab.tsx:60](../src/pages/creators/realtime/tabs/overview-tab.tsx#L60)), and the backend currently returns capacity there. This is already on the backend list ("totalTicketsIssued equals created").
@@ -251,12 +279,18 @@ Tags:
     |---|---|---|
     | Thumbnail | 112–120px | cart and checkout on mobile, beside the event details instead of above them; accept invite |
     | Compact | 200px | cart and checkout on desktop |
-    | Card | fills its grid column | Events list (done), fan discovery, My Tickets and Listed Tickets, vendor Discover and My Slots |
+    | Card | fills its grid column | Events list, fan discovery, My Tickets and Listed Tickets, vendor Discover and My Slots |
     | Feature | up to 360–450px | event page, single active ticket, vendor slot details, Event Details poster, Publish preview |
 
     - Change the upload boxes to 3:4, and the "550 × 770" labels to match (for example "1200 × 1600 px (3:4)"), so the preview shows organizers how the poster is cropped everywhere.
     - Replace the fixed heights with one shared 3:4 class or component, including `RenderEventImage`'s 200/220px default.
-- [ ] Apply 3:4 across the site, using the table and plan above. **Next up**, before SF Pro (**1.2**).
+- [x] Apply 3:4 across the site, using the table and plan above. **Done 2026-11-11** (`ddf9ff1`).
+  - `RenderEventImage` and its placeholder default to 3:4.
+  - Cart and vendor event details show a 120px thumbnail beside the details on mobile (300px on desktop); checkout shows a 120px thumbnail on mobile (200px on desktop).
+  - The event page, ticket cards, single ticket, discovery skeleton, slot details and accept invite are 3:4.
+  - Both upload boxes are 3:4 and say "1200 X 1600"; their previews crop like everywhere else.
+  - **Checked** at 375px and 1440px on the event page, My Tickets, a ticket, Create Event, and vendor event and slot details: every box measures 3:4 and nothing scrolls sideways.
+  - [ ] **Not yet seen:** the cart and checkout pages, which need a live reservation. Add a ticket in the real flow once and check both.
 
 ### 3.7 Wrong empty state on filters
 - [ ] [standalone/index.tsx:183-194](../src/pages/creators/standalone/index.tsx#L183-L194) and `EmptyState` ([:210-221](../src/pages/creators/standalone/index.tsx#L210-L221)): when the account has events but the filter is empty, say "No upcoming events" or "No drafts", not "No Events Created". Pass `activeFilter` and `allEvents.length` in.
@@ -381,6 +415,16 @@ Each row needs one rule from design. Agree the rule **[PO]**, then apply it.
   - If they stay, link each Overview card to Audience Insights. `AnalyticsCard` takes an `action` slot for that.
 
 ---
+
+## Found while fixing, not in the report
+
+- [x] **Logged out with "Invalid refresh token or token expired."** Fixed 2026-11-11 (`ed094c5`, corrected in `d20cf00`).
+  - **Cause:** the API rotates refresh tokens (each works once). With two tabs open, both refreshed with the same token; the loser got the error and cleared the saved session, logging both out.
+  - **Fix:** tabs share one session through `storage` events, and `refreshSession()` ([http.service.ts](../src/services/http.service.ts)) runs once per tab and once across tabs (Web Locks), using the last saved pair.
+  - **Checked:** two tabs on dev: one refresh call at the 3-minute mark, and both tabs stayed on the same renewed token.
+- **By design, not bugs** (confirmed 2026-11-11):
+  - **One active session per user.** A new login revokes the previous session's refresh token, so signing in elsewhere ends the old session within 15 minutes ("Invalid refresh token or token expired."). Scripts or people signing in to the same test account do this too.
+  - **Inactive for 15 minutes means logged out.** Once the access token expires without a refresh, the API won't renew it. The app clears the session on load, or on the next request, instead of trying to refresh.
 
 ## Seen in the report's screenshots, not called out in the text
 

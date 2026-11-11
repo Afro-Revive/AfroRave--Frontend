@@ -188,7 +188,9 @@ page uses it when someone is signed in with the wrong email.
 **The session:**
 - The logged-in user and tokens live in `useAfroStore` (`src/stores/index.ts`), saved to `localStorage` under `afro-store-v1`.
 - `isFan`, `isCreator` and `isVendor` come from the user's `accountType`.
-- `useTokenRefresh()` (`src/hooks/use-token-refresh.ts`) refreshes the access token 3 minutes before it expires.
+- `useTokenRefresh()` (`src/hooks/use-token-refresh.ts`) refreshes the access token 3 minutes before it expires, through `refreshSession()` in `src/services/http.service.ts`.
+- **Refresh tokens rotate:** each works once. So only one refresh runs at a time, once per tab and once across tabs (a Web Lock), and tabs follow each other's refresh, login and logout through `storage` events. Otherwise a second tab would send a used token and get "Invalid refresh token or token expired."
+- **By design:** one active session per user (a new login ends the previous session at its next refresh), and 15 minutes without a refresh means logged out. An expired session is dropped on load, or on the next request.
 - The HTTP client adds `Authorization: Bearer …` to every request.
 
 ---
@@ -291,6 +293,7 @@ The cart is the most involved fan flow. The rules:
 6. **Checkout page** (`/events/:eventId/checkout`, `checkout/index.tsx`). It has no layout, so it brings its own `AuthProvider` and `<AuthModal />`.
    - Signed out: shows `UserLoginForm` with `onLoginSuccess={() => {}}` so the fan stays in checkout.
    - Signed in: shows `CheckoutSummary` with the promo code, the totals accordion, and a 15-minute countdown.
+   - **Prices and the fee:** lines are priced at the ticket's `basePrice`, and the TOTAL accordion (`_component/totalPrice-accordion.tsx`) adds the sum of each line's API `fee` × quantity, then takes off the promo discount. Nothing is calculated from `VITE_TICKET_SALES_PERCENTAGE`. Resale lines carry no fee.
    - **The countdown** starts the moment the server reserves the tickets: when `useSyncCartToServer` succeeds (Continue on the cart page) and when `useLogin` syncs the cart (logging in at checkout). Each sync restarts it. The start is saved in the store, so a refresh carries on counting. The summary only displays it.
    - **Extending:** in the last two minutes, while the reservation still exists, a "Need more time?" link appears. `useExtendReservation` fetches the fan's server cart (`GET /api/Cart`), calls `POST /api/Cart/{cartId}/extend-reservation` for every line, since each line has its own reservation, and restarts the countdown.
    - **Expiry:** when the countdown reaches zero, the server has already deleted the cart and would reject payment. The summary clears the browser's cart and says the tickets were released. The empty cart then sends the fan back to the event page, without the "are you sure?" step. A refresh or Back onto an expired checkout does the same.
@@ -447,6 +450,8 @@ Query, not in a store.
   - Newer fan screens use `font-work-sans` (headings) and `font-inter-tight` (body).
   - Older screens use the SF Pro families: `font-sf-pro-display` and `font-sf-pro-text`.
   - Display type uses `font-phosphate` and `font-input-mono`.
+  - SF Pro is being removed from the whole site (decided with the PO); its replacement is still to be picked.
+- **Flyers are 3:4 everywhere** (decided with the PO). `RenderEventImage` defaults to `aspect-3/4`; set the width, not a height. Cart and checkout show a 120px thumbnail beside the event details on mobile.
 - **Colours:** use the tokens in `index.css`, such as `deep-red`, `tech-blue`, `system-black` and `gunmetal-gray`, rather than raw hex values where one exists.
 
 ---

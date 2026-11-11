@@ -163,7 +163,9 @@ Full screen with a close button back to Discover, like the fans' ticket page.
 ```
 VendorEventDetailsPage
 ├── header               event name, venue, date, ✕ → Discover
-├── AboutEvent           same markup as the fans' cart page: flyer, name, date | venue, doors, ShowMoreText
+├── AboutEvent           same markup as the fans' cart page: 3:4 flyer (a 120px thumbnail beside
+│                        the details on mobile, 300px on desktop), name, date | venue, doors,
+│                        ShowMoreText full width below
 ├── Available Slots      a SlotRow per slot or offer, styled like the fans' TicketCard
 │   ├── tap the row      details modal: price, description, slots left or work hours, apply-by date and time
 │   ├── revenue slot     green pill: + adds a stall up to the slots left, − takes one off
@@ -206,7 +208,7 @@ VendorSlotsPage
 ```
 VendorSlotDetailsPage (loads :applicationId with useVendorApplication)
 ├── VendorPageHeader        event name, slot name, back to My Slots, Revenue / Service vendor tag
-├── EventFlyerCard          flyer, About Event, Go to eventpage (the fan page, new tab)
+├── EventFlyerCard          3:4 flyer (up to 570px wide), About Event, Go to eventpage (the fan page, new tab)
 └── column
     ├── SlotSummaryCard     YOUR SLOT + status pill, name, category, description (scrolls),
     │                       details table, then the part that depends on the status

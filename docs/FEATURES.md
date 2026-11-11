@@ -6,7 +6,9 @@ before launch, what's safe to demo, and what to test.
 
 Last checked against the code on the `prod` branch, October 2026. The vendor
 section (§3) was checked in November 2026, when the `vendors` branch merged, and
-the organizer guest lists and promo codes on 8 November 2026.
+the organizer guest lists and promo codes on 8 November 2026. Ticket prices and
+fees, the ticket list and the guest lists were updated on 11 November 2026, from
+the mobile QA fixes on `ui-fixes`.
 
 ---
 
@@ -105,7 +107,8 @@ Within each table, rows run from High to Low priority.
 | Accept an invite from an email link | 🔴 High | ✅ Working | `/invite/accept?token=…` (older emails' `/fans/invite/accept` links redirect there). Signed-out guests get the login, with a bar saying to use the invited email; signed in with another email, they're told to log out. A free invite is issued on Accept. A paid one is accepted, then paid on Paystack, then issued by the payment webhook, or by the page verifying the payment if the webhook hasn't yet. New fans sign up and verify their email, then log in to accept. |
 | Purchase limits | 🟠 Medium | ✅ Working | Fans can't add more than a ticket's purchase limit. |
 | Invite-only tickets on the event page | 🟠 Medium | ✅ Working | Shown with a padlock. They can't be bought, only received by invite. |
-| Promo codes at checkout | 🟠 Medium | ✅ Working | Validated as you type, and the discount is applied to the total. |
+| Promo codes at checkout | 🟠 Medium | ✅ Working | Validated as you type, and the discount is applied to the total. Since 11 November the promo subtotal is the base price total (to reconfirm with the backend). |
+| Ticket prices and fees | 🔴 High | ✅ Working | Tickets show their base price, captioned "(fees at checkout)". Checkout adds each ticket's fee from the API (`fee`, a naira amount; 6% today, moving to the agreed 8%) times the quantity, and the TOTAL shows base + fee − discount. It used to add the app's own 8% on top of a price that already included the backend's fee. Resale lines carry no buyer fee; whether they should is open. |
 
 ### After buying
 
@@ -193,7 +196,7 @@ notifications, and a report download (see §5).
 
 | Feature | Priority | Status | Notes |
 |---|---|---|---|
-| Ticket list with All / Invite-Only / Door filters | 🔴 High | ✅ Working | The Add Tickets format picker sits above the list. Cards show the price before fees, sold and available counts, and a group ticket's size on its icon. |
+| Ticket list with All / Invite-Only / Door filters | 🔴 High | ✅ Working | The Add Tickets format picker sits above the list. Cards show the price before fees, sold and available counts, and a group ticket's size on its icon. One badge per card: "Invite" on invite-only tickets, the format (Single, Group, Multi Day) on the rest. The ⋮ menu opens inside the card and closes once you pick an option; Edit Ticket scrolls the form into view. |
 | Edit and delete a ticket | 🔴 High | ✅ Working | |
 | Orders table | 🔴 High | ✅ Working | |
 | Invite-only: send invites | 🔴 High | ✅ Working | Pick guests from your guestlist, or add a new guest, who is saved to the guestlist too. |
@@ -241,8 +244,8 @@ Three tabs: **Account**, **Payout** and **Settings**.
 
 | Feature | Priority | Status | Notes |
 |---|---|---|---|
-| Account guestlist (dashboard Guestlist tab) | 🟠 Medium | ✅ Working | Categories, search, sort (newest or oldest first, the only two the API takes), 20 per page, add guest, CSV upload. |
-| Event guestlist (`/creators/guest-list`) | 🟠 Medium | ✅ Working | Add guests one by one, or import them from your guestlist: tick guests, or "Add the whole category" inside a category pill (every guest in it, including anyone added to it later), then Add, which clears the ticks and opens the event's guestlist. Guests and categories already on the event show ticked and locked ("On this event"). They're removed from the guestlist: ⋮ → Remove from event on a guest added one by one, or a whole category's chip → Remove from event, which asks to confirm first. |
+| Account guestlist (dashboard Guestlist tab) | 🟠 Medium | ✅ Working | Categories, search, sort (newest or oldest first, the only two the API takes), 20 per page, add guest, CSV upload. Below lg each guest is a card (name, email and category, with its checkbox and ⋮ menu), and the sort is a filter icon beside a full-width search. |
+| Event guestlist (`/creators/guest-list`) | 🟠 Medium | ✅ Working | Add guests one by one, or import them from your guestlist: tick guests, or "Add the whole category" inside a category pill (every guest in it, including anyone added to it later), then Add, which clears the ticks and opens the event's guestlist. Guests and categories already on the event show ticked and locked ("On this event"). They're removed from the guestlist: ⋮ → Remove from event on a guest added one by one, or a whole category's chip → Remove from event, which asks to confirm first. Below lg both lists are cards (name, email and category stacked); a checked-in guest's name shows in green. |
 | Delete a guest, remove a guest from a category | ⚪ Low | ✅ Working | |
 | Add guests to a category, one or many at once | ⚪ Low | ✅ Working | One guest from the row's ⋮ menu (Add to category). Many by ticking rows, or Select all for every guest in the view across pages, then Add to category in the bar above the table. The API has no bulk endpoint, so it sends one request per guest, five at a time, and skips guests already in the category. |
 | Guest allowance card | ⚪ Low | ✅ Working | Uses live account and category limits from `GET /api/GuestList/allowance`, including the active category's usage. |
