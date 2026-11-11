@@ -14,7 +14,7 @@ Tags:
 ## Fix first
 
 1. **1.1**: the live site is a development build, and the devtools button covers content.
-2. **1.2 / 1.3**: the SF Pro fonts (about 60 MB on disk), three broken font paths, and quoted `"sans-serif"`.
+2. **1.2 / 1.3**: the SF Pro fonts (about 60 MB on disk), three broken font paths, and quoted `"sans-serif"`. Paths and quotes are fixed; SF Pro's removal comes after the 3:4 change.
 3. **2.1**: the Service Vendor time pickers make the whole page scroll sideways.
 4. **3.1**: the visibility rule is stated two opposite ways.
 5. **3.3**: the ticket price differs between the list and the form. This may also change saved prices (see 3.3).
@@ -53,7 +53,10 @@ Tags:
   - [src/styles/fonts.css:209](../src/styles/fonts.css#L209): `SFPro-Light.ttf`. The file on disk is `SFProText-Light.ttf`.
   - [src/styles/fonts.css:233](../src/styles/fonts.css#L233): `SFPro-Semibold.ttf`. The file on disk is `SFProText-Semibold.ttf`.
   - [src/styles/fonts.css:200](../src/styles/fonts.css#L200): `SFMonoBold.otf`. Only `SFMonoBold.woff` exists. The report didn't catch this one.
-- [ ] **[PO]** Drop SF Pro. Apple's licence doesn't cover web self-hosting. Design picks the replacement; the report suggests Inter Tight plus at most one display face.
+- [ ] Remove SF Pro from the whole site. Apple's licence doesn't cover web self-hosting.
+  - **Decided with the PO on 2026-11-11:** remove it completely. No system-font fallback that keeps SF on Apple devices.
+  - **Order:** this comes **after** the 3:4 flyer change (**3.6**). The two are done one after the other, not together.
+  - **Still open:** which font replaces it. The report suggests Inter Tight plus at most one display face.
   - **Font declarations:** [src/styles/fonts.css](../src/styles/fonts.css) (all 302 lines are SF `@font-face` blocks), imported from [src/index.css:5](../src/index.css#L5).
   - **Files to delete:**
     - [public/fonts/sf-pro-display/](../public/fonts/sf-pro-display/) (44 MB)
@@ -104,35 +107,48 @@ Tags:
 ## 2. Layout breaks at 375px
 
 ### 2.1 Service Vendor: time pickers overflow the screen
-- [ ] [create-vendor-slot-modal.tsx:454](../src/pages/vendor/component/create-vendor-slot-modal.tsx#L454): `grid grid-cols-2 gap-4` holds two `TimeForm`s. Stack them on mobile with `grid-cols-1 sm:grid-cols-2`.
-- [ ] [src/components/shared/time-form.tsx:30-47](../src/components/shared/time-form.tsx#L30-L47): the `w-full` hour:minute box plus the AM/PM column can't shrink. Add `min-w-0` and let the box shrink. Other forms use this component too, so check those.
+- [x] [create-vendor-slot-modal.tsx:454](../src/pages/vendor/component/create-vendor-slot-modal.tsx#L454): `grid grid-cols-2 gap-4` holds two `TimeForm`s. Stack them on mobile with `grid-cols-1 sm:grid-cols-2`.
+- [x] [src/components/shared/time-form.tsx:30-47](../src/components/shared/time-form.tsx#L30-L47): the `w-full` hour:minute box plus the AM/PM column can't shrink. Add `min-w-0` and let the box shrink. Other forms use this component too, so check those.
 - The cut-off "(Optional)" labels are a side effect of the 385px page width. They come back once this is fixed.
 
 ### 2.2 Edit Ticket: "Update Ticket" breaks out of its card
-- [ ] [ticket-form.tsx:354-379](../src/pages/creators/add-event/ticket-forms/create/ticket-form.tsx#L354-L379): both buttons are a fixed `w-[155px]` in a `flex gap-3` row. Use `flex-col sm:flex-row` and `w-full sm:w-[155px]`.
-- [ ] **[PO]** In edit mode, "REMOVE TICKET" calls `onCancel`, which only closes the form ([tickets/index.tsx:170](../src/pages/creators/tickets/index.tsx#L170)). It doesn't delete anything. Either relabel it "Cancel", or make it delete. This ties into the Delete/Remove naming row in section 4.
+- [x] [ticket-form.tsx:354-379](../src/pages/creators/add-event/ticket-forms/create/ticket-form.tsx#L354-L379): both buttons are a fixed `w-[155px]` in a `flex gap-3` row. Use `flex-col sm:flex-row` and `w-full sm:w-[155px]`.
+- [x] **[PO]** In edit mode, "REMOVE TICKET" calls `onCancel`, which only closes the form ([tickets/index.tsx:170](../src/pages/creators/tickets/index.tsx#L170)). It doesn't delete anything. Either relabel it "Cancel", or make it delete. This ties into the Delete/Remove naming row in section 4 (Relabled Cancel).
 
 ### 2.3 Analytics: event selector cut off
-- [ ] [src/pages/creators/realtime/index.tsx:78-92](../src/pages/creators/realtime/index.tsx#L78-L92) (`ChartHeader`): the title, Export and `EventSelect` share one `h-14 px-8` row. On mobile, let it wrap or move the selector to a second row, and use `px-4`.
-- [ ] [src/components/shared/vendor-select.tsx](../src/components/shared/vendor-select.tsx) (`EventSelect`; the file name is misleading): give the trigger `max-w-full` and truncate long event names.
-- The `analytics-redesign` branch also edits `src/pages/creators/realtime/`. Make this change there, or after that branch merges.
+- [x] **Fixed on `analytics-redesign`**, which merges later. The fix lands with that branch; there's nothing to do on prod.
+  - The event selector is gone from the analytics header. The page reads the selected event, and the header is now the tab's title, a description and **Export CSV**.
+  - **Checked 2026-11-11 at 375px**, rendering every tab (Overview, Audience Insights, Vendors, Orders, Attendee List, Promo Codes) with a dev event:
+    - nothing runs past the screen edge;
+    - the page never scrolls sideways;
+    - every title, "Audience Insights" included, fits on one line.
+- [ ] **New, on `analytics-redesign`:** the tables have the same hidden-columns problem as the Guestlist (**2.5**). Each table scrolls sideways inside its card with no cue, and only the first two columns show at 375px.
+  - **Table widths in a 295px card:**
+    - Orders: 846px (Order and Buyer show; ticket, amount and status are hidden)
+    - Attendee List: 766px
+    - Vendors: 617px
+    - Promo Codes: 417px
+  - **Where:** `AnalyticsTable` in `src/pages/creators/realtime/components/analytics-ui.tsx` on that branch (`overflow-x-auto`).
+  - **Fix:** use one mobile pattern for all of them and for the Guestlist. Either card rows below `sm`, or pin the key column and add a scroll hint.
 
 ### 2.4 Settings > Account: birthday fields clipped
-- [ ] [creator-account-tab.tsx:162-200](../src/pages/creators/standalone/components/creator-account-tab.tsx#L162-L200): `grid grid-cols-4`, where the first cell is just a "Birthday" label box. Move "Birthday" above as a label and use `grid-cols-3` for Month, Day and Year.
-- [ ] The fans page uses the same pattern in [src/pages/fans/account/tabs/profile-tab.tsx:187](../src/pages/fans/account/tabs/profile-tab.tsx#L187). Check it at 375px too.
+- [x] [creator-account-tab.tsx:162-200](../src/pages/creators/standalone/components/creator-account-tab.tsx#L162-L200): `grid grid-cols-4`, where the first cell is just a "Birthday" label box. Move "Birthday" above as a label and use `grid-cols-3` for Month, Day and Year.
+- [x] The fans page uses the same pattern in [src/pages/fans/account/tabs/profile-tab.tsx:187](../src/pages/fans/account/tabs/profile-tab.tsx#L187). Check it at 375px too.
 
 ### 2.5 Guestlist table hides Status and actions
-- [ ] [event-guestlist-card.tsx:174](../src/pages/creators/guest-list/components/event-guestlist-card.tsx#L174): the table (429px) sits inside `overflow-x-auto` (295px).
+- [x] [event-guestlist-card.tsx:174](../src/pages/creators/guest-list/components/event-guestlist-card.tsx#L174): the table (429px) sits inside `overflow-x-auto` (295px).
   - On mobile, show each guest as a card (name and email, a status chip, the menu), or hide the Category column below `sm`.
   - At minimum, add a scroll cue.
-- [ ] Check the same table pattern in:
+- [x] Check the same table pattern in:
   - [standalone/guestlist/components/guest-table.tsx](../src/pages/creators/standalone/guestlist/components/guest-table.tsx)
   - [guest-list/components/import-guestlist-card.tsx](../src/pages/creators/guest-list/components/import-guestlist-card.tsx)
-  - [audience/components/access-requests-card.tsx](../src/pages/creators/audience/components/access-requests-card.tsx)
+- [ ] **Audience access requests** ([audience/components/access-requests-card.tsx](../src/pages/creators/audience/components/access-requests-card.tsx)) **get a different design.** Don't copy the guestlist card here; wait for that design.
 
 ### 2.6 Event card crops the flyer
-- [ ] [src/components/shared/dashboard-cards.tsx:49](../src/components/shared/dashboard-cards.tsx#L49): a fixed `h-[300px]` with cover cropping. Use the flyer's aspect ratio instead (the one picked in **3.6**), or `object-contain` over a blurred copy.
-- [ ] Badges at [dashboard-cards.tsx:72](../src/components/shared/dashboard-cards.tsx#L72) and [:129](../src/components/shared/dashboard-cards.tsx#L129): give them a solid background so they don't sit on flyer text.
+- [x] [src/components/shared/dashboard-cards.tsx:49](../src/components/shared/dashboard-cards.tsx#L49): a fixed `h-[300px]` with cover cropping.
+  - **Fixed 2026-11-11:** the image box is now `aspect-3/4`, the poster's ratio, and the loading skeleton matches it.
+  - Checked at 375px and 1440px: every card's box is exactly 3:4 and the whole flyer shows, title included.
+- [x] Badges at [dashboard-cards.tsx:72](../src/components/shared/dashboard-cards.tsx#L72) and [:129](../src/components/shared/dashboard-cards.tsx#L129) sit on the flyer. **Kept as they are, agreed with the PO.**
 - The card is rendered from [standalone/index.tsx:290](../src/pages/creators/standalone/index.tsx#L290).
 
 ### 2.7 Edit Ticket opens off-screen, and the menu stays open
@@ -183,6 +199,9 @@ Tags:
 - [ ] **[BE]** Analytics Overview shows `data.totalTicketsIssued` ([overview-tab.tsx:60](../src/pages/creators/realtime/tabs/overview-tab.tsx#L60)), and the backend currently returns capacity there. This is already on the backend list ("totalTicketsIssued equals created").
   - The Tickets page uses `eventStat` ([ticket-summary.tsx:41](../src/pages/creators/tickets/components/ticket-summary.tsx#L41)).
   - Until the backend fix, either relabel it or compute it from sold. This file is also touched on `analytics-redesign`.
+  - **On `analytics-redesign`:** Overview no longer shows "tickets issued". Its tile is **Tickets Sold** (`totalTicketsSold / totalTicketsCreated`, for example 13 / 275).
+    - The numbers now mean the same thing as the Tickets page's "Total Tickets Issued 0 / 10", but the labels still differ. Rename the Tickets page's label to "Tickets Sold" in [ticket-summary.tsx:41](../src/pages/creators/tickets/components/ticket-summary.tsx#L41).
+    - The Tickets page reads `eventStat`, which the backend still has stale. That's an open backend item.
 
 ### 3.5 Copy pasted into the wrong place
 - [ ] Create Event > Contact Details helper ([add-event/tabs/event-details-tab.tsx:314](../src/pages/creators/add-event/tabs/event-details-tab.tsx#L314)): use "Shown on your event page so attendees can reach you.", as Edit Event does.
@@ -194,9 +213,50 @@ Tags:
 - [ ] Shared description ([create-vendor-slot-modal.tsx:290](../src/pages/vendor/component/create-vendor-slot-modal.tsx#L290)): split it by `isRevenue`, one line for marketplace sellers and one for event services.
 
 ### 3.6 Flyer size guidance differs
-- [ ] **[PO]** Pick one ratio and use it everywhere, including the card in **2.6**:
+- [x] **Decided with the PO on 2026-11-11: 3:4 everywhere on the site.** The organizer guidance and every place a flyer shows use it. The two labels that currently disagree:
   - "550 X 770" (5:7) in [poster-upload-field.tsx:78](../src/pages/creators/add-event/component/poster-upload-field.tsx#L78) and [theme-tab.tsx:229](../src/pages/creators/add-event/tabs/theme-tab.tsx#L229);
   - "Portrait (3:4)" in [poster-image-field.tsx:63](../src/pages/creators/edit-event/component/poster-image-field.tsx#L63).
+- **Every place a flyer shows, and its shape** (audited 2026-11-11; ratio is width:height; cover crops the flyer, contain fits it whole):
+
+  | Where | File | Size or ratio | Fit |
+  |---|---|---|---|
+  | **Organizer** | | | |
+  | Create Event: poster upload (says 550 × 770) | [poster-upload-field.tsx:19](../src/pages/creators/add-event/component/poster-upload-field.tsx#L19) | 285 × 350 box (about 4:5) | contain |
+  | Create Event, Theme: flyer upload (says 550 × 770) | [theme-tab.tsx:193](../src/pages/creators/add-event/tabs/theme-tab.tsx#L193) | 162 × 216 (3:4) | contain |
+  | Event Details: Poster Image | [poster-image-field.tsx:80](../src/pages/creators/edit-event/component/poster-image-field.tsx#L80) | 3:4 | cover |
+  | Publish step preview | [publish-tab.tsx:130](../src/pages/creators/add-event/tabs/publish-tab.tsx#L130) | 3:4 | cover |
+  | Events list card | [dashboard-cards.tsx:51](../src/components/shared/dashboard-cards.tsx#L51) | 3:4 (was a fixed 300px height) | cover |
+  | **Fans** | | | |
+  | Event discovery cards | [category-block.tsx:103](../src/components/shared/category-block.tsx#L103) | 3:4 | cover |
+  | Their loading skeleton | [category-block.tsx:149](../src/components/shared/category-block.tsx#L149) | **5:7**, so the cards change shape when they load | — |
+  | Event page | [event-details.tsx:23](../src/pages/landing-page/event-page/individual-event/sections/event-details.tsx#L23) | full width up to 450px × 400px tall (550px from md up), about 4:5 | cover |
+  | Cart | [cart-container.tsx:63](../src/pages/landing-page/event-page/cart/cart-container.tsx#L63) | 200 × 300 (2:3); 300 × 400 (3:4) from md | cover |
+  | Checkout, mobile | [checkout-summary.tsx:196](../src/pages/landing-page/checkout/sections/checkout-summary.tsx#L196) | 200 × 300 (2:3) | cover |
+  | Checkout, desktop | [checkout-summary.tsx:214](../src/pages/landing-page/checkout/sections/checkout-summary.tsx#L214) | 200 wide × the image's default 220px (about 10:11) | cover |
+  | My Tickets and Listed Tickets cards | [my-tickets/components/tickets.tsx:11](../src/pages/fans/my-tickets/components/tickets.tsx#L11) | 5:7 | cover |
+  | A single active ticket | [individual-active-tickets/index.tsx:166](../src/pages/fans/my-tickets/individual-active-tickets/index.tsx#L166) | 5:7, up to 360px wide | cover |
+  | Accept invite | [accept-invite/index.tsx:435](../src/pages/fans/accept-invite/index.tsx#L435) | 112 × 144 (7:9) | cover |
+  | **Vendors** | | | |
+  | Discover and My Slots cards | [vendor-event-card.tsx:24](../src/pages/vendor/component/vendor-event-card.tsx#L24) | 3:4 | cover |
+  | Event details (copies the fans' cart) | [vendor discover/event-details/index.tsx:188](../src/pages/vendor/discover/event-details/index.tsx#L188) | 200 × 300 (2:3); 300 × 400 (3:4) from md | cover |
+  | Slot details | [slot-details/index.tsx:166](../src/pages/vendor/slots/slot-details/index.tsx#L166) | 2:3, up to 760px tall | cover |
+  | **Shared default** | | | |
+  | `RenderEventImage` with no size given | [render-event-flyer.tsx:22](../src/components/shared/render-event-flyer.tsx#L22) | full width × 200px (220px from md) | cover |
+  | Its no-image placeholder | [render-event-flyer.tsx:13](../src/components/shared/render-event-flyer.tsx#L13) | 240px tall (256px from md) | — |
+
+  - **Count:** 3:4 is used in 8 places, 5:7 in 2 (plus the skeleton), 2:3 in 4. The rest are one-offs: about 4:5, 7:9, 10:11.
+  - **Plan (3:4 decided):** one shape everywhere, at a few set sizes. The ratio fixes how the flyer is cropped; the width decides how big it is.
+
+    | Size | Width | Where |
+    |---|---|---|
+    | Thumbnail | 112–120px | cart and checkout on mobile, beside the event details instead of above them; accept invite |
+    | Compact | 200px | cart and checkout on desktop |
+    | Card | fills its grid column | Events list (done), fan discovery, My Tickets and Listed Tickets, vendor Discover and My Slots |
+    | Feature | up to 360–450px | event page, single active ticket, vendor slot details, Event Details poster, Publish preview |
+
+    - Change the upload boxes to 3:4, and the "550 × 770" labels to match (for example "1200 × 1600 px (3:4)"), so the preview shows organizers how the poster is cropped everywhere.
+    - Replace the fixed heights with one shared 3:4 class or component, including `RenderEventImage`'s 200/220px default.
+- [ ] Apply 3:4 across the site, using the table and plan above. **Next up**, before SF Pro (**1.2**).
 
 ### 3.7 Wrong empty state on filters
 - [ ] [standalone/index.tsx:183-194](../src/pages/creators/standalone/index.tsx#L183-L194) and `EmptyState` ([:210-221](../src/pages/creators/standalone/index.tsx#L210-L221)): when the account has events but the filter is empty, say "No upcoming events" or "No drafts", not "No Events Created". Pass `activeFilter` and `allEvents.length` in.
@@ -268,11 +328,13 @@ Each row needs one rule from design. Agree the rule **[PO]**, then apply it.
   - 20px on Tickets ([tickets/index.tsx:146](../src/pages/creators/tickets/index.tsx#L146) `px-5`);
   - 24px on Events ([standalone/index.tsx:176](../src/pages/creators/standalone/index.tsx#L176) `px-6`);
   - the vendor pages, which differ again.
-- [ ] **Analytics card titles:**
-  - Alignment differs: "Revenue streams" is centred ([overview-tab.tsx:36](../src/pages/creators/realtime/tabs/overview-tab.tsx#L36)), "Top Towns" is left-aligned ([:115](../src/pages/creators/realtime/tabs/overview-tab.tsx#L115)).
-  - Wording differs: "Top Age Range" ([:126](../src/pages/creators/realtime/tabs/overview-tab.tsx#L126)) vs "Age groups" ([insights-tab.tsx:30](../src/pages/creators/realtime/tabs/insights-tab.tsx#L30)).
-  - The card component is in [src/components/reusable/charts/](../src/components/reusable/charts/).
-  - Coordinate with `analytics-redesign`.
+- [ ] **Analytics card titles.** Mostly fixed on `analytics-redesign`.
+  - **Alignment:** fixed. Every card uses one `AnalyticsCard` with a left-aligned title.
+  - **Wording:** still mixed on that branch.
+    - Overview's cards: "Age Range" and "Top Locations".
+    - Audience Insights' cards: "Age Groups" and "Locations".
+    - Audience Insights' summary tile: "Top Age Range".
+    - Pick one word, "Age Groups" or "Age Range", and use it in all three places. Change this on that branch.
 - [ ] **Menu drawer:**
   - Child links use the same `px-6` as their parents, which have an icon, so children look less indented ([base-sidebar.tsx:261](../src/components/reusable/base-sidebar.tsx#L261), [:294](../src/components/reusable/base-sidebar.tsx#L294)).
   - The `Plus` icon never changes when a group is open ([base-accordion.tsx:66](../src/components/reusable/base-accordion.tsx#L66)). Rotate it to × or swap it for Minus on `data-state=open`.
@@ -306,12 +368,17 @@ Each row needs one rule from design. Agree the rule **[PO]**, then apply it.
 ## 6. Spec checks to confirm (these may be planned work)
 
 - [ ] **[PO]** **[BE]** Audience Insights shows only Gender, Age groups and Locations ([insights-tab.tsx](../src/pages/creators/realtime/tabs/insights-tab.tsx)). The agreed scope also has traffic sources and a total-unique-buyers summary. The analytics response has no fields for either yet ([src/types/](../src/types/)), so the backend has to add them first.
+  - **On `analytics-redesign`:**
+    - **Unique buyers:** Audience Insights has a **Buyers** tile, counted from buyers' profiles, and Overview's Orders tile shows "N buyers" from the order list. That may be enough for the unique-buyers summary; the PO should confirm.
+    - **Traffic sources:** still missing.
 - [ ] **[PO]** The Payout tab should show the next payout date, with automatic payouts every Wednesday and Friday, instead of a Withdraw button. The tab is [creator-payout-tab.tsx](../src/pages/creators/standalone/components/creator-payout-tab.tsx). The next date can be worked out on the frontend.
 - [ ] **[PO]** **Door tickets** (already an open to-do):
   - **What exists:** today "Door" is a sales channel inside the ticket form ([sales-channel-field.tsx](../src/pages/creators/add-event/component/sales-channel-field.tsx)), not a choice under Add Tickets ([ticket-format-picker.tsx](../src/pages/creators/add-event/ticket-forms/create/ticket-format-picker.tsx)).
   - **What the PO expects:** a "convert to door ticket" option in the ticket menu (`extraActions` on [action-popover.tsx](../src/pages/creators/add-event/component/action-popover.tsx), via [ticket-summary-card.tsx:146](../src/components/shared/ticket-summary-card.tsx#L146)).
   - **Caveat:** the tested event was private and had ended, which may be why the option didn't show.
-- [ ] **[PO]** Analytics Overview repeats the Gender, Age and Towns cards from Audience Insights. Compare [overview-tab.tsx:100-130](../src/pages/creators/realtime/tabs/overview-tab.tsx#L100-L130) with [insights-tab.tsx](../src/pages/creators/realtime/tabs/insights-tab.tsx), and decide whether Overview keeps them. Coordinate with `analytics-redesign`.
+- [ ] **[PO]** Analytics Overview repeats the Gender, Age and Towns cards from Audience Insights. Compare [overview-tab.tsx:100-130](../src/pages/creators/realtime/tabs/overview-tab.tsx#L100-L130) with [insights-tab.tsx](../src/pages/creators/realtime/tabs/insights-tab.tsx), and decide whether Overview keeps them.
+  - **Still true on `analytics-redesign`.** Overview has Gender, Age Range and Top Locations; Audience Insights has Gender, Age Groups and Locations.
+  - If they stay, link each Overview card to Audience Insights. `AnalyticsCard` takes an `action` slot for that.
 
 ---
 
