@@ -251,7 +251,7 @@ function EventDetailsForm({
           form={form}
           name="custom_url"
           label="Custom URL"
-          text="afrorevive/events/"
+          text="afrorevive.com/events/"
         >
           {(field) => (
             <Input

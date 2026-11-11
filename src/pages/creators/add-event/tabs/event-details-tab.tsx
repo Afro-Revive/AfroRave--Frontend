@@ -247,7 +247,7 @@ export default function EventDetailsTab({
           form={form}
           name="custom_url"
           label="URL"
-          text="afrorevive/events/"
+          text="afrorevive.com/events/"
         >
           {(field) => (
             <Input
