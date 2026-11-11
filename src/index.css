@@ -195,18 +195,18 @@
   --font-weight-semilight: 250;
   --color-light-silver: #c8c8c8;
   --color-secondary-white: #f8f8f8;
-  --font-input-mono: "IBM Plex Mono", "sans-serif";
-  --font-sf-pro-display: "SF Pro Display", "Inter", "sans-serif";
-  --font-sf-compact: "SF Compact Text", "sans-serif";
-  --font-sf-pro-rounded: "SF Pro Rounded", "sans-serif";
-  --font-sf-mono: "SF Mono", "sans-serif";
-  --font-sf-pro-text: "SF Pro Text", "Inter", "sans-serif";
-  --font-phosphate: "phosphatesolid", "sans-serif";
-  --font-phosphate-inline: "PhosphateInline", "sans-serif";
-  --font-bungee-inline: "Bungee Inline", "sans-serif";
-  --font-inter: "Inter", "sans-serif";
-  --font-inter-tight: "inter-tight", "Inter", "sans-serif";
-  --font-work-sans: "work-sans", "sans-serif";
+  --font-input-mono: "IBM Plex Mono", sans-serif;
+  --font-sf-pro-display: "SF Pro Display", "Inter", sans-serif;
+  --font-sf-compact: "SF Compact Text", sans-serif;
+  --font-sf-pro-rounded: "SF Pro Rounded", sans-serif;
+  --font-sf-mono: "SF Mono", sans-serif;
+  --font-sf-pro-text: "SF Pro Text", "Inter", sans-serif;
+  --font-phosphate: "phosphatesolid", sans-serif;
+  --font-phosphate-inline: "PhosphateInline", sans-serif;
+  --font-bungee-inline: "Bungee Inline", sans-serif;
+  --font-inter: "Inter", sans-serif;
+  --font-inter-tight: "inter-tight", "Inter", sans-serif;
+  --font-work-sans: "work-sans", sans-serif;
 }
 
 .dark {
