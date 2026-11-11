@@ -267,8 +267,7 @@ export default function EventDetailsTab({
               Date & Time
             </p>
             <p className="font-inter-tight lg:text-sm text-xs font-medium text-[#464444]">
-              Update your event's date and time. Ticket holders will be notified
-              of any changes.
+              Set when your event starts and ends.
             </p>
           </div>
 
@@ -311,8 +310,7 @@ export default function EventDetailsTab({
                 CONTACT DETAILS
               </p>
               <p className="font-inter-tight lg:text-sm text-xs font-medium text-[#464444]">
-                Update your event's date and time. Ticket holders will be
-                notified of any changes.
+                Shown on your event page so attendees can reach you.
               </p>
             </div>
 

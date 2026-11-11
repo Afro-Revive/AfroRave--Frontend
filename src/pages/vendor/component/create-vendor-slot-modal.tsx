@@ -287,7 +287,9 @@ export default function CreateVendorSlot({
         <p className="font-inter-tight text-sm text-system-black ">
           {isEditing
             ? "Update this listing's details. Vendors who already applied keep their applications."
-            : "Open your event to marketplace sellers and reach out for professional event services."}
+            : isRevenue
+              ? "Open your event to marketplace sellers."
+              : "Reach out for professional event services."}
         </p>
       </div>
 
@@ -536,9 +538,11 @@ export default function CreateVendorSlot({
             </div>
           </OnlyShowIf>
           <p className="text-xs font-inter-tight font-light text-mid-dark-gray mt-1">
-            Your contact details will remain hidden until a revenue vendor
-            successfully pays for a slot. This ensures privacy and secure
-            vendor interactions.
+            {/* Revenue vendors pay for a stall; service vendors are paid by
+                the organizer, so they see the details once accepted. */}
+            {isRevenue
+              ? "Your contact details will remain hidden until a revenue vendor successfully pays for a slot. This ensures privacy and secure vendor interactions."
+              : "Service vendors see your contact details once you accept their application."}
           </p>
           <FormField form={form} name="hideSocialLinks" className="">
             {(field) => (
