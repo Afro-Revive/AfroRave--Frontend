@@ -1,7 +1,6 @@
-@import url("https://fonts.cdnfonts.com/css/phosphatesolid");
 @import url("https://fonts.googleapis.com/css2?family=Bungee+Inline&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap");
+/* Only the weights the app uses (font-light to font-bold), and no italics. */
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600;700&display=swap");
 @import "./styles/fonts.css";
 @import "leaflet/dist/leaflet.css";
 
@@ -201,7 +200,7 @@
   --font-sf-pro-rounded: "SF Pro Rounded", sans-serif;
   --font-sf-mono: "SF Mono", sans-serif;
   --font-sf-pro-text: "SF Pro Text", "Inter", sans-serif;
-  --font-phosphate: "phosphatesolid", sans-serif;
+  --font-phosphate: "PhosphateSolid", sans-serif;
   --font-phosphate-inline: "PhosphateInline", sans-serif;
   --font-bungee-inline: "Bungee Inline", sans-serif;
   --font-inter: "Inter", sans-serif;

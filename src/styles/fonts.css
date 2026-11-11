@@ -244,17 +244,35 @@
   font-display: swap;
 }
 
+/*
+ * Inter, Inter Tight and Work Sans: variable fonts from Google Fonts (SIL Open
+ * Font License), self-hosted as woff2 and cut down to Latin, so they're about a
+ * third of the original .ttf size. Kept: Latin and its extensions (Yoruba
+ * letters like ẹ ọ ṣ), combining accents (tone marks), punctuation, currency
+ * (₦), arrows and maths. Anything else falls back to the next font in the
+ * stack.
+ * Accents stay in the same file as the letters they sit on: split across two
+ * files, a letter and its tone mark can render in different fonts.
+ */
 @font-face {
   font-family: "Inter";
-  src: url("/fonts/inter/Inter-Italic-VariableFont_opsz\,wght.ttf") format("truetype");
+  src: url("/fonts/inter/Inter-Variable.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Inter";
+  src: url("/fonts/inter/Inter-Italic-Variable.woff2") format("woff2");
   font-weight: 100 900;
   font-style: italic;
   font-display: swap;
 }
 
 @font-face {
-  font-family: "Inter";
-  src: url("/fonts/inter/Inter-VariableFont_opsz\,wght.ttf") format("truetype");
+  font-family: "inter-tight";
+  src: url("/fonts/inter-tight/InterTight-Variable.woff2") format("woff2");
   font-weight: 100 900;
   font-style: normal;
   font-display: swap;
@@ -262,15 +280,7 @@
 
 @font-face {
   font-family: "inter-tight";
-  src: url("/fonts/inter-tight/InterTight-VariableFont_wght.ttf") format("truetype");
-  font-weight: 100 900;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "inter-tight";
-  src: url("/fonts/inter-tight/InterTight-Italic-VariableFont_wght.ttf") format("truetype");
+  src: url("/fonts/inter-tight/InterTight-Italic-Variable.woff2") format("woff2");
   font-weight: 100 900;
   font-style: italic;
   font-display: swap;
@@ -278,25 +288,32 @@
 
 @font-face {
   font-family: "work-sans";
-  src: url("/fonts/work-sans/WorkSans-Italic-VariableFont_wght.ttf") format("truetype");
-  font-weight: 100 900;
-  font-style: italic;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "work-sans";
-  src: url("/fonts/work-sans/WorkSans-VariableFont_wght.ttf") format("truetype");
+  src: url("/fonts/work-sans/WorkSans-Variable.woff2") format("woff2");
   font-weight: 100 900;
   font-style: normal;
   font-display: swap;
 }
 
-/** Phospahte Inline */
+@font-face {
+  font-family: "work-sans";
+  src: url("/fonts/work-sans/WorkSans-Italic-Variable.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: italic;
+  font-display: swap;
+}
+
 @font-face {
   font-family: "PhosphateInline";
-  src: url("/fonts/phosphate/PhosphateInline.ttf") format("truetype");
+  src: url("/fonts/phosphate/PhosphateInline.woff2") format("woff2");
   font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "PhosphateSolid";
+  src: url("/fonts/phosphate/PhosphateSolid.woff2") format("woff2");
+  font-weight: 400 500;
   font-style: normal;
   font-display: swap;
 }
