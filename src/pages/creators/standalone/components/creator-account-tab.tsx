@@ -160,8 +160,8 @@ export function CreatorAccountTab() {
         </InsetField>
 
         {/* Birthday: a label box, then month, day and year, as on the fans page. */}
-        <div className="w-full grid grid-cols-4 gap-3">
-          <div className="flex items-center rounded-[8px] border border-[#D9D9D9] px-2">
+        <div className="w-full grid sm:grid-cols-4 gap-3">
+          <div className="flex items-center sm:rounded-[8px] sm:border sm:border-[#D9D9D9] px-2">
             <span className="text-mid-dark-gray text-[11px] font-sf-pro-display uppercase tracking-widest">
               Birthday
             </span>

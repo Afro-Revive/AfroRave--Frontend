@@ -21,7 +21,7 @@ export function TimeForm<T extends FieldValues>({
   }
 
   return (
-    <div className='w-full flex flex-col gap-2'>
+    <div className='w-full min-w-0 flex flex-col gap-2'>
       {label && (
         <p className='text-sm font-sf-pro-text leading-[100%] text-system-black uppercase font-medium'>
           {label}

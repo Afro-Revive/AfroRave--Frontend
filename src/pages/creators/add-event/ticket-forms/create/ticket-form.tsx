@@ -351,20 +351,20 @@ DESCRIBE WHAT THIS TICKET INCLUDES.`}
         </div>
       )}
 
-      <div className="flex gap-3">
+      <div className="flex flex-col sm:flex-row gap-3">
         <Button
           type="button"
           onClick={onCancel}
-          className="w-[155px] h-8 rounded-full text-xs font-semibold font-sf-pro-text text-white bg-deep-red hover:bg-deep-red/90 uppercase"
+          className="sm:w-[155px] w-full h-8 rounded-full text-xs font-semibold font-sf-pro-text text-white bg-deep-red hover:bg-deep-red/90 uppercase"
         >
-          REMOVE TICKET
+         CANCEL
         </Button>
 
         {onSubmit && (
           <Button
             type="button"
             onClick={onSubmit}
-            className="w-[155px] h-8 rounded-full text-xs font-semibold font-sf-pro-text text-white bg-black hover:bg-black/90 uppercase"
+            className="sm:w-[155px] w-full h-8 rounded-full text-xs font-semibold font-sf-pro-text text-white bg-black hover:bg-black/90 uppercase"
           >
             {isLoading
               ? isEditMode

@@ -184,8 +184,8 @@ export default function ProfileTab() {
 
             {/* Birthday */}
             <div className="w-full">
-              <div className="w-full grid grid-cols-4 gap-4">
-                <div className="border border-white rounded-md flex items-center px-2">
+              <div className="w-full grid sm:grid-cols-4 gap-4">
+                <div className="sm:border sm:border-white sm:rounded-md flex items-center sm:px-2 mt-2 sm:mt-0">
                   <label className={labelStyle}>Birthday</label>
                 </div>
 
