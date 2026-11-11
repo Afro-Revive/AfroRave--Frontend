@@ -135,7 +135,7 @@ export function handleEditTicket(
       availability: 'limited' as const,
       amount: ticket.quantity?.toString() || '100',
     },
-    price: ticket.price?.toString() || '1000',
+    price: (ticket.basePrice ?? ticket.price)?.toString() || '1000',
     purchase_limit: '5',
     description: ticket.description || 'Sample ticket description',
     ...(ticket.ticketType === 'group_ticket' && { group_size: '4' }),

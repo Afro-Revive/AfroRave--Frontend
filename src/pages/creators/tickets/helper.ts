@@ -18,14 +18,16 @@ export function toTicketFormValues(ticket: TicketData): UnifiedTicketForm {
 
   const base = {
     ticketName: ticket.ticketName,
-    type: ticket.price > 0 ? ('paid' as const) : ('free' as const),
+    // basePrice, the organizer's own price: `price` is the same today, but it
+    // used to include the fan's fee, and the form saves what it loads.
+    type: ticket.basePrice > 0 ? ('paid' as const) : ('free' as const),
     invite_only: ticket.accessType === 'Invite',
     salesType: ticket.salesType === 'Door' ? 'door' : 'online',
     quantity: {
       availability: isUnlimited ? ('unlimited' as const) : ('limited' as const),
       amount: isUnlimited ? undefined : String(ticket.quantity),
     },
-    price: String(ticket.price ?? 0),
+    price: String(ticket.basePrice ?? 0),
     purchase_limit: String(ticket.purchaseLimit ?? 1),
     description: ticket.description?.trim() || ticket.ticketDetails?.description?.trim() || '',
   }

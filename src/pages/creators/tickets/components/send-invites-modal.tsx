@@ -40,7 +40,7 @@ export function SendInvitesModal({
   onClose,
 }: {
   eventId: string;
-  ticket: Pick<TicketData, "ticketId" | "ticketName" | "price">;
+  ticket: Pick<TicketData, "ticketId" | "ticketName" | "basePrice">;
   onClose: () => void;
 }) {
   const [tab, setTab] = useState<InviteTab>("guestlist");
@@ -147,7 +147,7 @@ export function SendInvitesModal({
   }
 
   const selectedCount = selectedIds.length;
-  const isPaid = ticket.price > 0;
+  const isPaid = ticket.basePrice > 0;
 
   return (
     <BaseModal
@@ -175,7 +175,7 @@ export function SendInvitesModal({
                 {ticket.ticketName}
               </span>
               <span className="text-mid-dark-gray">
-                {formatNaira(ticket.price, { free: true })}
+                {formatNaira(ticket.basePrice, { free: true })}
               </span>
             </p>
           </div>

@@ -38,7 +38,7 @@ export function SummaryCard({ eventId }: { eventId: string }) {
           {formatNaira(stats?.netProfit ?? 0)}
         </SummaryStat>
 
-        <SummaryStat label='Total Tickets Issued' isLoading={isPending} hasData={!!stats}>
+        <SummaryStat label='Tickets Sold' isLoading={isPending} hasData={!!stats}>
           <Ticket className='size-5 shrink-0' />
           {stats?.ticketSold} / {stats?.totalTicket}
         </SummaryStat>
