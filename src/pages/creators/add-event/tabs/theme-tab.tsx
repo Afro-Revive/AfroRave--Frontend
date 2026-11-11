@@ -190,7 +190,7 @@ function FileInputWithPreview({ onChange, type, className }: IFileInputWithPrevi
     <div
       className={cn(
         'relative flex flex-col items-center justify-center rounded-[5px] shadow-[0px_4px_12px_0px_#0000001F] p-4',
-        { 'w-[162px] h-[216px]': type === 'flyer', 'w-full h-[200px]': type === 'background' },
+        { 'w-[162px] aspect-3/4 overflow-hidden': type === 'flyer', 'w-full h-[200px]': type === 'background' },
         className,
       )}>
       <OnlyShowIf condition={file !== null}>
@@ -210,7 +210,11 @@ function FileInputWithPreview({ onChange, type, className }: IFileInputWithPrevi
         <img
           src={preview}
           alt='preview'
-          className='object-contain w-full h-full pointer-events-none'
+          // The flyer is cropped like everywhere else; the background shows whole.
+          className={cn(
+            'pointer-events-none',
+            type === 'flyer' ? 'absolute inset-0 size-full object-cover' : 'object-contain w-full h-full',
+          )}
         />
       ) : (
         <InnerText type={type} />
@@ -226,7 +230,7 @@ function InnerText({ type }: { type: 'background' | 'flyer' }) {
         Insert {type} image
       </span>
       <span className='text-deep-red text-xs mt-2'>
-        {type === 'background' ? '1600 X 500 (PIXELS)' : '550 X 770 (PIXELS)'}
+        {type === 'background' ? '1600 X 500 (PIXELS)' : '1200 X 1600 (PIXELS)'}
       </span>
       {type === 'background' && (
         <span className='text-[10px] text-mid-dark-gray mt-1 uppercase'>(Optional)</span>

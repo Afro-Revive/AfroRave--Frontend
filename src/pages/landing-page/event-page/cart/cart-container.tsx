@@ -59,15 +59,17 @@ export default function CartContainer({
         </p>
       </div>
       <div className="md:w-2/3 w-full flex flex-col gap-5 px-8 md:px-24 md:py-10 pb-36 md:pb-10">
-        <div className="w-full flex flex-col md:flex-row items-stretch gap-4">
-          <div className=" md:w-[300px] md:h-[400px] w-[200px] h-[300px] mt-4 md:mt-0 shrink-0">
+        {/* Mobile: a 3:4 thumbnail beside the details, the description full
+            width below. Desktop: the flyer at 300px, everything beside it. */}
+        <div className="w-full grid grid-cols-[120px_minmax(0,1fr)] md:grid-cols-[300px_minmax(0,1fr)] gap-x-4 gap-y-3 mt-4 md:mt-0 items-start">
+          <div className="md:row-span-2">
             <RenderEventImage
               image={event.eventDetails.desktopMedia?.flyer}
               event_name={event.eventName}
-              className="!w-full !h-full object-cover"
+              className="rounded-none md:rounded-none"
             />
           </div>
-          <div className="flex flex-col flex-1 gap-2 md:gap-0 ">
+          <div className="flex flex-col gap-2 md:gap-0">
             <p className="font-inter-tight md:text-2xl text-lg font-bold md:mb-4">
               About Event
             </p>
@@ -85,14 +87,14 @@ export default function CartContainer({
                 {formatTimeLong(event.eventDate.endTime)}
               </p>
             </div>
+          </div>
 
-            <div className="flex flex-col gap-1 font-inter-tight text-sm">
-              <ShowMoreText
-                text={event.description}
-                limit={200}
-                className="text-sm font-inter-tight"
-              />
-            </div>
+          <div className="col-span-2 md:col-span-1 md:col-start-2 flex flex-col gap-1 font-inter-tight text-sm">
+            <ShowMoreText
+              text={event.description}
+              limit={200}
+              className="text-sm font-inter-tight"
+            />
           </div>
         </div>
 

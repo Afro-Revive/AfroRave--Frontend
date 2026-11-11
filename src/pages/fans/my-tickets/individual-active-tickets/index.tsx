@@ -163,16 +163,16 @@ export default function IndividualActiveTicketsPage() {
       <div className="container px-5 md:px-[60px] flex flex-col">
         <div className="flex flex-col gap-8 md:grid md:grid-cols-[auto_minmax(0,1fr)] md:items-start md:gap-x-10 md:gap-y-6 mb-10">
           {/* Event card — same treatment as the fans event card, scaled up. */}
-          <div className="relative flex flex-col justify-end overflow-hidden rounded-2xl border border-white/10 aspect-[5/7] w-full max-w-[360px] md:w-[300px] lg:w-[360px] shrink-0 md:col-start-1 md:row-start-1">
+          <div className="relative flex flex-col justify-end overflow-hidden rounded-2xl border border-white/10 aspect-3/4 w-full max-w-[360px] md:w-[300px] lg:w-[360px] shrink-0 md:col-start-1 md:row-start-1">
             <img
               src={ticketEvent?.desktopMedia?.flyer}
               alt={ticketEvent?.eventName}
               className="absolute inset-0 w-full h-full object-cover"
             />
 
-            <div className="absolute inset-x-0 bottom-0 h-3/5 bg-gradient-to-t from-black via-black/75 to-transparent" />
+            <div className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-black via-black/75 to-transparent" />
 
-            <div className="absolute inset-x-0 bottom-[10%] flex flex-col gap-2 p-5">
+            <div className="absolute inset-x-0 bottom-[2%] flex flex-col gap-2 p-5">
               <p className="font-inter-tight text-xl md:text-2xl font-black text-white capitalize leading-tight">
                 {ticketEvent?.eventName}
               </p>

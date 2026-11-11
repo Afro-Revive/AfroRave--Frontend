@@ -120,6 +120,7 @@ export default function CheckoutSummary({
     (sum, item) => sum + item.price * item.quantity,
     0,
   );
+
   const totalQuantity = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
   const {mutate: checkoutMutation, isPending} = useCheckoutCart();
@@ -178,27 +179,30 @@ export default function CheckoutSummary({
       )}
       <div className="w-full flex flex-col md:flex-row items-stretch gap-4">
         <div className="flex flex-col flex-1 gap-4 md:gap-0 md:justify-between">
-          <div className="flex flex-col gap-1">
-            <p className="text-xl md:text-3xl uppercase leading-normal font-inter font-black">
-              {event.eventName}
-            </p>
-            <p className="text-xs md:text-sm font-sf-pro-display">
-              {event.venue}
-            </p>
-            <p className="text-xs md:text-sm font-sf-pro-display">
-              {formatEventDate(event.eventDate.startDate)} -{" "}
-              {formatEventDate(event.eventDate.endDate)} at{" "}
-              {formatTimeLong(event.eventDate.startTime)} (
-              {formatTimezone(event.eventDate.timezone)})
-            </p>
-          </div>
+          <div className="flex items-start gap-4">
+            {/* Mobile only: the flyer as a 3:4 thumbnail beside the event. */}
+            <div className="md:hidden w-[120px] shrink-0">
+              <RenderEventImage
+                image={event.eventDetails.desktopMedia?.flyer}
+                event_name={event.eventName}
+                className="rounded-none"
+              />
+            </div>
 
-          <div className="md:hidden w-[200px] h-[300px]  ">
-            <RenderEventImage
-              image={event.eventDetails.desktopMedia?.flyer}
-              event_name={event.eventName}
-              className="!w-full !h-full object-cover"
-            />
+            <div className="flex min-w-0 flex-col gap-1">
+              <p className="text-xl md:text-3xl uppercase leading-normal font-inter font-black wrap-break-word">
+                {event.eventName}
+              </p>
+              <p className="text-xs md:text-sm font-sf-pro-display">
+                {event.venue}
+              </p>
+              <p className="text-xs md:text-sm font-sf-pro-display">
+                {formatEventDate(event.eventDate.startDate)} -{" "}
+                {formatEventDate(event.eventDate.endDate)} at{" "}
+                {formatTimeLong(event.eventDate.startTime)} (
+                {formatTimezone(event.eventDate.timezone)})
+              </p>
+            </div>
           </div>
 
           <div>

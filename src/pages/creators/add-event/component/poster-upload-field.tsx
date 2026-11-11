@@ -45,7 +45,7 @@ export function PosterUploadField<T extends FieldValues>({
     <FormField form={form} name={name} label={label} labelClassName='font-inter-tight font-medium text-base normal-case text-[#595959]/50' className='w-[285px]'>
       {() => (
         // TODO: fix the linear background for this 
-        <div className='relative flex flex-col items-center justify-center w-full h-[350px] rounded-[5px] bg-black/30 shadow-[0px_4px_12px_0px_#0000001F] py-2'>
+        <div className='relative flex flex-col items-center justify-center w-full aspect-3/4 overflow-hidden rounded-[5px] bg-black/30 shadow-[0px_4px_12px_0px_#0000001F] py-2'>
           <OnlyShowIf condition={preview !== null}>
             <Button
               type='button'
@@ -66,7 +66,8 @@ export function PosterUploadField<T extends FieldValues>({
             <img
               src={preview}
               alt='Event poster preview'
-              className={cn('object-contain w-full h-full pointer-events-none', {
+              // Cropped like everywhere else, so the preview shows what fans will see.
+              className={cn('absolute inset-0 object-cover size-full pointer-events-none', {
                 'opacity-50': uploadImage.isPending,
               })}
             />
@@ -75,7 +76,7 @@ export function PosterUploadField<T extends FieldValues>({
               <span className='text-white text-lg font-inter-tight font-black text-center normal-case'>
                 Insert Flyer Image
               </span>
-              <span className='text-white font-inter-tight text-sm mt-2'>550 X 770 (Pixels)</span>
+              <span className='text-white font-inter-tight text-sm mt-2'>1200 X 1600 (Pixels)</span>
               <CgSoftwareUpload size={24} className='mt-4 text-white'/>
             </div>
           )}

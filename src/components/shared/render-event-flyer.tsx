@@ -10,7 +10,8 @@ export function RenderEventImage({
       {!image || image === '' ? (
         <div
           className={cn(
-            'flex items-center justify-center bg-white/30 px-8 min-h-40 h-60 md:h-64',
+            // Flyers are 3:4 across the site; callers set the width.
+            'flex w-full aspect-3/4 items-center justify-center bg-white/30 px-8',
             className,
           )}>
           <p className='text-center font-semibold text-white'>{event_name}</p>
@@ -19,7 +20,7 @@ export function RenderEventImage({
         <img
           src={image}
           alt={event_name}
-          className={cn('object-cover w-full h-[200px] md:h-[220px]', className)}
+          className={cn('object-cover w-full aspect-3/4', className)}
         />
       )}
     </>

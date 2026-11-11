@@ -104,7 +104,7 @@ export default function VendorSlotDetailsPage() {
       <section className='flex w-full flex-col'>
         <div className='h-[88px] w-full animate-pulse border-b border-[#232323] bg-[#1E1E1E]' />
         <div className='grid gap-5 px-4 py-6 md:px-7 lg:grid-cols-2'>
-          <div className='aspect-[2/3] animate-pulse rounded-[20px] bg-[#2A2A2A]' />
+          <div className='aspect-3/4 w-full max-w-[570px] animate-pulse rounded-[20px] bg-[#2A2A2A]' />
           <div className='h-[520px] animate-pulse rounded-xl bg-[#262626]' />
         </div>
       </section>
@@ -163,7 +163,7 @@ function EventFlyerCard({ application, event }: { application: VendorApplication
   const flyer = event?.eventDetails?.desktopMedia?.flyer
 
   return (
-    <article className='relative flex aspect-[2/3] max-h-[760px] w-full flex-col justify-end overflow-hidden rounded-[20px] bg-[#2A2A2A] lg:sticky lg:top-[82px]'>
+    <article className='relative flex aspect-3/4 w-full max-w-[570px] flex-col justify-end overflow-hidden rounded-[20px] bg-[#2A2A2A] lg:sticky lg:top-[82px]'>
       {flyer && <img src={flyer} alt={application.eventName} className='absolute inset-0 size-full object-cover' />}
       <div className='absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent' />
 
