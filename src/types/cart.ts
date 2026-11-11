@@ -121,6 +121,31 @@ export interface ValidatePromocodeRequest {
   subtotal: number
   totalTickets: number
   ticketIds: string[]
+  /** One per cart line. The API needs them to validate a cart holding more than one ticket. */
+  items: PromoCartItem[]
+}
+
+/** A cart line as validate-promocode reads it. */
+export interface PromoCartItem {
+  ticketId: string
+  ticketName: string
+  /** The organizer's price, per ticket (the API's price and basePrice). */
+  price: number
+  basePrice: number
+  /** What a fan pays per ticket: base + fee. */
+  salesPrice: number
+  /** The fan's fee per ticket, in naira. Resale lines carry none. */
+  fee: number
+  quantity: number
+  eventId: string
+  /** Required by the API on every line. */
+  eventName: string
+  venue: string
+  category: string
+  isResale: boolean
+  /** Resale lines only: the listing, and the ticket it resells. */
+  listingId?: string
+  resellTicketId?: string
 }
 
 export interface InitializePaymentResponse {
@@ -166,6 +191,8 @@ export interface PromoValidationResult {
   discountType: string
   discountValue: number
   promoCodeId: UUID
+  /** The cart's tickets the discount applies to. */
+  eligibleTicketIds?: UUID[]
   promoCodeDetails: {
     tickets: { id: UUID }[]
     isMinimumSpend: boolean

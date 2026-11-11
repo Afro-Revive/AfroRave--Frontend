@@ -112,6 +112,11 @@ export default function CheckoutSummary({
       fee: ticket?.fee ?? 0,
       quantity: item.quantity,
       resale: ticket?.source === "resale",
+      listingId: item.listingId,
+      // A cart holds one event's tickets, so every line shares these.
+      eventName: event.eventName,
+      venue: event.venue,
+      category: event.category,
     };
   });
 

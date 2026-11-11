@@ -4,7 +4,7 @@ import { Input } from "../../../components/ui/input";
 import { useEffect, useRef, useState } from "react";
 import { useValidatePromocode } from "@/hooks/use-cart";
 import { useCartStore } from "@/stores";
-import type { PromoValidationResult } from "@/types/cart";
+import type { PromoCartItem, PromoValidationResult } from "@/types/cart";
 
 const DEBOUNCE_MS = 600;
 
@@ -14,7 +14,13 @@ interface CartItem {
   eventId: string;
   name: string;
   price: number;
+  fee: number;
   quantity: number;
+  resale: boolean;
+  listingId?: string;
+  eventName: string;
+  venue: string;
+  category: string;
 }
 
 export interface PromoDiscount {
@@ -43,6 +49,8 @@ const PromoCode = ({
     discountType: string;
     discountValue: number;
   } | null>(null);
+  // The cart's tickets the valid code covers, from the response.
+  const [eligibleTicketIds, setEligibleTicketIds] = useState<string[] | null>(null);
   const { setPromoCodeId } = useCartStore()
   const validatePromocodeMutation = useValidatePromocode();
   
@@ -61,6 +69,7 @@ const PromoCode = ({
       setMessage(null);
       setIsValid(null);
       setDiscount(null);
+      setEligibleTicketIds(null);
       setPromoCodeId(null);
       onApply?.(null);
       return;
@@ -76,6 +85,7 @@ const PromoCode = ({
     setMessage(null);
     setIsValid(null);
     setDiscount(null);
+    setEligibleTicketIds(null);
     setPromoCodeId(null);
     onApply?.(null);
   }
@@ -89,6 +99,7 @@ const PromoCode = ({
           subtotal: totalPrice,
           totalTickets: totalQuantity,
           ticketIds: cartItems.map((item) => item.ticketId),
+          items: cartItems.map(toPromoCartItem),
         },
       },
       {
@@ -102,6 +113,7 @@ const PromoCode = ({
               discountValue: payload.discountValue,
             });
             setPromoCodeId(payload.promoCodeId)
+            setEligibleTicketIds(payload.eligibleTicketIds ?? null);
             onApply?.({
               discountAmount: payload.discountAmount,
               discountType: payload.discountType,
@@ -109,6 +121,7 @@ const PromoCode = ({
             });
           } else {
             setDiscount(null);
+            setEligibleTicketIds(null);
             setPromoCodeId(null);
             onApply?.(null);
           }
@@ -119,12 +132,22 @@ const PromoCode = ({
           setMessage(errorMessage);
           setIsValid(false);
           setDiscount(null);
+          setEligibleTicketIds(null);
           setPromoCodeId(null);
           onApply?.(null);
         }
       },
     );
   }
+
+  // Named only when the code leaves some of the cart's tickets out; a code that
+  // covers the whole cart needs no note.
+  const eligibleNames = eligibleTicketIds
+    ? [...new Set(cartItems.filter((item) => eligibleTicketIds.includes(item.ticketId)).map((item) => item.name))]
+    : [];
+  const coversPartOfCart =
+    eligibleNames.length > 0 &&
+    cartItems.some((item) => !eligibleTicketIds?.includes(item.ticketId));
 
   return (
     <div className="flex flex-col gap-2">
@@ -162,6 +185,12 @@ const PromoCode = ({
         )}
       </div>
 
+      {isValid && coversPartOfCart && (
+        <p className="text-sm font-inter-tight leading-snug text-white/70">
+          This promo code only applies to {joinNames(eligibleNames)}.
+        </p>
+      )}
+
       {!isValid && message && (
         <p className="text-sm font-sf-pro-display leading-[100%] text-[#FF9500]">
           {message}
@@ -172,3 +201,28 @@ const PromoCode = ({
 };
 
 export default PromoCode;
+
+/** A checkout line as validate-promocode reads it. */
+function toPromoCartItem(item: CartItem): PromoCartItem {
+  return {
+    ticketId: item.ticketId,
+    ticketName: item.name,
+    price: item.price,
+    basePrice: item.price,
+    salesPrice: item.price + item.fee,
+    fee: item.fee,
+    quantity: item.quantity,
+    eventId: item.eventId,
+    eventName: item.eventName,
+    venue: item.venue,
+    category: item.category,
+    isResale: item.resale,
+    ...(item.resale && { listingId: item.listingId, resellTicketId: item.ticketId }),
+  };
+}
+
+/** "A", "A and B", "A, B and C". */
+function joinNames(names: string[]): string {
+  if (names.length <= 1) return names[0] ?? "";
+  return `${names.slice(0, -1).join(", ")} and ${names[names.length - 1]}`;
+}
