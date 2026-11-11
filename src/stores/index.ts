@@ -36,17 +36,32 @@ interface EventState {
   resetEventData: () => void
 }
 
+/** Where the session is saved. Every tab reads and writes the same one. */
+export const AUTH_STORAGE_KEY = 'afro-store-v1'
+
+const LOGGED_OUT = {
+  user: null,
+  token: null,
+  refreshToken: null,
+  tokenExpiry: null,
+  isAuthenticated: false,
+  isCreator: false,
+  isFan: false,
+  isVendor: false,
+}
+
 // Load initial state from localStorage
 const getInitialState = () => {
   try {
-    const stored = localStorage.getItem('afro-store-v1')
+    const stored = localStorage.getItem(AUTH_STORAGE_KEY)
     if (stored) {
       const parsed = JSON.parse(stored)
       const token: string | null = parsed.state?.token || null
 
-      // Don't restore auth state if the token is already expired
-      if (token && isTokenExpired(token)) {
-        localStorage.removeItem('afro-store-v1')
+      // An expired access token is fine while there's a refresh token: the
+      // session is renewed on load. Without one, there's nothing to restore.
+      if (token && isTokenExpired(token) && !parsed.state?.refreshToken) {
+        localStorage.removeItem(AUTH_STORAGE_KEY)
         return { user: null, token: null, refreshToken: null, tokenExpiry: null, isAuthenticated: false }
       }
 
@@ -87,33 +102,23 @@ export const useAfroStore = create<AfroState>()((set, get) => ({
       isVendor: user.accountType === 'Vendor',
     }
     set(newState)
-    localStorage.setItem('afro-store-v1', JSON.stringify({ state: newState }))
+    localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify({ state: newState }))
   },
   setToken: (token: string) => {
     const currentState = get()
     const newState = { ...currentState, token, tokenExpiry: decodeTokenExpiry(token) }
     set(newState)
-    localStorage.setItem('afro-store-v1', JSON.stringify({ state: newState }))
+    localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify({ state: newState }))
   },
   setTokens: (token: string, refreshToken: string) => {
     const currentState = get()
     const newState = { ...currentState, token, refreshToken, tokenExpiry: decodeTokenExpiry(token) }
     set(newState)
-    localStorage.setItem('afro-store-v1', JSON.stringify({ state: newState }))
+    localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify({ state: newState }))
   },
   clearAuth: () => {
-    const newState = {
-      user: null,
-      token: null,
-      refreshToken: null,
-      tokenExpiry: null,
-      isAuthenticated: false,
-      isCreator: false,
-      isFan: false,
-      isVendor: false,
-    }
-    set(newState)
-    localStorage.removeItem('afro-store-v1')
+    set(LOGGED_OUT)
+    localStorage.removeItem(AUTH_STORAGE_KEY)
     useCartStore.getState().clearLocal()
   },
   updateUser: (user: User) => {
@@ -126,9 +131,45 @@ export const useAfroStore = create<AfroState>()((set, get) => ({
       isVendor: user.accountType === 'Vendor',
     }
     set(newState)
-    localStorage.setItem('afro-store-v1', JSON.stringify({ state: newState }))
+    localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify({ state: newState }))
   },
 }))
+
+/**
+ * Tabs share one session. When another tab renews the tokens, logs in or logs
+ * out, this one follows; otherwise it would keep a refresh token that's already
+ * been used, and renewing with it would log everyone out.
+ */
+if (typeof window !== 'undefined') {
+  window.addEventListener('storage', (event) => {
+    // key is null when the whole of localStorage was cleared.
+    if (event.key !== null && event.key !== AUTH_STORAGE_KEY) return
+
+    let state: Partial<AfroState> | undefined
+    try {
+      state = event.newValue ? JSON.parse(event.newValue)?.state : undefined
+    } catch {
+      state = undefined
+    }
+
+    if (!state?.token) {
+      if (useAfroStore.getState().token) useAfroStore.setState(LOGGED_OUT)
+      return
+    }
+
+    const user = state.user ?? null
+    useAfroStore.setState({
+      user,
+      token: state.token,
+      refreshToken: state.refreshToken ?? null,
+      tokenExpiry: decodeTokenExpiry(state.token),
+      isAuthenticated: state.isAuthenticated ?? true,
+      isCreator: user?.accountType === 'Organizer',
+      isFan: user?.accountType === 'User',
+      isVendor: user?.accountType === 'Vendor',
+    })
+  })
+}
 
 export const useEventStore = create<EventState>()((set) => ({
   eventId: null,

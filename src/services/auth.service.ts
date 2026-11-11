@@ -4,7 +4,6 @@ import type {
   LoginResponse,
   OrganizerRegisterData,
   VendorRegisterData,
-  RefreshTokenResponse,
   CompleteProfileData,
   UserSignup,
   CurrentUserResponse,
@@ -50,10 +49,6 @@ class AuthService {
   // Organizer change password
   static changePassword(data: { currentPassword: string; newPassword: string }) {
     return api.patch<{ message: string }>('/api/Profile/vendor/change-password', data)
-  }
-
-  static refreshToken(data: { accessToken: string; refreshToken: string }) {
-    return api.post<RefreshTokenResponse>('/api/Auth/refresh', data)
   }
 
   static completeProfile(data: CompleteProfileData){

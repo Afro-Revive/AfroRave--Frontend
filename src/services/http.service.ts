@@ -1,5 +1,6 @@
-import { useAfroStore } from '@/stores'
-import { isTokenExpired } from '@/lib/token'
+import { AUTH_STORAGE_KEY, useAfroStore } from '@/stores'
+import { isTokenExpired, isTokenFresh } from '@/lib/token'
+import type { RefreshTokenResponse } from '@/types/auth'
 import axios from 'axios'
 
 export const multipartHeaders = {
@@ -26,19 +27,95 @@ const api = axios.create({
   withCredentials: false, // Changed to false to avoid CORS preflight issues
 })
 
+let refreshInFlight: Promise<string | null> | null = null
+
+/**
+ * Swaps the session's tokens for new ones and returns the new access token, or
+ * null (logged out) when the session can't be renewed.
+ *
+ * The API rotates refresh tokens: each one works once, and sending a used one
+ * fails with "Invalid refresh token or token expired." So only one refresh may
+ * run at a time — once per tab (the shared promise) and once across tabs (a Web
+ * Lock) — and whoever runs next uses the pair the last refresh saved.
+ */
+export function refreshSession(): Promise<string | null> {
+  refreshInFlight ??= withRefreshLock(renewTokens).finally(() => {
+    refreshInFlight = null
+  })
+  return refreshInFlight
+}
+
+function withRefreshLock<T>(renew: () => Promise<T>): Promise<T> {
+  return typeof navigator !== 'undefined' && navigator.locks
+    ? navigator.locks.request('afro-token-refresh', renew)
+    : renew()
+}
+
+/** The tokens saved in this browser, which another tab may have just renewed. */
+function savedTokens(): { token: string; refreshToken: string } | null {
+  try {
+    const state = JSON.parse(localStorage.getItem(AUTH_STORAGE_KEY) ?? 'null')?.state
+    return state?.token && state?.refreshToken
+      ? { token: state.token, refreshToken: state.refreshToken }
+      : null
+  } catch {
+    return null
+  }
+}
+
+async function renewTokens(): Promise<string | null> {
+  const { token, refreshToken, setTokens, clearAuth } = useAfroStore.getState()
+  const saved = savedTokens()
+
+  // Another tab renewed the session while this one waited for the lock.
+  if (saved && isTokenFresh(saved.token)) {
+    if (saved.token !== token) setTokens(saved.token, saved.refreshToken)
+    return saved.token
+  }
+
+  const current = saved ?? (token && refreshToken ? { token, refreshToken } : null)
+
+  if (!current) {
+    clearAuth()
+    return null
+  }
+
+  try {
+    // Plain axios, not `api`: the request interceptor would wait on this very refresh.
+    const { data } = await axios.post<RefreshTokenResponse>(`${apiUrl}/api/Auth/refresh`, {
+      accessToken: current.token,
+      refreshToken: current.refreshToken,
+    })
+    setTokens(data.token, data.refreshToken)
+    return data.token
+  } catch {
+    // Without Web Locks, two tabs can still race. If the other one won, its pair is saved.
+    const latest = savedTokens()
+
+    if (latest && latest.token !== current.token && !isTokenExpired(latest.token)) {
+      setTokens(latest.token, latest.refreshToken)
+      return latest.token
+    }
+
+    clearAuth()
+    return null
+  }
+}
+
 api.interceptors.request.use(
-  (req) => {
+  async (req) => {
     if (req.url?.includes('login') || req.url?.includes('register')) return req
 
-    const token = useAfroStore.getState().token
+    let token = useAfroStore.getState().token
 
-    if (token) {
-      if (isTokenExpired(token)) {
-        useAfroStore.getState().clearAuth()
-        return Promise.reject(new Error('Session expired. Please log in again.'))
-      }
-      req.headers.Authorization = `Bearer ${token}`
+    // An expired access token is renewed before the request goes out, rather than ending the session.
+    if (token && isTokenExpired(token)) {
+      token = await refreshSession()
+
+      if (!token) return Promise.reject(new Error('Session expired. Please log in again.'))
     }
+
+    if (token) req.headers.Authorization = `Bearer ${token}`
     return req
   },
   (err) => Promise.reject(err),
