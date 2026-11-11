@@ -27,6 +27,17 @@ interface IPopoverProps {
   /** The content to display in the popover */
   content: React.ReactNode;
   className?: string;
+  /** Pass both to control it, e.g. to close it once an option is picked. */
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  /** Which side of the trigger it opens on. Below by default. */
+  side?: "top" | "right" | "bottom" | "left";
+  /** Which edge of the trigger it lines up with. Centred by default. */
+  align?: "start" | "center" | "end";
+  /** How far it keeps from the edges of the screen. */
+  collisionPadding?: number;
+  /** Runs as it closes, before focus goes back to the trigger; preventDefault() keeps focus where it is. */
+  onCloseAutoFocus?: (event: Event) => void;
 }
 
 /**
@@ -37,11 +48,21 @@ export function BasePopover({
   trigger,
   content,
   className = "bg-medium-gray",
+  open,
+  onOpenChange,
+  side,
+  align,
+  collisionPadding,
+  onCloseAutoFocus,
 }: IPopoverProps) {
   return (
-    <Popover>
+    <Popover open={open} onOpenChange={onOpenChange}>
       <PopoverTrigger asChild>{trigger}</PopoverTrigger>
       <PopoverContent
+        side={side}
+        align={align}
+        collisionPadding={collisionPadding}
+        onCloseAutoFocus={onCloseAutoFocus}
         className={cn("max-w-fit border-none flex flex-col p-0", className)}
       >
         {content}

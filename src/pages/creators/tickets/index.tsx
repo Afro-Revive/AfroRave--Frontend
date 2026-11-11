@@ -10,7 +10,7 @@ import { toVisibility } from '@/lib/helper-func'
 import type { TicketData } from '@/types'
 import type { PaginatedResponse } from '@/types/api'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import {
   type UnifiedTicketForm,
@@ -59,6 +59,13 @@ function EventTickets({ eventId, accessType }: IEventTickets) {
 
   const [selectedType, setSelectedType] = useState<TicketType>()
   const [editingTicketId, setEditingTicketId] = useState<string>()
+  const composerRef = useRef<HTMLDivElement>(null)
+
+  // Editing a ticket further down loads it into the composer at the top, out
+  // of sight, so bring the form into view once it has rendered.
+  useEffect(() => {
+    if (editingTicketId) composerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }, [editingTicketId])
   const [filter, setFilter] = useState<TicketFilter>('all')
   // The ticket whose invites are being sent; the modal is open while it's set.
   const [inviteTicket, setInviteTicket] = useState<TicketData | null>(null)
@@ -152,24 +159,27 @@ function EventTickets({ eventId, accessType }: IEventTickets) {
             cards below. */}
         <OnlyShowIf condition={!isLoading && !error}>
           {selectedType ? (
-            <FormBase
-              form={ticketForm}
-              onSubmit={() => {}}
-              className='flex flex-col gap-5 rounded-xl bg-white p-5'>
-              <TicketForm
+            // scroll-mt keeps the form's top clear of the sticky header.
+            <div ref={composerRef} className='scroll-mt-[calc(var(--dashboard-header-height,0px)+1rem)]'>
+              <FormBase
                 form={ticketForm}
-                type={selectedType}
-                isEditMode={!!editingTicketId}
-                onSubmit={() =>
-                  ticketForm.handleSubmit(
-                    editingTicketId ? handleUpdateTicket : handleCreateTicket,
-                    (errors) => console.log('Ticket validation errors:', errors),
-                  )()
-                }
-                isLoading={editingTicketId ? isUpdatingTicket : isCreatingTIcket}
-                onCancel={closeComposer}
-              />
-            </FormBase>
+                onSubmit={() => {}}
+                className='flex flex-col gap-5 rounded-xl bg-white p-5'>
+                <TicketForm
+                  form={ticketForm}
+                  type={selectedType}
+                  isEditMode={!!editingTicketId}
+                  onSubmit={() =>
+                    ticketForm.handleSubmit(
+                      editingTicketId ? handleUpdateTicket : handleCreateTicket,
+                      (errors) => console.log('Ticket validation errors:', errors),
+                    )()
+                  }
+                  isLoading={editingTicketId ? isUpdatingTicket : isCreatingTIcket}
+                  onCancel={closeComposer}
+                />
+              </FormBase>
+            </div>
           ) : (
             <TicketFormatPicker
               selected={null}
