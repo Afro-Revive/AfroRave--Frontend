@@ -65,7 +65,6 @@ export function TicketCard({
     ? ({ Single: 'Single Ticket', Group: 'Group Ticket', MultiDay: 'Multi Day' } as const)[ticketType]
     : null
 
-  console.log("ticket", ticket)
 
   return (
     <>

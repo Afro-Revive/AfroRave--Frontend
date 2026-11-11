@@ -4,7 +4,7 @@ import tailwindcss from '@tailwindcss/vite'
 import path from 'path'
 
 // https://vite.dev/config/
-export default defineConfig(() => ({
+export default defineConfig(({command}) => ({
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
@@ -73,4 +73,5 @@ export default defineConfig(() => ({
     reportCompressedSize: true,
     sourcemap: false,
   },
+  esbuild: command === 'build' ? { drop: ['console', 'debugger'] } : undefined,
 }))

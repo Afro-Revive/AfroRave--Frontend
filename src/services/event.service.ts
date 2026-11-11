@@ -125,7 +125,6 @@ class EventService {
    */
 
   async saveEventToWatchlist(eventId: string): Promise<ApiResponse<unknown>> {
-      console.log(eventId, "eventId");
     const response = await api.post(`/api/Profile/user/Event/watchlist/save/`, {id:  eventId })
     return response.data
   }
