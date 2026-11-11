@@ -16,7 +16,7 @@ export type EventVisibility = "Private" | "Public";
 export function DashboardCardSkeleton() {
   return (
     <div className="w-full h-fit flex flex-col border border-gray-200 overflow-hidden">
-      <Skeleton className="w-full h-[140px] rounded-none" />
+      <Skeleton className="w-full aspect-3/4 rounded-none" />
       <div className="flex items-center justify-between px-4 py-2.5 bg-white gap-4">
         <Skeleton className="h-2.5 w-20" />
         <Skeleton className="h-2.5 w-20" />
@@ -46,7 +46,9 @@ export function DashboardCards({
   return (
     <div className="w-full h-fit flex flex-col border border-gray-200 overflow-hidden">
       {/* Image section with text overlay */}
-      <div className="relative flex flex-col items-start justify-end h-[300px] group overflow-hidden">
+      {/* The poster's own 3:4, as on Event Details, so the flyer isn't cropped
+          (a fixed 300px height cut off about a third of it on mobile). */}
+      <div className="relative flex flex-col items-start justify-end aspect-3/4 group overflow-hidden">
         <Link
           to={getRoutePath("edit_event", { eventId: eventId })}
           className="w-full h-full"
@@ -56,7 +58,7 @@ export function DashboardCards({
             image={image}
             className={cn(
               // md:h-full too, or the flyer's md default height leaves a gap
-              // in the 300px box.
+              // in the box.
               "w-full h-full md:h-full group-hover:scale-105 transition-all duration-300",
               {
                 grayscale: status === "ended",
