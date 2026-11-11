@@ -58,9 +58,8 @@ const getInitialState = () => {
       const parsed = JSON.parse(stored)
       const token: string | null = parsed.state?.token || null
 
-      // An expired access token is fine while there's a refresh token: the
-      // session is renewed on load. Without one, there's nothing to restore.
-      if (token && isTokenExpired(token) && !parsed.state?.refreshToken) {
+      // Don't restore a session whose access token has expired
+      if (token && isTokenExpired(token)) {
         localStorage.removeItem(AUTH_STORAGE_KEY)
         return { user: null, token: null, refreshToken: null, tokenExpiry: null, isAuthenticated: false }
       }

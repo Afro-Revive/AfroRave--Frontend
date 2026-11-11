@@ -107,8 +107,7 @@ api.interceptors.request.use(
     if (req.url?.includes('login') || req.url?.includes('register')) return req
 
     let token = useAfroStore.getState().token
-
-    // An expired access token is renewed before the request goes out, rather than ending the session.
+    
     if (token && isTokenExpired(token)) {
       token = await refreshSession()
 

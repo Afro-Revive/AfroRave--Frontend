@@ -5,8 +5,7 @@ import { useAfroStore } from '@/stores'
 
 /**
  * Renews the access token shortly before it expires. With less than that left
- * (or already expired, after the tab slept or was closed) it renews straight
- * away: the refresh token is still good, so there's no reason to log out.
+ * when the app opens, it renews straight away instead of logging out.
  */
 export function useTokenRefresh() {
   const token = useAfroStore((state) => state.token)
