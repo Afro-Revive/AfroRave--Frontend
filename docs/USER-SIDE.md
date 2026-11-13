@@ -447,11 +447,11 @@ Query, not in a store.
 ## 10. Styling rules
 
 - **Breakpoints are changed on purpose.** `sm`, `md` and `lg` (in `src/index.css`) treat a **tablet held upright as mobile** and a tablet on its side as desktop. A `tablet:` variant targets upright tablets only. When something looks wrong on an iPad, check orientation first.
-- **Fonts:**
-  - Newer fan screens use `font-work-sans` (headings) and `font-inter-tight` (body).
-  - Older screens use the SF Pro families: `font-sf-pro-display` and `font-sf-pro-text`.
-  - Display type uses `font-phosphate` and `font-input-mono`.
-  - SF Pro is being removed from the whole site (decided with the PO); its replacement is still to be picked.
+- **Fonts** (rules from 2026-11-13):
+  - `font-work-sans` is only for forced-caps sub-headings in forms: the label above a field and its character counter.
+  - `font-inter-tight` is for everything else: titles, headings, body, captions, buttons and icons. It's also the page's base font.
+  - Display type uses `font-phosphate`. IBM Plex Mono (`font-input-mono`) stays where it's used.
+  - The SF Pro family and Inter are removed from the whole site (decided with the PO). Don't add them back.
 - **Flyers are 3:4 everywhere** (decided with the PO). `RenderEventImage` defaults to `aspect-3/4`; set the width, not a height. Cart and checkout show a 120px thumbnail beside the event details on mobile.
 - **Colours:** use the tokens in `index.css`, such as `deep-red`, `tech-blue`, `system-black` and `gunmetal-gray`, rather than raw hex values where one exists.
 

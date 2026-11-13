@@ -14,7 +14,7 @@ Tags:
 ## Fix first
 
 1. ~~**1.1**: the live site is a development build, and the devtools button covers content.~~ Fixed.
-2. **1.2 / 1.3**: the SF Pro fonts (about 60 MB on disk), three broken font paths, and quoted `"sans-serif"`. Paths and quotes are fixed; SF Pro's removal is **next**, now that the 3:4 change is done.
+2. **1.2 / 1.3**: the SF Pro fonts (about 60 MB on disk), three broken font paths, and quoted `"sans-serif"`. Paths and quotes are fixed, and the SF family is removed (2026-11-13).
 3. ~~**2.1**: the Service Vendor time pickers make the whole page scroll sideways.~~ Fixed.
 4. **3.1**: the visibility rule is stated two opposite ways.
 5. **3.3**: the ticket price differs between the list and the form. This may also change saved prices (see 3.3).
@@ -53,23 +53,22 @@ Tags:
   - [src/styles/fonts.css:209](../src/styles/fonts.css#L209): `SFPro-Light.ttf`. The file on disk is `SFProText-Light.ttf`.
   - [src/styles/fonts.css:233](../src/styles/fonts.css#L233): `SFPro-Semibold.ttf`. The file on disk is `SFProText-Semibold.ttf`.
   - [src/styles/fonts.css:200](../src/styles/fonts.css#L200): `SFMonoBold.otf`. Only `SFMonoBold.woff` exists. The report didn't catch this one.
-- [ ] Remove SF Pro from the whole site. Apple's licence doesn't cover web self-hosting.
+- [ ] Remove SF Pro from the whole site. Apple's licence doesn't cover web self-hosting. **Done 2026-11-13, not committed yet.**
   - **Decided with the PO on 2026-11-11:** remove it completely. No system-font fallback that keeps SF on Apple devices.
-  - **Order:** this comes **after** the 3:4 flyer change (**3.6**), which is done (`ddf9ff1`). **Next up.**
-  - **Still open:** which font replaces it. The report suggests Inter Tight plus at most one display face.
-  - **Font declarations:** [src/styles/fonts.css](../src/styles/fonts.css) (all 302 lines are SF `@font-face` blocks), imported from [src/index.css:5](../src/index.css#L5).
-  - **Files to delete:**
-    - [public/fonts/sf-pro-display/](../public/fonts/sf-pro-display/) (44 MB)
-    - `sf-pro-rounded/` (14 MB)
-    - `sf-pro-text/` (2.6 MB)
-    - `sf-compact-text/`
-    - `sf-mono/`
-  - **Cheapest path:** repoint the tokens in [src/index.css:199-203](../src/index.css#L199-L203) (`--font-sf-pro-display`, `--font-sf-pro-text`, `--font-sf-pro-rounded`, `--font-sf-compact`, `--font-sf-mono`) to the replacement. The existing classes keep working:
-    - `font-sf-pro-display` (76 files)
-    - `font-sf-pro-text` (66)
-    - `font-sf-pro-rounded` (20)
-    - `font-sf-compact` and `font-sf-mono` (1 each)
-  - Rename the classes later.
+  - **The new rules (2026-11-13):**
+    - **Work Sans** only for forced-caps sub-headings in forms: the label above a field ("PROMO CODE", "EVENT NAME") and its character counter.
+    - **Inter Tight** for everything else: titles, headings, body, captions, buttons and icons. It's also the page's base font now.
+  - **What changed:**
+    - The whole SF family is gone: Display, Text, Rounded, Compact and Mono. The 37 SF `@font-face` blocks are removed from [src/styles/fonts.css](../src/styles/fonts.css), and the five `--font-sf-*` tokens from [src/index.css](../src/index.css).
+    - The font files are deleted: `public/fonts/sf-pro-display/`, `sf-pro-rounded/`, `sf-pro-text/`, `sf-compact-text/` and `sf-mono/`, about 62 MB.
+    - 354 SF classes became `font-inter-tight`, and 11 form-field labels became `font-work-sans`.
+    - **Inter** went too: its 102 `font-inter` classes, one `font-['Inter']` and two inline styles on the creators hero became Inter Tight. Its `@font-face` rules, its token and `public/fonts/inter/` are removed. `public/fonts/` is now 576 KB.
+    - **IBM Plex Mono** stays (`font-input-mono`), by decision.
+    - Where a label sits on a field wrapper ([date-form.tsx](../src/components/shared/date-form.tsx), [field-with-absolute-text.tsx](../src/components/shared/field-with-absolute-text.tsx), [field-with-counter.tsx](../src/components/shared/field-with-counter.tsx), the time inputs in [time-form.tsx](../src/components/shared/time-form.tsx)), the wrapper is Inter Tight and only the label is Work Sans. Typed values inherit the wrapper's font, so they stay Inter Tight.
+  - **Checked:** a production build of `/`, `/creators`, `/contact-support` and `/events` requests no SF file and fails no font.
+  - **Not yet in line with the rules,** outside the SF change:
+    - `font-work-sans` is still used for things that aren't form sub-headings, about 79 uses in 39 files: menus, nav links, the creators footer, auth headings.
+    - [custom-form.tsx](../src/components/shared/custom-form.tsx) puts Work Sans on the whole field wrapper, so values typed into those fields are Work Sans too.
 - [x] Trim what's left. **Done 2026-11-11, not committed yet.**
   - **Inter Tight and Work Sans:** now `.woff2`, cut down to Latin, in [public/fonts/](../public/fonts/).
     - The Latin set keeps Yoruba letters and tone marks, and ₦.
@@ -100,7 +99,7 @@ Tags:
     - The text renders in the fallback until that file arrives. On live, the fallback chain ended in the quoted `"sans-serif"`, which isn't the generic family, so the fallback was the browser's default serif (Times).
   - **Fix:** change line 14 to `font-style: normal`. There's no SF Pro Display Light Italic file, so that face was only ever meant to be upright. Then `font-light` gets the right, heavier Light weight.
   - The quotes fix above already stops the serif fallback.
-  - The other `font-light font-sf-pro-display` text across the app has the same wrong weight. Dropping SF Pro (1.2) removes the problem entirely.
+  - The other `font-light font-sf-pro-display` text across the app had the same wrong weight. Dropping SF Pro (1.2) removed the problem entirely.
 
 ---
 
