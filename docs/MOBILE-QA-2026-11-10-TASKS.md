@@ -417,7 +417,7 @@ Each row needs one rule from design. Agree the rule **[PO]**, then apply it.
   - Analytics > "Tickets" repeats the top-level "Tickets" ([creator-side-bar.tsx:109](../src/layouts/creator-dashboard-layout/creator-side-bar.tsx#L109)). Rename it to something like "Ticket sales".
   - **Done 2026-11-13, not committed yet** (the same component is the desktop sidebar): links in a group start at 50px, in line with the group name past its icon, and sub-group links at 66px; the + turns into a × while open; Analytics › "Tickets" is "Ticket Sales".
 - [ ] **Choice controls:** Paid/Free ([ticket-form.tsx:85](../src/pages/creators/add-event/ticket-forms/create/ticket-form.tsx#L85)) and "Start immediately / Schedule" ([ticket-form.tsx:289](../src/pages/creators/add-event/ticket-forms/create/ticket-form.tsx#L289)) are checkboxes, but only one can apply. Use [src/components/ui/radio-group.tsx](../src/components/ui/radio-group.tsx).
-- [ ] **Text details:**
+- [x] **Text details:**
   - Helper text is forced lowercase:
     - `descriptionClassName="… lowercase …"` at [ticket-form.tsx:296](../src/pages/creators/add-event/ticket-forms/create/ticket-form.tsx#L296);
     - a lowercase `p` at [ticket-form.tsx:324](../src/pages/creators/add-event/ticket-forms/create/ticket-form.tsx#L324).
@@ -432,15 +432,15 @@ Each row needs one rule from design. Agree the rule **[PO]**, then apply it.
 
 ## 5. Accessibility
 
-- [ ] White event title on the `#ACACAC` card (2.27:1) in [selected-event-card.tsx:33](../src/layouts/creator-dashboard-layout/selected-event-card.tsx#L33). Darken the card so white text reaches at least 4.5:1. White on `#767676` is about 4.5:1; on `#595959`, about 7:1.
-- [ ] "Choose Your Role" on black (about 2.1:1) in [creators-hub.tsx:27](../src/pages/creators/home/sections/creators-hub.tsx#L27), which uses `text-[#464444]`. Use a light grey such as `#ACACAC`, about 9:1 on black.
-- [ ] Give the icon-only controls accessible names:
+
+- [x] White event title on the `#ACACAC` card (2.27:1) in [selected-event-card.tsx:33](../src/layouts/creator-dashboard-layout/selected-event-card.tsx#L33). Darken the card so white text reaches at least 4.5:1. White on `#767676` is about 4.5:1; on `#595959`, about 7:1.
+- [x] "Choose Your Role" on black (about 2.1:1) in [creators-hub.tsx:27](../src/pages/creators/home/sections/creators-hub.tsx#L27), which uses `text-[#464444]`. Use a light grey such as `#ACACAC`, about 9:1 on black.
+- [x] Give the icon-only controls accessible names:
   - **Bell:** [header.tsx:21](../src/layouts/creator-dashboard-layout/header.tsx#L21). It's an image. Make it a `<button aria-label="Notifications">`, or remove it (see 2.9). **Hidden for now**, so this applies when it comes back.
   - **Ticket "…" menu:** [action-popover.tsx:19-23](../src/pages/creators/add-event/component/action-popover.tsx#L19-L23). The trigger needs an `aria-label`, for example "Ticket options". Only the ticket card uses it.
   - **[verify]** **☰:** `SidebarTrigger` already has a hidden "Toggle Sidebar" label ([src/components/ui/sidebar.tsx:273](../src/components/ui/sidebar.tsx#L273)). Check it with VoiceOver.
   - **[verify]** **Avatar button:** [creator-menu-button.tsx](../src/components/reusable/creator-menu-button.tsx) has no `aria-label`. Check it with VoiceOver.
   - **[verify]** **Menu expand toggles:** [base-accordion.tsx](../src/components/reusable/base-accordion.tsx). Each trigger includes its group's text, so the report's claim may not apply. Check it with VoiceOver.
-
 ---
 
 ## 6. Spec checks to confirm (these may be planned work)
