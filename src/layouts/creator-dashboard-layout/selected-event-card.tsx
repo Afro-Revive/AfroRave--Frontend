@@ -30,7 +30,8 @@ export function SelectedEventCard({ eventId }: { eventId?: string }) {
 
   return (
     // Inset from the sidebar edge, with mb-6 separating it from the EVENTS group.
-    <div className='mx-3 mt-2 mb-6 pt-6 flex flex-col gap-3 rounded-lg bg-[#ACACAC] p-4'>
+    // #595959 so the white text reads (about 7:1; it was 2.3:1 on #ACACAC).
+    <div className='mx-3 mt-2 mb-6 pt-6 flex flex-col gap-3 rounded-lg bg-[#595959] p-4'>
       <div className='flex flex-col gap-1'>
         <p className='font-inter-tight text-sm font-black uppercase text-white leading-snug'>
           {event.eventName}
@@ -52,7 +53,7 @@ export function SelectedEventCard({ eventId }: { eventId?: string }) {
         <Button
           type='button'
           onClick={copy}
-          className='h-9 flex-1 min-w-0 gap-1.5 rounded-lg bg-[#464444] px-3 font-inter-tight text-xs text-white hover:bg-[#232323]/90'>
+          className='h-9 flex-1 min-w-0 gap-1.5 rounded-lg bg-[#232323] px-3 font-inter-tight text-xs text-white hover:bg-black'>
           <Link2 className='size-3.5 shrink-0' />
           Copy Link
         </Button>
