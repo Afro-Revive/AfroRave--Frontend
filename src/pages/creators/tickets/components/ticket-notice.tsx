@@ -15,7 +15,7 @@ export function TicketNotice({
 }) {
   if (filter === 'invite_only') {
     return (
-      <NoticeCard icon={Info} title='How invite only tickets works' notes={INVITE_ONLY_NOTES} />
+      <NoticeCard icon={Info} title='How invite-only tickets work' notes={INVITE_ONLY_NOTES} />
     )
   }
 

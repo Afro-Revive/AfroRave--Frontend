@@ -142,7 +142,7 @@ export function TicketForm({
                 className="max-w-fit"
                 showMessage
                 data={availability}
-                placeholder="Select availability."
+                placeholder="Select availability"
                 triggerClassName="h-9"
               />
 
@@ -302,7 +302,7 @@ DESCRIBE WHAT THIS TICKET INCLUDES.`}
                   data={whenToStartOptions[0]}
                   {...field}
                   labelClassName="font-work-sans font-normal text-[14px] uppercase text-[#1E1E1E] leading-none"
-                  descriptionClassName="font-inter-tight font-normal text-[13px] lowercase text-[#1E1E1E] leading-snug mt-0.5"
+                  descriptionClassName="font-inter-tight font-normal text-[13px] text-[#1E1E1E] leading-snug mt-0.5"
                 />
               )}
             </FormField>
@@ -330,7 +330,7 @@ DESCRIBE WHAT THIS TICKET INCLUDES.`}
                     />
                   )}
                 </FormField>
-                <p className="font-inter-tight font-normal text-sm lowercase text-[#1E1E1E] leading-snug -mt-3">
+                <p className="font-inter-tight font-normal text-sm text-[#1E1E1E] leading-snug -mt-3">
                   This option allows attendees to resell their tickets to other
                   fans.
                 </p>

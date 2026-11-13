@@ -68,7 +68,7 @@ export function ProfileTab({ draft, update, onSave, isDirty, isSaving }: ITab) {
           value={draft.bio}
           maxLength={BIO_LIMIT}
           onChange={(e) => update({ bio: e.target.value })}
-          placeholder='Tell organizers about your business: what you offer, events you’ve worked and what makes you stand out.'
+          placeholder='Tell organizers about your business: what you offer, events you’ve worked and what makes you stand out'
           className='h-[284px] w-full resize-none rounded-md border border-white/20 bg-transparent p-3.5 font-inter-tight text-sm text-white outline-none placeholder:text-white/40 focus:border-white/50'
         />
       </label>

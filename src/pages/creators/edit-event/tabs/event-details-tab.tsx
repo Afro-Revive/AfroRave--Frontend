@@ -186,7 +186,7 @@ function EventDetailsForm({
         >
           {(field) => (
             <Input
-              placeholder="Enter event name."
+              placeholder="Enter event name"
               className="bg-transparent"
               {...field}
               // Each word starts with a capital, and that's what's saved.
@@ -202,7 +202,7 @@ function EventDetailsForm({
             name="age_rating"
             label="Age Rating"
             data={ageRatings}
-            placeholder="Select an age rating."
+            placeholder="Select an age rating"
             triggerClassName={selectClassname}
           />
 
@@ -211,7 +211,7 @@ function EventDetailsForm({
               <BaseSelect
                 type="auth"
                 items={eventCategories}
-                placeholder="Select a Category."
+                placeholder="Select a category"
                 triggerClassName={selectClassname}
                 value={field.value as string}
                 onChange={field.onChange}
@@ -223,7 +223,7 @@ function EventDetailsForm({
         <FormField form={form} name="venue" label="Venue">
           {(field) => (
             <Input
-              placeholder="Enter event venue."
+              placeholder="Enter event venue"
               className="bg-transparent"
               {...field}
               // Each word starts with a capital, and that's what's saved.
@@ -243,7 +243,7 @@ function EventDetailsForm({
           {(field) => (
             <RichTextEditor
               id="description"
-              placeholder="Enter event description."
+              placeholder="Enter event description"
               value={field.value as string}
               onChange={field.onChange}
               onBlur={field.onBlur}
@@ -260,7 +260,7 @@ function EventDetailsForm({
         >
           {(field) => (
             <Input
-              placeholder="Enter custom URL."
+              placeholder="Enter custom URL"
               className="border-none h-9"
               {...field}
               value={field.value == null ? "" : String(field.value)}
@@ -286,7 +286,7 @@ function EventDetailsForm({
               <BaseSelect
                 type="auth"
                 items={africanTimezones}
-                placeholder="Select a time zone."
+                placeholder="Select a time zone"
                 triggerClassName={selectClassname}
                 value={field.value as string}
                 onChange={field.onChange}
@@ -332,7 +332,7 @@ function EventDetailsForm({
             <FormField form={form} name="email" label="Email">
               {(field) => (
                 <Input
-                  placeholder="Enter email address."
+                  placeholder="Enter email address"
                   className="bg-transparent"
                   {...field}
                   value={field.value == null ? "" : String(field.value)}
@@ -343,7 +343,7 @@ function EventDetailsForm({
             <FormField form={form} name="website_url" label="Website URL">
               {(field) => (
                 <Input
-                  placeholder="Enter your website URL (optional)."
+                  placeholder="Enter your website URL (optional)"
                   className="bg-transparent"
                   {...field}
                   value={field.value == null ? "" : String(field.value)}
@@ -379,7 +379,7 @@ function EventDetailsForm({
               >
                 {(field) => (
                   <Input
-                    placeholder={`Enter your ${item.label} Link.`}
+                    placeholder={`Enter your ${item.label} link`}
                     className="text-[#0033A0] bg-transparent"
                     {...field}
                     value={field.value == null ? "" : String(field.value)}

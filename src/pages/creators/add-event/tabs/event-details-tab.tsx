@@ -172,7 +172,7 @@ export default function EventDetailsTab({
         >
           {(field) => (
             <Input
-              placeholder="Enter event name."
+              placeholder="Enter event name"
               {...field}
               // Each word starts with a capital, and that's what's saved.
               onChange={(e) => field.onChange(rewriteInputValue(e.target, capitalizeWords))}
@@ -204,7 +204,7 @@ export default function EventDetailsTab({
         <FormField form={form} name="venue" label="Venue">
           {(field) => (
             <Input
-              placeholder="Enter event venue."
+              placeholder="Enter event venue"
               {...field}
               // Each word starts with a capital, and that's what's saved.
               onChange={(e) => field.onChange(rewriteInputValue(e.target, capitalizeWords))}
@@ -223,7 +223,7 @@ export default function EventDetailsTab({
           {(field) => (
             <RichTextEditor
               id="description"
-              placeholder="Enter event description."
+              placeholder="Enter event description"
               value={field.value as string}
               onChange={field.onChange}
               onBlur={field.onBlur}
@@ -239,7 +239,7 @@ export default function EventDetailsTab({
         >
           {(field) => (
             <Textarea
-              placeholder="Enter your terms and refund policy."
+              placeholder="Enter your terms and refund policy"
               className="w-full h-[272px] text-black bg-white px-3 py-[11px] rounded-[4px] border border-mid-dark-gray/50 text-sm font-inter-tight"
               {...field}
               value={field.value == null ? "" : String(field.value)}
@@ -257,7 +257,7 @@ export default function EventDetailsTab({
             <Input
               readOnly
               tabIndex={-1}
-              placeholder="Generated from the event name."
+              placeholder="Generated from the event name"
               className="border-none h-9 text-xs cursor-default text-mid-dark-gray focus-visible:ring-0"
               {...field}
               value={field.value == null ? "" : String(field.value)}
@@ -280,7 +280,7 @@ export default function EventDetailsTab({
             name="time_zone"
             label="SELECT TIME ZONE"
             data={africanTimezones}
-            placeholder="Select a time zone."
+            placeholder="Select a time zone"
             triggerClassName="w-full bg-[#1E1E1E]/50"
           />
         </div>
@@ -322,7 +322,7 @@ export default function EventDetailsTab({
               <FormField form={form} name="email" label="Email">
                 {(field) => (
                   <Input
-                    placeholder="Enter email address."
+                    placeholder="Enter email address"
                     {...field}
                     value={field.value == null ? "" : String(field.value)}
                   />
@@ -332,7 +332,7 @@ export default function EventDetailsTab({
               <FormField form={form} name="website_url" label="Website URL">
                 {(field) => (
                   <Input
-                    placeholder="Enter your website URL (optional)."
+                    placeholder="Enter your website URL (optional)"
                     {...field}
                     value={field.value == null ? "" : String(field.value)}
                   />
@@ -363,7 +363,7 @@ export default function EventDetailsTab({
                 >
                   {(field) => (
                     <Input
-                      placeholder={`Enter your ${item.label} Link.`}
+                      placeholder={`Enter your ${item.label} link`}
                       className="text-[#0033A0]"
                       {...field}
                       value={field.value == null ? "" : String(field.value)}
