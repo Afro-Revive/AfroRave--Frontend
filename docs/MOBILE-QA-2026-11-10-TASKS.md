@@ -313,20 +313,20 @@ All fixed 2026-11-11:
   - [ ] **Not yet seen:** the cart and checkout pages, which need a live reservation. Add a ticket in the real flow once and check both.
 
 ### 3.7 Wrong empty state on filters
-- [ ] [standalone/index.tsx:183-194](../src/pages/creators/standalone/index.tsx#L183-L194) and `EmptyState` ([:210-221](../src/pages/creators/standalone/index.tsx#L210-L221)): when the account has events but the filter is empty, say "No upcoming events" or "No drafts", not "No Events Created". Pass `activeFilter` and `allEvents.length` in.
+- [x] [standalone/index.tsx:183-194](../src/pages/creators/standalone/index.tsx#L183-L194) and `EmptyState` ([:210-221](../src/pages/creators/standalone/index.tsx#L210-L221)): when the account has events but the filter is empty, say "No upcoming events" or "No drafts", not "No Events Created". Pass `activeFilter` and `allEvents.length` in.
 - [ ] Optional: show `0` on the pills with no events. The counts come from `countEventsByStatus` in [event-filters.tsx:37](../src/pages/creators/standalone/components/event-filters.tsx#L37).
 
 ### 3.8 Promo Codes form
-- [ ] "Remove promocode" shows on a new, unsaved code. [promo-codes/index.tsx:245](../src/pages/creators/promo-codes/index.tsx#L245) passes `onRemove`, which only resets the form.
+- [x] "Remove promocode" shows on a new, unsaved code. [promo-codes/index.tsx:245](../src/pages/creators/promo-codes/index.tsx#L245) passes `onRemove`, which only resets the form.
   - Don't pass it for a new code, or relabel it "Clear".
   - The button is at [promo-code-form.tsx:268-280](../src/pages/creators/add-event/ticket-forms/promo-code-form/promo-code-form.tsx#L268-L280).
-- [ ] The default dates are wrong in [promo-code-schema.ts:96-107](../src/pages/creators/add-event/schemas/promo-code-schema.ts#L96-L107). Both start and end are `new Date()` at 12:00 AM, so the start is already in the past and the end equals the start.
+- [x] The default dates are wrong in [promo-code-schema.ts:96-107](../src/pages/creators/add-event/schemas/promo-code-schema.ts#L96-L107). Both start and end are `new Date()` at 12:00 AM, so the start is already in the past and the end equals the start.
   - Default the start to now.
   - Default the end to the event's end, or the start plus 7 days.
   - Check that the schema rejects an end at or before the start.
 
 ### 3.9 Error before input
-- [ ] [add-event/tabs/event-details-tab.tsx:91-95](../src/pages/creators/add-event/tabs/event-details-tab.tsx#L91-L95): on mount, `setValue('custom_url', …, { shouldValidate: true })` runs with an empty name, so "URL too short." shows right away. The rule is in [src/schema/edit-event-details.ts:18](../src/schema/edit-event-details.ts#L18).
+- [x] [add-event/tabs/event-details-tab.tsx:91-95](../src/pages/creators/add-event/tabs/event-details-tab.tsx#L91-L95): on mount, `setValue('custom_url', …, { shouldValidate: true })` runs with an empty name, so "URL too short." shows right away. The rule is in [src/schema/edit-event-details.ts:18](../src/schema/edit-event-details.ts#L18).
   - Validate only once the name has text: `shouldValidate: Boolean(eventName)`.
 
 ---
