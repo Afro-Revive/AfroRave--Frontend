@@ -177,7 +177,7 @@ notifications, and a report download (see §5).
 | Publish | 🔴 High | ✅ Working | The Publish step previews the event: flyer card, description, contact details and its tickets. The dashboard updates straight away. |
 | Edit event details, poster and visibility | 🔴 High | ✅ Working | A private event can be made public, but a public event can never be made private. Saving refreshes the events dashboard and the public event page straight away. |
 | Rich text descriptions (event and tickets) | 🟠 Medium | ✅ Working | Headings, bold, italic, underline, strikethrough, code, links, lists, quotes, code blocks and dividers. Fans see them cleaned of anything unsafe. |
-| Save As Drafts and Dashboard (create-event header) | 🟠 Medium | ✅ Working | On Event Info, Save As Drafts creates the event (same checks as Continue), then goes to the dashboard. After that, everything is already saved as it goes, so it just goes to the dashboard. Dashboard goes back without saving the form that's open. |
+| Save as Draft and Dashboard (create-event header) | 🟠 Medium | ✅ Working | On Event Info, Save as Draft creates the event (same checks as Continue), then goes to the dashboard. After that, everything is already saved as it goes, so it just goes to the dashboard. Dashboard goes back without saving the form that's open. |
 | Sales start immediately or at a set date | 🟠 Medium | ✅ Working | Starts immediately by default. |
 | Ticket resale | 🟠 Medium | ✅ Working | On by default. Organizers can untick it. Always off for invite-only and group tickets. |
 
@@ -186,7 +186,7 @@ notifications, and a report download (see §5).
 | Feature | Priority | Status | Notes |
 |---|---|---|---|
 | Event cards with status and visibility tags | 🔴 High | ✅ Working | Status: draft, upcoming, ongoing, sold out, ended. Visibility: public or private. |
-| Filter by status, and pagination | 🟠 Medium | ✅ Working | |
+| Filter by status, and pagination | 🟠 Medium | ✅ Working | An empty filter says what's missing (no ongoing, upcoming or past events, no drafts). On phones, Create Event is a floating round + button. |
 | Card buttons: Manage / Edit Draft, Analytics, Tickets | 🟠 Medium | ✅ Working | Each one selects that event and opens its page. |
 | Sidebar event card | 🟠 Medium | ✅ Working | Shows the selected event, with Copy Link and View Event. The sidebar stays put at screen height while the page scrolls, and its collapse button sits beside each page's title. |
 | "Report" on an ended event | ⚪ Low | 🟡 Partial | Opens Analytics. A real report download doesn't exist yet. |
@@ -219,7 +219,7 @@ notifications, and a report download (see §5).
 
 | Feature | Priority | Status | Notes |
 |---|---|---|---|
-| Overview, Audience Insights, Vendors, Orders, Promo Codes | 🔴 High | ✅ Working | Real data from the analytics endpoint. Opened from the sidebar's ANALYTICS group, where Orders, Attendee List and Promo Codes sit in a Tickets accordion. |
+| Overview, Audience Insights, Vendors, Orders, Promo Codes | 🔴 High | ✅ Working | Real data from the analytics endpoint. Opened from the sidebar's ANALYTICS group, where Orders, Attendee List and Promo Codes sit in a Ticket Sales accordion. |
 | Attendee List tab | 🟠 Medium | 🚧 Coming soon | The API now has `GET /api/Event/{eventId}/attendees`; the tab isn't built yet. |
 | Export button | ⚪ Low | ⛔ Not working | Does nothing. |
 | Reports (`/creators/reports`) | ⚪ Low | 🚧 Coming soon | No longer linked from anywhere. |
@@ -254,7 +254,7 @@ Three tabs: **Account**, **Payout** and **Settings**.
 
 | Feature | Priority | Status | Notes |
 |---|---|---|---|
-| Create, view, edit and delete promo codes | 🟠 Medium | ✅ Working | With no codes yet, the page opens on the Add Promo Codes form, with Remove (clears it) and Create, and an empty Apply Promo Code section. Once there are codes it shows summary cards, usage and redemption data, promo-code cards, and the applied promo codes table. The form follows the Figma: code, discount and usage limit, Apply To (tickets), limit per customer and dates, then Advanced Options (minimum spend, minimum tickets, partnership and commission). Notes were dropped; an old code's note is kept when it's edited. |
+| Create, view, edit and delete promo codes | 🟠 Medium | ✅ Working | With no codes yet, the page opens on the Add Promo Codes form, with Cancel (clears it) and Create Promo Code, and an empty Apply Promo Code section. Once there are codes it shows summary cards, usage and redemption data, promo-code cards, and the applied promo codes table. The form follows the Figma: code, discount and usage limit, Apply To (tickets), limit per customer and dates, then Advanced Options (minimum spend, minimum tickets, partnership and commission). Notes were dropped; an old code's note is kept when it's edited. A new code runs from now until the event ends, and the code is saved in capitals. |
 
 ### Vendor management
 

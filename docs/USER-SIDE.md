@@ -454,6 +454,17 @@ Query, not in a store.
   - The SF Pro family and Inter are removed from the whole site (decided with the PO). Don't add them back.
 - **Flyers are 3:4 everywhere** (decided with the PO). `RenderEventImage` defaults to `aspect-3/4`; set the width, not a height. Cart and checkout show a 120px thumbnail beside the event details on mobile.
 - **Colours:** use the tokens in `index.css`, such as `deep-red`, `tech-blue`, `system-black` and `gunmetal-gray`, rather than raw hex values where one exists.
+- **Form labels** (2026-11-13): every field has its label **above** it, in small Work Sans capitals. Use `FIELD_LABEL_CLASS` (or `<FieldLabel>`) from `components/shared/field-label.tsx`, or `FIELD_LABEL_ON_DARK_CLASS` on dark pages. No labels inside the box, and no placeholder-only fields. A row like Birthday or Phone Number gets one label over the row.
+  - `FormField` (`components/reusable/base-form.tsx`) points its label at the input through the id it hands its child; don't pass `htmlFor`, and don't give the child its own id.
+  - Placeholders are hints, without a full stop.
+- **Section headings in forms:** `FormSectionHeading` (`components/shared/form-section-heading.tsx`): Inter Tight, black weight, `text-xl`, uppercase.
+- **Buttons** (`components/ui/button-variants.ts`):
+  - **Colour by role:** `variant="primary"` (red) for the action that commits (Save, Create); `variant="dark"` (black) for the other one (Cancel, Save Draft).
+  - **Shape by place:** `size="header"` (Save / Publish in a page header), `size="block"` (a full-width submit) and `size="pill"` (a cancel + submit pair: side by side from `sm`, stacked full width on a phone).
+  - **Label case:** one word in capitals (SAVE, CANCEL), longer labels in Title Case (Create Ticket, Update Password). The sizes don't force a case; write the label in it.
+  - The base font is Inter Tight. A button that should look different sets it.
+- **Text in inputs:** don't use `uppercase` on an input: it changes how the text looks, not what's saved. To change the value itself, use `rewriteInputValue` with `capitalizeWords` or `toUpperCase` (`lib/helper-func.ts`). Promo codes are saved in capitals; event names and venues start each word with a capital.
+- **Names in copy:** Afrorevive (not AfroRevive or AfroRave), Guestlist, resale (the noun; "resell" is the action), TikTok, and the singular Revenue Vendor / Service Vendor.
 
 ---
 

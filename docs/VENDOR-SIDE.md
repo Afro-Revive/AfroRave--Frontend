@@ -77,7 +77,8 @@ src/
 │   │   ├── edit-profile-modal.tsx  the modal, its tabs and the shared draft
 │   │   ├── profile-tab.tsx, account-tab.tsx, settings-tab.tsx
 │   │   ├── profile-draft.ts        API ↔ form values, and the request body
-│   │   └── profile-fields.tsx      the dark inputs, selects and Save button
+│   │   └── profile-fields.tsx      ProfileInput, ProfilePasswordInput, ProfileSelect (label above
+│   │                               the box, as in every form) and the Save button
 │   └── lib/format-date.ts          'May 20th 2025' and 'Apr 28, 2025'
 ├── hooks/use-vendor.ts             the dashboard's hooks (§6)
 └── services/vendor.service.ts      every vendor endpoint

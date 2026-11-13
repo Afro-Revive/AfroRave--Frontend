@@ -2,7 +2,9 @@
 
 Source: *Afrorevive Creators Web — Mobile QA Report* (Nov 10, 2026, @ESE). Tested on afrorevive.com/creators at 375×812.
 
-Each item lists the files to change and a suggested fix. Item numbers match the report. Line numbers come from `ui-fixes` at `c2e4b1e`, which is 7 commits behind `main` (#27/#28, Privacy section). None of those commits touch these files, but merge `main` in first.
+Each item lists the files to change and a suggested fix. Item numbers match the report. Line numbers come from `ui-fixes` at `c2e4b1e`, which is 7 commits behind `main` (#27/#28, Privacy section). None of those commits touch these files, but merge `main` in first. Many lines have moved since; the file names still hold.
+
+**Status (2026-11-13):** sections 1 to 4 are mostly done on `ui-fixes`. What's left: the open boxes below, the **[PO]** / **[BE]** questions, section 5 and section 6. Uncommitted right now: the naming changes, card gutters, menu drawer and text details (section 4).
 
 Tags:
 - **[PO]**: needs a product decision before it can be built.
@@ -14,10 +16,10 @@ Tags:
 ## Fix first
 
 1. ~~**1.1**: the live site is a development build, and the devtools button covers content.~~ Fixed.
-2. **1.2 / 1.3**: the SF Pro fonts (about 60 MB on disk), three broken font paths, and quoted `"sans-serif"`. Paths and quotes are fixed, and the SF family is removed (2026-11-13).
+2. ~~**1.2 / 1.3**: the SF Pro fonts (about 60 MB on disk), three broken font paths, and quoted `"sans-serif"`.~~ Fixed; the SF family and Inter are removed (`749823c`).
 3. ~~**2.1**: the Service Vendor time pickers make the whole page scroll sideways.~~ Fixed.
-4. **3.1**: the visibility rule is stated two opposite ways.
-5. **3.3**: the ticket price differs between the list and the form. This may also change saved prices (see 3.3).
+4. ~~**3.1**: the visibility rule is stated two opposite ways.~~ Fixed.
+5. ~~**3.3**: the ticket price differs between the list and the form.~~ Fixed (the backend returns one price; the app reads `basePrice`).
 
 ---
 
@@ -46,14 +48,14 @@ Tags:
 - [x] Remove the stray `console.log` calls that ship to users:
   - [ticket-card.tsx:68](../src/pages/creators/tickets/components/ticket-card.tsx#L68) (`console.log("ticket", ticket)`);
   - [event.service.ts:128](../src/services/event.service.ts#L128).
-  - Added `esbuild: { drop: ['console', 'debugger'] }` in [vite.config.ts](../vite.config.ts) (not committed yet).
+  - Added `esbuild: { drop: ['console', 'debugger'] }` in [vite.config.ts](../vite.config.ts) (`096beef`).
 
 ### 1.2 8.9 MB of fonts per page, and SF Pro licensing
 - [x] Fix the three `@font-face` paths that point at missing files. Vercel's catch-all rewrite in [vercel.json](../vercel.json) returns `index.html` for missing files, so these weights fail.
   - [src/styles/fonts.css:209](../src/styles/fonts.css#L209): `SFPro-Light.ttf`. The file on disk is `SFProText-Light.ttf`.
   - [src/styles/fonts.css:233](../src/styles/fonts.css#L233): `SFPro-Semibold.ttf`. The file on disk is `SFProText-Semibold.ttf`.
   - [src/styles/fonts.css:200](../src/styles/fonts.css#L200): `SFMonoBold.otf`. Only `SFMonoBold.woff` exists. The report didn't catch this one.
-- [ ] Remove SF Pro from the whole site. Apple's licence doesn't cover web self-hosting. **Done 2026-11-13, not committed yet.**
+- [ ] Remove SF Pro from the whole site. Apple's licence doesn't cover web self-hosting. **Done 2026-11-13** (`749823c`).
   - **Decided with the PO on 2026-11-11:** remove it completely. No system-font fallback that keeps SF on Apple devices.
   - **The new rules (2026-11-13):**
     - **Work Sans** only for forced-caps sub-headings in forms: the label above a field ("PROMO CODE", "EVENT NAME") and its character counter.
@@ -68,8 +70,8 @@ Tags:
   - **Checked:** a production build of `/`, `/creators`, `/contact-support` and `/events` requests no SF file and fails no font.
   - **Not yet in line with the rules,** outside the SF change:
     - `font-work-sans` is still used for things that aren't form sub-headings, about 79 uses in 39 files: menus, nav links, the creators footer, auth headings.
-    - ~~[custom-form.tsx](../src/components/shared/custom-form.tsx) puts Work Sans on the whole field wrapper, so values typed into those fields are Work Sans too.~~ Fixed with the form labels (2026-11-13).
-- [x] Trim what's left. **Done 2026-11-11, not committed yet.**
+    - ~~[custom-form.tsx](../src/components/shared/custom-form.tsx) puts Work Sans on the whole field wrapper, so values typed into those fields are Work Sans too.~~ Fixed with the form labels (`cf8405e`).
+- [x] Trim what's left. **Done 2026-11-11** (`80ae1c9`, `a98ce1d`).
   - **Inter Tight and Work Sans:** now `.woff2`, cut down to Latin, in [public/fonts/](../public/fonts/).
     - The Latin set keeps Yoruba letters and tone marks, and ₦.
     - Inter Tight went from 567 KB to 144 KB; Work Sans from 351 KB to 122 KB.
@@ -174,6 +176,7 @@ Tags:
 
 ### 2.9 Header controls
 - [ ] **[PO]** Wire up the bell, or hide it. It's a plain `<img>` in [creator-dashboard-layout/header.tsx:21](../src/layouts/creator-dashboard-layout/header.tsx#L21).
+  - **Hidden for now** (`df49397`): commented out until notifications are live. Wiring it up is still open.
   - The hooks already exist: `useOrganizerNotifications` and `useMarkNotificationAsRead` in [src/hooks/use-profile-mutations.ts:171](../src/hooks/use-profile-mutations.ts#L171).
   - Wiring it up means a button and a dropdown or sheet.
 - [x] Fix the ☰ behaviour in [header.tsx:23-29](../src/layouts/creator-dashboard-layout/header.tsx#L23-L29). When the mobile sidebar is open, the ☰ trigger is swapped for `CreatorMenuButton`, so Settings takes a second tap. Either:
@@ -312,20 +315,20 @@ All fixed 2026-11-11:
   - [ ] **Not yet seen:** the cart and checkout pages, which need a live reservation. Add a ticket in the real flow once and check both.
 
 ### 3.7 Wrong empty state on filters
-- [x] [standalone/index.tsx:183-194](../src/pages/creators/standalone/index.tsx#L183-L194) and `EmptyState` ([:210-221](../src/pages/creators/standalone/index.tsx#L210-L221)): when the account has events but the filter is empty, say "No upcoming events" or "No drafts", not "No Events Created". Pass `activeFilter` and `allEvents.length` in.
+- [x] (`cee3c02`) [standalone/index.tsx:183-194](../src/pages/creators/standalone/index.tsx#L183-L194) and `EmptyState` ([:210-221](../src/pages/creators/standalone/index.tsx#L210-L221)): when the account has events but the filter is empty, say "No upcoming events" or "No drafts", not "No Events Created". Pass `activeFilter` and `allEvents.length` in.
 - [ ] Optional: show `0` on the pills with no events. The counts come from `countEventsByStatus` in [event-filters.tsx:37](../src/pages/creators/standalone/components/event-filters.tsx#L37).
 
 ### 3.8 Promo Codes form
-- [x] "Remove promocode" shows on a new, unsaved code. [promo-codes/index.tsx:245](../src/pages/creators/promo-codes/index.tsx#L245) passes `onRemove`, which only resets the form.
+- [x] (`a4190f8`; relabelled CANCEL) "Remove promocode" shows on a new, unsaved code. [promo-codes/index.tsx:245](../src/pages/creators/promo-codes/index.tsx#L245) passes `onRemove`, which only resets the form.
   - Don't pass it for a new code, or relabel it "Clear".
   - The button is at [promo-code-form.tsx:268-280](../src/pages/creators/add-event/ticket-forms/promo-code-form/promo-code-form.tsx#L268-L280).
-- [x] The default dates are wrong in [promo-code-schema.ts:96-107](../src/pages/creators/add-event/schemas/promo-code-schema.ts#L96-L107). Both start and end are `new Date()` at 12:00 AM, so the start is already in the past and the end equals the start.
+- [x] (`a4190f8`) The default dates are wrong in [promo-code-schema.ts:96-107](../src/pages/creators/add-event/schemas/promo-code-schema.ts#L96-L107). Both start and end are `new Date()` at 12:00 AM, so the start is already in the past and the end equals the start.
   - Default the start to now.
   - Default the end to the event's end, or the start plus 7 days.
   - Check that the schema rejects an end at or before the start.
 
 ### 3.9 Error before input
-- [x] [add-event/tabs/event-details-tab.tsx:91-95](../src/pages/creators/add-event/tabs/event-details-tab.tsx#L91-L95): on mount, `setValue('custom_url', …, { shouldValidate: true })` runs with an empty name, so "URL too short." shows right away. The rule is in [src/schema/edit-event-details.ts:18](../src/schema/edit-event-details.ts#L18).
+- [x] (`0c4eb05`) [add-event/tabs/event-details-tab.tsx:91-95](../src/pages/creators/add-event/tabs/event-details-tab.tsx#L91-L95): on mount, `setValue('custom_url', …, { shouldValidate: true })` runs with an empty name, so "URL too short." shows right away. The rule is in [src/schema/edit-event-details.ts:18](../src/schema/edit-event-details.ts#L18).
   - Validate only once the name has text: `shouldValidate: Boolean(eventName)`.
 
 ---
@@ -339,7 +342,7 @@ Each row needs one rule from design. Agree the rule **[PO]**, then apply it.
   - Title Case "Poster Image": [poster-image-field.tsx](../src/pages/creators/edit-event/component/poster-image-field.tsx).
   - Edit Event's section headings: [edit-event/tabs/event-details-tab.tsx](../src/pages/creators/edit-event/tabs/event-details-tab.tsx).
   - Make one heading component.
-  - **Done 2026-11-13, not committed yet.** [FormSectionHeading](../src/components/shared/form-section-heading.tsx) is `font-inter-tight font-black text-xl text-black uppercase`. It replaces 15 headings in 10 files across Create and Edit Event: event details, sales channel, ticket format, ticket form, theme, the tab container, confirmation email, Poster Image, and Edit Event's `SectionHeader`.
+  - **Done 2026-11-13** (`5921a60`). [FormSectionHeading](../src/components/shared/form-section-heading.tsx) is `font-inter-tight font-black text-xl text-black uppercase`. It replaces 15 headings in 10 files across Create and Edit Event: event details, sales channel, ticket format, ticket form, theme, the tab container, confirmation email, Poster Image, and Edit Event's `SectionHeader`.
 - [x] **Primary buttons** (colour, case and placement):
   - red "SAVE": [creator-account-tab.tsx:271](../src/pages/creators/standalone/components/creator-account-tab.tsx#L271);
   - grey or black: [creator-payout-tab.tsx:274](../src/pages/creators/standalone/components/creator-payout-tab.tsx#L274);
@@ -349,50 +352,31 @@ Each row needs one rule from design. Agree the rule **[PO]**, then apply it.
   - stacked on Promo: [promo-code-form.tsx:268](../src/pages/creators/add-event/ticket-forms/promo-code-form/promo-code-form.tsx#L268);
   - centred pill on Vendors: [create-vendor-slot-modal.tsx](../src/pages/vendor/component/create-vendor-slot-modal.tsx).
   - Add variants to [src/components/ui/button.tsx](../src/components/ui/button.tsx) rather than per-page classes.
-  - **Done 2026-11-13, not committed yet.** In [button-variants.ts](../src/components/ui/button-variants.ts):
+  - **Done 2026-11-13** (`db8e0ee`). In [button-variants.ts](../src/components/ui/button-variants.ts):
     - **Colour by role:** `variant="primary"` (deep red) for the action that commits (Save, Create); `variant="dark"` (black) for the other button (Cancel, Save Draft). Edit Event's Publish is `dark` too, so it doesn't compete with the red Save beside it.
     - **Shape by context:** `size="header"` for page-header Save/Publish; `size="block"` for full-width settings submits; `size="pill"` for cancel + submit pairs, side by side from `sm` and stacked full width on a phone. All three are `font-bold`; labels set their own case (see **Button case**).
     - Every button listed above uses them now. Tickets, Promo and Vendors pairs swapped colours: Cancel / Save Draft is black, the submit is red. Payout's Save and Update Password are red.
     - The base button font was `font-input-mono`, so any `<Button>` without its own font class rendered in IBM Plex Mono. It's `font-inter-tight` now. Links styled as buttons that set mono themselves, like the fan home's "Find Tickets", are unchanged.
-- [ ] **Button case:**
+- [x] **Button case:**
   - "UPDATE TICKET" ([ticket-form.tsx:374](../src/pages/creators/add-event/ticket-forms/create/ticket-form.tsx#L374));
   - "View Analytics" ([ticket-summary.tsx](../src/pages/creators/tickets/components/ticket-summary.tsx));
   - "copy link" and "view page" ([selected-event-card.tsx:33](../src/layouts/creator-dashboard-layout/selected-event-card.tsx#L33), [:65](../src/layouts/creator-dashboard-layout/selected-event-card.tsx#L65));
   - "preview" ([poster-image-field.tsx:73](../src/pages/creators/edit-event/component/poster-image-field.tsx#L73)).
   - **Rule (2026-11-13):** a one-word label is in capitals (SAVE, CANCEL, PREVIEW, SAVING...); a longer one is in Title Case (Update Ticket, View Analytics, Copy Link).
-  - **Done 2026-11-13, not committed yet.** The four above follow it. So do the buttons on the new sizes: the `header`, `block` and `pill` sizes no longer force `uppercase`, so each label is written in its case ("Create Ticket", "Create Promo Code", "Update Password", "Save Draft"; "SAVE", "CANCEL", "SAVED"). "View Analytics" was Work Sans and is Inter Tight now.
+  - **Done 2026-11-13** (`db8e0ee`). The four above follow it. So do the buttons on the new sizes: the `header`, `block` and `pill` sizes no longer force `uppercase`, so each label is written in its case ("Create Ticket", "Create Promo Code", "Update Password", "Save Draft"; "SAVE", "CANCEL", "SAVED"). "View Analytics" was Work Sans and is Inter Tight now.
 - [ ] **Off-brand blue:** `bg-tech-blue` on "view page" ([selected-event-card.tsx:62](../src/layouts/creator-dashboard-layout/selected-event-card.tsx#L62)) and "preview" ([poster-image-field.tsx:71](../src/pages/creators/edit-event/component/poster-image-field.tsx#L71)).
-- [ ] **Form labels:** labels appear four ways.
+- [x] **Form labels:** labels appear four ways.
   - Uppercase above the field: the shared `FormField` in [src/components/reusable/](../src/components/reusable/) (base-form).
   - Bold Title Case: the Guestlist cards.
   - Inside the box: [settings-inset-field.tsx](../src/pages/creators/standalone/components/settings-inset-field.tsx).
   - Placeholder only: the Change Password inputs in [creator-settings-modal.tsx](../src/pages/creators/standalone/components/creator-settings-modal.tsx).
-  - The global label `htmlFor` fix (still pending) belongs with this one.
-  - **Decision (2026-11-13):** every form uses the first style, small Work Sans capitals above the field.
-  - **Done 2026-11-13 on the creator side, not committed yet:**
-    - **One style:** `FIELD_LABEL_CLASS` / `FieldLabel` in [field-label.tsx](../src/components/shared/field-label.tsx) (`font-work-sans text-xs uppercase text-[#1E1E1E]`).
-    - **Settings (Account, Payout):** the inset field is now [SettingsField](../src/pages/creators/standalone/components/settings-field.tsx), label above a 44px box. The label wraps the field, so clicking it focuses the input. Birthday has one label over Month / Day / Year, and Phone Number one label over the code and the number.
-    - **Change Password:** labelled fields instead of placeholders. The show/hide button is named after the label.
-    - **Guestlist modals (Add Guest, New Category):** labels restyled.
-    - **Confirmation email:** its Email label too.
-    - [CustomFormField](../src/components/shared/custom-form.tsx) puts Work Sans on the label only, so typed values are Inter Tight now (this was open under 1.2).
-  - **Bug fixed:** [base-form.tsx](../src/components/reusable/base-form.tsx) passed `htmlFor={name}`, which overrode the label's correct `htmlFor` (the input's generated id). Labels pointed at nothing: clicking one didn't focus its field, and screen readers didn't read it. Fields whose child is a wrapper rather than the input itself (the counter and date fields) still don't connect; the id lands on the wrapper.
-  - **Done 2026-11-13 everywhere else, not committed yet.** Dark pages use `FIELD_LABEL_ON_DARK_CLASS` (the same, in white).
-    - **Fan:** profile and complete profile (inset labels moved above 44px boxes; Birthday and Phone Number get one label over their row; the vendor Category select gets a label), settings, payout, support, and the account inputs.
-    - **Vendor:** profile, account and settings tabs. `InsetInput` / `InsetPasswordInput` / `InsetSelect` are now `ProfileInput` / `ProfilePasswordInput` / `ProfileSelect` in [profile-fields.tsx](../src/pages/vendor/profile/profile-fields.tsx), with labels above and wired to their fields.
-    - **Auth:** log in, sign up, forgot password and reset password had placeholders only; they have labels now.
-    - **Contact:** the support form and the creators' Get in Touch form. The support form's inputs had ids copied from the old, wrong `htmlFor`; those are removed so its labels connect.
-    - **Left alone:** `vendor-signup-form.tsx`, `business-signup-form.tsx` and `vendor-registration-modal.tsx`, which nothing renders.
-- [ ] **Forced uppercase inputs:** the name, venue and URL inputs have `className="uppercase"`, so they don't show what was saved.
-  - **Decision (2026-11-13):** only the promo code is forced to capitals; the rest are capitalised.
-  - **Done 2026-11-13, not committed yet.** The display-only `uppercase` classes are gone; what's shown is what's saved.
-    - **Promo code:** upper-cased as it's typed, so "earlybird25" is saved as EARLYBIRD25.
-    - **Event name and venue** (Create and Edit): each word starts with a capital as it's typed, the rest stays as typed ("DJ spinall" becomes "DJ Spinall"). `capitalizeWords` and `rewriteInputValue` in [helper-func.ts](../src/lib/helper-func.ts); the second keeps the caret in place.
-    - **Custom URL** (Edit): shown as typed, in lower case like the URL itself. Capitalising it would make it wrong.
-  - [ ] **[BE]** Is promo validation case-insensitive? The checkout field ([promo-code.tsx:173](../src/pages/landing-page/_component/promo-code.tsx#L173)) shows capitals but sends what the fan typed. If the backend compares exactly, "earlybird25" won't match EARLYBIRD25. Upper-casing it at checkout would break codes saved in lower case before this change.
+  - The global label `htmlFor` fix belongs with this one.
+  - **Done 2026-11-13:** every form puts its label above the field in Work Sans capitals (`cf8405e`, which can be reverted on its own: `git revert cf8405e`). The `htmlFor` fix is separate (`8153e9c`).
+- [x] **Forced uppercase inputs:** the name, venue and URL inputs have `className="uppercase"`, so they don't show what was saved.
   - [edit-event/tabs/event-details-tab.tsx:189](../src/pages/creators/edit-event/tabs/event-details-tab.tsx#L189), [:224](../src/pages/creators/edit-event/tabs/event-details-tab.tsx#L224), [:259](../src/pages/creators/edit-event/tabs/event-details-tab.tsx#L259)
   - [add-event/tabs/event-details-tab.tsx:175](../src/pages/creators/add-event/tabs/event-details-tab.tsx#L175)
-- [ ] **Naming:**
+  - **Done 2026-11-13** (`9321a21`): only the promo code is saved in capitals; event names and venues start each word with a capital; the custom URL shows as typed.
+- [x] **Naming:**
   - "Guest List" ([creator-side-bar.tsx:88](../src/layouts/creator-dashboard-layout/creator-side-bar.tsx#L88)) vs "Guestlist" (guest-list cards and dashboard tab).
   - "Revenue Vendor" vs "Service Vendors" (sidebar).
   - "Delete" ([action-popover.tsx:37](../src/pages/creators/add-event/component/action-popover.tsx#L37)) vs "Remove Ticket" ([ticket-form.tsx:360](../src/pages/creators/add-event/ticket-forms/create/ticket-form.tsx#L360)).
@@ -405,11 +389,21 @@ Each row needs one rule from design. Agree the rule **[PO]**, then apply it.
     - [sales-channel-field.tsx:14](../src/pages/creators/add-event/component/sales-channel-field.tsx#L14), [:21](../src/pages/creators/add-event/component/sales-channel-field.tsx#L21)
     - [event-category-blocks.tsx:450](../src/pages/landing-page/event-page/event-category-blocks.tsx#L450)
     - [vendor slot-details/index.tsx:193](../src/pages/vendor/slots/slot-details/index.tsx#L193)
-- [ ] **Card gutters:** pick one value. Currently:
+  - **Decided and done 2026-11-13, not committed yet:**
+    - **Guestlist:** the sidebar, the guestlist toasts and the creators landing copy.
+    - **Singular:** "Revenue Vendor" and "Service Vendor" everywhere, including the vendor slot page and the Service Vendor page heading.
+    - **Resale:** the ticket form's toggle and notes say "Allow Ticket Resale".
+    - **Save as Draft:** the Create Event header button (Title Case, by the button rule), and the docs.
+    - **TikTok:** the Socials labels in Create and Edit Event.
+    - **Afrorevive:** the five places above, plus the vendor header logo's alt text. Code names are unchanged.
+    - "Promo Code" was already fixed with the buttons, and "Remove Ticket" no longer exists.
+    - **AfroRave, the old name, is Afrorevive too:** the three sign-up toasts ("Welcome to Afrorevive!"), the home header logo's alt text, the Payment Confirmed and creators page titles, and "The Afrorevive mobile app" on the creators landing page.
+- [x] **Card gutters:** pick one value. Currently:
   - 16px on Promo ([promo-codes/index.tsx:230](../src/pages/creators/promo-codes/index.tsx#L230) `px-4`);
   - 20px on Tickets ([tickets/index.tsx:146](../src/pages/creators/tickets/index.tsx#L146) `px-5`);
   - 24px on Events ([standalone/index.tsx:176](../src/pages/creators/standalone/index.tsx#L176) `px-6`);
   - the vendor pages, which differ again.
+  - **Decided and done 2026-11-13, not committed yet:** every creator dashboard page, its header bar and the top navbar use `px-5 md:px-8` (20px on phones, 32px from `md`). Promo's 56px desktop padding is now 32px. Modals, cards' own padding and the vendor's own dark dashboard are unchanged.
 - [ ] **Analytics card titles.** Mostly fixed on `analytics-redesign`.
   - **Alignment:** fixed. Every card uses one `AnalyticsCard` with a left-aligned title.
   - **Wording:** still mixed on that branch.
@@ -417,10 +411,11 @@ Each row needs one rule from design. Agree the rule **[PO]**, then apply it.
     - Audience Insights' cards: "Age Groups" and "Locations".
     - Audience Insights' summary tile: "Top Age Range".
     - Pick one word, "Age Groups" or "Age Range", and use it in all three places. Change this on that branch.
-- [ ] **Menu drawer:**
+- [x] **Menu drawer:**
   - Child links use the same `px-6` as their parents, which have an icon, so children look less indented ([base-sidebar.tsx:261](../src/components/reusable/base-sidebar.tsx#L261), [:294](../src/components/reusable/base-sidebar.tsx#L294)).
   - The `Plus` icon never changes when a group is open ([base-accordion.tsx:66](../src/components/reusable/base-accordion.tsx#L66)). Rotate it to × or swap it for Minus on `data-state=open`.
   - Analytics > "Tickets" repeats the top-level "Tickets" ([creator-side-bar.tsx:109](../src/layouts/creator-dashboard-layout/creator-side-bar.tsx#L109)). Rename it to something like "Ticket sales".
+  - **Done 2026-11-13, not committed yet** (the same component is the desktop sidebar): links in a group start at 50px, in line with the group name past its icon, and sub-group links at 66px; the + turns into a × while open; Analytics › "Tickets" is "Ticket Sales".
 - [ ] **Choice controls:** Paid/Free ([ticket-form.tsx:85](../src/pages/creators/add-event/ticket-forms/create/ticket-form.tsx#L85)) and "Start immediately / Schedule" ([ticket-form.tsx:289](../src/pages/creators/add-event/ticket-forms/create/ticket-form.tsx#L289)) are checkboxes, but only one can apply. Use [src/components/ui/radio-group.tsx](../src/components/ui/radio-group.tsx).
 - [ ] **Text details:**
   - Helper text is forced lowercase:
@@ -431,6 +426,7 @@ Each row needs one rule from design. Agree the rule **[PO]**, then apply it.
     - "Enter event name." in [add-event :174](../src/pages/creators/add-event/tabs/event-details-tab.tsx#L174) and [edit-event :188](../src/pages/creators/edit-event/tabs/event-details-tab.tsx#L188);
     - other placeholders, which follow the same pattern.
   - "How invite only tickets works" should be "How invite-only tickets work" ([ticket-notice.tsx:18](../src/pages/creators/tickets/components/ticket-notice.tsx#L18)).
+  - **Done 2026-11-13, not committed yet:** the two `lowercase` classes are gone; 21 placeholders lost their full stop (the ticket description's multi-sentence one is left); the "Email Address." placeholders went with the form labels; the notice reads "How invite-only tickets work".
 
 ---
 
@@ -439,8 +435,8 @@ Each row needs one rule from design. Agree the rule **[PO]**, then apply it.
 - [ ] White event title on the `#ACACAC` card (2.27:1) in [selected-event-card.tsx:33](../src/layouts/creator-dashboard-layout/selected-event-card.tsx#L33). Darken the card so white text reaches at least 4.5:1. White on `#767676` is about 4.5:1; on `#595959`, about 7:1.
 - [ ] "Choose Your Role" on black (about 2.1:1) in [creators-hub.tsx:27](../src/pages/creators/home/sections/creators-hub.tsx#L27), which uses `text-[#464444]`. Use a light grey such as `#ACACAC`, about 9:1 on black.
 - [ ] Give the icon-only controls accessible names:
-  - **Bell:** [header.tsx:21](../src/layouts/creator-dashboard-layout/header.tsx#L21). It's an image. Make it a `<button aria-label="Notifications">`, or remove it (see 2.9).
-  - **Ticket "…" menu:** [action-popover.tsx:19-23](../src/pages/creators/add-event/component/action-popover.tsx#L19-L23). The trigger needs an `aria-label`, for example "Ticket options". The same component serves the promo and vendor cards.
+  - **Bell:** [header.tsx:21](../src/layouts/creator-dashboard-layout/header.tsx#L21). It's an image. Make it a `<button aria-label="Notifications">`, or remove it (see 2.9). **Hidden for now**, so this applies when it comes back.
+  - **Ticket "…" menu:** [action-popover.tsx:19-23](../src/pages/creators/add-event/component/action-popover.tsx#L19-L23). The trigger needs an `aria-label`, for example "Ticket options". Only the ticket card uses it.
   - **[verify]** **☰:** `SidebarTrigger` already has a hidden "Toggle Sidebar" label ([src/components/ui/sidebar.tsx:273](../src/components/ui/sidebar.tsx#L273)). Check it with VoiceOver.
   - **[verify]** **Avatar button:** [creator-menu-button.tsx](../src/components/reusable/creator-menu-button.tsx) has no `aria-label`. Check it with VoiceOver.
   - **[verify]** **Menu expand toggles:** [base-accordion.tsx](../src/components/reusable/base-accordion.tsx). Each trigger includes its group's text, so the report's claim may not apply. Check it with VoiceOver.
