@@ -139,7 +139,7 @@ export function FormField<T extends FieldValues>({
         return (
           <FormItem className={cn('flex flex-col items-start', className)}>
             {label && (
-              <FormLabel className={cn('text-[#1E1E1E]', labelClassName)} htmlFor={name}>
+              <FormLabel className={cn('text-[#1E1E1E]', labelClassName)}>
                 {label}
               </FormLabel>
             )}

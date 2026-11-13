@@ -74,9 +74,7 @@ export default function ContactUsForm() {
           showMessage
           labelClassName={labelClass}
           className={fieldClass}>
-          {/* The id matches the label's htmlFor, which FormField sets to the name. */}
           <Input
-            id='email'
             type='email'
             autoComplete='email'
             className='w-full px-0 py-5 border-none text-white placeholder:text-white/40'
@@ -90,7 +88,6 @@ export default function ContactUsForm() {
           labelClassName={labelClass}
           className={cn(fieldClass, 'pb-5')}>
           <Textarea
-            id='message'
             className='h-[240px] w-full px-0 bg-transparent border-none resize-none text-white placeholder:text-white/40 focus-visible:ring-0'
           />
         </FormField>
