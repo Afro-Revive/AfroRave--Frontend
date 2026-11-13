@@ -55,18 +55,29 @@ export function DashboardTabs({
       </div>
 
       {/* Full width on mobile, so whatever sits here stretches under the tabs. */}
-      <div className='flex max-md:w-full'>
-      {actions ?? (
-        <Button variant='destructive' className='h-9 px-3 rounded-[6px] gap-1.5 shrink-0 max-md:flex-1 justify-center' asChild>
-          <Link to={getRoutePath('add_event')}>
-            <Plus color='#ffffff' size={13} />
-            <span className='font-inter-tight text-xs font-bold whitespace-nowrap'>
-              Create Event
-            </span>
+      {actions ? (
+        <div className='flex max-md:w-full'>{actions}</div>
+      ) : (
+        <>
+          <Button variant='destructive' className='h-9 px-3 rounded-[6px] gap-1.5 shrink-0 justify-center max-md:hidden' asChild>
+            <Link to={getRoutePath('add_event')}>
+              <Plus color='#ffffff' size={13} />
+              <span className='font-inter-tight text-xs font-bold whitespace-nowrap'>
+                Create Event
+              </span>
+            </Link>
+          </Button>
+
+          {/* Mobile: a floating + in the thumb's reach, instead of a full-width
+              bar under the tabs. */}
+          <Link
+            to={getRoutePath('add_event')}
+            aria-label='Create Event'
+            className='md:hidden fixed bottom-6 right-5 z-30 flex size-14 items-center justify-center rounded-full bg-deep-red text-white shadow-lg shadow-black/25 transition-transform active:scale-95'>
+            <Plus className='size-6' strokeWidth={2.5} />
           </Link>
-        </Button>
+        </>
       )}
-      </div>
     </div>
   )
 }
