@@ -37,7 +37,8 @@ export function BaseAccordion({
       >
         <AccordionTrigger
           className={cn(
-            "hover:no-underline",
+            // group: the + reads the trigger's open state.
+            "group hover:no-underline",
             {
               "items-center justify-between h-[64px] px-6 [&>svg]:hidden":
                 style === "dashboard",
@@ -63,7 +64,11 @@ export function BaseAccordion({
           </div>
 
           <div className="flex w-fit h-fit text-system-black">
-            <Plus color="currentColor" className="size-[15px]" />
+            {/* Turns into a × while the group is open. */}
+            <Plus
+              color="currentColor"
+              className="size-[15px] transition-transform duration-200 group-data-[state=open]:rotate-45"
+            />
           </div>
         </AccordionTrigger>
         <AccordionContent className="flex flex-col p-0">

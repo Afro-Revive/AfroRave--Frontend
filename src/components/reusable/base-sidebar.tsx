@@ -241,7 +241,8 @@ function AccordionSidebarMenuItem({
               style="dashboard"
               trigger={item.name}
               isActive={isActiveLink || isSubActive}
-              triggerClassName={cn({
+              // Indented like the links beside it.
+              triggerClassName={cn("pl-[50px]", {
                 "border-l-[3px] bg-deep-red/16 rounded-none border-l-deep-red":
                   isActiveLink || isSubActive,
               })}
@@ -258,7 +259,8 @@ function AccordionSidebarMenuItem({
                     to={sub.path}
                     onClick={onLinkClick}
                     className={cn(
-                      "w-full flex items-center px-6 h-[56px] text-xs font-inter-tight capitalize transition-colors duration-300",
+                      // One step further in than its group's own name.
+                      "w-full flex items-center pl-[66px] pr-6 h-[56px] text-xs font-inter-tight capitalize transition-colors duration-300",
                       {
                         " text-deep-red": isActiveSubLink,
                         "text-black hover:bg-deep-red/10": !isActiveSubLink,
@@ -291,7 +293,9 @@ function AccordionSidebarMenuItem({
             to={item.path}
             onClick={onLinkClick}
             className={cn(
-              "w-full flex items-center px-6 h-[64px] text-[13px] font-inter-tight capitalize transition-colors duration-300",
+              // In line with the group name's text, past its icon (24px
+              // padding + 16px icon + 10px gap), so a child reads as a child.
+              "w-full flex items-center pl-[50px] pr-6 h-[64px] text-[13px] font-inter-tight capitalize transition-colors duration-300",
               {
                 "border-l-[3px] bg-deep-red/16 border-l-deep-red text-black":
                   isActiveLink,

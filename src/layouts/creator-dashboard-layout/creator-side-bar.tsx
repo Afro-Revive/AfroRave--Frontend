@@ -106,7 +106,8 @@ export default function CreatorSidebar() {
         { path: analyticsTab("vendors"), name: "Vendors" },
         {
           path: analyticsTab("orders"),
-          name: "Tickets",
+          // Not "Tickets": the sidebar already has a Tickets section.
+          name: "Ticket Sales",
           subLinks: [
             { path: analyticsTab("orders"), name: "Orders" },
             { path: analyticsTab("attendee-list"), name: "Attendee List" },
