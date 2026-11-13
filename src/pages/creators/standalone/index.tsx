@@ -190,7 +190,7 @@ export default function StandalonePage() {
                 />
               ))
             ) : (
-              <EmptyState />
+              <EmptyState filter={activeFilter} />
             )}
           </div>
 
@@ -207,15 +207,41 @@ export default function StandalonePage() {
   );
 }
 
-function EmptyState() {
+/** Each filter says what's missing from it; "All" invites the first event. */
+const EMPTY_STATE: Record<EventListFilter, { title: string; body: string }> = {
+  all: {
+    title: "No Events Created",
+    body: "Create your first event to start selling tickets.",
+  },
+  ongoing: {
+    title: "No Ongoing Event",
+    body: "Events show here while they're happening.",
+  },
+  upcoming: {
+    title: "No upcoming events",
+    body: "Published events that haven't started yet show here.",
+  },
+  drafts: {
+    title: "No drafts",
+    body: "Events you've started but not published show here.",
+  },
+  ended: {
+    title: "No past events",
+    body: "Events show here once they've ended.",
+  },
+};
+
+function EmptyState({ filter }: { filter: EventListFilter }) {
+  const { title, body } = EMPTY_STATE[filter];
+
   return (
     <div className="col-span-full w-full justify-center h-[60vh] flex flex-col items-center gap-2">
       <LuCalendarPlus size={48} className="text-light-red" />
-      <p className="text-2xl font-bold font-inter-tight text-light-red">
-        No Events Created
+      <p className="text-2xl font-bold font-inter-tight text-light-red text-center">
+        {title}
       </p>
       <p className="text-base text-gray-400 max-w-sm font-sf-pro-text leading-relaxed text-center">
-        Create your first event to start selling tickets.
+        {body}
       </p>
     </div>
   );
