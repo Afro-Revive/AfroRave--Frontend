@@ -1,3 +1,4 @@
+import { FormSectionHeading } from "@/components/shared/form-section-heading";
 import {
   CustomFormField as FormField,
   CustomInput as Input,
@@ -391,9 +392,9 @@ function EventDetailsForm({
 
 function SectionHeader({ name }: { name: string }) {
   return (
-    <p className="text-xl font-bold font-inter-tight text-black -mb-3 ">
+    <FormSectionHeading as="p" className="-mb-3">
       {name}
-    </p>
+    </FormSectionHeading>
   );
 }
 

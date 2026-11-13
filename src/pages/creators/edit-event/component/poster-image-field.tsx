@@ -1,3 +1,4 @@
+import { FormSectionHeading } from '@/components/shared/form-section-heading'
 import { useState } from 'react'
 import type { FieldValues, Path, PathValue, UseFormReturn } from 'react-hook-form'
 import { Eye, LoaderCircle, SquarePen } from 'lucide-react'
@@ -57,7 +58,7 @@ export function PosterImageField<T extends FieldValues>({
     <div className='w-full flex flex-col gap-4 rounded-xl border border-soft-gray bg-white p-5'>
       <div className='flex items-start justify-between gap-4'>
         <div className='flex flex-col gap-1'>
-          <p className='font-inter-tight text-xl font-bold text-black'>Poster Image</p>
+          <FormSectionHeading as="p">Poster Image</FormSectionHeading>
 
           <p className='font-inter-tight text-sm text-mid-dark-gray'>
             JPG or PNG, up to {MAX_FILE_SIZE_MB}MB. Portrait (3:4) works best.

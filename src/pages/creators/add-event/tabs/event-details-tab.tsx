@@ -1,3 +1,4 @@
+import { FormSectionHeading } from "@/components/shared/form-section-heading";
 import {
   CustomFormField as FormField,
   CustomInput as Input,
@@ -145,9 +146,9 @@ export default function EventDetailsTab({
       /> */}
         <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-1">
-            <h2 className="font-inter-tight font-bold text-2xl text-black uppercase">
+            <FormSectionHeading>
               Visibility
-            </h2>
+            </FormSectionHeading>
             <p className="font-inter-tight font-medium text-sm text-[#464444]">
               Control how guests access tickets for this event. Switching to public is permanent. Public events can't be made private.
             </p>
@@ -157,9 +158,9 @@ export default function EventDetailsTab({
         </div>
 
         <div className="flex flex-col gap-1">
-          <h2 className="font-inter-tight font-bold text-2xl text-black uppercase">
+          <FormSectionHeading>
             Basic Info
-          </h2>
+          </FormSectionHeading>
         </div>
 
         <FormFieldWithCounter
@@ -263,9 +264,9 @@ export default function EventDetailsTab({
 
         <div className="w-full flex flex-col gap-5">
           <div className="flex flex-col gap-1">
-            <p className="text-xl font-bold text-black font-inter-tight uppercase">
+            <FormSectionHeading as="p">
               Date & Time
-            </p>
+            </FormSectionHeading>
             <p className="font-inter-tight lg:text-sm text-xs font-medium text-[#464444]">
               Set when your event starts and ends.
             </p>
@@ -306,9 +307,9 @@ export default function EventDetailsTab({
         <div className="w-full flex flex-col gap-7">
           <div className="min-w-full flex flex-col gap-5">
             <div className="flex flex-col gap-1">
-              <p className="text-xl font-bold text-black font-inter-tight uppercase">
+              <FormSectionHeading as="p">
                 CONTACT DETAILS
-              </p>
+              </FormSectionHeading>
               <p className="font-inter-tight lg:text-sm text-xs font-medium text-[#464444]">
                 Shown on your event page so attendees can reach you.
               </p>
@@ -339,9 +340,9 @@ export default function EventDetailsTab({
 
           <div className="flex flex-col gap-5">
             <div className="flex flex-col gap-1">
-              <p className="text-xl font-bold text-black font-inter-tight uppercase">
+              <FormSectionHeading as="p">
                 Socials
-              </p>
+              </FormSectionHeading>
             </div>
 
             <div className="grid md:grid-cols-2 gap-x-8 gap-y-5">

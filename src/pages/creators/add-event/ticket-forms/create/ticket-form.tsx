@@ -1,3 +1,4 @@
+import { FormSectionHeading } from "@/components/shared/form-section-heading";
 import { DateForm } from "@/components/shared/date-form";
 import { FormFieldWithCounter } from "@/components/shared/field-with-counter";
 import { FormField } from "@/components/reusable";
@@ -58,9 +59,9 @@ export function TicketForm({
   return (
     <>
       <div className="flex flex-col gap-1">
-        <h2 className="font-inter-tight font-bold text-2xl text-black uppercase">
+        <FormSectionHeading>
           {formatCopy.title}
-        </h2>
+        </FormSectionHeading>
         <p className="font-inter-tight font-medium text-sm text-[#464444]">
           {formatCopy.description}
         </p>

@@ -1,3 +1,4 @@
+import { FormSectionHeading } from '@/components/shared/form-section-heading'
 import type { FieldValues, Path, PathValue, UseFormReturn } from 'react-hook-form'
 import { Globe } from 'lucide-react'
 import { BsDoorClosed } from 'react-icons/bs'
@@ -32,9 +33,9 @@ export function SalesChannelField<T extends FieldValues>({
   return (
     <div className='w-full flex flex-col gap-4'>
       <div className='flex flex-col gap-1'>
-        <h2 className='font-inter-tight font-bold text-2xl text-black uppercase'>
+        <FormSectionHeading>
           Sales Channel
-        </h2>
+        </FormSectionHeading>
         <p className='font-inter-tight font-medium text-sm text-[#464444]'>
           Choose where this ticket is sold.
         </p>

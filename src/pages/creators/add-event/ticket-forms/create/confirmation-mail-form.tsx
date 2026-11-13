@@ -1,3 +1,4 @@
+import { FormSectionHeading } from '@/components/shared/form-section-heading'
 import { CustomInput as Input } from '@/components/shared/custom-form'
 import { FormFieldWithCounter } from '@/components/shared/field-with-counter'
 import { FormBase, FormField } from '@/components/reusable'
@@ -27,7 +28,7 @@ export function ConfirmationMailForm() {
       className='max-w-[560px] w-full self-center flex flex-col space-y-0 gap-4'>
       <div className='flex flex-col gap-1 font-inter-tight text-black'>
         <div className='flex items-center justify-between'>
-          <p className='text-xl font-bold'>CUSTOMIZE YOUR CONFIRMATION EMAIL</p>
+          <FormSectionHeading as="p">CUSTOMIZE YOUR CONFIRMATION EMAIL</FormSectionHeading>
           <p className='text-xs leading-[100%] font-inter-tight text-mid-dark-gray'>(OPTIONAL)</p>
         </div>
         <p className='text-sm font-light text-charcoal leading-[100%]'>

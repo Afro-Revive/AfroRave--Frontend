@@ -1,3 +1,4 @@
+import { FormSectionHeading } from '@/components/shared/form-section-heading'
 import { CustomFormField as FormField } from '@/components/shared/custom-form'
 import { BaseRadioGroup, type IRadioGroupProps } from '@/components/reusable/base-radio-group'
 import { FormDescription } from '@/components/ui/form'
@@ -85,7 +86,7 @@ export default function ThemeTab({ setStep, setActiveTabState }: IThemeTab) {
       })}>
       <OnlyShowIf condition={activeForm === 'layout'}>
         <div className='w-full flex flex-col items-center gap-10 md:px-10'>
-          <p className='text-xl font-bold font-inter-tight uppercase'>CHOOSE A THEME</p>
+          <FormSectionHeading as="p">CHOOSE A THEME</FormSectionHeading>
           <FormField form={form} name='theme'>
             {(field) => <BaseRadioGroup {...field} data={data} />}
           </FormField>
@@ -120,9 +121,9 @@ export default function ThemeTab({ setStep, setActiveTabState }: IThemeTab) {
 function BannerForm({ form }: IBannerForm) {
   return (
     <div className='w-full flex flex-col gap-3'>
-      <p className='text-xl font-black font-inter-tight uppercase text-black leading-[100%]'>
+      <FormSectionHeading as="p" className="leading-[100%]">
         UPLOAD FLYERS
-      </p>
+      </FormSectionHeading>
       <p className='font-inter-tight text-medium-gray text-sm md:text-base'>
         Upload a png or jpeg file
       </p>
