@@ -62,6 +62,8 @@ export function CreatorMenuButton({ user, variant = 'light', onSettingsClick }: 
       <DropdownMenu modal={false}>
         <DropdownMenuTrigger asChild>
           <Button
+            // The initials alone don't say what the button does.
+            aria-label='Account menu'
             className={`py-2 px-3 h-10 w-10 transition-colors border flex items-center justify-center gap-[5px] rounded-full group ${
               variant === 'dark'
                 ? 'border-white text-white hover:bg-white/20 bg-black'

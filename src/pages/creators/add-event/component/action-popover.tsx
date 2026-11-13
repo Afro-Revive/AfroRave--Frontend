@@ -44,7 +44,7 @@ export function ActionPopover({
         }}
         className='bg-white'
         trigger={
-          <Button variant='ghost' className='hover:bg-black/10' disabled={isBusy}>
+          <Button variant='ghost' aria-label='Ticket options' className='hover:bg-black/10' disabled={isBusy}>
             <Ellipsis width={3} height={15} color='#1E1E1E' className='rotate-90' />
           </Button>
         }
