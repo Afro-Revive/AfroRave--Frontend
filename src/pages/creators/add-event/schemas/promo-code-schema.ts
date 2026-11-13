@@ -1,3 +1,4 @@
+import { fromApiDateTime, toApiDateTime, type FormDateTime } from '@/lib/helper-func'
 import { z } from 'zod'
 
 export const promoCodeSchema = z
@@ -13,7 +14,7 @@ export const promoCodeSchema = z
       period: z.enum(['AM', 'PM']),
     }),
     endDate: z.object({
-      date: z.date({ required_error: 'A start date is required.' }),
+      date: z.date({ required_error: 'An end date is required.' }),
       hour: z.string().min(1).max(2),
       minute: z.string().min(1).max(2),
       period: z.enum(['AM', 'PM']),
@@ -37,6 +38,15 @@ export const promoCodeSchema = z
       comissionRate: z.string().optional(),
     }),
   })
+  .refine(
+    (data) =>
+      new Date(toApiDateTime(data.endDate)).getTime() >
+      new Date(toApiDateTime(data.startDate)).getTime(),
+    {
+      message: 'The end must be after the start.',
+      path: ['endDate', 'date'],
+    },
+  )
   .refine(
     (data) => {
       if (data.conditions.spend.minimum === true) {
@@ -88,23 +98,38 @@ export const promoCodeSchema = z
 
 export type TPromoCodeSchema = z.infer<typeof promoCodeSchema>
 
-export const defaultPromoCodeValues: z.infer<typeof promoCodeSchema> = {
+const WEEK_MS = 7 * 24 * 60 * 60 * 1000
+
+function toFormDateTime(date: Date): FormDateTime {
+  // Never null: the ISO string of a valid Date always parses.
+  return fromApiDateTime(date.toISOString())!
+}
+
+/**
+ * A new promo code's values: it runs from now until the event ends. Built per
+ * call, not once at import, so "now" is the moment the form opens. Falls back
+ * to a week from now when the event's end is unknown or already past.
+ */
+export function promoCodeDefaults(eventEndDate?: string): TPromoCodeSchema {
+  const now = new Date()
+  const eventEnd = eventEndDate ? fromApiDateTime(eventEndDate) : null
+  const endDate =
+    eventEnd && eventEnd.date.getTime() > now.getTime()
+      ? eventEnd
+      : toFormDateTime(new Date(now.getTime() + WEEK_MS))
+
+  return {
+    ...BASE_VALUES,
+    startDate: toFormDateTime(now),
+    endDate,
+  }
+}
+
+const BASE_VALUES: Omit<TPromoCodeSchema, 'startDate' | 'endDate'> = {
   code: '',
   discount: '',
   usageLimit: '100',
   onePerCustomer: true,
-  startDate: {
-    date: new Date(),
-    hour: '12',
-    minute: '00',
-    period: 'AM',
-  },
-  endDate: {
-    date: new Date(),
-    hour: '12',
-    minute: '00',
-    period: 'AM',
-  },
   tickets: [],
   conditions: {
     spend: {

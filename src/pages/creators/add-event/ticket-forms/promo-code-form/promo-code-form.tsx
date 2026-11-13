@@ -273,9 +273,9 @@ export function PromoCodeFormFields({
               variant="destructive"
               onClick={onRemove}
               disabled={isSubmitting}
-              className="h-8 w-fit rounded-full px-4 text-xs font-bold font-sf-pro-text uppercase"
+              className="h-8 w-fit rounded-full px-4 uppercase text-xs font-bold font-inter-tight uppercase"
             >
-              Remove promocode
+             Cancel
             </Button>
           )}
 
@@ -283,7 +283,7 @@ export function PromoCodeFormFields({
             type="button"
             onClick={onSubmit}
             disabled={isSubmitting}
-            className="h-8 w-fit rounded-full bg-black px-4 text-xs font-bold font-sf-pro-text uppercase text-white hover:bg-black/90"
+            className="h-8 w-fit rounded-full bg-black px-4 text-xs font-bold font-inter-tight uppercase text-white hover:bg-black/90"
           >
             {isSubmitting ? "Creating promocode..." : "Create promocode"}
           </Button>

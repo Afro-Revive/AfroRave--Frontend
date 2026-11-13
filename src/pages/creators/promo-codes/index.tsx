@@ -34,7 +34,7 @@ import { useSearchParams } from "react-router-dom";
 import { z } from "zod";
 import {
   type TPromoCodeSchema,
-  defaultPromoCodeValues,
+  promoCodeDefaults,
   promoCodeSchema,
 } from "../add-event/schemas/promo-code-schema";
 import {
@@ -57,7 +57,10 @@ export default function PromoCodesPage() {
   return (
     <SelectedEventGate>
       {(event) => (
-        <EventPromoCodes eventId={event.eventId} />
+        <EventPromoCodes
+          eventId={event.eventId}
+          eventEndDate={event.eventDate?.endDate}
+        />
       )}
     </SelectedEventGate>
   );
@@ -65,8 +68,11 @@ export default function PromoCodesPage() {
 
 function EventPromoCodes({
   eventId,
+  eventEndDate,
 }: {
   eventId: string;
+  /** A new code runs until the event ends. */
+  eventEndDate?: string;
 }) {
   const [searchParams, setSearchParams] = useSearchParams();
   const [isCreating, setIsCreating] = useState(false);
@@ -113,7 +119,7 @@ function EventPromoCodes({
 
   const promocodeForm = useForm<{ promoCodes: TPromoCodeSchema }>({
     resolver: zodResolver(z.object({ promoCodes: promoCodeSchema })),
-    defaultValues: { promoCodes: defaultPromoCodeValues },
+    defaultValues: { promoCodes: promoCodeDefaults(eventEndDate) },
   });
 
   function handleCreatePromoCode() {
@@ -123,7 +129,7 @@ function EventPromoCodes({
       { ...promocodeRequest, eventId },
       {
         onSuccess: () => {
-          promocodeForm.reset();
+          promocodeForm.reset({ promoCodes: promoCodeDefaults(eventEndDate) });
           handleBackClick();
         },
       },
@@ -148,7 +154,7 @@ function EventPromoCodes({
 
   function openCreate() {
     // A fresh form, even straight after editing another code.
-    promocodeForm.reset({ promoCodes: defaultPromoCodeValues });
+    promocodeForm.reset({ promoCodes: promoCodeDefaults(eventEndDate) });
     setEditing(null);
     setIsCreating(true);
   }
@@ -161,7 +167,7 @@ function EventPromoCodes({
   function handleBackClick() {
     setIsCreating(false);
     setEditing(null);
-    promocodeForm.reset({ promoCodes: defaultPromoCodeValues });
+    promocodeForm.reset({ promoCodes: promoCodeDefaults(eventEndDate) });
     setSearchParams((prev) => {
       const next = new URLSearchParams(prev);
       next.delete("form");
@@ -243,7 +249,7 @@ function EventPromoCodes({
                     promocodeForm.handleSubmit(handleCreatePromoCode)()
                   }
                   onRemove={() =>
-                    promocodeForm.reset({ promoCodes: defaultPromoCodeValues })
+                    promocodeForm.reset({ promoCodes: promoCodeDefaults(eventEndDate) })
                   }
                   isSubmitting={isCreatingPromoCode}
                 />
