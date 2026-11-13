@@ -273,7 +273,7 @@ export function PromoCodeFormFields({
               variant="destructive"
               onClick={onRemove}
               disabled={isSubmitting}
-              className="h-8 w-fit rounded-full px-4 uppercase text-xs font-bold font-inter-tight uppercase"
+              className="h-8 w-fit rounded-full px-4 text-xs font-bold font-inter-tight uppercase"
             >
              Cancel
             </Button>

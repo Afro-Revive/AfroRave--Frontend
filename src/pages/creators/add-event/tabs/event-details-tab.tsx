@@ -149,7 +149,7 @@ export default function EventDetailsTab({
               Visibility
             </h2>
             <p className="font-inter-tight font-medium text-sm text-[#464444]">
-              Control how guests access tickets for this event. Switching to public is permanent. Public events cant be made private.
+              Control how guests access tickets for this event. Switching to public is permanent. Public events can't be made private.
             </p>
           </div>
 
