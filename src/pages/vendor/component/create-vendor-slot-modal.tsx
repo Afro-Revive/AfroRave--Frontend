@@ -565,14 +565,14 @@ export default function CreateVendorSlot({
           </p>
         )}
 
-        <div className="flex w-full justify-center gap-3">
+        <div className="flex w-full flex-col sm:flex-row sm:justify-center gap-3">
           {/* Only the modal has a draft to close; open on the page, it's create only. */}
           {!inline && (
             <Button
               type="button"
-              variant="destructive"
+              variant="dark"
+              size="pill"
               onClick={() => handleClose(false)}
-              className="w-1/2 font-work-sans font-semibold rounded-full uppercase text-xs"
             >
               Save Draft
             </Button>
@@ -580,11 +580,12 @@ export default function CreateVendorSlot({
           <Button
             type="submit"
             disabled={isSaving}
-            className="w-1/2 h-8 px-6 rounded-full text-xs font-semibold font-work-sans uppercase text-white bg-black hover:bg-black/90 disabled:opacity-50"
+            variant="primary"
+            size="pill"
           >
             {isEditing
               ? isSaving
-                ? "Saving..."
+                ? "SAVING..."
                 : "Save Changes"
               : isSaving
                 ? `Creating ${label}...`

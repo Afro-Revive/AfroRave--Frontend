@@ -266,16 +266,16 @@ export function PromoCodeFormFields({
       </div>
 
       {onSubmit && (
-        <div className="flex flex-wrap gap-3">
+        <div className="flex flex-col sm:flex-row gap-3">
           {onRemove && (
             <Button
               type="button"
-              variant="destructive"
+              variant="dark"
+              size="pill"
               onClick={onRemove}
               disabled={isSubmitting}
-              className="h-8 w-fit rounded-full px-4 text-xs font-bold font-inter-tight uppercase"
             >
-             Cancel
+              CANCEL
             </Button>
           )}
 
@@ -283,9 +283,10 @@ export function PromoCodeFormFields({
             type="button"
             onClick={onSubmit}
             disabled={isSubmitting}
-            className="h-8 w-fit rounded-full bg-black px-4 text-xs font-bold font-inter-tight uppercase text-white hover:bg-black/90"
+            variant="primary"
+            size="pill"
           >
-            {isSubmitting ? "Creating promocode..." : "Create promocode"}
+            {isSubmitting ? "Creating Promo Code..." : "Create Promo Code"}
           </Button>
         </div>
       )}

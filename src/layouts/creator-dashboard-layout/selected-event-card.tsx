@@ -54,7 +54,7 @@ export function SelectedEventCard({ eventId }: { eventId?: string }) {
           onClick={copy}
           className='h-9 flex-1 min-w-0 gap-1.5 rounded-lg bg-[#464444] px-3 font-inter-tight text-xs text-white hover:bg-[#232323]/90'>
           <Link2 className='size-3.5 shrink-0' />
-          copy link
+          Copy Link
         </Button>
 
         <Button
@@ -62,7 +62,7 @@ export function SelectedEventCard({ eventId }: { eventId?: string }) {
           className='h-9 flex-1 min-w-0 gap-1.5 rounded-lg bg-tech-blue px-3 font-inter-tight text-xs text-white hover:bg-tech-blue/90'>
           <Link to={eventPath} target='_blank' rel='noopener noreferrer'>
             <RiShareCircleFill className='size-3.5 shrink-0' />
-            view page
+            View Page
           </Link>
         </Button>
       </div>

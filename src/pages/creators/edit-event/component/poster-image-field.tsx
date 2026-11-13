@@ -71,7 +71,7 @@ export function PosterImageField<T extends FieldValues>({
           onClick={() => setIsPreviewOpen(true)}
           className='h-9 shrink-0 gap-1.5 rounded-lg bg-tech-blue px-4 font-inter-tight text-sm text-white hover:bg-tech-blue/90'>
           <Eye className='size-4' />
-          preview
+          PREVIEW
         </Button>
       </div>
 

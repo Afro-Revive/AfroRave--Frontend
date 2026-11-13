@@ -266,7 +266,9 @@ export function CreatorAccountTab() {
       <Button
         onClick={handleSave}
         disabled={updateProfileMutation.isPending}
-        className="w-full bg-deep-red hover:bg-deep-red/80 text-white h-[44px] rounded-[6px] font-medium text-[14px] uppercase tracking-wide mt-6 disabled:opacity-50"
+        variant="primary"
+        size="block"
+        className="mt-6"
       >
         {updateProfileMutation.isPending ? "SAVING..." : "SAVE"}
       </Button>

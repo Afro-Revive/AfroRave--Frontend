@@ -366,24 +366,26 @@ DESCRIBE WHAT THIS TICKET INCLUDES.`}
         <Button
           type="button"
           onClick={onCancel}
-          className="sm:w-[155px] w-full h-8 rounded-full text-xs font-semibold font-inter-tight text-white bg-deep-red hover:bg-deep-red/90 uppercase"
+          variant="dark"
+          size="pill"
         >
-         CANCEL
+          CANCEL
         </Button>
 
         {onSubmit && (
           <Button
             type="button"
             onClick={onSubmit}
-            className="sm:w-[155px] w-full h-8 rounded-full text-xs font-semibold font-inter-tight text-white bg-black hover:bg-black/90 uppercase"
+            variant="primary"
+            size="pill"
           >
             {isLoading
               ? isEditMode
                 ? "UPDATING..."
                 : "CREATING..."
               : isEditMode
-                ? "UPDATE TICKET"
-                : "CREATE TICKET"}
+                ? "Update Ticket"
+                : "Create Ticket"}
           </Button>
         )}
       </div>

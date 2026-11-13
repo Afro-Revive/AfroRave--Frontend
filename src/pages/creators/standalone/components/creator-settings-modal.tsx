@@ -282,8 +282,9 @@ export function CreatorSettingsModal({ open, onOpenChange, customTrigger }: Crea
                                     <Button
                                         type="submit"
                                         disabled={changePasswordMutation.isPending}
-                                        className="w-full bg-black hover:bg-black/80 font-inter-tight text-white h-[44px] rounded-[6px] font-semibold text-sm tracking-wide disabled:opacity-50">
-                                        {changePasswordMutation.isPending ? 'Saving...' : 'Update Password'}
+                                        variant="primary"
+                                        size="block">
+                                        {changePasswordMutation.isPending ? 'SAVING...' : 'Update Password'}
                                     </Button>
                                 </FormBase>
                             </div>

@@ -188,8 +188,9 @@ function EventPromoCodes({
         onBack={handleBackClick}
         action={
           <Button
-            variant="destructive"
-            className="py-2 w-fit px-8 text-xs font-inter-tight font-black rounded-[5px] "
+            variant="primary"
+            size="header"
+            className="px-8"
             onClick={() =>
               promocodeForm.handleSubmit(
                 editing ? handleUpdatePromoCode : handleCreatePromoCode,

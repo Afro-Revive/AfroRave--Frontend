@@ -271,8 +271,11 @@ function BankAccountForm({ savedAccount }: { savedAccount?: BankDetailsRequest }
                     type="button"
                     onClick={handleSave}
                     disabled={!canSave}
-                    className="h-[44px] w-full rounded-[6px] bg-[#1E1E1E] font-inter-tight text-[14px] font-semibold text-white hover:bg-black disabled:bg-[#6B6B6B] disabled:opacity-100">
-                    {saveBankAccount.isPending ? "Saving..." : isUnchanged ? "Saved" : "Save"}
+                    variant="primary"
+                    size="block"
+                    // Grey and fully opaque once saved, so "Saved" reads as a state, not a faded button.
+                    className="disabled:bg-[#6B6B6B] disabled:opacity-100">
+                    {saveBankAccount.isPending ? "SAVING..." : isUnchanged ? "SAVED" : "SAVE"}
                 </Button>
             </div>
         </div>

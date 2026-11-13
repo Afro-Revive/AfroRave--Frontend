@@ -25,7 +25,7 @@ export function SummaryCard({ eventId }: { eventId: string }) {
         {/* Analytics reads the selected event, which is already this one. */}
         <Button
           asChild
-          className='h-10 shrink-0 gap-2 rounded-lg bg-black px-4 font-work-sans text-sm text-white hover:bg-black/90'>
+          className='h-10 shrink-0 gap-2 rounded-lg bg-black px-4 font-inter-tight text-sm text-white hover:bg-black/90'>
           <Link to={getRoutePath('realtime')}>
             View Analytics
             <ArrowRight className='size-4' />
