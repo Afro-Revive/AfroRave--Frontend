@@ -23,7 +23,7 @@ export function AudienceHeader({
 }) {
   return (
     // Same padding as the body below, so the two line up.
-    <div className='w-full bg-white flex flex-col md:flex-row md:items-end md:justify-between gap-4 px-5 py-6'>
+    <div className='w-full bg-white flex flex-col md:flex-row md:items-end md:justify-between gap-4 px-5 md:px-8 py-6'>
       <div className='flex flex-col gap-4'>
         <div className='flex items-start gap-4'>
           <SidebarToggle />

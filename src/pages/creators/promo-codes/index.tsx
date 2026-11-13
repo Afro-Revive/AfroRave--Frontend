@@ -203,7 +203,7 @@ function EventPromoCodes({
         }
       >
         {/* The rule sets the form apart from the header above it. */}
-        <div className="w-full flex flex-col items-center pt-6 bg-white px-4 md:p-14 border-t border-black/10">
+        <div className="w-full flex flex-col items-center pt-6 bg-white px-5 md:px-8 md:py-14 border-t border-black/10">
           <FormBase
             form={promocodeForm}
             onSubmit={() => {}}
@@ -221,7 +221,7 @@ function EventPromoCodes({
 
   return (
     <CreatorPageContainer>
-      <div className="w-full bg-white flex items-start gap-4 px-5 py-6">
+      <div className="w-full bg-white flex items-start gap-4 px-5 md:px-8 py-6">
         <SidebarToggle />
 
         <div className="flex flex-col gap-1">
@@ -234,7 +234,7 @@ function EventPromoCodes({
           </p>
         </div>
       </div>
-      <div className="w-full flex flex-col gap-10 md:gap-14 pt-6 px-4 md:p-14">
+      <div className="w-full flex flex-col gap-10 md:gap-14 pt-6 px-5 md:px-8 md:py-14">
         {hasNoCodes ? (
           <div className="flex flex-col gap-[13px]">
             <div className="flex flex-col rounded-2xl gap-5 bg-white px-6 py-5">

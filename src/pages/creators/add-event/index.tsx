@@ -121,7 +121,7 @@ export default function AddEventPage() {
       onValueChange={setActiveTabState}
       className='w-full min-h-screen flex flex-col items-center bg-[#1E1E1E] overflow-x-hidden'>
       <div className='w-full flex flex-col'>
-        <div className='w-full h-[72px] flex items-center justify-between py-4 px-8'>
+        <div className='w-full h-[72px] flex items-center justify-between py-4 px-5 md:px-8'>
           {/* <img src='/assets/landing-page/AR.png' alt='AR' width={60} height={32} /> */}
           <Link
             to={getRoutePath('standalone')}
@@ -147,7 +147,7 @@ export default function AddEventPage() {
           </Button>
           {/* <CreatorMenuButton user={user} variant='dark' /> */}
         </div>
-        <CustomTabTriggers tabs={tabs} className='w-full flex lg:hidden px-5' />
+        <CustomTabTriggers tabs={tabs} className='w-full flex lg:hidden px-5 md:px-8' />
       </div>
       {tabs.map((tab) => (
         <TabsContent
@@ -155,7 +155,7 @@ export default function AddEventPage() {
           value={tab.value}
           className='w-full h-fit max-w-screen overflow-x-hidden bg-white'>
           <div className='w-full h-fit flex flex-col items-center'>
-            <section className='w-full flex flex-col gap-10 px-5 md:px-14 pt-6 md:pt-8'>
+            <section className='w-full flex flex-col gap-10 px-5 md:px-8 pt-6 md:pt-8'>
               <div className='flex flex-col gap-6 '>
                 <div className='flex flex-col gap-2 text-black font-inter-tight'>
                   <p className='font-black text-2xl md:text-4xl uppercase'>{heading}</p>

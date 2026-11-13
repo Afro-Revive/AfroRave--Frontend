@@ -13,7 +13,7 @@ export default function CreatorDashboardHeader({ hasSidebar }: { hasSidebar: boo
     // Fixed height and held at the top, so the sidebar under it always fits the
     // rest of the screen, "Your Events" included.
     <header className='sticky top-0 z-40 h-(--dashboard-header-height) w-full flex justify-center bg-white border-b border-b-light-gray'>
-      <nav className='relative h-full px-4 md:px-8 w-full flex items-center justify-between'>
+      <nav className='relative h-full px-5 md:px-8 w-full flex items-center justify-between'>
         <Link to={getRoutePath('creators_home')}>
           <img src='/assets/dashboard/creator/ar2.png' alt='Logo' width={60} height={32} />
         </Link>

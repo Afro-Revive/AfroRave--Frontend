@@ -13,7 +13,7 @@ export function TicketsHeader({
   return (
     // This banner is the top of the page, so it carries the same horizontal
     // padding the body below uses and the two line up.
-    <div className='w-full bg-white flex flex-col gap-4 px-5 py-6'>
+    <div className='w-full bg-white flex flex-col gap-4 px-5 md:px-8 py-6'>
       <div className='flex items-start gap-4'>
         <SidebarToggle />
 

@@ -126,7 +126,7 @@ function EventAudience({ eventId }: { eventId: string }) {
         onTogglePause={() => updateApplicationStatus.mutate(!isPaused)}
       />
 
-      <div className='w-full flex flex-col gap-6 px-5 md:px-14 py-6 md:py-8'>
+      <div className='w-full flex flex-col gap-6 px-5 md:px-8 py-6 md:py-8'>
         <NoticeCard icon={Lock} title='This is a private event' notes={AUDIENCE_NOTES} />
 
         <AccessRequestsCard

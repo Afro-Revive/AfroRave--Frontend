@@ -10,7 +10,7 @@ export default function AccessControlPage() {
     <section className='w-full h-full flex flex-col items-center'>
       <VendorHeader type='access-control' />
 
-      <div className='w-full h-full flex flex-col pt-10 pb-14 px-5'>
+      <div className='w-full h-full flex flex-col pt-10 pb-14 px-5 md:px-8'>
         <div className='w-full h-full bg-white flex flex-col gap-2.5 rounded-[4px]'>
           <SearchData />
 

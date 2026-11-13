@@ -31,7 +31,7 @@ export function DashboardTabs({
     // Stacked on mobile: the guestlist tab's two actions don't fit beside the
     // tabs on a phone. Every tab stacks, not just that one, so the bar keeps
     // one height and the page doesn't jump when switching between them.
-    <div className='w-full flex flex-col gap-3 py-3 md:flex-row md:items-center md:justify-between md:gap-4 md:h-14 md:py-0 bg-white px-5 lg:px-8 border-l border-light-gray'>
+    <div className='w-full flex flex-col gap-3 py-3 md:flex-row md:items-center md:justify-between md:gap-4 md:h-14 md:py-0 bg-white px-5 md:px-8 border-l border-light-gray'>
       <div className='flex items-center gap-5 md:gap-7 min-w-0 overflow-x-auto scrollbar-none'>
         {DASHBOARD_TABS.map(({ value, label, icon: Icon }) => {
           const isActive = value === activeTab

@@ -60,7 +60,7 @@ export function VendorSlotPage({
 
   return (
     <section className="w-full h-full flex flex-col items-center">
-      <div className="w-full bg-white flex flex-col gap-4 px-5 py-6">
+      <div className="w-full bg-white flex flex-col gap-4 px-5 md:px-8 py-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="flex items-start gap-4">
             <SidebarToggle />
@@ -113,7 +113,7 @@ export function VendorSlotPage({
         </div>
       </div>
 
-      <div className="w-full flex flex-col gap-6 px-5 py-6 md:py-8">
+      <div className="w-full flex flex-col gap-6 px-5 md:px-8 py-6 md:py-8">
         {!slot ? (
           <p className="py-12 text-center font-inter-tight text-sm text-mid-dark-gray">
             This {type === "Revenue" ? "stall" : "offer"} couldn’t be loaded.

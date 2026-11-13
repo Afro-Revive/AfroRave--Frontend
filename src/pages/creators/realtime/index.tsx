@@ -67,7 +67,7 @@ export default function RealtimePage() {
   return (
     <div className='w-full h-full flex flex-col overflow-hidden'>
       <ChartHeader title={activeTab.title} />
-      <div className='w-full h-full pt-10 pb-14 px-5'>
+      <div className='w-full h-full pt-10 pb-14 px-5 md:px-8'>
         <ActiveTab {...tabProps} />
       </div>
     </div>
@@ -77,7 +77,7 @@ export default function RealtimePage() {
 /** The open tab's name, since there's no tab list beside it to show which. */
 function ChartHeader({ title }: { title: string }) {
   return (
-    <div className='w-full flex items-center justify-between gap-4 bg-white h-14 px-8 border-l border-light-gray'>
+    <div className='w-full flex items-center justify-between gap-4 bg-white h-14 px-5 md:px-8 border-l border-light-gray'>
       <div className='flex items-center gap-4'>
         <SidebarToggle />
         <h1 className='font-work-sans text-lg font-bold text-black'>{title}</h1>

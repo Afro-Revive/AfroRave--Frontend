@@ -14,7 +14,7 @@ export default function ServiceVendorPage() {
 
   return (
     <section className="w-full h-full flex flex-col items-center">
-      <div className="w-full bg-white flex items-start gap-4 px-5 py-6">
+      <div className="w-full bg-white flex items-start gap-4 px-5 md:px-8 py-6">
         <SidebarToggle />
 
         <div className="flex flex-col gap-1">
@@ -29,7 +29,7 @@ export default function ServiceVendorPage() {
       </div>
 
       {/* On the page background as on Event Details; the offers list stays a white card. */}
-      <div className="w-full flex flex-col gap-6 px-5 py-6 md:py-8">
+      <div className="w-full flex flex-col gap-6 px-5 md:px-8 py-6 md:py-8">
         <VendorHowItWorks {...VENDOR_HOW_IT_WORKS.Service} />
         {/* The create form is open by default. */}
         <div className="w-full">

@@ -173,7 +173,7 @@ export default function StandalonePage() {
           onAddGuestOpenChange={setIsAddGuestOpen}
         />
       ) : (
-        <div className="w-full px-6 lg:px-10 pt-6 flex flex-col gap-8">
+        <div className="w-full px-5 md:px-8 pt-6 flex flex-col gap-8">
           <EventFilters
             counts={counts}
             activeFilter={activeFilter}

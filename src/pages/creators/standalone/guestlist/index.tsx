@@ -142,7 +142,7 @@ export function GuestlistTab({
   const hasFilters = Boolean(debouncedSearch) || activeCategoryId !== ALL_GUESTS_CATEGORY_ID
 
   return (
-    <div className='w-full flex flex-col gap-4 px-5 lg:px-10 pt-6'>
+    <div className='w-full flex flex-col gap-4 px-5 md:px-8 pt-6'>
       <GuestCategories
         categories={categories}
         totalGuests={totalGuests}
