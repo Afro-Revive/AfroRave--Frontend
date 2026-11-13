@@ -1,3 +1,4 @@
+import { FIELD_LABEL_CLASS } from '@/components/shared/field-label'
 import { FormBase, FormField } from '@/components/reusable'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -72,12 +73,11 @@ export function SignupForm({ type }: SignupFormProps) {
       <p className='text-[28px] font-bold text-black font-inter-tight mb-6'>Sign Up</p>
 
       <div className='flex flex-col w-full gap-3'>
-        <FormField form={form} name='first_name'>
+        <FormField form={form} name='first_name' label='First Name' labelClassName={FIELD_LABEL_CLASS} className='gap-1'>
           {(field) => (
             <div className={fieldBoxClass}>
               <User className='size-4 text-gray-400 shrink-0' />
               <Input
-                placeholder='First name'
                 value={field.value}
                 onChange={field.onChange}
                 onBlur={field.onBlur}
@@ -88,12 +88,11 @@ export function SignupForm({ type }: SignupFormProps) {
           )}
         </FormField>
 
-        <FormField form={form} name='last_name'>
+        <FormField form={form} name='last_name' label='Last Name' labelClassName={FIELD_LABEL_CLASS} className='gap-1'>
           {(field) => (
             <div className={fieldBoxClass}>
               <User className='size-4 text-gray-400 shrink-0' />
               <Input
-                placeholder='Last name'
                 value={field.value}
                 onChange={field.onChange}
                 onBlur={field.onBlur}
@@ -104,12 +103,11 @@ export function SignupForm({ type }: SignupFormProps) {
           )}
         </FormField>
 
-        <FormField form={form} name='email'>
+        <FormField form={form} name='email' label='Email Address' labelClassName={FIELD_LABEL_CLASS} className='gap-1'>
           {(field) => (
             <div className={fieldBoxClass}>
               <Mail className='size-4 text-gray-400 shrink-0' />
               <Input
-                placeholder='Email Address'
                 value={field.value}
                 onChange={field.onChange}
                 onBlur={field.onBlur}
@@ -120,12 +118,12 @@ export function SignupForm({ type }: SignupFormProps) {
           )}
         </FormField>
 
-        <FormField form={form} name='password' showMessage={true}>
+        <FormField form={form} name='password' label='Password' labelClassName={FIELD_LABEL_CLASS} className='gap-1' showMessage={true}>
           {(field) => (
             <div className={fieldBoxClass}>
               <Lock className='size-4 text-gray-400 shrink-0' />
               <PasswordInput
-                placeholder='Password'
+                placeholder=''
                 value={field.value}
                 onChange={(value) => field.onChange(value)}
                 className={fieldInputClass}
@@ -134,12 +132,12 @@ export function SignupForm({ type }: SignupFormProps) {
           )}
         </FormField>
 
-        <FormField form={form} name='confirm_password' showMessage={true}>
+        <FormField form={form} name='confirm_password' label='Confirm Password' labelClassName={FIELD_LABEL_CLASS} className='gap-1' showMessage={true}>
           {(field) => (
             <div className={fieldBoxClass}>
               <Lock className='size-4 text-gray-400 shrink-0' />
               <PasswordInput
-                placeholder='Confirm Password'
+                placeholder=''
                 value={field.value}
                 onChange={(value) => field.onChange(value)}
                 className={fieldInputClass}

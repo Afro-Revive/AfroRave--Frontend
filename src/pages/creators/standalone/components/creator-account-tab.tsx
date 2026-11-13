@@ -14,12 +14,13 @@ import {
 import { useAfroStore } from "@/stores";
 import type { OrganizerProfileData } from "@/types/profile";
 import { useEffect, useState } from "react";
-import { InsetField } from "./settings-inset-field";
+import { SettingsField } from "./settings-field";
+import { FieldLabel } from "@/components/shared/field-label";
 import {
   DARK_SELECT_CONTENT_CLASS,
   DARK_SELECT_ITEM_CLASS,
-  INSET_INPUT_CLASS,
-  INSET_SELECT_CLASS,
+  SETTINGS_INPUT_CLASS,
+  SETTINGS_SELECT_CLASS,
   SELECT_OPEN_STEADY_CLASS,
 } from "./settings-field-classes";
 
@@ -97,112 +98,105 @@ export function CreatorAccountTab() {
         Business Details
       </h3>
       <div className="w-full flex flex-col gap-3">
-        <InsetField label="Company Name">
+        <SettingsField label="Company Name">
           <Input
             value={companyName}
             onChange={(e) => setCompanyName(e.target.value)}
-            className={INSET_INPUT_CLASS}
+            className={SETTINGS_INPUT_CLASS}
           />
-        </InsetField>
+        </SettingsField>
 
-        <InsetField label="Website">
+        <SettingsField label="Website">
           <Input
             type="url"
             value={website}
             onChange={(e) => setWebsite(e.target.value)}
             placeholder="https://"
-            className={INSET_INPUT_CLASS}
+            className={SETTINGS_INPUT_CLASS}
           />
-        </InsetField>
+        </SettingsField>
       </div>
 
       <h3 className="text-base text-black font-bold font-inter-tight mt-6 mb-3">
         User Information
       </h3>
       <div className="w-full flex flex-col gap-3">
-        <InsetField label="First Name">
+        <SettingsField label="First Name">
           <Input
             value={firstName}
             onChange={(e) => setFirstName(e.target.value)}
-            className={INSET_INPUT_CLASS}
+            className={SETTINGS_INPUT_CLASS}
           />
-        </InsetField>
+        </SettingsField>
 
-        <InsetField label="Last Name">
+        <SettingsField label="Last Name">
           <Input
             value={lastName}
             onChange={(e) => setLastName(e.target.value)}
-            className={INSET_INPUT_CLASS}
+            className={SETTINGS_INPUT_CLASS}
           />
-        </InsetField>
+        </SettingsField>
 
         {/* Shown, not edited here, like the fans page's password. */}
-        <InsetField label="Email" muted>
+        <SettingsField label="Email" muted>
           <Input
             value={user?.email ?? ""}
             readOnly
             tabIndex={-1}
-            className={`${INSET_INPUT_CLASS} bg-[#F2F2F2] text-[#8A8A8A] border-none cursor-not-allowed`}
+            className={`${SETTINGS_INPUT_CLASS} bg-[#F2F2F2] text-[#8A8A8A] border-none cursor-not-allowed`}
           />
-        </InsetField>
+        </SettingsField>
       </div>
 
       <div className="w-full flex mt-3 flex-col gap-3">
-        <InsetField label="Gender">
+        <SettingsField label="Gender">
           <BaseSelect
             placeholder=""
             value={gender}
             onChange={setGender}
             items={GENDERS}
-            triggerClassName={`${INSET_SELECT_CLASS} ${SELECT_OPEN_STEADY_CLASS}`}
+            triggerClassName={`${SETTINGS_SELECT_CLASS} ${SELECT_OPEN_STEADY_CLASS}`}
             {...DARK_SELECT_LIST}
           />
-        </InsetField>
+        </SettingsField>
 
-        {/* Birthday: a label box, then month, day and year, as on the fans page. */}
-        <div className="w-full grid sm:grid-cols-4 gap-3">
-          <div className="flex items-center sm:rounded-[8px] sm:border sm:border-[#D9D9D9] px-2">
-            <span className="text-mid-dark-gray text-[11px] font-work-sans uppercase tracking-widest">
-              Birthday
-            </span>
-          </div>
-          <InsetField label="Month">
+        {/* Birthday: one label over the three selects; each says what it is
+            until it's picked. */}
+        <div className="flex w-full flex-col gap-1">
+          <FieldLabel>Birthday</FieldLabel>
+          <div className="w-full grid grid-cols-3 gap-3">
             <BaseSelect
               type="others"
-              placeholder=""
+              placeholder="Month"
               value={birthday.month}
               onChange={(month) => setBirthday((prev) => ({ ...prev, month }))}
               items={date_list.items}
-              triggerClassName={`${INSET_SELECT_CLASS} ${SELECT_OPEN_STEADY_CLASS}`}
+              triggerClassName={`${SETTINGS_SELECT_CLASS} ${SELECT_OPEN_STEADY_CLASS}`}
               {...DARK_SELECT_LIST}
             />
-          </InsetField>
-          <InsetField label="Day">
             <BaseSelect
               type="others"
-              placeholder=""
+              placeholder="Day"
               value={birthday.day}
               onChange={(day) => setBirthday((prev) => ({ ...prev, day }))}
               items={DAYS}
-              triggerClassName={`${INSET_SELECT_CLASS} ${SELECT_OPEN_STEADY_CLASS}`}
+              triggerClassName={`${SETTINGS_SELECT_CLASS} ${SELECT_OPEN_STEADY_CLASS}`}
               {...DARK_SELECT_LIST}
             />
-          </InsetField>
-          <InsetField label="Year">
-            <BaseSelect
-              type="others"
-              placeholder=""
-              value={birthday.year}
-              onChange={(year) => setBirthday((prev) => ({ ...prev, year }))}
-              items={YEARS}
-              triggerClassName={`${INSET_SELECT_CLASS} ${SELECT_OPEN_STEADY_CLASS}`}
-              {...DARK_SELECT_LIST}
-            />
-          </InsetField>
+          <BaseSelect
+            type="others"
+            placeholder="Year"
+            value={birthday.year}
+            onChange={(year) => setBirthday((prev) => ({ ...prev, year }))}
+            items={YEARS}
+            triggerClassName={`${SETTINGS_SELECT_CLASS} ${SELECT_OPEN_STEADY_CLASS}`}
+            {...DARK_SELECT_LIST}
+          />
+          </div>
         </div>
 
         <div className="w-full flex flex-row gap-3">
-          <InsetField label="Country">
+          <SettingsField label="Country">
             <BaseSelect
               placeholder=""
               value={country}
@@ -212,32 +206,35 @@ export function CreatorAccountTab() {
                 setCountry(value);
               }}
               items={COUNTRIES}
-              triggerClassName={`${INSET_SELECT_CLASS} ${SELECT_OPEN_STEADY_CLASS}`}
+              triggerClassName={`${SETTINGS_SELECT_CLASS} ${SELECT_OPEN_STEADY_CLASS}`}
               {...DARK_SELECT_LIST}
             />
-          </InsetField>
+          </SettingsField>
 
-          <InsetField label="State">
+          <SettingsField label="State">
             {isNigeria ? (
               <BaseSelect
                 placeholder=""
                 value={state}
                 onChange={setState}
                 items={nigerianStates}
-                triggerClassName={`${INSET_SELECT_CLASS} ${SELECT_OPEN_STEADY_CLASS}`}
+                triggerClassName={`${SETTINGS_SELECT_CLASS} ${SELECT_OPEN_STEADY_CLASS}`}
                 {...DARK_SELECT_LIST}
               />
             ) : (
               <Input
                 value={state}
                 onChange={(e) => setState(e.target.value)}
-                className={INSET_INPUT_CLASS}
+                className={SETTINGS_INPUT_CLASS}
               />
             )}
-          </InsetField>
+          </SettingsField>
         </div>
 
-        <div className="flex gap-3">
+        {/* One label over the code and the number. */}
+        <div className="flex w-full flex-col gap-1">
+          <FieldLabel htmlFor="creator-phone-number">Phone Number</FieldLabel>
+          <div className="flex gap-3">
           <div className="w-[120px] shrink-0">
             <BaseSelect
               placeholder="+234"
@@ -246,20 +243,20 @@ export function CreatorAccountTab() {
                 setPhone((prev) => ({ ...prev, countryCode }))
               }
               items={africanCountryCodes}
-              triggerClassName={`${INSET_SELECT_CLASS} ${SELECT_OPEN_STEADY_CLASS} !pt-0 !items-center`}
+              triggerClassName={`${SETTINGS_SELECT_CLASS} ${SELECT_OPEN_STEADY_CLASS} !items-center`}
               {...DARK_SELECT_LIST}
             />
           </div>
-          <InsetField label="Phone Number">
             <Input
+              id="creator-phone-number"
               type="tel"
               value={phone.digits}
               onChange={(e) =>
                 setPhone((prev) => ({ ...prev, digits: e.target.value }))
               }
-              className={INSET_INPUT_CLASS}
+              className={SETTINGS_INPUT_CLASS}
             />
-          </InsetField>
+          </div>
         </div>
       </div>
 

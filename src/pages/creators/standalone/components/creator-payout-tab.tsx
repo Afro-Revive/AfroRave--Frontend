@@ -27,11 +27,12 @@ import { RiInformationLine, RiLoader4Line, RiWallet3Line } from "react-icons/ri"
 import {
     DARK_SELECT_CONTENT_CLASS,
     DARK_SELECT_ITEM_CLASS,
-    INSET_INPUT_CLASS,
-    INSET_SELECT_CLASS,
+    SETTINGS_INPUT_CLASS,
+    SETTINGS_SELECT_CLASS,
     SELECT_OPEN_STEADY_CLASS,
 } from "./settings-field-classes"
-import { InsetField } from "./settings-inset-field"
+import { SettingsField } from "./settings-field"
+import { FieldLabel } from "@/components/shared/field-label"
 
 const HISTORY_PAGE_SIZE = 5
 const VERIFY_DEBOUNCE_MS = 400
@@ -204,7 +205,7 @@ function BankAccountForm({ savedAccount }: { savedAccount?: BankDetailsRequest }
             </p>
 
             <div className="mt-3 flex flex-col gap-3">
-                <InsetField label="Bank">
+                <SettingsField label="Bank">
                     <BaseSelect
                         placeholder="Select Your Bank"
                         value={bankCode}
@@ -213,22 +214,17 @@ function BankAccountForm({ savedAccount }: { savedAccount?: BankDetailsRequest }
                             check(code, accountNumber)
                         }}
                         items={banks.map((bank) => ({ value: bank.code, label: bank.name }))}
-                        triggerClassName={cn(INSET_SELECT_CLASS, SELECT_OPEN_STEADY_CLASS)}
+                        triggerClassName={cn(SETTINGS_SELECT_CLASS, SELECT_OPEN_STEADY_CLASS)}
                         contentClassName={DARK_SELECT_CONTENT_CLASS}
                         itemClassName={DARK_SELECT_ITEM_CLASS}
                     />
-                </InsetField>
+                </SettingsField>
 
                 <div className="flex flex-col gap-1">
+                    <FieldLabel htmlFor="payout-account-number" className={cn(isError && "text-deep-red")}>
+                        Account Number
+                    </FieldLabel>
                     <div className="relative w-full">
-                        <label
-                            htmlFor="payout-account-number"
-                            className={cn(
-                                "absolute left-4 top-[10px] z-10 pointer-events-none text-[10px] font-work-sans uppercase tracking-widest",
-                                isError ? "text-deep-red" : "text-mid-dark-gray",
-                            )}>
-                            Account Number
-                        </label>
                         <Input
                             id="payout-account-number"
                             inputMode="numeric"
@@ -240,7 +236,7 @@ function BankAccountForm({ savedAccount }: { savedAccount?: BankDetailsRequest }
                                 check(bankCode, digits)
                             }}
                             aria-invalid={isError}
-                            className={cn(INSET_INPUT_CLASS, "pr-10", isError && "border-deep-red focus:border-deep-red")}
+                            className={cn(SETTINGS_INPUT_CLASS, "pr-10", isError && "border-deep-red focus:border-deep-red")}
                         />
                         {verifyStatus === "loading" && (
                             <RiLoader4Line
@@ -420,15 +416,15 @@ function EarlyPayoutDialog({
                 </DialogDescription>
 
                 <div className="mt-2 flex flex-col gap-1">
-                    <InsetField label="Amount (₦)">
+                    <SettingsField label="Amount (₦)">
                         <Input
                             inputMode="decimal"
                             value={amount}
                             onChange={(e) => setAmount(e.target.value.replace(/[^\d.,]/g, ""))}
                             aria-invalid={!!error}
-                            className={cn(INSET_INPUT_CLASS, error && "border-deep-red focus:border-deep-red")}
+                            className={cn(SETTINGS_INPUT_CLASS, error && "border-deep-red focus:border-deep-red")}
                         />
-                    </InsetField>
+                    </SettingsField>
                     {error && <p role="alert" className="text-[13px] text-deep-red font-inter-tight">{error}</p>}
                     <button
                         type="button"

@@ -1,3 +1,4 @@
+import { FIELD_LABEL_ON_DARK_CLASS } from '@/components/shared/field-label'
 import { FormBase, FormField } from '@/components/reusable'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -36,11 +37,10 @@ export default function SupportTab() {
         <FormField
           form={form}
           name='email'
-          className='w-full flex flex-col gap-2'
+          className='w-full flex flex-col gap-1'
           label='Email'
-          labelClassName='text-white text-sm'>
+          labelClassName={FIELD_LABEL_ON_DARK_CLASS}>
           <Input
-            placeholder='Email'
             className='w-full h-14 bg-transparent border border-white/20 rounded-md px-4 text-white placeholder:text-white/40 focus:border-white/40'
           />
         </FormField>
@@ -49,10 +49,11 @@ export default function SupportTab() {
         <FormField
           name='message'
           form={form}
-          className='w-full flex flex-col gap-2'>
+          className='w-full flex flex-col gap-1'
+          label='How can we help?'
+          labelClassName={FIELD_LABEL_ON_DARK_CLASS}>
           <Textarea
             className='w-full bg-transparent border border-white/20 text-white h-[291px] px-6 py-6 placeholder:text-white/40 rounded-md resize-none focus:border-white/40'
-            placeholder='How can we help?'
           />
         </FormField>
 

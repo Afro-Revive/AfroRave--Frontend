@@ -1,3 +1,4 @@
+import { FIELD_LABEL_CLASS } from "@/components/shared/field-label";
 import { Button } from "@/components/ui/button"
 import {
     Dialog,
@@ -245,10 +246,10 @@ export function CreatorSettingsModal({ open, onOpenChange, customTrigger }: Crea
                                     form={passwordForm}
                                     onSubmit={handleChangePassword}
                                     className="w-full flex flex-col gap-3">
-                                    <FormField form={passwordForm} name="currentPassword" className="w-full">
+                                    <FormField form={passwordForm} name="currentPassword" label="Current Password" labelClassName={FIELD_LABEL_CLASS} className="w-full gap-1">
                                         {(field) => (
                                             <PasswordInput
-                                                placeholder="Current Password"
+                                                label="Current Password"
                                                 value={field.value as string}
                                                 onChange={field.onChange}
                                                 isVisible={showCurrentPw}
@@ -256,10 +257,10 @@ export function CreatorSettingsModal({ open, onOpenChange, customTrigger }: Crea
                                             />
                                         )}
                                     </FormField>
-                                    <FormField form={passwordForm} name="newPassword" className="w-full">
+                                    <FormField form={passwordForm} name="newPassword" label="New Password" labelClassName={FIELD_LABEL_CLASS} className="w-full gap-1">
                                         {(field) => (
                                             <PasswordInput
-                                                placeholder="New Password"
+                                                label="New Password"
                                                 value={field.value as string}
                                                 onChange={field.onChange}
                                                 isVisible={showNewPw}
@@ -267,10 +268,10 @@ export function CreatorSettingsModal({ open, onOpenChange, customTrigger }: Crea
                                             />
                                         )}
                                     </FormField>
-                                    <FormField form={passwordForm} name="confirmPassword" className="w-full">
+                                    <FormField form={passwordForm} name="confirmPassword" label="Confirm New Password" labelClassName={FIELD_LABEL_CLASS} className="w-full gap-1">
                                         {(field) => (
                                             <PasswordInput
-                                                placeholder="Confirm New Password"
+                                                label="Confirm New Password"
                                                 value={field.value as string}
                                                 onChange={field.onChange}
                                                 isVisible={showConfirmPw}
@@ -329,25 +330,29 @@ const TAB_TRIGGER_CLASS = "border-0 border-b-2 border-transparent data-[state=ac
 
 /** A password field with a show/hide toggle. */
 function PasswordInput({
-    placeholder,
+    label,
     value,
     onChange,
     isVisible,
     onToggleVisible,
+    ...inputProps
 }: {
-    placeholder: string
+    /** The field's label, for the show/hide button's name. */
+    label: string
     value: string
     onChange: (value: string) => void
     isVisible: boolean
     onToggleVisible: () => void
-}) {
+} & Pick<React.InputHTMLAttributes<HTMLInputElement>, "id" | "aria-describedby" | "aria-invalid">) {
     return (
         // w-full: FormField lines its field up with items-start, which would
         // otherwise shrink the box to its content.
         <div className="relative w-full">
             <Input
+                // The id and aria attributes FormField hands down, so the label
+                // above points at this input.
+                {...inputProps}
                 type={isVisible ? "text" : "password"}
-                placeholder={placeholder}
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
                 className="border-gray-200 h-[42px] text-[13px] rounded-[6px] focus-visible:ring-1 focus-visible:ring-gray-400 pr-10"
@@ -355,7 +360,7 @@ function PasswordInput({
             <button
                 type="button"
                 onClick={onToggleVisible}
-                aria-label={isVisible ? `Hide ${placeholder.toLowerCase()}` : `Show ${placeholder.toLowerCase()}`}
+                aria-label={isVisible ? `Hide ${label.toLowerCase()}` : `Show ${label.toLowerCase()}`}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
                 {isVisible ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
             </button>

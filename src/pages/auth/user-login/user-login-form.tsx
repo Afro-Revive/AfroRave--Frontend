@@ -1,3 +1,4 @@
+import { FIELD_LABEL_CLASS } from '@/components/shared/field-label'
 import { FormBase, FormField } from '@/components/reusable'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -82,11 +83,10 @@ export function UserLoginForm({ onForgotPassword, onLoginSuccess }: { onForgotPa
               </span>
             </div>
 
-            <FormField form={form} name='email' showError={true} showMessage={true}>
+            <FormField form={form} name='email' label='Email Address' labelClassName={FIELD_LABEL_CLASS} className='gap-1' showError={true} showMessage={true}>
               {(field) => (
                 <InputContainer Icon={Mail}>
                   <Input
-                    placeholder='Email Address.'
                     value={field.value}
                     onChange={(value) => field.onChange(value)}
                     className='h-full pl-0 rounded-none border-none !text-xs'
@@ -99,13 +99,15 @@ export function UserLoginForm({ onForgotPassword, onLoginSuccess }: { onForgotPa
               <FormField
                 form={form}
                 name='password'
-                className='w-full'
+                label='Password'
+                labelClassName={FIELD_LABEL_CLASS}
+                className='w-full gap-1'
                 showError={true}
                 showMessage={true}>
                 {(field) => (
                   <InputContainer Icon={LockKeyhole}>
                     <PasswordInput
-                      placeholder='Enter password.'
+                      placeholder=''
                       value={field.value}
                       onChange={(value) => field.onChange(value)}
                       className='min-h-full px-0 !text-xs border-none'

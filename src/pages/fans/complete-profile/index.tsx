@@ -77,25 +77,25 @@ export default function CompleteProfilePage() {
   }
 
   const labeledInputStyle =
-    "w-full h-[64px] rounded-[8px] border border-white/40 bg-transparent px-4 pt-6 text-white text-sm font-inter-tight font-light placeholder:text-white/20 focus-visible:ring-0 focus-visible:ring-offset-0 tracking-wider cursor-default";
+    "w-full h-11 rounded-[8px] border border-white/40 bg-transparent px-4 text-white text-sm font-inter-tight font-light placeholder:text-white/20 focus-visible:ring-0 focus-visible:ring-offset-0 tracking-wider cursor-default";
 
   const editableInputStyle =
-    "w-full h-[64px] rounded-[8px] border border-white bg-transparent px-4 pt-6 text-white text-sm font-inter-tight placeholder:text-white/30 focus:border-white/30 focus-visible:ring-0 focus-visible:ring-offset-0 transition-all tracking-wider";
+    "w-full h-11 rounded-[8px] border border-white bg-transparent px-4 text-white text-sm font-inter-tight placeholder:text-white/30 focus:border-white/30 focus-visible:ring-0 focus-visible:ring-offset-0 transition-all tracking-wider";
 
   const editableSelectStyle =
-    "w-full !h-[64px] rounded-[8px] border border-white bg-transparent px-4 pb-2 text-white text-sm font-inter-tight placeholder:text-white/30 focus:border-white/30 focus-visible:ring-0 focus-visible:ring-offset-0 transition-all tracking-wider";
+    "w-full !h-11 rounded-[8px] border border-white bg-transparent px-4 text-white text-sm font-inter-tight placeholder:text-white/30 focus:border-white/30 focus-visible:ring-0 focus-visible:ring-offset-0 transition-all tracking-wider";
 
   const editableInputStyleNoLabel =
-    "w-full !h-[64px] rounded-[8px] border border-white bg-transparent px-4 pb-2 text-white text-sm font-inter-tight placeholder:text-white/30 focus:border-white/30 focus-visible:ring-0 focus-visible:ring-offset-0 transition-all tracking-wider";
+    "w-full !h-11 rounded-[8px] border border-white bg-transparent px-4 text-white text-sm font-inter-tight placeholder:text-white/30 focus:border-white/30 focus-visible:ring-0 focus-visible:ring-offset-0 transition-all tracking-wider";
 
   const insetLabelStyle =
-    "absolute left-4 top-[10px] text-white text-[10px] font-work-sans uppercase tracking-widest pointer-events-none z-10";
+    "block mb-1 text-white text-xs font-work-sans uppercase";
 
   const dimInsetLabelStyle =
-    "absolute left-4 top-[10px] text-white/60 text-[10px] font-work-sans uppercase tracking-widest pointer-events-none z-10";
+    "block mb-1 text-white/60 text-xs font-work-sans uppercase";
 
   const labelStyle =
-    "text-white/60 text-[11px] font-work-sans uppercase tracking-widest ml-1 block";
+    "block mb-1 text-white text-xs font-work-sans uppercase";
 
   // The form shapes its payload around accountType and shows the name and email
   // back to the person, so it is only safe to render once that has arrived.
@@ -197,13 +197,14 @@ export default function CompleteProfilePage() {
           {userAccountType === "Vendor" && (
             <div className="w-full flex-row gap-4">
               <div>
+                <label htmlFor="complete-profile-category" className={labelStyle}>Category</label>
                 <Select
                   value={category}
                   onValueChange={(value) => setValue("category", value)}
                   disabled={isSubmitting}
                 >
-                  <SelectTrigger className="w-full border text-white items-center  h-14">
-                    <SelectValue placeholder="CATEGORY" className="placeholder:text-white" />
+                  <SelectTrigger id="complete-profile-category" className="w-full border text-white items-center h-11">
+                    <SelectValue placeholder="Choose a category" className="placeholder:text-white" />
                   </SelectTrigger>
                   <SelectContent className="z-[1000001] bg-white">
                     {VENDOR_CATEGORIES.map((cat) => (
@@ -304,10 +305,8 @@ export default function CompleteProfilePage() {
 
           {/* Birthday */}
           <div className="w-full">
-            <div className="w-full grid grid-cols-4 gap-4">
-              <div className="border border-white/40 rounded-md flex items-center px-2">
-                <label className={labelStyle}>Birthday</label>
-              </div>
+            <label className={labelStyle}>Birthday</label>
+            <div className="w-full grid grid-cols-3 gap-4">
 
               <FormField
                 form={form}
@@ -318,10 +317,9 @@ export default function CompleteProfilePage() {
               >
                 {(field) => (
                   <div className="relative w-full">
-                    <label className={insetLabelStyle}>Month</label>
                     <BaseSelect
                       type="others"
-                      placeholder=""
+                      placeholder="Month"
                       onChange={field.onChange}
                       value={field.value as string}
                       items={months}
@@ -339,10 +337,9 @@ export default function CompleteProfilePage() {
               >
                 {(field) => (
                   <div className="relative w-full">
-                    <label className={insetLabelStyle}>Day</label>
                     <BaseSelect
                       type="others"
-                      placeholder=""
+                      placeholder="Day"
                       onChange={field.onChange}
                       value={field.value as string}
                       items={days}
@@ -360,10 +357,9 @@ export default function CompleteProfilePage() {
               >
                 {(field) => (
                   <div className="relative w-full">
-                    <label className={insetLabelStyle}>Year</label>
                     <BaseSelect
                       type="others"
-                      placeholder=""
+                      placeholder="Year"
                       onChange={field.onChange}
                       value={field.value as string}
                       items={years}
@@ -429,6 +425,8 @@ export default function CompleteProfilePage() {
           </div>
 
           {/* Phone Number */}
+          <div className="flex w-full flex-col">
+            <label className={labelStyle}>Phone Number</label>
           <div className="flex gap-3">
             <FormField
               form={form}
@@ -455,11 +453,6 @@ export default function CompleteProfilePage() {
             >
               {(field) => (
                 <div className="relative w-full">
-                  <label
-                    className={`${insetLabelStyle} placeholder:text-white `}
-                  >
-                    Phone Number
-                  </label>
                   <Input
                     {...field}
                     type="tel"
@@ -470,6 +463,7 @@ export default function CompleteProfilePage() {
                 </div>
               )}
             </FormField>
+          </div>
           </div>
 
           {/* Save Button */}

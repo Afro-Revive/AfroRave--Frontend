@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { useSendSupportMessage } from '@/hooks/use-support-mutations'
 import { cn } from '@/lib/utils'
+import { FIELD_LABEL_ON_DARK_CLASS } from '@/components/shared/field-label'
 import { useAfroStore } from '@/stores'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
@@ -26,10 +27,10 @@ type SupportContactValues = z.infer<typeof supportContactSchema>
 /** What the support team sees it's about; the creators' Contact Us has the same category. */
 const FAN_SUPPORT_CATEGORY = 'Platform support'
 
-// Matches the settings page's fields, which sit on the same radial backdrop.
-const fieldClass = 'w-full bg-transparent border border-white rounded-sm px-3 h-fit'
-
-const labelClass = 'text-white pt-3 font-inter-tight md:text-sm text-xs text-white'
+// The label sits above the field, as in every other form; the border is on the
+// input itself.
+const fieldClass = 'w-full gap-1'
+const boxClass = 'w-full bg-transparent border border-white rounded-sm px-3 text-white placeholder:text-white/40'
 
 export default function ContactUsForm() {
   const user = useAfroStore((state) => state.user)
@@ -72,24 +73,18 @@ export default function ContactUsForm() {
           name='email'
           label='Email'
           showMessage
-          labelClassName={labelClass}
+          labelClassName={FIELD_LABEL_ON_DARK_CLASS}
           className={fieldClass}>
-          <Input
-            type='email'
-            autoComplete='email'
-            className='w-full px-0 py-5 border-none text-white placeholder:text-white/40'
-          />
+          <Input type='email' autoComplete='email' className={cn(boxClass, 'h-11')} />
         </FormField>
         <FormField
           form={form}
           name='message'
           label='How Can We Help?'
           showMessage
-          labelClassName={labelClass}
-          className={cn(fieldClass, 'pb-5')}>
-          <Textarea
-            className='h-[240px] w-full px-0 bg-transparent border-none resize-none text-white placeholder:text-white/40 focus-visible:ring-0'
-          />
+          labelClassName={FIELD_LABEL_ON_DARK_CLASS}
+          className={fieldClass}>
+          <Textarea className={cn(boxClass, 'h-[240px] py-3 resize-none focus-visible:ring-0')} />
         </FormField>
       </div>
 

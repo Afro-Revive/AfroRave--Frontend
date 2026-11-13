@@ -1,3 +1,4 @@
+import { FIELD_LABEL_ON_DARK_CLASS } from "@/components/shared/field-label";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
@@ -55,7 +56,7 @@ export default function SettingsPage() {
               form={form}
               name="currentPassword"
               label="Current Password"
-              labelClassName="text-white"
+              labelClassName={FIELD_LABEL_ON_DARK_CLASS}
               showMessage
             >
               {(field) => (
@@ -74,7 +75,7 @@ export default function SettingsPage() {
               form={form}
               name="newPassword"
               label="New Password"
-              labelClassName="text-white"
+              labelClassName={FIELD_LABEL_ON_DARK_CLASS}
               showMessage
             >
               {(field) => (
@@ -93,7 +94,7 @@ export default function SettingsPage() {
               form={form}
               name="confirmPassword"
               label="Confirm New Password"
-              labelClassName="text-white"
+              labelClassName={FIELD_LABEL_ON_DARK_CLASS}
               showMessage
             >
               {(field) => (

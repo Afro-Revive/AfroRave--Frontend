@@ -1,3 +1,4 @@
+import { FIELD_LABEL_CLASS } from "@/components/shared/field-label";
 import { FormBase, FormField } from "@/components/reusable/base-form";
 import { Button } from "@/components/ui/button";
 import PasswordInput from "@/components/ui/password-input";
@@ -90,12 +91,12 @@ export default function ResetPasswordPage() {
               className="w-full flex flex-col gap-3"
             >
 
-              <FormField form={form} name="newPassword" showMessage>
+              <FormField form={form} name="newPassword" label="New Password" labelClassName={FIELD_LABEL_CLASS} className="gap-1" showMessage>
                 {(field) => (
                   <div className={fieldBoxClass}>
                     <IoMdLock className="size-4 text-black/40 shrink-0" />
                     <PasswordInput
-                      placeholder="New Password"
+                      placeholder=""
                       value={field.value}
                       onChange={(value) => field.onChange(value)}
                       disabled={isSubmitting}
@@ -105,12 +106,12 @@ export default function ResetPasswordPage() {
                 )}
               </FormField>
 
-              <FormField form={form} name="confirmPassword" showMessage>
+              <FormField form={form} name="confirmPassword" label="Confirm New Password" labelClassName={FIELD_LABEL_CLASS} className="gap-1" showMessage>
                 {(field) => (
                   <div className={fieldBoxClass}>
                     <IoMdLock className="size-4 text-black/40 shrink-0" />
                     <PasswordInput
-                      placeholder="Confirm New Password"
+                      placeholder=""
                       value={field.value}
                       onChange={(value) => field.onChange(value)}
                       disabled={isSubmitting}

@@ -1,3 +1,4 @@
+import { FIELD_LABEL_ON_DARK_CLASS } from "@/components/shared/field-label";
 import { BaseSelect } from "@/components/reusable";
 import { FormBase, FormField } from "@/components/reusable";
 import { defaultPayoutValues, PayoutSchema } from "@/schema/payout-schema";
@@ -48,7 +49,7 @@ function PayoutForm() {
       className="w-full flex flex-col items-center gap-3"
     >
       <div className="w-full flex flex-col gap-1">
-        <p className="text-sm">Payment Method</p>
+        <p className={FIELD_LABEL_ON_DARK_CLASS}>Payment Method</p>
         <div className="w-full flex gap-1">
           <FormField form={form} name="currency">
             {(field) => (
@@ -82,7 +83,7 @@ function PayoutForm() {
       ))}
 
       <div className="w-full flex flex-col gap-1">
-        <p className="text-sm font-medium">Expiry</p>
+        <p className={FIELD_LABEL_ON_DARK_CLASS}>Expiry</p>
         <div className="grid grid-cols-2 gap-1">
           <FormField form={form} name="expiry_date.month">
             {(field) => (

@@ -1,3 +1,4 @@
+import { FIELD_LABEL_CLASS } from '@/components/shared/field-label'
 import { FormBase, FormField } from '@/components/reusable'
 import BaseModal from '@/components/reusable/base-modal'
 import { Button } from '@/components/ui/button'
@@ -188,8 +189,8 @@ function Field({
   children: React.ReactNode
 }) {
   return (
-    <div className='flex w-full flex-col gap-2'>
-      <p className='font-inter-tight text-sm font-bold text-black'>
+    <div className='flex w-full flex-col gap-1'>
+      <p className={FIELD_LABEL_CLASS}>
         {label}
         {optional && <span className='font-normal text-mid-dark-gray'> (optional)</span>}
       </p>

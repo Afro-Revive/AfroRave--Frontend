@@ -3,6 +3,8 @@ import { useRef, type ChangeEvent } from 'react'
 import { RiAddLine, RiCloseLine, RiInstagramLine, RiLinksLine, RiLoader4Line, RiMailLine, RiPhoneFill } from 'react-icons/ri'
 import { BIO_LIMIT, GALLERY_LIMIT, type VendorProfileDraft } from './profile-draft'
 import { IconInput, SaveButton } from './profile-fields'
+import { FIELD_LABEL_ON_DARK_CLASS } from '@/components/shared/field-label'
+import { cn } from '@/lib/utils'
 
 export function ProfileTab({ draft, update, onSave, isDirty, isSaving }: ITab) {
   const pictureInput = useRef<HTMLInputElement>(null)
@@ -55,8 +57,8 @@ export function ProfileTab({ draft, update, onSave, isDirty, isSaving }: ITab) {
         <p className='font-inter-tight text-sm text-white/70'>{draft.email}</p>
       </div>
 
-      <label className='flex flex-col gap-2'>
-        <span className='flex justify-between font-work-sans text-sm tracking-wider text-white uppercase'>
+      <label className='flex flex-col gap-1'>
+        <span className={cn(FIELD_LABEL_ON_DARK_CLASS, 'flex justify-between')}>
           Bio
           <span className='normal-case'>
             {draft.bio.length}/{BIO_LIMIT}

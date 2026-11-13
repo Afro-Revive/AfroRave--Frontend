@@ -1,3 +1,4 @@
+import { FIELD_LABEL_CLASS } from "@/components/shared/field-label";
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {  ArrowLeft } from "lucide-react";
@@ -100,6 +101,9 @@ export function ForgotPasswordView({
 
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
               <div className="flex flex-col gap-1.5">
+                <label htmlFor="forgot-password-email" className={FIELD_LABEL_CLASS}>
+                  Email Address
+                </label>
                 <div
                   className={cn(
                     "w-full flex items-center gap-1 h-11 border rounded-[4px] px-3 transition-colors",
@@ -107,8 +111,8 @@ export function ForgotPasswordView({
                   )}
                 >
                   <Input
+                    id="forgot-password-email"
                     type="email"
-                    placeholder="Email Address."
                     value={email}
                     onChange={(e) => {
                       setEmail(e.target.value);

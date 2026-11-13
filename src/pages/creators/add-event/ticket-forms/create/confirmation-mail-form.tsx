@@ -1,3 +1,4 @@
+import { FIELD_LABEL_CLASS } from '@/components/shared/field-label'
 import { FormSectionHeading } from '@/components/shared/form-section-heading'
 import { CustomInput as Input } from '@/components/shared/custom-form'
 import { FormFieldWithCounter } from '@/components/shared/field-with-counter'
@@ -54,7 +55,7 @@ export function ConfirmationMailForm() {
         </FormFieldWithCounter>
         <div className='w-full flex flex-col gap-4'>
           <div className='flex items-end gap-2 md:gap-6'>
-            <FormField form={form} name='email' label='Email' className='w-full'>
+            <FormField form={form} name='email' label='Email' labelClassName={FIELD_LABEL_CLASS} className='w-full gap-1'>
               {(field) => (
                 <Input
                   {...field}

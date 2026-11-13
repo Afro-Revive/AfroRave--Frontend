@@ -2,7 +2,7 @@ import { useLogout } from '@/hooks/use-auth'
 import { useChangeVendorPassword } from '@/hooks/use-vendor'
 import { useState } from 'react'
 import { RiCheckLine, RiLogoutBoxLine } from 'react-icons/ri'
-import { InsetPasswordInput } from './profile-fields'
+import { ProfilePasswordInput } from './profile-fields'
 
 const MIN_PASSWORD_LENGTH = 8
 
@@ -40,7 +40,7 @@ export function SettingsTab() {
     <div className='flex flex-col gap-7'>
       <form onSubmit={handleSubmit} className='flex flex-col gap-4'>
         <h3 className='font-inter-tight text-base font-bold text-white'>Change Password</h3>
-        <InsetPasswordInput
+        <ProfilePasswordInput
           id='vendor-current-password'
           label='Current Password'
           value={currentPassword}
@@ -49,7 +49,7 @@ export function SettingsTab() {
           autoComplete='current-password'
         />
         <div className='flex flex-col gap-1.5'>
-          <InsetPasswordInput
+          <ProfilePasswordInput
             id='vendor-new-password'
             label='New Password'
             value={newPassword}
@@ -64,7 +64,7 @@ export function SettingsTab() {
           )}
         </div>
         <div className='flex flex-col gap-1.5'>
-          <InsetPasswordInput
+          <ProfilePasswordInput
             id='vendor-confirm-password'
             label='Confirm New Password'
             value={confirmPassword}
