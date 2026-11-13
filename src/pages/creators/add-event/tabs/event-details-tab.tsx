@@ -9,7 +9,7 @@ import { FormFieldWithCounter } from "@/components/shared/field-with-counter";
 import { RichTextEditor } from "@/components/reusable/rich-text-editor";
 import { richTextLength } from "@/lib/rich-text";
 import { useCreateEvent } from "@/hooks/use-event-mutations";
-import { toDashCase } from "@/lib/helper-func";
+import { toDashCase, capitalizeWords, rewriteInputValue } from "@/lib/helper-func";
 import { transformEventDetailsToCreateRequest } from "@/lib/event-transforms";
 import {
   africanTimezones,
@@ -173,8 +173,9 @@ export default function EventDetailsTab({
           {(field) => (
             <Input
               placeholder="Enter event name."
-              className="uppercase"
               {...field}
+              // Each word starts with a capital, and that's what's saved.
+              onChange={(e) => field.onChange(rewriteInputValue(e.target, capitalizeWords))}
               value={field.value == null ? "" : String(field.value)}
             />
           )}
@@ -205,6 +206,8 @@ export default function EventDetailsTab({
             <Input
               placeholder="Enter event venue."
               {...field}
+              // Each word starts with a capital, and that's what's saved.
+              onChange={(e) => field.onChange(rewriteInputValue(e.target, capitalizeWords))}
               value={field.value == null ? "" : String(field.value)}
             />
           )}

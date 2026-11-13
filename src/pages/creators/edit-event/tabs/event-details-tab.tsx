@@ -22,7 +22,7 @@ import { getRoutePath } from "@/config/get-route-path";
 import { africanTimezones, ageRatings, eventCategories } from "../constant";
 import type { EventDetailData } from "@/types";
 import { transformEventToSchema } from "../helper";
-import { toVisibility } from "@/lib/helper-func";
+import { toVisibility, capitalizeWords, rewriteInputValue } from "@/lib/helper-func";
 import { SelectField } from "../../add-event/component/select-field";
 import { VisibilityField } from "../../add-event/component/visibility-field";
 import { PosterImageField } from "../component/poster-image-field";
@@ -187,8 +187,10 @@ function EventDetailsForm({
           {(field) => (
             <Input
               placeholder="Enter event name."
-              className="uppercase bg-transparent"
+              className="bg-transparent"
               {...field}
+              // Each word starts with a capital, and that's what's saved.
+              onChange={(e) => field.onChange(rewriteInputValue(e.target, capitalizeWords))}
               value={field.value == null ? "" : String(field.value)}
             />
           )}
@@ -222,8 +224,10 @@ function EventDetailsForm({
           {(field) => (
             <Input
               placeholder="Enter event venue."
-              className="uppercase bg-transparent"
+              className="bg-transparent"
               {...field}
+              // Each word starts with a capital, and that's what's saved.
+              onChange={(e) => field.onChange(rewriteInputValue(e.target, capitalizeWords))}
               value={field.value == null ? "" : String(field.value)}
             />
           )}
@@ -257,7 +261,7 @@ function EventDetailsForm({
           {(field) => (
             <Input
               placeholder="Enter custom URL."
-              className="uppercase border-none h-9"
+              className="border-none h-9"
               {...field}
               value={field.value == null ? "" : String(field.value)}
             />

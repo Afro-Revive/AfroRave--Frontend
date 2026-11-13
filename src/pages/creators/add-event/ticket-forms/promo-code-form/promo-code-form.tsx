@@ -1,3 +1,4 @@
+import { rewriteInputValue } from "@/lib/helper-func";
 import {
   CustomFormField as FormField,
   CustomInput as Input,
@@ -59,8 +60,9 @@ export function PromoCodeFormFields({
       >
         {(field) => (
           <Input
-            className="uppercase"
             {...field}
+            // Saved in capitals too, not just shown that way: "earlybird25" is EARLYBIRD25.
+            onChange={(e) => field.onChange(rewriteInputValue(e.target, (value) => value.toUpperCase()))}
             value={field.value == null ? "" : String(field.value)}
           />
         )}
