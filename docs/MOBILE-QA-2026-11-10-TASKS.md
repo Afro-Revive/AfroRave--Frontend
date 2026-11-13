@@ -68,7 +68,7 @@ Tags:
   - **Checked:** a production build of `/`, `/creators`, `/contact-support` and `/events` requests no SF file and fails no font.
   - **Not yet in line with the rules,** outside the SF change:
     - `font-work-sans` is still used for things that aren't form sub-headings, about 79 uses in 39 files: menus, nav links, the creators footer, auth headings.
-    - [custom-form.tsx](../src/components/shared/custom-form.tsx) puts Work Sans on the whole field wrapper, so values typed into those fields are Work Sans too.
+    - ~~[custom-form.tsx](../src/components/shared/custom-form.tsx) puts Work Sans on the whole field wrapper, so values typed into those fields are Work Sans too.~~ Fixed with the form labels (2026-11-13).
 - [x] Trim what's left. **Done 2026-11-11, not committed yet.**
   - **Inter Tight and Work Sans:** now `.woff2`, cut down to Latin, in [public/fonts/](../public/fonts/).
     - The Latin set keeps Yoruba letters and tone marks, and ₦.
@@ -334,12 +334,13 @@ All fixed 2026-11-11:
 
 Each row needs one rule from design. Agree the rule **[PO]**, then apply it.
 
-- [ ] **Section headings:** the Create and Edit Event pages mix UPPERCASE with Title Case.
+- [x] **Section headings:** the Create and Edit Event pages mix UPPERCASE with Title Case.
   - Uppercase `h2`s: [add-event/tabs/event-details-tab.tsx:147](../src/pages/creators/add-event/tabs/event-details-tab.tsx#L147), [:160](../src/pages/creators/add-event/tabs/event-details-tab.tsx#L160), [:266](../src/pages/creators/add-event/tabs/event-details-tab.tsx#L266).
   - Title Case "Poster Image": [poster-image-field.tsx](../src/pages/creators/edit-event/component/poster-image-field.tsx).
   - Edit Event's section headings: [edit-event/tabs/event-details-tab.tsx](../src/pages/creators/edit-event/tabs/event-details-tab.tsx).
   - Make one heading component.
-- [ ] **Primary buttons** (colour, case and placement):
+  - **Done 2026-11-13, not committed yet.** [FormSectionHeading](../src/components/shared/form-section-heading.tsx) is `font-inter-tight font-black text-xl text-black uppercase`. It replaces 15 headings in 10 files across Create and Edit Event: event details, sales channel, ticket format, ticket form, theme, the tab container, confirmation email, Poster Image, and Edit Event's `SectionHeader`.
+- [x] **Primary buttons** (colour, case and placement):
   - red "SAVE": [creator-account-tab.tsx:271](../src/pages/creators/standalone/components/creator-account-tab.tsx#L271);
   - grey or black: [creator-payout-tab.tsx:274](../src/pages/creators/standalone/components/creator-payout-tab.tsx#L274);
   - black "Update Password": [creator-settings-modal.tsx:286](../src/pages/creators/standalone/components/creator-settings-modal.tsx#L286);
@@ -348,11 +349,18 @@ Each row needs one rule from design. Agree the rule **[PO]**, then apply it.
   - stacked on Promo: [promo-code-form.tsx:268](../src/pages/creators/add-event/ticket-forms/promo-code-form/promo-code-form.tsx#L268);
   - centred pill on Vendors: [create-vendor-slot-modal.tsx](../src/pages/vendor/component/create-vendor-slot-modal.tsx).
   - Add variants to [src/components/ui/button.tsx](../src/components/ui/button.tsx) rather than per-page classes.
+  - **Done 2026-11-13, not committed yet.** In [button-variants.ts](../src/components/ui/button-variants.ts):
+    - **Colour by role:** `variant="primary"` (deep red) for the action that commits (Save, Create); `variant="dark"` (black) for the other button (Cancel, Save Draft). Edit Event's Publish is `dark` too, so it doesn't compete with the red Save beside it.
+    - **Shape by context:** `size="header"` for page-header Save/Publish; `size="block"` for full-width settings submits; `size="pill"` for cancel + submit pairs, side by side from `sm` and stacked full width on a phone. All three are `font-bold`; labels set their own case (see **Button case**).
+    - Every button listed above uses them now. Tickets, Promo and Vendors pairs swapped colours: Cancel / Save Draft is black, the submit is red. Payout's Save and Update Password are red.
+    - The base button font was `font-input-mono`, so any `<Button>` without its own font class rendered in IBM Plex Mono. It's `font-inter-tight` now. Links styled as buttons that set mono themselves, like the fan home's "Find Tickets", are unchanged.
 - [ ] **Button case:**
   - "UPDATE TICKET" ([ticket-form.tsx:374](../src/pages/creators/add-event/ticket-forms/create/ticket-form.tsx#L374));
   - "View Analytics" ([ticket-summary.tsx](../src/pages/creators/tickets/components/ticket-summary.tsx));
   - "copy link" and "view page" ([selected-event-card.tsx:33](../src/layouts/creator-dashboard-layout/selected-event-card.tsx#L33), [:65](../src/layouts/creator-dashboard-layout/selected-event-card.tsx#L65));
   - "preview" ([poster-image-field.tsx:73](../src/pages/creators/edit-event/component/poster-image-field.tsx#L73)).
+  - **Rule (2026-11-13):** a one-word label is in capitals (SAVE, CANCEL, PREVIEW, SAVING...); a longer one is in Title Case (Update Ticket, View Analytics, Copy Link).
+  - **Done 2026-11-13, not committed yet.** The four above follow it. So do the buttons on the new sizes: the `header`, `block` and `pill` sizes no longer force `uppercase`, so each label is written in its case ("Create Ticket", "Create Promo Code", "Update Password", "Save Draft"; "SAVE", "CANCEL", "SAVED"). "View Analytics" was Work Sans and is Inter Tight now.
 - [ ] **Off-brand blue:** `bg-tech-blue` on "view page" ([selected-event-card.tsx:62](../src/layouts/creator-dashboard-layout/selected-event-card.tsx#L62)) and "preview" ([poster-image-field.tsx:71](../src/pages/creators/edit-event/component/poster-image-field.tsx#L71)).
 - [ ] **Form labels:** labels appear four ways.
   - Uppercase above the field: the shared `FormField` in [src/components/reusable/](../src/components/reusable/) (base-form).
@@ -360,7 +368,28 @@ Each row needs one rule from design. Agree the rule **[PO]**, then apply it.
   - Inside the box: [settings-inset-field.tsx](../src/pages/creators/standalone/components/settings-inset-field.tsx).
   - Placeholder only: the Change Password inputs in [creator-settings-modal.tsx](../src/pages/creators/standalone/components/creator-settings-modal.tsx).
   - The global label `htmlFor` fix (still pending) belongs with this one.
+  - **Decision (2026-11-13):** every form uses the first style, small Work Sans capitals above the field.
+  - **Done 2026-11-13 on the creator side, not committed yet:**
+    - **One style:** `FIELD_LABEL_CLASS` / `FieldLabel` in [field-label.tsx](../src/components/shared/field-label.tsx) (`font-work-sans text-xs uppercase text-[#1E1E1E]`).
+    - **Settings (Account, Payout):** the inset field is now [SettingsField](../src/pages/creators/standalone/components/settings-field.tsx), label above a 44px box. The label wraps the field, so clicking it focuses the input. Birthday has one label over Month / Day / Year, and Phone Number one label over the code and the number.
+    - **Change Password:** labelled fields instead of placeholders. The show/hide button is named after the label.
+    - **Guestlist modals (Add Guest, New Category):** labels restyled.
+    - **Confirmation email:** its Email label too.
+    - [CustomFormField](../src/components/shared/custom-form.tsx) puts Work Sans on the label only, so typed values are Inter Tight now (this was open under 1.2).
+  - **Bug fixed:** [base-form.tsx](../src/components/reusable/base-form.tsx) passed `htmlFor={name}`, which overrode the label's correct `htmlFor` (the input's generated id). Labels pointed at nothing: clicking one didn't focus its field, and screen readers didn't read it. Fields whose child is a wrapper rather than the input itself (the counter and date fields) still don't connect; the id lands on the wrapper.
+  - **Done 2026-11-13 everywhere else, not committed yet.** Dark pages use `FIELD_LABEL_ON_DARK_CLASS` (the same, in white).
+    - **Fan:** profile and complete profile (inset labels moved above 44px boxes; Birthday and Phone Number get one label over their row; the vendor Category select gets a label), settings, payout, support, and the account inputs.
+    - **Vendor:** profile, account and settings tabs. `InsetInput` / `InsetPasswordInput` / `InsetSelect` are now `ProfileInput` / `ProfilePasswordInput` / `ProfileSelect` in [profile-fields.tsx](../src/pages/vendor/profile/profile-fields.tsx), with labels above and wired to their fields.
+    - **Auth:** log in, sign up, forgot password and reset password had placeholders only; they have labels now.
+    - **Contact:** the support form and the creators' Get in Touch form. The support form's inputs had ids copied from the old, wrong `htmlFor`; those are removed so its labels connect.
+    - **Left alone:** `vendor-signup-form.tsx`, `business-signup-form.tsx` and `vendor-registration-modal.tsx`, which nothing renders.
 - [ ] **Forced uppercase inputs:** the name, venue and URL inputs have `className="uppercase"`, so they don't show what was saved.
+  - **Decision (2026-11-13):** only the promo code is forced to capitals; the rest are capitalised.
+  - **Done 2026-11-13, not committed yet.** The display-only `uppercase` classes are gone; what's shown is what's saved.
+    - **Promo code:** upper-cased as it's typed, so "earlybird25" is saved as EARLYBIRD25.
+    - **Event name and venue** (Create and Edit): each word starts with a capital as it's typed, the rest stays as typed ("DJ spinall" becomes "DJ Spinall"). `capitalizeWords` and `rewriteInputValue` in [helper-func.ts](../src/lib/helper-func.ts); the second keeps the caret in place.
+    - **Custom URL** (Edit): shown as typed, in lower case like the URL itself. Capitalising it would make it wrong.
+  - [ ] **[BE]** Is promo validation case-insensitive? The checkout field ([promo-code.tsx:173](../src/pages/landing-page/_component/promo-code.tsx#L173)) shows capitals but sends what the fan typed. If the backend compares exactly, "earlybird25" won't match EARLYBIRD25. Upper-casing it at checkout would break codes saved in lower case before this change.
   - [edit-event/tabs/event-details-tab.tsx:189](../src/pages/creators/edit-event/tabs/event-details-tab.tsx#L189), [:224](../src/pages/creators/edit-event/tabs/event-details-tab.tsx#L224), [:259](../src/pages/creators/edit-event/tabs/event-details-tab.tsx#L259)
   - [add-event/tabs/event-details-tab.tsx:175](../src/pages/creators/add-event/tabs/event-details-tab.tsx#L175)
 - [ ] **Naming:**
