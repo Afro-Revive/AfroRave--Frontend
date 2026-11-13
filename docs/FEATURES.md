@@ -25,8 +25,8 @@ the mobile QA fixes on `ui-fixes`.
 **How the overall % is worked out:**
 - A High feature counts 3 times as much as a Low one, and a Medium one twice as much.
 - Only fully working features score.
-- If half-working ("Partial") and "Awaiting backend" features get half credit, fans and organizers reach 88%.
-- **Critical features only:** 93% are fully done, or 95% with half credit for the partly working ones.
+- If half-working ("Partial") and "Awaiting backend" features get half credit, fans and organizers reach 89%.
+- **Critical features only:** 93% are fully done, or 97% with half credit for the partly working ones.
 
 Most of the gap is Low priority: small buttons and extra tools.
 **All the main journeys work end to end.**
@@ -40,7 +40,7 @@ how much they block launch:
 
 | # | Feature | Area | Status | What's needed |
 |---|---|---|---|---|
-| 1 | Privacy Policy, Refund Policy, Terms and Conditions | Fans | 🚧 Coming soon | **Content.** Needed before taking real payments: payment providers and app stores ask for them. |
+| 1 | Privacy Policy, Refund Policy, Terms and Conditions | Fans | 🟡 Partial | **Refund Policy content.** Terms and Privacy are done: Privacy is a section of the Terms page, and `/privacy-policy` opens the Terms page there. The Refund Policy page is still Coming Soon. Payment providers and app stores ask for all three. |
 | 2 | QR code for entry | Fans | 🟡 Partial | **Mobile app.** The QR is in the mobile app; the web app's app store links point nowhere until the apps are published. |
 
 Vendors have none left: every High priority vendor feature works (§3).
@@ -139,7 +139,7 @@ Within each table, rows run from High to Low priority.
 
 | Page | Priority | Status | Notes |
 |---|---|---|---|
-| Privacy Policy, Refund Policy, Terms and Conditions | 🔴 High | 🚧 Coming soon | Legal pages. Needed before going live with payments. |
+| Privacy Policy, Refund Policy, Terms and Conditions | 🔴 High | 🟡 Partial | Terms of Use is at `/terms-and-conditions`. Privacy is its Privacy section; `/privacy-policy` opens the Terms page there. Refund Policy (`/refund-policy`) is still Coming Soon. |
 | About Us, Blog, FAQ | ⚪ Low | 🚧 Coming soon | About Us and Blog are one page each for fans and creators: `/about-us` (built) and `/blog` (Coming Soon). The FAQ is now the general Support page (`/support`). |
 | Sell, Work With Us | ⚪ Low | 🚧 Coming soon | |
 | Resell info page (`/resell`) | ⚪ Low | ✅ Working | Explains resale and links to My Tickets. |
@@ -311,7 +311,7 @@ pretends to. Rows run from High to Low priority.
 
 | Where | Button or link | Priority | Status | What happens |
 |---|---|---|---|---|
-| Fans footer | Privacy, Refund | 🔴 High | 🚧 Coming soon | Open a "Coming Soon" page. Terms opens the Terms of Use page. |
+| Fans footer | Refund | 🔴 High | 🚧 Coming soon | Opens a "Coming Soon" page. Terms opens the Terms of Use page, and Privacy Policy its Privacy section. |
 | Fans footer, home page and mobile menu | App Store / Google Play badges | 🔴 High | ⛔ Not linked | Link to `#`. Waiting for the apps to be published. Fans need the app for their QR code. |
 | Ticket detail page | QR code ("download the app") | 🔴 High | ⛔ Not linked | Depends on the app store links above. |
 | Analytics | Attendee List tab | 🟠 Medium | 🚧 Coming soon | |
