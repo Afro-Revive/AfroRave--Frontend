@@ -9,7 +9,7 @@ export function LandingPageHeader() {
                 <Link to="/" className="flex-shrink-0">
                     <img
                         src="/assets/logo.png"
-                        alt="AfroRave"
+                        alt="Afrorevive"
                         className="h-12 md:h-16 w-auto"
                     />
                 </Link>

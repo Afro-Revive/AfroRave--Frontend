@@ -98,7 +98,7 @@ export default function EventDetailsTab({
 
   async function onSubmit(values: EventDetailsSchema) {
     const eventData = transformEventDetailsToCreateRequest(values);
-    // Save As Drafts (in the page header) submits this form too: the same
+    // Save as Draft (in the page header) submits this form too: the same
     // checks and the same create.
     const isDraft = savingDraft?.current ?? false;
     if (savingDraft) savingDraft.current = false;
@@ -352,7 +352,7 @@ export default function EventDetailsTab({
               {[
                 { name: "socials.instagram" as const, label: "Instagram" },
                 { name: "socials.x" as const, label: "X" },
-                { name: "socials.tiktok" as const, label: "Tiktok" },
+                { name: "socials.tiktok" as const, label: "TikTok" },
                 { name: "socials.facebook" as const, label: "Facebook" },
               ].map((item) => (
                 <FormField

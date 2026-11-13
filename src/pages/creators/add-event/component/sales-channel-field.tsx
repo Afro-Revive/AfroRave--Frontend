@@ -12,14 +12,14 @@ const SALES_CHANNEL_OPTIONS = [
     label: 'Online',
     icon: Globe,
     description:
-      'Listed on your event page and purchased through AfroRevive checkout.',
+      'Listed on your event page and purchased through Afrorevive checkout.',
   },
   {
     value: 'door',
     label: 'Door',
     icon: BsDoorClosed,
     description:
-      'Sold on-site and recorded by your team in the AfroRevive app. Not listed on your event page.',
+      'Sold on-site and recorded by your team in the Afrorevive app. Not listed on your event page.',
   },
 ] as const
 

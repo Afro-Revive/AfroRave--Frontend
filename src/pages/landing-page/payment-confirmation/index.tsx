@@ -27,7 +27,7 @@ export default function PaymentConfirmationPage() {
   return (
     <>
       <SEO
-        title="Payment Confirmed - AfroRave"
+        title="Payment Confirmed - Afrorevive"
         description="Your ticket purchase was successful."
       />
       <div className="min-h-screen flex flex-col items-center justify-center text-white px-4 py-16">

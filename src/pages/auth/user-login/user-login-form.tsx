@@ -73,7 +73,7 @@ export function UserLoginForm({ onForgotPassword, onLoginSuccess }: { onForgotPa
                 Log In
               </p>
               <span className='text-xs leading-[100%] text-black font-inter-tight'>
-                New to AfroRevive?{' '}
+                New to Afrorevive?{' '}
                 <button
                   type='button'
                   onClick={handleSwitchToSignup}

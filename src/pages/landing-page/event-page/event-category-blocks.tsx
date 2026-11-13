@@ -447,7 +447,7 @@ const AD_SLIDES: AdSlide[] = [
   {
     id: "afrorevive vfx",
     image: "/assets/event/av vfx ad@1.5x.png",
-    title: "AfroRevive VFX",
+    title: "Afrorevive VFX",
     description:
       "Rent Afrorevive Curve-Capable screens for seamless curved stage designs, wider viewing angles, and immersive visuals across concerts, brand activations and live productions.",
     button: {

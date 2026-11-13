@@ -50,7 +50,7 @@ export function VendorSlotPage({
   const tabs: { value: SlotTab; label: string }[] = [
     {
       value: "vendors",
-      label: type === "Revenue" ? "Revenue Vendors" : "Service Vendors",
+      label: type === "Revenue" ? "Revenue Vendor" : "Service Vendor",
     },
     {
       value: "details",

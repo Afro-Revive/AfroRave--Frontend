@@ -3,12 +3,12 @@ import { toast } from 'sonner'
 // Auth-related toast messages
 export const authToasts = {
   // Registration success messages
-  userRegistered: () => toast.success('Account created successfully! Welcome to AfroRave! 🎉'),
+  userRegistered: () => toast.success('Account created successfully! Welcome to Afrorevive! 🎉'),
   userVerified: () => toast.success('An email has been sent to your inbox for verification. Please check your email to complete the registration process.'),
   vendorRegistered: () =>
-    toast.success('Vendor account created successfully! Welcome to AfroRave! 🎉'),
+    toast.success('Vendor account created successfully! Welcome to Afrorevive! 🎉'),
   organizerRegistered: () =>
-    toast.success('Organizer account created successfully! Welcome to AfroRave! 🎉'),
+    toast.success('Organizer account created successfully! Welcome to Afrorevive! 🎉'),
 
   // Login messages
   loginSuccess: () => toast.success('Welcome back! 🎉'),

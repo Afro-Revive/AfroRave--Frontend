@@ -85,7 +85,7 @@ export default function CreatorSidebar() {
                   },
                 ]
               : []),
-                  { path: getRoutePath("guest_list"), name: "Guest List" },
+                  { path: getRoutePath("guest_list"), name: "Guestlist" },
           ]
         : [],
     },

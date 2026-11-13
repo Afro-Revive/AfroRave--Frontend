@@ -19,7 +19,7 @@ export default function ServiceVendorPage() {
 
         <div className="flex flex-col gap-1">
           <p className="font-inter-tight text-2xl font-bold text-black">
-            Service Vendors
+            Service Vendor
           </p>
           <p className="font-inter-tight text-sm text-black">
             Post offers for the professional services your event needs and

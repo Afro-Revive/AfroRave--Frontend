@@ -190,7 +190,7 @@ function EventFlyerCard({ application, event }: { application: VendorApplication
 const COMMUNITY_LINKS = [
   { label: 'Instagram', href: 'https://www.instagram.com/afrorevive_', Icon: RiInstagramLine },
   { label: 'X', href: 'https://x.com/afrorevive', Icon: RiTwitterXLine },
-  { label: 'AfroRevive for creators', href: getRoutePath('creators_home'), Icon: RiLinksLine },
+  { label: 'Afrorevive for creators', href: getRoutePath('creators_home'), Icon: RiLinksLine },
 ]
 
 function CommunityCard() {

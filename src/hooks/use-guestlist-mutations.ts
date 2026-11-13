@@ -334,11 +334,11 @@ export function useConfigureEventGuestList(eventId: string) {
     mutationFn: (data: { categoryIds: string[]; individualGuestIds: string[] }) =>
       guestListService.configureEventGuestList(eventId, data),
     onSuccess: () => {
-      toast.success('Guest list updated successfully!')
+      toast.success('Guestlist updated successfully!')
       queryClient.invalidateQueries({ queryKey: guestlistKeys.eventConfig(eventId) })
     },
     onError: () => {
-      toast.error('Failed to update the guest list. Please try again.')
+      toast.error('Failed to update the guestlist. Please try again.')
     },
   })
 }

@@ -285,7 +285,7 @@ DESCRIBE WHAT THIS TICKET INCLUDES.`}
               label="When Should Ticket Sales Start?"
               reason="invite_only"
             />
-            <UnavailableNote label="Allow Ticket Resell" reason="invite_only" />
+            <UnavailableNote label="Allow Ticket Resale" reason="invite_only" />
           </div>
         </OnlyShowIf>
 
@@ -309,7 +309,7 @@ DESCRIBE WHAT THIS TICKET INCLUDES.`}
 
             {resellUnavailableReason ? (
               <UnavailableNote
-                label="Allow Ticket Resell"
+                label="Allow Ticket Resale"
                 reason={resellUnavailableReason}
               />
             ) : (
@@ -319,7 +319,7 @@ DESCRIBE WHAT THIS TICKET INCLUDES.`}
                     <BaseBooleanCheckbox
                       data={{
                         items: {
-                          label: "ALLOW TICKET RESELL",
+                          label: "ALLOW TICKET RESALE",
                           id: "allow-ticket-resell",
                         },
                       }}

@@ -64,7 +64,7 @@ export default function AddEventPage() {
   const eventId = useEventStore((state) => state.eventId)
   const isCreatingEvent = useIsMutating({ mutationKey: eventKeys.create() }) > 0
 
-  // Until Event Info is submitted there's nothing saved, so Save As Drafts
+  // Until Event Info is submitted there's nothing saved, so Save as Draft
   // submits that form (same checks as Continue) and creates the event; it then
   // lands on the dashboard. After that the event and its tickets are saved as
   // they go and stay unpublished, so it only has to leave.
@@ -143,7 +143,7 @@ export default function AddEventPage() {
             }}
             disabled={isCreatingEvent}
             className='h-8 w-fit px-4 text-[10px] uppercase font-inter-tight font-bold rounded-[5px] bg-white text-deep-red border border-deep-red hover:bg-white/90'>
-            {isCreatingEvent ? 'SAVING...' : 'SAVE AS DRAFTS'}
+            {isCreatingEvent ? 'SAVING...' : 'Save as Draft'}
           </Button>
           {/* <CreatorMenuButton user={user} variant='dark' /> */}
         </div>
