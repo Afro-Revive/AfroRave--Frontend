@@ -37,10 +37,10 @@ export default function PaymentConfirmationPage() {
             <>
               <Loader2 size={48} className="animate-spin text-white/60" />
               <div className="flex flex-col gap-2">
-                <h1 className="text-3xl md:text-4xl font-black font-inter uppercase">
+                <h1 className="text-3xl md:text-4xl font-black font-inter-tight uppercase">
                   Processing Payment...
                 </h1>
-                <p className="text-white/60 font-sf-pro-display font-light text-sm md:text-base">
+                <p className="text-white/60 font-inter-tight font-light text-sm md:text-base">
                   Please wait while we confirm your order.
                 </p>
               </div>
@@ -51,23 +51,23 @@ export default function PaymentConfirmationPage() {
             <>
               <XCircle size={48} className="text-red-400" />
               <div className="flex flex-col gap-2">
-                <h1 className="text-3xl md:text-4xl font-black font-inter uppercase">
+                <h1 className="text-3xl md:text-4xl font-black font-inter-tight uppercase">
                   An Error Occurred
                 </h1>
-                <p className="text-white/60 font-sf-pro-display font-light text-sm md:text-base">
+                <p className="text-white/60 font-inter-tight font-light text-sm md:text-base">
                   Something went wrong while processing your payment. Please
                   contact support if you were charged.
                 </p>
               </div>
               <div className="flex flex-col sm:flex-row gap-3 w-full mt-2">
                 <Button
-                  className="flex-1 py-5 border-white/20 bg-white text-black hover:bg-white/10 hover:text-white font-sf-pro-display"
+                  className="flex-1 py-5 border-white/20 bg-white text-black hover:bg-white/10 hover:text-white font-inter-tight"
                   onClick={() => navigate(getRoutePath("events"))}
                 >
                   BACK TO EVENTS
                 </Button>
                 <Button
-                  className="flex-1 py-5 bg-red-500 text-white hover:bg-red-500/90 font-sf-pro-display"
+                  className="flex-1 py-5 bg-red-500 text-white hover:bg-red-500/90 font-inter-tight"
                   onClick={() =>
                     processCheckoutMutation.mutate({
                       paymentMethod: "paystack",
@@ -86,23 +86,23 @@ export default function PaymentConfirmationPage() {
             <>
               <CheckCircle size={48} className="text-green-400" />
               <div className="flex flex-col gap-2">
-                <h1 className="text-3xl md:text-4xl font-black font-inter uppercase">
+                <h1 className="text-3xl md:text-4xl font-black font-inter-tight uppercase">
                   Thank You For Your Purchase!
                 </h1>
-                <p className="text-white font-sf-pro-display font-light text-sm md:text-base">
+                <p className="text-white font-inter-tight font-light text-sm md:text-base">
                   Your payment was successful and your spot is officially
                   secured. We've sent your confirmation details to your email.
                 </p>
               </div>
               <div className="flex flex-col sm:flex-row gap-3 w-full mt-2">
                 <Button
-                  className="flex-1 py-5 border-white/20 bg-white text-black hover:bg-white/10 hover:text-white font-sf-pro-display"
+                  className="flex-1 py-5 border-white/20 bg-white text-black hover:bg-white/10 hover:text-white font-inter-tight"
                   onClick={() => navigate(getRoutePath("events"))}
                 >
                   BACK TO EVENTS
                 </Button>
                 <Button
-                  className="flex-1 py-5 bg-[#00AD2E] text-white hover:bg-[#00AD2E]/90 font-sf-pro-display"
+                  className="flex-1 py-5 bg-[#00AD2E] text-white hover:bg-[#00AD2E]/90 font-inter-tight"
                   onClick={() => navigate(getRoutePath("my_tickets"))}
                 >
                   VIEW TICKETS

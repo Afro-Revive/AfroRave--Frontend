@@ -22,9 +22,9 @@ export function TabContainer<TFormValues extends FieldValues>({
     <div className='flex flex-col items-center gap-5 mb-[50px]'>
       <div className='max-w-[560px] w-full flex flex-col md:flex-row gap-y-4 md:items-center max-md:px-5 justify-between'>
         <div className='w-full flex flex-col gap-1'>
-          <p className='text-xl font-black font-sf-pro-display uppercase text-black'>{heading}</p>
+          <p className='text-xl font-black font-inter-tight uppercase text-black'>{heading}</p>
           {description && (
-            <p className='text-xs font-sf-pro-display text-mid-dark-gray'>{description}</p>
+            <p className='text-xs font-inter-tight text-mid-dark-gray'>{description}</p>
           )}
         </div>
 

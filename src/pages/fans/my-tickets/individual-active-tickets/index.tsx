@@ -416,7 +416,7 @@ function OtherActions({
   ];
 
   return (
-    <div className="flex md:flex-wrap gap-3 font-sf-pro-rounded mb-10">
+    <div className="flex md:flex-wrap gap-3 font-inter-tight mb-10">
       {actions.map((item) => (
         <button
           key={item.name}

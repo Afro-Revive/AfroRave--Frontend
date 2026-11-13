@@ -6,7 +6,7 @@ export default function OrdersTab(props: IAnalyticsTabProps) {
     <AnalyticsGate {...props}>
       {(data) => (
         <div className='w-full flex flex-col gap-6'>
-          <h2 className='font-inter text-3xl font-semibold text-system-black'>Orders</h2>
+          <h2 className='font-inter-tight text-3xl font-semibold text-system-black'>Orders</h2>
 
           <div className='grid gap-3 sm:grid-cols-2 xl:grid-cols-4'>
             <Figure label='Total net sales' value={formatNaira(data.totalNetRevenue)} />
@@ -29,10 +29,10 @@ export default function OrdersTab(props: IAnalyticsTabProps) {
 function Figure({ label, value }: { label: string; value: string }) {
   return (
     <div className='flex flex-col gap-1 rounded-2xl shadow-lg border border-light-gray bg-white px-5 py-4'>
-      <span className='text-[11px] uppercase tracking-wider text-mid-dark-gray font-sf-pro-text'>
+      <span className='text-[11px] uppercase tracking-wider text-mid-dark-gray font-inter-tight'>
         {label}
       </span>
-      <span className='text-2xl font-medium text-black font-sf-pro-display tabular-nums'>
+      <span className='text-2xl font-medium text-black font-inter-tight tabular-nums'>
         {value}
       </span>
     </div>

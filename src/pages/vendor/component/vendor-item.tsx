@@ -24,21 +24,21 @@ export function VendorItem({
         onClick={() => setOpen((prev) => !prev)}
         className="w-full flex items-center justify-between px-8 py-5 hover:bg-black/5"
       >
-        <div className="flex flex-col gap-3 font-sf-pro-display text-black text-left">
+        <div className="flex flex-col gap-3 font-inter-tight text-black text-left">
           <p className="text-sm capitalize leading-[100%]">{name}</p>
           <p className="text-[10px] capitalize leading-[100%]">{category}</p>
         </div>
 
         <div className="flex items-center gap-8">
-          <p className="font-sf-pro-display text-xs text-black">{date}</p>
+          <p className="font-inter-tight text-xs text-black">{date}</p>
           {count && (
-            <p className="font-sf-pro-display text-sm font-medium text-tech-blue">
+            <p className="font-inter-tight text-sm font-medium text-tech-blue">
               {count}
             </p>
           )}
           <Badge
             className={cn(
-              "font-sf-pro-display text-xs capitalize p-0 bg-transparent",
+              "font-inter-tight text-xs capitalize p-0 bg-transparent",
               {
                 "text-bright-mint": status === "Active" || status === "Complete",
                 "text-deep-red": status === "Draft",
@@ -65,7 +65,7 @@ export function VendorItem({
                 ? getRoutePath("revenue_vendor_slot", { slotId: id })
                 : getRoutePath("service_vendor_slot", { slotId: id })
             }
-            className="w-fit flex items-center gap-1.5 text-xs font-sf-pro-display text-deep-red hover:underline"
+            className="w-fit flex items-center gap-1.5 text-xs font-inter-tight text-deep-red hover:underline"
           >
             <Info size={14} />
             View Full Details

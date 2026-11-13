@@ -258,7 +258,7 @@ function AccordionSidebarMenuItem({
                     to={sub.path}
                     onClick={onLinkClick}
                     className={cn(
-                      "w-full flex items-center px-6 h-[56px] text-xs font-inter capitalize transition-colors duration-300",
+                      "w-full flex items-center px-6 h-[56px] text-xs font-inter-tight capitalize transition-colors duration-300",
                       {
                         " text-deep-red": isActiveSubLink,
                         "text-black hover:bg-deep-red/10": !isActiveSubLink,
@@ -269,7 +269,7 @@ function AccordionSidebarMenuItem({
                       <div className="flex flex-col">
                         {sub.name}
                         {sub.category && (
-                          <span className="text-xs font-inter text-gray-500">
+                          <span className="text-xs font-inter-tight text-gray-500">
                             {stripUnderscores(sub.category)}
                           </span>
                         )}

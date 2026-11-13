@@ -107,7 +107,7 @@ export function SlotSummaryCard({
             <p className='font-inter-tight text-sm font-bold text-white'>
               {isRevenue ? `Paid ${formatNaira(amountDue)}` : 'Offer accepted'}
             </p>
-            <p className='font-sf-pro-text text-[11px] text-white/70'>{formatShortDate(application.updatedDate)}</p>
+            <p className='font-inter-tight text-[11px] text-white/70'>{formatShortDate(application.updatedDate)}</p>
           </div>
         </div>
       ) : (
@@ -120,7 +120,7 @@ export function SlotSummaryCard({
           <AmountRow name='Slot fee' value={formatNaira(slotFee)} />
           <AmountRow name='Platform fee' value={formatNaira(amountDue - slotFee)} />
           <div className='mt-1 flex items-center justify-between border-t border-[#3A3A3A] pt-3'>
-            <span className='font-sf-pro-text text-sm text-[#BDBDBD]'>Amount Due</span>
+            <span className='font-inter-tight text-sm text-[#BDBDBD]'>Amount Due</span>
             <span className='font-inter-tight text-xl font-bold text-white'>{formatNaira(amountDue)}</span>
           </div>
         </div>
@@ -135,7 +135,7 @@ export function SlotSummaryCard({
           type='button'
           onClick={onPay}
           disabled={isPaying}
-          className='h-9 w-full rounded-md bg-[#1FB52B] font-sf-pro-text text-sm font-medium text-white transition-colors hover:bg-[#1A9E25] disabled:opacity-60'>
+          className='h-9 w-full rounded-md bg-[#1FB52B] font-inter-tight text-sm font-medium text-white transition-colors hover:bg-[#1A9E25] disabled:opacity-60'>
           {isPaying ? 'Starting payment...' : 'Pay now'}
         </button>
       )}
@@ -156,7 +156,7 @@ export function SlotSummaryCard({
       {(status === 'rejected' || status === 'expired' || status === 'completed') && (
         <Link
           to={getRoutePath('vendor_discover')}
-          className='flex h-9 w-full items-center justify-center rounded-md bg-light-red font-sf-pro-text text-sm font-medium text-white transition-colors hover:bg-light-red/85'>
+          className='flex h-9 w-full items-center justify-center rounded-md bg-light-red font-inter-tight text-sm font-medium text-white transition-colors hover:bg-light-red/85'>
           Discover Events
         </Link>
       )}
@@ -164,7 +164,7 @@ export function SlotSummaryCard({
       {showAmountDue && (
         <p
           className={cn(
-            'flex items-center justify-center gap-1.5 font-sf-pro-text text-xs',
+            'flex items-center justify-center gap-1.5 font-inter-tight text-xs',
             status === 'approved' ? 'text-[#9A9A9A]' : 'text-[#5A5A5A]',
           )}>
           <RiLockLine className='size-3.5' />
@@ -212,7 +212,7 @@ function StatusNotice({ application, event, status }: { application: VendorAppli
 
 function AmountRow({ name, value }: { name: string; value: string }) {
   return (
-    <div className='flex items-center justify-between font-sf-pro-text text-sm'>
+    <div className='flex items-center justify-between font-inter-tight text-sm'>
       <span className='text-[#BDBDBD]'>{name}</span>
       <span className='text-white'>{value}</span>
     </div>

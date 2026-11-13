@@ -28,7 +28,7 @@ export function Socials({
       {showLanguage && (
         <div className='flex items-center gap-1.5 text-white/70 hover:text-white transition-colors cursor-pointer'>
           <Globe size={15} strokeWidth={1.5} />
-          <span className='text-xs font-sf-pro-text tracking-wide'>English</span>
+          <span className='text-xs font-inter-tight tracking-wide'>English</span>
         </div>
       )}
     </div>

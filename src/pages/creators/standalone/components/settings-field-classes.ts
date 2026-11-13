@@ -12,7 +12,7 @@ export const INSET_SELECT_CLASS =
 export const DARK_SELECT_CONTENT_CLASS =
   "bg-[#4A4A4A] border border-[#4A4A4A] backdrop-blur-none max-h-[280px] w-[var(--radix-select-trigger-width)]"
 export const DARK_SELECT_ITEM_CLASS =
-  "py-2.5 text-sm font-inter text-white border-white/10 hover:!bg-white/10 data-[highlighted]:!bg-white/10 data-[highlighted]:!text-white"
+  "py-2.5 text-sm font-inter-tight text-white border-white/10 hover:!bg-white/10 data-[highlighted]:!bg-white/10 data-[highlighted]:!text-white"
 // Keeps the field looking the same while its list is open (BaseSelect darkens
 // and unborders it by default).
 export const SELECT_OPEN_STEADY_CLASS =

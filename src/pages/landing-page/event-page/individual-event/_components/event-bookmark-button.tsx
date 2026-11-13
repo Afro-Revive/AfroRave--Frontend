@@ -42,7 +42,7 @@ const EventBookmarkButton = ({
       disabled={isUpdating}
       className="cursor-pointer disabled:cursor-not-allowed disabled:opacity-70 bg-deep-gray rounded-full px-3 py-3 items-center justify-center flex gap-2"
     >
-      <span className="text-sm font-inter font-bold uppercase text-white">
+      <span className="text-sm font-inter-tight font-bold uppercase text-white">
         {watchlisted ? "Remove from Watchlist" : "Save to Mobile"}
       </span>
       {isUpdating ? (

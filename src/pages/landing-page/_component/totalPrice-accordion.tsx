@@ -33,7 +33,7 @@ const TotalAccordion = ({
       className="w-full md:py-2 py-1 rounded-lg border border-white"
     >
       <AccordionItem value="fees" className="border-none">
-        <AccordionTrigger className="px-4 md:py-2 py-1 text-sm font-inter hover:no-underline items-center">
+        <AccordionTrigger className="px-4 md:py-2 py-1 text-sm font-inter-tight hover:no-underline items-center">
           <div className="flex w-full items-center justify-between ">
             <span className="md:text-lg text-base">TOTAL</span>
             <span className="md:text-lg text-base flex items-center gap-2">
@@ -46,7 +46,7 @@ const TotalAccordion = ({
             </span>
           </div>
         </AccordionTrigger>
-        <AccordionContent className="px-4 text-sm font-inter ">
+        <AccordionContent className="px-4 text-sm font-inter-tight ">
            {hasDiscount && (
             <div className="flex items-center justify-between py-2">
               <p>Discount </p>

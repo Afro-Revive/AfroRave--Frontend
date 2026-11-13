@@ -68,8 +68,8 @@ export function SignupForm({ type }: SignupFormProps) {
     <FormBase
       form={form}
       onSubmit={onSubmit}
-      className='w-full h-fit rounded-[8px] space-y-0 bg-[#F5F5F5] px-7 py-6 md:px-7 md:py-8 font-sf-pro-text'>
-      <p className='text-[28px] font-bold text-black font-sf-pro-text mb-6'>Sign Up</p>
+      className='w-full h-fit rounded-[8px] space-y-0 bg-[#F5F5F5] px-7 py-6 md:px-7 md:py-8 font-inter-tight'>
+      <p className='text-[28px] font-bold text-black font-inter-tight mb-6'>Sign Up</p>
 
       <div className='flex flex-col w-full gap-3'>
         <FormField form={form} name='first_name'>
@@ -152,7 +152,7 @@ export function SignupForm({ type }: SignupFormProps) {
       <div className='pt-6'>
         <Button
           type='submit'
-          className='w-full h-[50px] text-base font-semibold font-sf-pro-text bg-black hover:bg-black/90 text-white rounded-[8px]'
+          className='w-full h-[50px] text-base font-semibold font-inter-tight bg-black hover:bg-black/90 text-white rounded-[8px]'
           disabled={registerUser.isPending}>
           {registerUser.isPending ? 'Signing Up...' : 'Sign Up'}
         </Button>

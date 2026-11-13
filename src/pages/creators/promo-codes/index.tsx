@@ -189,7 +189,7 @@ function EventPromoCodes({
         action={
           <Button
             variant="destructive"
-            className="py-2 w-fit px-8 text-xs font-sf-pro-text font-black rounded-[5px] "
+            className="py-2 w-fit px-8 text-xs font-inter-tight font-black rounded-[5px] "
             onClick={() =>
               promocodeForm.handleSubmit(
                 editing ? handleUpdatePromoCode : handleCreatePromoCode,
@@ -445,16 +445,16 @@ function PromoCodeItem({
                 <X size={18} />
               </button>
             </DialogClose>
-            <p className="font-black font-sf-pro-display text-base text-black text-center">
+            <p className="font-black font-inter-tight text-base text-black text-center">
               {promocode.promoCode}
             </p>
-            <p className="text-xs text-[#2E7D32] font-sf-pro-display mt-0.5 text-center">
+            <p className="text-xs text-[#2E7D32] font-inter-tight mt-0.5 text-center">
               {discountLabel}
             </p>
           </div>
           <div className="px-5 pb-5 flex flex-col gap-3">
             {(promocode.startDate || promocode.endDate) && (
-              <div className="flex items-center gap-4 text-xs font-sf-pro-display text-gray-500">
+              <div className="flex items-center gap-4 text-xs font-inter-tight text-gray-500">
                 {promocode.startDate && (
                   <span>From: {formatDate(promocode.startDate)}</span>
                 )}
@@ -464,15 +464,15 @@ function PromoCodeItem({
               </div>
             )}
             <div>
-              <p className="font-sf-pro-display font-semibold text-[14px] text-black mb-1">
+              <p className="font-inter-tight font-semibold text-[14px] text-black mb-1">
                 Description
               </p>
               {description ? (
-                <p className="font-sf-pro-display text-[13px] text-[#3C3C43] leading-relaxed">
+                <p className="font-inter-tight text-[13px] text-[#3C3C43] leading-relaxed">
                   {description}
                 </p>
               ) : (
-                <p className="text-sm text-gray-400 font-sf-pro-display italic">
+                <p className="text-sm text-gray-400 font-inter-tight italic">
                   No description provided.
                 </p>
               )}

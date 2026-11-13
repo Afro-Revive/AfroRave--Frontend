@@ -37,7 +37,7 @@ export function AddFilterBUtton({
           )}
         >
           <img src={img} alt="Filter" width={16} height={14} />
-          <span className={cn("hidden md:blockfont-medium text-xs font-sf-pro-rounded", className)}>
+          <span className={cn("hidden md:blockfont-medium text-xs font-inter-tight", className)}>
             {FILTER_LABELS[activeFilter]}
           </span>
         </Button>

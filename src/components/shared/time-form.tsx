@@ -23,7 +23,7 @@ export function TimeForm<T extends FieldValues>({
   return (
     <div className='w-full min-w-0 flex flex-col gap-2'>
       {label && (
-        <p className='text-sm font-sf-pro-text leading-[100%] text-system-black uppercase font-medium'>
+        <p className='text-sm font-work-sans leading-[100%] text-system-black uppercase font-medium'>
           {label}
         </p>
       )}
@@ -63,7 +63,7 @@ function TimeInput<T extends FieldValues>({
     <FormField
       form={form}
       name={name}
-      className={cn('w-fit text-xs uppercase font-sf-pro-text text-black flex flex-col gap-1', {
+      className={cn('w-fit text-xs uppercase font-inter-tight text-black flex flex-col gap-1', {
         'border border-mid-dark-gray/50 rounded-r-[4px]': type !== 'number',
       })}>
       {(field) => (

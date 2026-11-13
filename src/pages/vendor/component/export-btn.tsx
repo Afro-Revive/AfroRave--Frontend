@@ -8,7 +8,7 @@ export function ExportButton() {
       className="px-5 py-2.5 rounded-[6px] gap-1 h-8 text-black"
     >
       <Upload />
-      <span className="font-sf-pro-text text-xs capitalize">Export</span>
+      <span className="font-inter-tight text-xs capitalize">Export</span>
     </Button>
   );
 }

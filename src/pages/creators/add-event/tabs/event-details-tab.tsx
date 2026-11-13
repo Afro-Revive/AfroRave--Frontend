@@ -236,7 +236,7 @@ export default function EventDetailsTab({
           {(field) => (
             <Textarea
               placeholder="Enter your terms and refund policy."
-              className="w-full h-[272px] text-black bg-white px-3 py-[11px] rounded-[4px] border border-mid-dark-gray/50 text-sm font-sf-pro-display"
+              className="w-full h-[272px] text-black bg-white px-3 py-[11px] rounded-[4px] border border-mid-dark-gray/50 text-sm font-inter-tight"
               {...field}
               value={field.value == null ? "" : String(field.value)}
             />

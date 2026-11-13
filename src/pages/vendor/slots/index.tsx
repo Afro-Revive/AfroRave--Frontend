@@ -58,7 +58,7 @@ export default function VendorSlotsPage() {
         subtitle='Track every slot you’ve requested.'
         aside={
           paymentCount > 0 && (
-            <span className='inline-flex items-center gap-1.5 rounded-md bg-[#5C3A00] px-2.5 py-1 font-sf-pro-text text-xs text-orange-peel'>
+            <span className='inline-flex items-center gap-1.5 rounded-md bg-[#5C3A00] px-2.5 py-1 font-inter-tight text-xs text-orange-peel'>
               <RiTimeLine className='size-3.5' />
               {paymentCount} {paymentCount === 1 ? 'slot needs' : 'slots need'} payment
             </span>
@@ -82,7 +82,7 @@ export default function VendorSlotsPage() {
           action={
             <Link
               to={getRoutePath('vendor_discover')}
-              className='inline-flex h-9 items-center rounded-md bg-light-red px-2 font-sf-pro-text text-sm font-medium text-white transition-colors hover:bg-light-red/85'>
+              className='inline-flex h-9 items-center rounded-md bg-light-red px-2 font-inter-tight text-sm font-medium text-white transition-colors hover:bg-light-red/85'>
               Discover Events
             </Link>
           }
@@ -142,7 +142,7 @@ function FilterChip({ label, count, active, onClick }: { label: string; count: n
       aria-pressed={active}
       onClick={onClick}
       className={cn(
-        'h-[27px] rounded-full border border-white px-3 font-sf-pro-text text-xs transition-colors',
+        'h-[27px] rounded-full border border-white px-3 font-inter-tight text-xs transition-colors',
         active ? 'bg-white text-black' : 'text-white hover:bg-white/10',
       )}>
       {label} {count}

@@ -43,7 +43,7 @@ export default function SettingsPage() {
       <div className="w-full max-w-[550px] md:ml-[280px] flex flex-col gap-8 pb-[100px] pt-12">
         {/* Security Section */}
         <div className="flex flex-col gap-4 ">
-          <h2 className="text-xl font-extrabold font-inter text-white">
+          <h2 className="text-xl font-extrabold font-inter-tight text-white">
             Account Settings
           </h2>
           <FormBase
@@ -111,7 +111,7 @@ export default function SettingsPage() {
             <Button
               type="submit"
               disabled={changePasswordMutation.isPending}
-              className="w-full mt-2 bg-white hover:bg-white/80 text-deep-red uppercase font-bold text-xs font-inter"
+              className="w-full mt-2 bg-white hover:bg-white/80 text-deep-red uppercase font-bold text-xs font-inter-tight"
             >
               {changePasswordMutation.isPending
                 ? "Updating..."
@@ -123,7 +123,7 @@ export default function SettingsPage() {
           variant="ghost"
           onClick={() => logoutMutation.mutate()}
           disabled={logoutMutation.isPending}
-          className="w-fit font-inter text-sm uppercase"
+          className="w-fit font-inter-tight text-sm uppercase"
         >
           <RiLogoutBoxLine className="text-deep-red w-10 h-10" />
           {logoutMutation.isPending ? "Logging out..." : "Log Out"}

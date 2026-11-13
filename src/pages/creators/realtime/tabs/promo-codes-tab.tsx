@@ -22,10 +22,10 @@ export default function PromoCodesTab(props: IAnalyticsTabProps) {
 
           <div className='flex flex-col gap-4 rounded-[4px] border border-light-gray bg-white px-5 py-4'>
             <div className='flex flex-col gap-1'>
-              <span className='text-[11px] uppercase tracking-wider text-mid-dark-gray font-sf-pro-text'>
+              <span className='text-[11px] uppercase tracking-wider text-mid-dark-gray font-inter-tight'>
                 Top partner
               </span>
-              <span className='text-lg font-medium text-black font-sf-pro-display'>
+              <span className='text-lg font-medium text-black font-inter-tight'>
                 {data.topPartner || '—'}
               </span>
             </div>
@@ -66,13 +66,13 @@ function Figure({
         'flex flex-col gap-1 rounded-[4px] border border-light-gray bg-white px-5 py-4',
         className,
       )}>
-      <span className='text-[11px] uppercase tracking-wider text-mid-dark-gray font-sf-pro-text'>
+      <span className='text-[11px] uppercase tracking-wider text-mid-dark-gray font-inter-tight'>
         {label}
       </span>
-      <span className='text-2xl font-medium text-black font-sf-pro-display tabular-nums'>
+      <span className='text-2xl font-medium text-black font-inter-tight tabular-nums'>
         {value}
       </span>
-      {caption && <span className='text-xs text-mid-dark-gray font-sf-pro-text'>{caption}</span>}
+      {caption && <span className='text-xs text-mid-dark-gray font-inter-tight'>{caption}</span>}
     </div>
   )
 }

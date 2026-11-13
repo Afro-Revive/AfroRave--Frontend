@@ -24,14 +24,14 @@ export default function SupportTab() {
   return (
     <div className='w-full flex flex-col items-center gap-8 pb-[100px] px-4 md:px-0'>
       {/* Title */}
-      <h2 className='text-white text-xl md:text-2xl font-sf-pro-display font-semibold'>
+      <h2 className='text-white text-xl md:text-2xl font-inter-tight font-semibold'>
         CONTACT US
       </h2>
 
       <FormBase
         form={form}
         onSubmit={onSubmit}
-        className='w-full flex flex-col items-center gap-6 font-sf-pro-display'>
+        className='w-full flex flex-col items-center gap-6 font-inter-tight'>
         {/* Email Field */}
         <FormField
           form={form}
@@ -59,7 +59,7 @@ export default function SupportTab() {
         {/* Submit Button */}
         <Button
           type='submit'
-          className='w-[200px] h-12 bg-white hover:bg-white/90 text-deep-red font-sf-pro-display font-semibold rounded-lg transition-colors'>
+          className='w-[200px] h-12 bg-white hover:bg-white/90 text-deep-red font-inter-tight font-semibold rounded-lg transition-colors'>
           SUBMIT
         </Button>
       </FormBase>

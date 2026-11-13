@@ -101,8 +101,8 @@ export function TicketCard({
                 <X size={20} />
               </button>
             </DialogClose>
-            <p className='font-bold font-sf-pro-display text-[17px] text-black text-center leading-snug'>{ticket.ticketName}</p>
-            <p className='text-sm text-gray-500 font-sf-pro-display mt-1 text-center'>
+            <p className='font-bold font-inter-tight text-[17px] text-black text-center leading-snug'>{ticket.ticketName}</p>
+            <p className='text-sm text-gray-500 font-inter-tight mt-1 text-center'>
               {isUnlimited
                 ? '∞ tickets available'
                 : isSoldOut
@@ -117,25 +117,25 @@ export function TicketCard({
               /* Door ticket — Sell On Mobile App */
               <button
                 type='button'
-                className='w-full py-2 rounded-full bg-[#E5E5EA] text-[#3C3C43] text-sm font-sf-pro-display font-medium'
+                className='w-full py-2 rounded-full bg-[#E5E5EA] text-[#3C3C43] text-sm font-inter-tight font-medium'
                 onClick={() => {}}>
                 Sell On Mobile App
               </button>
             ) : (
               <>
                 <div>
-                  <p className='font-sf-pro-display font-bold text-[15px] text-black mb-1'>Description</p>
+                  <p className='font-inter-tight font-bold text-[15px] text-black mb-1'>Description</p>
                   {isLoadingDetail ? (
-                    <p className='text-sm text-gray-400 font-sf-pro-display'>Loading...</p>
+                    <p className='text-sm text-gray-400 font-inter-tight'>Loading...</p>
                   ) : isDetailError ? (
-                    <p className='text-sm text-red-400 font-sf-pro-display italic'>Failed to load details.</p>
+                    <p className='text-sm text-red-400 font-inter-tight italic'>Failed to load details.</p>
                   ) : description ? (
                     <RichTextContent
                       value={description}
-                      className='font-sf-pro-display text-[14px] text-black leading-relaxed'
+                      className='font-inter-tight text-[14px] text-black leading-relaxed'
                     />
                   ) : (
-                    <p className='text-sm text-gray-400 font-sf-pro-display italic'>No description provided.</p>
+                    <p className='text-sm text-gray-400 font-inter-tight italic'>No description provided.</p>
                   )}
                 </div>
                 {accessType === 'Invite' && (
@@ -165,7 +165,7 @@ function CopyLinkButton({ ticketId, eventId }: { ticketId: string; eventId: stri
     <Button
       type='button'
       onClick={handleCopy}
-      className='w-full h-9 rounded-full bg-deep-red hover:bg-deep-red/90 text-white text-xs font-semibold font-sf-pro-text uppercase'>
+      className='w-full h-9 rounded-full bg-deep-red hover:bg-deep-red/90 text-white text-xs font-semibold font-inter-tight uppercase'>
       {copied ? 'Copied!' : 'Copy Link'}
     </Button>
   )

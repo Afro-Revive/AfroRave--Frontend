@@ -190,10 +190,10 @@ export function VendorRegistrationModal({
                                     className="h-12 object-contain"
                                 />
                             </div>
-                            <h2 className="text-2xl font-bold text-black font-sf-pro-display mb-2">
+                            <h2 className="text-2xl font-bold text-black font-inter-tight mb-2">
                                 CONGRATULATIONS!
                             </h2>
-                            <p className="text-sm text-gray-700 font-sf-pro-text leading-relaxed">
+                            <p className="text-sm text-gray-700 font-inter-tight leading-relaxed">
                                 Thank you for signing up. You'll be notified as soon as we officially launch.
                             </p>
                         </motion.div>
@@ -216,10 +216,10 @@ export function VendorRegistrationModal({
 
                             {/* Header */}
                             <div className="text-center mb-6">
-                                <h2 className="text-2xl md:text-3xl font-bold text-black font-sf-pro-display mb-2">
+                                <h2 className="text-2xl md:text-3xl font-bold text-black font-inter-tight mb-2">
                                     OWN THE SPOTLIGHT
                                 </h2>
-                                <p className="text-sm md:text-base text-gray-600 font-sf-pro-text">
+                                <p className="text-sm md:text-base text-gray-600 font-inter-tight">
                                     Tell us about you.
                                 </p>
                             </div>
@@ -356,7 +356,7 @@ export function VendorRegistrationModal({
                                     <Button
                                         type="submit"
                                         disabled={isSubmitting}
-                                        className="w-auto px-12 h-10 bg-black text-white rounded-full font-sf-pro-display font-semibold text-sm hover:bg-gray-900 transition-colors disabled:opacity-50 uppercase"
+                                        className="w-auto px-12 h-10 bg-black text-white rounded-full font-inter-tight font-semibold text-sm hover:bg-gray-900 transition-colors disabled:opacity-50 uppercase"
                                     >
                                         {isSubmitting ? 'SUBMITTING...' : 'SUBMIT'}
                                     </Button>

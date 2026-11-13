@@ -58,10 +58,10 @@ export function VendorSuccessOverlay({ onClose }: VendorSuccessOverlayProps) {
 
                 {/* Content */}
                 <div className="text-center space-y-4">
-                    <h2 className="text-2xl md:text-3xl font-bold text-black font-sf-pro-display">
+                    <h2 className="text-2xl md:text-3xl font-bold text-black font-inter-tight">
                         CONGRATULATIONS!
                     </h2>
-                    <p className="text-sm md:text-base text-gray-700 font-sf-pro-text leading-relaxed">
+                    <p className="text-sm md:text-base text-gray-700 font-inter-tight leading-relaxed">
                         Thank you for signing up. You'll be notified as soon as we officially
                         launch.
                     </p>

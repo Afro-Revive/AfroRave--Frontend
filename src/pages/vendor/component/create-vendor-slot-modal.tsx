@@ -302,11 +302,11 @@ export default function CreateVendorSlot({
         className="w-full flex flex-col gap-5 mb-5"
       >
         {isRevenue ? (
-          <p className="font-inter uppercase text-base font-medium text-system-black">
+          <p className="font-inter-tight uppercase text-base font-medium text-system-black">
             Stall Details
           </p>
         ) : (
-          <p className="font-inter uppercase text-base font-medium text-system-black">
+          <p className="font-inter-tight uppercase text-base font-medium text-system-black">
             Service Details
           </p>
         )}
@@ -448,7 +448,7 @@ export default function CreateVendorSlot({
         {isRevenue ? null : (
           <div>
             <div className="flex flex-row justify-between items-center mb-4">
-              <p className="font-inter uppercase text-base font-medium text-system-black">
+              <p className="font-inter-tight uppercase text-base font-medium text-system-black">
                 Work Duration
               </p>
               <p className="text-sm text-muted-foreground">(Optional)</p>
@@ -473,7 +473,7 @@ export default function CreateVendorSlot({
         )}
 
         <div>
-          <p className="font-inter uppercase text-base font-medium text-system-black">
+          <p className="font-inter-tight uppercase text-base font-medium text-system-black">
             Application Deadline
           </p>
 

@@ -46,7 +46,7 @@ export default function SideBarMenu({ onClose }: MobileMenuProps) {
   return (
     <div className="flex flex-col h-full z-[10] overflow-y-auto scrollbar-none px-6">
       {isAuthenticated && (
-        <span className="absolute top-4 left-5 flex w-12 h-12 border-white border items-center justify-center rounded-full bg-charcoal font-sf-pro-text text-sm font-black uppercase text-white">
+        <span className="absolute top-4 left-5 flex w-12 h-12 border-white border items-center justify-center rounded-full bg-charcoal font-inter-tight text-sm font-black uppercase text-white">
           {getUserInitials(user)}
         </span>
       )}

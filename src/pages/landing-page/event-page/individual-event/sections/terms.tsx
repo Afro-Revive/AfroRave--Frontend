@@ -10,14 +10,14 @@ export default function TermsSection() {
       </div>
 
       <div className="flex flex-col gap-4 mb-20">
-        <p className="font-sf-pro-display">
+        <p className="font-inter-tight">
           Step into the vibrant world of ALTÉ — where sound, fashion, and
           self-expression collide. ALTÉ RENAISSANCE is a night curated for the
           bold and the free, a sonic exhibition of Nigeria’s new-wave culture.
         </p>
 
         <EventOutlineButton>
-          <span className="text-sm font-medium font-sf-pro-rounded">
+          <span className="text-sm font-medium font-inter-tight">
             Read More
           </span>
         </EventOutlineButton>

@@ -68,7 +68,7 @@ export function CreatorMenuButton({ user, variant = 'light', onSettingsClick }: 
                 : 'border-black text-black hover:bg-black/10 bg-white'
             }`}>
             <span
-              className={`font-sf-pro-text text-[14px] uppercase ${
+              className={`font-inter-tight text-[14px] uppercase ${
                 variant === 'dark'
                   ? 'text-white group-hover:text-white'
                   : 'text-black group-hover:text-black'

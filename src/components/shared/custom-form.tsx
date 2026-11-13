@@ -38,7 +38,7 @@ export const CustomInput = React.forwardRef<
       ref={ref}
       placeholder={placeholder}
       className={cn(
-        'w-full h-10 text-black px-3 py-[11px] rounded-[4px] bg-white border border-mid-dark-gray/50 text-sm font-sf-pro-display',
+        'w-full h-10 text-black px-3 py-[11px] rounded-[4px] bg-white border border-mid-dark-gray/50 text-sm font-inter-tight',
         className,
       )}
       {...props}

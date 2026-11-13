@@ -111,7 +111,7 @@ export default function VendorEventDetailsPage() {
           action={
             <Link
               to={getRoutePath('vendor_discover')}
-              className='inline-flex h-9 items-center rounded-md bg-light-red px-3 font-sf-pro-text text-sm font-medium text-white'>
+              className='inline-flex h-9 items-center rounded-md bg-light-red px-3 font-inter-tight text-sm font-medium text-white'>
               Back to Discover
             </Link>
           }
@@ -169,7 +169,7 @@ export default function VendorEventDetailsPage() {
           )}
 
           {slots.some((slot) => !isRevenueSlot(slot)) && (
-            <p className='font-sf-pro-text text-xs text-[#9A9A9A]'>
+            <p className='font-inter-tight text-xs text-[#9A9A9A]'>
               For services, enter the price you’d charge. The organizer sees it with your request.
             </p>
           )}

@@ -31,10 +31,10 @@ export default function VendorsTab(props: IAnalyticsTabProps) {
 
           <div className='flex flex-col gap-3 rounded-[4px] border border-light-gray bg-white px-5 py-4'>
             <div className='flex flex-col gap-1'>
-              <span className='text-[11px] uppercase tracking-wider text-mid-dark-gray font-sf-pro-text'>
+              <span className='text-[11px] uppercase tracking-wider text-mid-dark-gray font-inter-tight'>
                 Top category
               </span>
-              <span className='text-lg font-medium text-black font-sf-pro-display'>
+              <span className='text-lg font-medium text-black font-inter-tight'>
                 {data.topVendorCategory || '—'}
               </span>
             </div>
@@ -44,7 +44,7 @@ export default function VendorsTab(props: IAnalyticsTabProps) {
                 {data.allVendorCategories.map((category) => (
                   <li
                     key={category}
-                    className='rounded-full bg-light-gray px-3 py-1 text-xs text-mid-dark-gray font-sf-pro-text'>
+                    className='rounded-full bg-light-gray px-3 py-1 text-xs text-mid-dark-gray font-inter-tight'>
                     {category}
                   </li>
                 ))}
@@ -60,10 +60,10 @@ export default function VendorsTab(props: IAnalyticsTabProps) {
 function Figure({ label, value }: { label: string; value: string }) {
   return (
     <div className='flex flex-col gap-1 rounded-[4px] border border-light-gray bg-white px-5 py-4'>
-      <span className='text-[11px] uppercase tracking-wider text-mid-dark-gray font-sf-pro-text'>
+      <span className='text-[11px] uppercase tracking-wider text-mid-dark-gray font-inter-tight'>
         {label}
       </span>
-      <span className='text-2xl font-medium text-black font-sf-pro-display tabular-nums'>
+      <span className='text-2xl font-medium text-black font-inter-tight tabular-nums'>
         {value}
       </span>
     </div>

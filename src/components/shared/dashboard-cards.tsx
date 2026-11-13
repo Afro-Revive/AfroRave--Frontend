@@ -211,7 +211,7 @@ function EventButtons({
         />
       )}
       {label && (
-        <span className="font-sf-pro-text text-[10px] font-semibold uppercase text-black whitespace-nowrap">
+        <span className="font-inter-tight text-[10px] font-semibold uppercase text-black whitespace-nowrap">
           {label}
         </span>
       )}

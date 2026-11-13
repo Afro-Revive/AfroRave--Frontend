@@ -87,7 +87,7 @@ export default function ResellPage() {
 
           {/* Steps */}
           <section className="mt-20 md:mt-28">
-            <h2 className="font-inter text-2xl md:text-4xl font-black uppercase leading-tight">
+            <h2 className="font-inter-tight text-2xl md:text-4xl font-black uppercase leading-tight">
               Sell Your Tickets In
               <br />3 Simple Steps
             </h2>
@@ -101,11 +101,11 @@ export default function ResellPage() {
 
           {/* Important to know */}
           <section className="mt-20 md:mt-28 flex flex-col gap-5">
-            <h2 className="font-inter text-2xl md:text-4xl font-black uppercase">
+            <h2 className="font-inter-tight text-2xl md:text-4xl font-black uppercase">
               Important To Know
             </h2>
 
-            <p className="font-sf-pro-display max-w-xl text-base md:text-xl leading-relaxed text-secondary-white">
+            <p className="font-inter-tight max-w-xl text-base md:text-xl leading-relaxed text-secondary-white">
               Resale availability may depend on the event organizer, ticket type,
               event rules, or resale deadline.
             </p>
@@ -137,10 +137,10 @@ function StepCard({
 
       <div className="flex items-center gap-2">
         <span className="shrink-0 text-white">{icon}</span>
-        <h3 className="font-sf-pro-display font-semibold text-base font-bold">{title}</h3>
+        <h3 className="font-inter-tight font-semibold text-base font-bold">{title}</h3>
       </div>
 
-      <p className="font-sf-pro-display text-sm md:text-base leading-relaxed text-white">
+      <p className="font-inter-tight text-sm md:text-base leading-relaxed text-white">
         {description}
       </p>
     </div>

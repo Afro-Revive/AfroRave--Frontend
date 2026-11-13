@@ -181,7 +181,7 @@ export function CreatorSettingsModal({ open, onOpenChange, customTrigger }: Crea
                                     <button
                                         type="button"
                                         onClick={handleMarkAllRead}
-                                        className="text-[12px] text-deep-red font-sf-pro-display hover:underline">
+                                        className="text-[12px] text-deep-red font-inter-tight hover:underline">
                                         Mark all as read
                                     </button>
                                 )}
@@ -190,12 +190,12 @@ export function CreatorSettingsModal({ open, onOpenChange, customTrigger }: Crea
                             <div className="flex-1 overflow-y-auto">
                                 {groups.length === 0 ? (
                                     <div className="flex items-center justify-center h-full">
-                                        <p className="text-[13px] text-gray-400 font-sf-pro-display py-6 uppercase">No notifications</p>
+                                        <p className="text-[13px] text-gray-400 font-inter-tight py-6 uppercase">No notifications</p>
                                     </div>
                                 ) : (
                                     groups.map(group => (
                                         <div key={group}>
-                                            <p className="text-[11px] text-gray-400 font-sf-pro-display px-5 pt-4 pb-2 uppercase tracking-wider">
+                                            <p className="text-[11px] text-gray-400 font-inter-tight px-5 pt-4 pb-2 uppercase tracking-wider">
                                                 {group}
                                             </p>
                                             {visibleNotifications
@@ -212,15 +212,15 @@ export function CreatorSettingsModal({ open, onOpenChange, customTrigger }: Crea
                                                             />
                                                         </div>
                                                         <div className="flex-1 min-w-0">
-                                                            <p className="text-[13px] font-medium text-black font-sf-pro-display truncate">
+                                                            <p className="text-[13px] font-medium text-black font-inter-tight truncate">
                                                                 {notification.subject}
                                                             </p>
-                                                            <p className="text-[12px] text-gray-500 font-sf-pro-display truncate">
+                                                            <p className="text-[12px] text-gray-500 font-inter-tight truncate">
                                                                 {notification.message}
                                                             </p>
                                                         </div>
                                                         <div className="flex items-center gap-1.5 shrink-0">
-                                                            <p className="text-[11px] text-gray-400 font-sf-pro-display">
+                                                            <p className="text-[11px] text-gray-400 font-inter-tight">
                                                                 {formatMonthDay(notification.createdDate)}
                                                             </p>
                                                             {!notification.viewed && (
@@ -239,7 +239,7 @@ export function CreatorSettingsModal({ open, onOpenChange, customTrigger }: Crea
                         <TabsContent value="settings" className="flex flex-col items-center w-full px-6 pt-6 pb-6 overflow-y-auto flex-1 gap-0">
                             {/* Change Password */}
                             <div className="w-full flex flex-col gap-3 pb-5 border-b border-gray-100">
-                                <p className="text-[13px] text-black font-sf-pro-display">Change Password</p>
+                                <p className="text-[13px] text-black font-inter-tight">Change Password</p>
 
                                 <FormBase
                                     form={passwordForm}
@@ -313,7 +313,7 @@ export function CreatorSettingsModal({ open, onOpenChange, customTrigger }: Crea
                                 disabled={logoutMutation.isPending}
                                 className="w-full flex items-center gap-2 py-4 border-b border-gray-100 hover:bg-gray-50 -mx-2 px-2 transition-colors text-deep-red disabled:opacity-50">
                                 <LogOut className="size-4" />
-                                <span className="text-[13px] font-medium font-sf-pro-display">
+                                <span className="text-[13px] font-medium font-inter-tight">
                                     {logoutMutation.isPending ? 'Logging out...' : 'Log Out'}
                                 </span>
                             </button>

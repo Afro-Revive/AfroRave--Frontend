@@ -64,12 +64,12 @@ export function BaseCheckbox({
 
                 <Label
                   htmlFor={item.id}
-                  className={cn('text-sm uppercase font-sf-pro-text', labelClassName)}>
+                  className={cn('text-sm uppercase font-inter-tight', labelClassName)}>
                   {item.label}
                 </Label>
               </div>
               {item.description && (
-                <p className={cn('text-xs font-light font-sf-pro-display text-black', descriptionClassName)}>
+                <p className={cn('text-xs font-light font-inter-tight text-black', descriptionClassName)}>
                   {item.description}
                 </p>
               )}
@@ -78,7 +78,7 @@ export function BaseCheckbox({
         </div>
 
         {data.description && (
-          <p className={cn('text-xs font-light font-sf-pro-display', descriptionClassName)}>
+          <p className={cn('text-xs font-light font-inter-tight', descriptionClassName)}>
             {data.description}
           </p>
         )}

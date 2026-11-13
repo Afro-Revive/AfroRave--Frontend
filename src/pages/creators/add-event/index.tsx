@@ -142,7 +142,7 @@ export default function AddEventPage() {
               else leaveAsDraft()
             }}
             disabled={isCreatingEvent}
-            className='h-8 w-fit px-4 text-[10px] uppercase font-sf-pro-text font-bold rounded-[5px] bg-white text-deep-red border border-deep-red hover:bg-white/90'>
+            className='h-8 w-fit px-4 text-[10px] uppercase font-inter-tight font-bold rounded-[5px] bg-white text-deep-red border border-deep-red hover:bg-white/90'>
             {isCreatingEvent ? 'SAVING...' : 'SAVE AS DRAFTS'}
           </Button>
           {/* <CreatorMenuButton user={user} variant='dark' /> */}
@@ -157,7 +157,7 @@ export default function AddEventPage() {
           <div className='w-full h-fit flex flex-col items-center'>
             <section className='w-full flex flex-col gap-10 px-5 md:px-14 pt-6 md:pt-8'>
               <div className='flex flex-col gap-6 '>
-                <div className='flex flex-col gap-2 text-black font-sf-pro-display'>
+                <div className='flex flex-col gap-2 text-black font-inter-tight'>
                   <p className='font-black text-2xl md:text-4xl uppercase'>{heading}</p>
                   <p className='text-[13px] max-w-[351px] uppercase'>{description}</p>
                   <p className='text-xl font-black'>STEP {step || 1}</p>
@@ -192,7 +192,7 @@ function CustomTabTriggers({
           disabled
           key={tab.value}
           value={tab.value}
-          className='bg-transparent p-0 font-sf-pro-rounded font-normal text-xs md:text-sm text-white/50 data-[state=active]:text-white data-[state=active]:bg-transparent data-[state=active]:shadow-none disabled:opacity-100 uppercase'>
+          className='bg-transparent p-0 font-inter-tight font-normal text-xs md:text-sm text-white/50 data-[state=active]:text-white data-[state=active]:bg-transparent data-[state=active]:shadow-none disabled:opacity-100 uppercase'>
           {tab.name}
         </TabsTrigger>
       ))}
@@ -209,11 +209,11 @@ function MoreTabDetails({ type = 'error' }: { type?: 'error' | 'theme' }) {
       })}>
       {/* <div className='flex items-center gap-2'>
         <Info size={16} className='text-inherit' />
-        <p className='text-sm font-medium leading-[100%] font-sf-pro-display'>
+        <p className='text-sm font-medium leading-[100%] font-inter-tight'>
           {type === 'error' ? 'Changes will be lost' : 'You can come back to this later'}
         </p>
       </div>
-      <p className='text-[13px] font-sf-pro-display'>
+      <p className='text-[13px] font-inter-tight'>
         {type === 'error'
           ? 'If you leave now any changes will not be saved.'
           : `No worries if you’re not ready to complete this step now. You can always return to it at anytime from your dashboard.`}

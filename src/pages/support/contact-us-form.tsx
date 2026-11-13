@@ -29,7 +29,7 @@ const FAN_SUPPORT_CATEGORY = 'Platform support'
 // Matches the settings page's fields, which sit on the same radial backdrop.
 const fieldClass = 'w-full bg-transparent border border-white rounded-sm px-3 h-fit'
 
-const labelClass = 'text-white pt-3 font-sf-pro-display md:text-sm text-xs text-white'
+const labelClass = 'text-white pt-3 font-inter-tight md:text-sm text-xs text-white'
 
 export default function ContactUsForm() {
   const user = useAfroStore((state) => state.user)

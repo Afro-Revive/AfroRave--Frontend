@@ -134,7 +134,7 @@ function EventCard({
 }
 
 function CategoryBlockName({ name }: { name: string }) {
-  return <p className='text-xl font-bold font-sf-pro-display'>{name}</p>
+  return <p className='text-xl font-bold font-inter-tight'>{name}</p>
 }
 
 export function CategoryBlockSkeleton({ name }: { name?: string }) {

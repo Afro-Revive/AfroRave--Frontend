@@ -44,7 +44,7 @@ export default function VendorSidebar({ onNavigate }: { onNavigate?: () => void 
           type='button'
           onClick={() => logoutMutation.mutate()}
           disabled={logoutMutation.isPending}
-          className='flex h-10 w-full items-center gap-4 rounded-full bg-[#721414] px-5 font-sf-pro-text text-sm font-medium text-white transition-colors hover:bg-[#8A1818] disabled:opacity-60'>
+          className='flex h-10 w-full items-center gap-4 rounded-full bg-[#721414] px-5 font-inter-tight text-sm font-medium text-white transition-colors hover:bg-[#8A1818] disabled:opacity-60'>
           <RiArrowLeftLine className='size-4' />
           Log Out
         </button>

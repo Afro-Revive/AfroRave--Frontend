@@ -120,7 +120,7 @@ export default function VendorSlotDetailsPage() {
         action={
           <Link
             to={getRoutePath('vendor_slots')}
-            className='inline-flex h-9 items-center rounded-md bg-light-red px-3 font-sf-pro-text text-sm font-medium text-white'>
+            className='inline-flex h-9 items-center rounded-md bg-light-red px-3 font-inter-tight text-sm font-medium text-white'>
             Back to My Slots
           </Link>
         }
@@ -178,7 +178,7 @@ function EventFlyerCard({ application, event }: { application: VendorApplication
             to={getRoutePath('individual_event', { eventId: event.customUrl })}
             target='_blank'
             rel='noopener noreferrer'
-            className='mt-2 w-fit rounded-md bg-white/30 px-3 py-1.5 font-inter text-xs font-bold text-white backdrop-blur-sm transition-colors hover:bg-white/40'>
+            className='mt-2 w-fit rounded-md bg-white/30 px-3 py-1.5 font-inter-tight text-xs font-bold text-white backdrop-blur-sm transition-colors hover:bg-white/40'>
             Go to eventpage
           </Link>
         )}
@@ -197,7 +197,7 @@ function CommunityCard() {
   return (
     <section className='flex flex-col gap-2 rounded-2xl border border-white/30 p-5'>
       <h2 className='font-inter-tight text-lg font-bold text-white'>Join The Community</h2>
-      <p className='font-sf-pro-text text-[13px] leading-snug text-white'>
+      <p className='font-inter-tight text-[13px] leading-snug text-white'>
         Follow us on social media for exciting updates and become a certified Afrorevive vendor!
       </p>
       <div className='mt-2 flex items-center gap-4'>

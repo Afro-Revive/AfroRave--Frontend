@@ -58,8 +58,8 @@ function EmptyState({
 }) {
   return (
     <div className='w-full flex flex-col items-center justify-center gap-4 py-16'>
-      <p className='font-sf-pro-display text-xl font-bold text-black'>{heading}</p>
-      {body && <p className='font-sf-pro-text text-sm text-mid-dark-gray'>{body}</p>}
+      <p className='font-inter-tight text-xl font-bold text-black'>{heading}</p>
+      {body && <p className='font-inter-tight text-sm text-mid-dark-gray'>{body}</p>}
       <Button onClick={onGoToEvents}>Go to Events</Button>
     </div>
   )
@@ -94,10 +94,10 @@ export function CreatorPageContainer({
               className='w-fit h-fit hover:bg-black/10 !p-1 flex items-center gap-3'
               onClick={onBack}>
               <ChevronLeft color='#000000' className='min-w-1.5 min-h-3' />
-              <span className='text-sm font-medium font-sf-pro-display text-black'>{heading}</span>
+              <span className='text-sm font-medium font-inter-tight text-black'>{heading}</span>
             </Button>
           ) : (
-            <span className='text-sm font-medium font-sf-pro-display text-black'>{heading}</span>
+            <span className='text-sm font-medium font-inter-tight text-black'>{heading}</span>
           )}
 
           {action}

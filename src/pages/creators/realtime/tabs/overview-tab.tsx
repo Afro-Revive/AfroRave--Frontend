@@ -27,7 +27,7 @@ export default function OverviewTab(props: IAnalyticsTabProps) {
 
         return (
           <div className="w-full flex flex-col gap-6">
-            <h2 className="font-inter text-3xl font-semibold text-system-black">Overview</h2>
+            <h2 className="font-inter-tight text-3xl font-semibold text-system-black">Overview</h2>
 
             <div className="w-full flex flex-col lg:flex-row gap-4">
               <BasePieChart

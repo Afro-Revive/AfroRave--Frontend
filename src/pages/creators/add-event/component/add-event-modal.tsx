@@ -18,7 +18,7 @@ export function AddEventModal({ onContinue, type, data, trigger }: TAddEventModa
         <Button
           type='button'
           onClick={() => setOpen(true)}
-          className='self-center w-fit flex items-center gap-2 px-6 py-3 bg-[#00AD2E] rounded-full text-white text-xs font-medium font-sf-pro-text hover:bg-[#00AD2E]/90'>
+          className='self-center w-fit flex items-center gap-2 px-6 py-3 bg-[#00AD2E] rounded-full text-white text-xs font-medium font-inter-tight hover:bg-[#00AD2E]/90'>
           <Plus /> <span>{type === 'ticket' ? 'TICKET' : 'VENDOR SLOT'}</span>
         </Button>
       )}
@@ -57,7 +57,7 @@ export function AddEventModal({ onContinue, type, data, trigger }: TAddEventModa
               }
               setOpen(false)
             }}
-            className='h-10 w-full rounded-[8px] bg-[#232323] text-white hover:bg-[#1E1E1E] text-xs uppercase font-sf-pro-text font-extrabold'>
+            className='h-10 w-full rounded-[8px] bg-[#232323] text-white hover:bg-[#1E1E1E] text-xs uppercase font-inter-tight font-extrabold'>
             Continue
           </Button>
         </div>
@@ -72,7 +72,7 @@ function Title({ type }: { type: TAddEventModal['type'] }) {
       <DialogClose className='self-end'>
         <X size={20} color='#fff' />
       </DialogClose>
-      <div className='w-full flex items-center justify-center text-xl font-black !text-white font-sf-pro-display uppercase'>
+      <div className='w-full flex items-center justify-center text-xl font-black !text-white font-inter-tight uppercase'>
         <p>create</p>
         <Zap color='#fff' />
         <p>{type === 'ticket' ? 'tickets' : 'slots'}</p>
@@ -83,7 +83,7 @@ function Title({ type }: { type: TAddEventModal['type'] }) {
 
 function Description({ type }: { type: TAddEventModal['type'] }) {
   return (
-    <p className='font-light uppercase text-4xlsm font-sf-pro-text text-white pb-3'>
+    <p className='font-light uppercase text-4xlsm font-inter-tight text-white pb-3'>
       {type === 'ticket' ? 'select your ticket format' : 'select vendor type'}
     </p>
   )
@@ -101,8 +101,8 @@ function EventModalCards({ name, caption, action, isSelected, type }: IEventModa
           'border border-deep-red': isSelected,
         },
       )}>
-      <p className='text-charcoal uppercase text-sm leading-[100%] font-sf-pro-text'>{name}</p>
-      <p className='text-[13px] text-wrap leading-[130%] text-[#8E8E93] font-sf-pro-display'>
+      <p className='text-charcoal uppercase text-sm leading-[100%] font-inter-tight'>{name}</p>
+      <p className='text-[13px] text-wrap leading-[130%] text-[#8E8E93] font-inter-tight'>
         {caption}
       </p>
     </Button>

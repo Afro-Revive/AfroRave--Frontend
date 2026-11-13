@@ -252,7 +252,7 @@ function BecomeCreatorSection() {
             // already span the full width, so it only needs plain padding.
             className="flex w-full flex-col gap-1 py-6 text-center md:w-auto md:-my-10 md:px-8 md:py-10 md:first:pl-0 md:last:pr-0"
           >
-            <p className="font-inter font-medium text-2xl">{value}</p>
+            <p className="font-inter-tight font-medium text-2xl">{value}</p>
             <p className="font-input-mono text-sm uppercase tracking-wide text-white">
               {label}
             </p>

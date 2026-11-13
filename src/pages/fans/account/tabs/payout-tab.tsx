@@ -13,7 +13,7 @@ import { AccountInput } from "../components/account-input";
 export default function PayoutTab() {
   return (
     <div className="w-full flex flex-col gap-8 pb-[100px]">
-      <p className="font-sf-pro-display text-sm text-center px-3">
+      <p className="font-inter-tight text-sm text-center px-3">
         Add your payout account details to receive funds from your Ticket sales
       </p>
 
@@ -21,7 +21,7 @@ export default function PayoutTab() {
 
       <CreditCard />
 
-      <div className="flex flex-col gap-1 font-sf-pro-display">
+      <div className="flex flex-col gap-1 font-inter-tight">
         <p className="font-semibold text-white">
           If the event is canceled, postponed or rescheduled
         </p>
@@ -57,11 +57,11 @@ function PayoutForm() {
                 label="Payment Method"
                 placeholder="Currency"
                 items={africanCurrencies}
-                triggerClassName="!h-10 w-[85px] rounded-l-[5px] rounded-r-none px-3 bg-soft-gray text-sm font-sf-pro-display !text-white !placeholder:text-white border-none"
+                triggerClassName="!h-10 w-[85px] rounded-l-[5px] rounded-r-none px-3 bg-soft-gray text-sm font-inter-tight !text-white !placeholder:text-white border-none"
               />
             )}
           </FormField>
-          <p className="flex w-full h-10 rounded-r-[5px] bg-soft-gray justify-center items-center text-sm font-medium font-sf-pro-display">
+          <p className="flex w-full h-10 rounded-r-[5px] bg-soft-gray justify-center items-center text-sm font-medium font-inter-tight">
             DEBIT/CREDIT CARD
           </p>
         </div>
@@ -91,7 +91,7 @@ function PayoutForm() {
                 label="Month"
                 placeholder="Month"
                 items={date_list.items}
-                triggerClassName="h-10 w-full rounded-none px-3 rounded-t-[5px] bg-transparent text-sm font-sf-pro-display !text-white border-none"
+                triggerClassName="h-10 w-full rounded-none px-3 rounded-t-[5px] bg-transparent text-sm font-inter-tight !text-white border-none"
               />
             )}
           </FormField>
@@ -102,7 +102,7 @@ function PayoutForm() {
                 label="Year"
                 placeholder="Year"
                 items={years}
-                triggerClassName="h-10 w-full rounded-none px-3 rounded-t-[5px] bg-transparent text-sm font-sf-pro-display !text-white border-none"
+                triggerClassName="h-10 w-full rounded-none px-3 rounded-t-[5px] bg-transparent text-sm font-inter-tight !text-white border-none"
               />
             )}
           </FormField>
@@ -121,7 +121,7 @@ function PayoutForm() {
 
       <Button
         variant="destructive"
-        className="w-[200px] h-10 rounded-[5px] bg-white text-sm text-deep-red font-sf-pro-display hover:bg-white/80"
+        className="w-[200px] h-10 rounded-[5px] bg-white text-sm text-deep-red font-inter-tight hover:bg-white/80"
       >
         SAVE
       </Button>
@@ -148,7 +148,7 @@ function CreditCard() {
               width={45}
               height={33}
             />
-            <p className="font-sf-pro-display font-bold text-white">****4567</p>
+            <p className="font-inter-tight font-bold text-white">****4567</p>
           </div>
 
           <img

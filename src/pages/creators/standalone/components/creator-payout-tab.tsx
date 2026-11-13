@@ -58,26 +58,26 @@ export function CreatorPayoutTab() {
 
     return (
         <div className="flex flex-col w-full">
-            <h3 className="text-xl font-bold text-black font-inter">Payout Details</h3>
-            <p className="mt-1 text-[13px] text-gray-500 font-inter">
+            <h3 className="text-xl font-bold text-black font-inter-tight">Payout Details</h3>
+            <p className="mt-1 text-[13px] text-gray-500 font-inter-tight">
                 Manage where your ticket and vendor-slot earnings are paid.
             </p>
 
             {/* Total revenue, and a nudge while there's nowhere to pay it. */}
             <div className="mt-3 rounded-2xl border border-[#D9D9D9] bg-white p-4 text-black">
-                <p className="flex items-center gap-2 text-sm font-semibold text-gray-500 font-inter">
+                <p className="flex items-center gap-2 text-sm font-semibold text-gray-500 font-inter-tight">
                     <RiWallet3Line className="size-5 text-deep-red" aria-hidden />
                     Total Revenue
                 </p>
                 {isWalletLoading ? (
                     <span className="mt-3 block h-8 w-40 rounded bg-black/10 animate-pulse" />
                 ) : (
-                    <p className="mt-2 text-3xl font-bold font-inter">{formatNaira(wallet?.totalRevenue ?? 0)}</p>
+                    <p className="mt-2 text-3xl font-bold font-inter-tight">{formatNaira(wallet?.totalRevenue ?? 0)}</p>
                 )}
 
                 {/* A darker amber than on dark, so it still reads on white. */}
                 {!isBankLoading && !hasBankAccount && (
-                    <p className="mt-3 flex items-start gap-2 border-t border-gray-200 pt-3 text-[13px] text-[#B7791F] font-inter">
+                    <p className="mt-3 flex items-start gap-2 border-t border-gray-200 pt-3 text-[13px] text-[#B7791F] font-inter-tight">
                         <RiInformationLine className="size-5 shrink-0" aria-hidden />
                         No bank account yet. Add one below to enable Auto payout on the next payout date.
                     </p>
@@ -198,8 +198,8 @@ function BankAccountForm({ savedAccount }: { savedAccount?: BankDetailsRequest }
 
     return (
         <div className="mt-6 flex flex-col">
-            <h4 className="text-base font-bold text-black font-inter">Bank Account</h4>
-            <p className="mt-1 text-[13px] text-gray-500 font-inter">
+            <h4 className="text-base font-bold text-black font-inter-tight">Bank Account</h4>
+            <p className="mt-1 text-[13px] text-gray-500 font-inter-tight">
                 Choose your bank and enter your account number. We'll check the account name with your bank before saving.
             </p>
 
@@ -224,7 +224,7 @@ function BankAccountForm({ savedAccount }: { savedAccount?: BankDetailsRequest }
                         <label
                             htmlFor="payout-account-number"
                             className={cn(
-                                "absolute left-4 top-[10px] z-10 pointer-events-none text-[10px] font-sf-pro-display uppercase tracking-widest",
+                                "absolute left-4 top-[10px] z-10 pointer-events-none text-[10px] font-work-sans uppercase tracking-widest",
                                 isError ? "text-deep-red" : "text-mid-dark-gray",
                             )}>
                             Account Number
@@ -250,7 +250,7 @@ function BankAccountForm({ savedAccount }: { savedAccount?: BankDetailsRequest }
                         )}
                     </div>
                     {isError && (
-                        <p role="alert" className="text-[13px] text-deep-red font-inter">
+                        <p role="alert" className="text-[13px] text-deep-red font-inter-tight">
                             We couldn't find this account.
                         </p>
                     )}
@@ -260,7 +260,7 @@ function BankAccountForm({ savedAccount }: { savedAccount?: BankDetailsRequest }
                 {accountName && (
                     <div
                         aria-live="polite"
-                        className="flex h-[44px] items-center rounded-[6px] bg-[#4A4A4A] px-4 text-sm font-semibold text-white font-inter">
+                        className="flex h-[44px] items-center rounded-[6px] bg-[#4A4A4A] px-4 text-sm font-semibold text-white font-inter-tight">
                         {accountName}
                     </div>
                 )}
@@ -292,18 +292,18 @@ function PayoutHistory() {
 
     return (
         <div className="mt-6 flex flex-col">
-            <h4 className="text-base font-bold text-black font-inter">Payout History</h4>
+            <h4 className="text-base font-bold text-black font-inter-tight">Payout History</h4>
 
             {isPending ? (
                 <div className="mt-3 flex justify-center rounded-xl border border-gray-200 py-8">
                     <RiLoader4Line className="size-5 animate-spin text-deep-red" aria-label="Loading payouts" />
                 </div>
             ) : isError ? (
-                <div className="mt-3 rounded-xl border border-gray-200 py-8 text-center text-[13px] text-gray-500 font-inter">
+                <div className="mt-3 rounded-xl border border-gray-200 py-8 text-center text-[13px] text-gray-500 font-inter-tight">
                     Couldn't load your payouts. Please try again.
                 </div>
             ) : items.length === 0 ? (
-                <div className="mt-3 flex flex-col items-center gap-1 rounded-xl border border-gray-300 py-6 text-center font-inter">
+                <div className="mt-3 flex flex-col items-center gap-1 rounded-xl border border-gray-300 py-6 text-center font-inter-tight">
                     <p className="text-sm font-bold text-gray-500">No Payouts Yet</p>
                     <p className="text-[13px] text-gray-500">Your payouts will show here once your first one is sent.</p>
                 </div>
@@ -311,7 +311,7 @@ function PayoutHistory() {
                 <>
                     <ul className="mt-3 flex flex-col divide-y divide-gray-100 rounded-xl border border-gray-200">
                         {items.map((payout) => (
-                            <li key={payout.id} className="flex items-center justify-between gap-3 px-4 py-3 font-inter">
+                            <li key={payout.id} className="flex items-center justify-between gap-3 px-4 py-3 font-inter-tight">
                                 <div className="flex min-w-0 flex-col">
                                     <p className="truncate text-[13px] font-medium text-black">
                                         {payout.description || payout.eventName || payout.transactionType}
@@ -411,8 +411,8 @@ function EarlyPayoutDialog({
     return (
         <Dialog open={open} onOpenChange={close}>
             <DialogContent className="sm:max-w-[400px] rounded-[16px] bg-white p-6">
-                <DialogTitle className="text-lg font-bold text-black font-inter">Request an early payout</DialogTitle>
-                <DialogDescription className="text-[13px] text-gray-500 font-inter">
+                <DialogTitle className="text-lg font-bold text-black font-inter-tight">Request an early payout</DialogTitle>
+                <DialogDescription className="text-[13px] text-gray-500 font-inter-tight">
                     {formatNaira(available)} is available to pay out now.
                 </DialogDescription>
 
@@ -426,7 +426,7 @@ function EarlyPayoutDialog({
                             className={cn(INSET_INPUT_CLASS, error && "border-deep-red focus:border-deep-red")}
                         />
                     </InsetField>
-                    {error && <p role="alert" className="text-[13px] text-deep-red font-inter">{error}</p>}
+                    {error && <p role="alert" className="text-[13px] text-deep-red font-inter-tight">{error}</p>}
                     <button
                         type="button"
                         onClick={() => setAmount(String(available))}
@@ -453,7 +453,7 @@ function EarlyPayoutDialog({
 
 function InfoNote({ className, children }: { className?: string; children: React.ReactNode }) {
     return (
-        <div className={cn("flex items-start gap-2 rounded-lg bg-[#F2F2F2] px-3 py-3 text-[13px] text-black font-inter", className)}>
+        <div className={cn("flex items-start gap-2 rounded-lg bg-[#F2F2F2] px-3 py-3 text-[13px] text-black font-inter-tight", className)}>
             <RiInformationLine className="size-5 shrink-0 text-black" aria-hidden />
             <div>{children}</div>
         </div>

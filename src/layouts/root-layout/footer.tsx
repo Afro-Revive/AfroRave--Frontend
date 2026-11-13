@@ -15,7 +15,7 @@ export default function Footer() {
   return (
     <footer
       className={cn(
-        "w-full flex flex-col items-center md:gap-6 px-8 md:px-[60px] pb-3 md:pb-5 font-sf-pro-rounded",
+        "w-full flex flex-col items-center md:gap-6 px-8 md:px-[60px] pb-3 md:pb-5 font-inter-tight",
         // Transparent so the layout's radial shows through; the excluded event
         // pages keep the flat footer they had.
         hasRadialBackground ? "bg-transparent" : "bg-primary",

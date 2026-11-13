@@ -75,7 +75,7 @@ export function Pagination({
         'w-full flex flex-wrap items-center justify-between gap-4',
         className,
       )}>
-      <p className={cn('font-sf-pro-text text-xs', isDark ? 'text-white/50' : 'text-black/50')}>
+      <p className={cn('font-inter-tight text-xs', isDark ? 'text-white/50' : 'text-black/50')}>
         Page {page} of {totalPages} · {totalCount}{' '}
         {totalCount === 1 ? itemLabel.one : itemLabel.other}
       </p>
@@ -97,7 +97,7 @@ export function Pagination({
               key={`gap-${index}`}
               aria-hidden
               className={cn(
-                'size-8 flex items-center justify-center font-sf-pro-text text-xs',
+                'size-8 flex items-center justify-center font-inter-tight text-xs',
                 isDark ? 'text-white/40' : 'text-black/40',
               )}>
               …
@@ -112,7 +112,7 @@ export function Pagination({
               aria-current={number === page ? 'page' : undefined}
               onClick={() => onPageChange(number)}
               className={cn(
-                'size-8 p-0 rounded-md font-sf-pro-text text-xs',
+                'size-8 p-0 rounded-md font-inter-tight text-xs',
                 number === page
                   ? 'bg-deep-red text-white hover:bg-deep-red/90 hover:text-white'
                   : isDark

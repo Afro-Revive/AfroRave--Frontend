@@ -58,7 +58,7 @@ export function VendorProfileCard() {
           customTrigger={
             <button
               type='button'
-              className='flex h-7 w-full items-center justify-center gap-1.5 rounded-md bg-[#4A4A4A] font-inter text-xs font-semibold text-white transition-colors hover:bg-[#555]'>
+              className='flex h-7 w-full items-center justify-center gap-1.5 rounded-md bg-[#4A4A4A] font-inter-tight text-xs font-semibold text-white transition-colors hover:bg-[#555]'>
               <RiEditBoxLine className='size-3.5' />
               Edit profile
             </button>
@@ -70,7 +70,7 @@ export function VendorProfileCard() {
             customTrigger={
               <button
                 type='button'
-                className='flex h-6 w-full items-center gap-2 rounded-md bg-[#3A3A3A] px-3 font-inter text-xs text-[#9A9A9A] transition-colors hover:text-white'>
+                className='flex h-6 w-full items-center gap-2 rounded-md bg-[#3A3A3A] px-3 font-inter-tight text-xs text-[#9A9A9A] transition-colors hover:text-white'>
                 <RiInformationLine className='size-3.5' />
                 Finish setting up your profile
               </button>

@@ -34,7 +34,7 @@ export function BaseTab({
             key={value}
             value={value}
             className={cn("font-input-mono transition-all duration-300", {
-              "w-fit md:w-full flex items-center justify-start gap-[7px] text-[15px] uppercase rounded-none tracking-[4%] py-7 data-[state=active]:bg-transparent data-[state=active]:shadow-none group font-sf-pro-display font-normal":
+              "w-fit md:w-full flex items-center justify-start gap-[7px] text-[15px] uppercase rounded-none tracking-[4%] py-7 data-[state=active]:bg-transparent data-[state=active]:shadow-none group font-inter-tight font-normal":
                 isAccount,
               "md:border-y md:border-y-white/40 md:py-7": value === "payout",
               "w-[116px] h-9 text-[13px] rounded-[8px] bg-transparent text-white data-[state=active]:bg-white data-[state=active]:text-pure-black":

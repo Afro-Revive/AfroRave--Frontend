@@ -42,7 +42,7 @@ export function AnalyticsGate({ data, isLoading, isError, hasEvent, children }: 
 
 export function AnalyticsMessage({ message }: { message: string }) {
   return (
-    <div className='w-full min-h-[240px] flex items-center justify-center rounded-[4px] bg-white text-sm text-mid-dark-gray font-sf-pro-text'>
+    <div className='w-full min-h-[240px] flex items-center justify-center rounded-[4px] bg-white text-sm text-mid-dark-gray font-inter-tight'>
       {message}
     </div>
   )

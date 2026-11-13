@@ -240,7 +240,7 @@ function EmptyState({ filter }: { filter: EventListFilter }) {
       <p className="text-2xl font-bold font-inter-tight text-light-red text-center">
         {title}
       </p>
-      <p className="text-base text-gray-400 max-w-sm font-sf-pro-text leading-relaxed text-center">
+      <p className="text-base text-gray-400 max-w-sm font-inter-tight leading-relaxed text-center">
         {body}
       </p>
     </div>
@@ -419,7 +419,7 @@ function EventActionButton({
       )}
     >
       <Link to={action.to} onClick={() => setSelectedEventId(eventId)}>
-        <span className="font-sf-pro-text text-[10px] font-semibold uppercase whitespace-nowrap">
+        <span className="font-inter-tight text-[10px] font-semibold uppercase whitespace-nowrap">
           {action.label}
         </span>
         <action.Icon size={12} />

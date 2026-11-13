@@ -20,7 +20,7 @@ export function UserMenuButton({ user }: UserMenuButtonProps) {
         aria-label='Open menu'
         onClick={() => setIsMenuOpen(true)}
         className='p-2 hover:bg-black/70 transition-colors flex items-center gap-[5px] py-2 px-3 rounded-full w-fit h-fit group bg-transparent'>
-        <span className='font-sf-pro-text text-[14px] uppercase group-hover:text-white'>
+        <span className='font-inter-tight text-[14px] uppercase group-hover:text-white'>
           {getUserInitials(user)}
         </span>
       </Button>

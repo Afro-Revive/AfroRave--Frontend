@@ -85,7 +85,7 @@ export default function ThemeTab({ setStep, setActiveTabState }: IThemeTab) {
       })}>
       <OnlyShowIf condition={activeForm === 'layout'}>
         <div className='w-full flex flex-col items-center gap-10 md:px-10'>
-          <p className='text-xl font-bold font-sf-pro-display uppercase'>CHOOSE A THEME</p>
+          <p className='text-xl font-bold font-inter-tight uppercase'>CHOOSE A THEME</p>
           <FormField form={form} name='theme'>
             {(field) => <BaseRadioGroup {...field} data={data} />}
           </FormField>
@@ -108,7 +108,7 @@ export default function ThemeTab({ setStep, setActiveTabState }: IThemeTab) {
         <OnlyShowIf condition={activeForm === 'layout'}>
           <Button
             type='button'
-            className='w-full md:w-[240px] h-10 rounded-[8px] bg-[#1E1E1E] text-white hover:bg-[#1E1E1E]/90 uppercase font-sf-pro-text text-xs tracking-wider font-bold'>
+            className='w-full md:w-[240px] h-10 rounded-[8px] bg-[#1E1E1E] text-white hover:bg-[#1E1E1E]/90 uppercase font-inter-tight text-xs tracking-wider font-bold'>
             PREVIEW
           </Button>
         </OnlyShowIf>
@@ -120,10 +120,10 @@ export default function ThemeTab({ setStep, setActiveTabState }: IThemeTab) {
 function BannerForm({ form }: IBannerForm) {
   return (
     <div className='w-full flex flex-col gap-3'>
-      <p className='text-xl font-black font-sf-pro-display uppercase text-black leading-[100%]'>
+      <p className='text-xl font-black font-inter-tight uppercase text-black leading-[100%]'>
         UPLOAD FLYERS
       </p>
-      <p className='font-sf-pro-display text-medium-gray text-sm md:text-base'>
+      <p className='font-inter-tight text-medium-gray text-sm md:text-base'>
         Upload a png or jpeg file
       </p>
       <div className='w-full flex flex-col sm:flex-row gap-3 md:gap-14'>
@@ -225,7 +225,7 @@ function FileInputWithPreview({ onChange, type, className }: IFileInputWithPrevi
 
 function InnerText({ type }: { type: 'background' | 'flyer' }) {
   return (
-    <div className='flex flex-col items-center justify-center font-sf-pro-text pointer-events-none'>
+    <div className='flex flex-col items-center justify-center font-inter-tight pointer-events-none'>
       <span className='text-mid-dark-gray text-sm text-center normal-case'>
         Insert {type} image
       </span>

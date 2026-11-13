@@ -154,7 +154,7 @@ export function TicketForm({
                 >
                   {(field) => (
                     <Input
-                      className="w-full h-9 rounded-sm border border-mid-dark-gray/50 text-sm font-sf-pro-display"
+                      className="w-full h-9 rounded-sm border border-mid-dark-gray/50 text-sm font-inter-tight"
                       type="number"
                       {...field}
                       value={field.value == null ? "" : String(field.value)}
@@ -273,7 +273,7 @@ DESCRIBE WHAT THIS TICKET INCLUDES.`}
           className="w-fit flex items-center gap-1 !px-1 text-charcoal hover:bg-transparent"
         >
           <ChevronDown width={28} height={17} />
-          <span className="font-bold font-sf-pro-display leading-[100%] uppercase">
+          <span className="font-bold font-inter-tight leading-[100%] uppercase">
             Advanced Options
           </span>
         </Button>
@@ -365,7 +365,7 @@ DESCRIBE WHAT THIS TICKET INCLUDES.`}
         <Button
           type="button"
           onClick={onCancel}
-          className="sm:w-[155px] w-full h-8 rounded-full text-xs font-semibold font-sf-pro-text text-white bg-deep-red hover:bg-deep-red/90 uppercase"
+          className="sm:w-[155px] w-full h-8 rounded-full text-xs font-semibold font-inter-tight text-white bg-deep-red hover:bg-deep-red/90 uppercase"
         >
          CANCEL
         </Button>
@@ -374,7 +374,7 @@ DESCRIBE WHAT THIS TICKET INCLUDES.`}
           <Button
             type="button"
             onClick={onSubmit}
-            className="sm:w-[155px] w-full h-8 rounded-full text-xs font-semibold font-sf-pro-text text-white bg-black hover:bg-black/90 uppercase"
+            className="sm:w-[155px] w-full h-8 rounded-full text-xs font-semibold font-inter-tight text-white bg-black hover:bg-black/90 uppercase"
           >
             {isLoading
               ? isEditMode
@@ -437,7 +437,7 @@ function ReadOnlyValue({ label, value }: { label: string; value: string }) {
         {label}
       </p>
 
-      <p className="w-full h-9 flex items-center justify-center text-sm font-sf-pro-display leading-[100%] text-[#686868] rounded-[5px] border border-mid-dark-gray/50 bg-[#D9D9D9]">
+      <p className="w-full h-9 flex items-center justify-center text-sm font-inter-tight leading-[100%] text-[#686868] rounded-[5px] border border-mid-dark-gray/50 bg-[#D9D9D9]">
         {value}
       </p>
     </div>

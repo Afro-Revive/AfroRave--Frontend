@@ -21,7 +21,7 @@ export default function EventDescription({
       </p>
 
       <div className="flex flex-col gap-4">
-        <div className="flex items-center gap-3 font-sf-pro-rounded font-medium text-xs text-white">
+        <div className="flex items-center gap-3 font-inter-tight font-medium text-xs text-white">
           <OnlyShowIf condition={event.ageRating === "18+"}>
             <p className="px-3 w-16 h-8 rounded-[6px] bg-light-red flex justify-center items-center">
               18+

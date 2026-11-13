@@ -72,7 +72,7 @@ export function InfoPage({
     <main className='relative w-full flex-1'>
       <PageNav sections={sections} onSelect={goTo} />
 
-      <article className='mx-auto w-full max-w-200 px-4 pt-16 font-inter text-charcoal md:pt-24 lg:px-0'>
+      <article className='mx-auto w-full max-w-200 px-4 pt-16 font-inter-tight text-charcoal md:pt-24 lg:px-0'>
         <p className='w-fit border-b border-light-red pb-0.5 font-input-mono text-sm uppercase'>{eyebrow}</p>
         <h1 className='mt-6 font-work-sans font-black uppercase leading-[0.95] text-[clamp(40px,11vw,88px)]'>{title}</h1>
 

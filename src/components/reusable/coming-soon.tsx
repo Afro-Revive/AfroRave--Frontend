@@ -39,10 +39,10 @@ export function ComingSoon({
 
         {/* Content */}
         <div className='flex flex-col gap-4'>
-          <h1 className='text-3xl font-bold text-black font-sf-pro-display'>
+          <h1 className='text-3xl font-bold text-black font-inter-tight'>
             {title || 'Coming Soon'}
           </h1>
-          <p className='text-base text-black/70 font-sf-pro-text leading-relaxed'>{description}</p>
+          <p className='text-base text-black/70 font-inter-tight leading-relaxed'>{description}</p>
         </div>
 
         {/* Actions */}
@@ -50,7 +50,7 @@ export function ComingSoon({
           {showBackButton && (
             <Button
               variant='outline'
-              className='w-full h-12 font-sf-pro-text font-medium'
+              className='w-full h-12 font-inter-tight font-medium'
               onClick={() => navigate(getRoutePath('standalone'))}>
               <ArrowLeft className='w-4 h-4 mr-2' />
               Back to Dashboard

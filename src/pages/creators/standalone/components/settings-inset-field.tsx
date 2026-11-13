@@ -16,7 +16,7 @@ export function InsetField({
   return (
     <div className="relative w-full">
       <label
-        className={`absolute left-4 top-[10px] z-10 pointer-events-none text-[10px] font-sf-pro-display uppercase tracking-widest ${
+        className={`absolute left-4 top-[10px] z-10 pointer-events-none text-[10px] font-work-sans uppercase tracking-widest ${
           muted ? "text-[#ACACAC]" : "text-mid-dark-gray"
         }`}
       >

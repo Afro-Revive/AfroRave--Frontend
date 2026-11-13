@@ -180,14 +180,14 @@ export function TicketCard({ ticket, onAdd }: ITicketCard) {
           setShowDetails(true);
         }
       }}
-      className="w-full flex items-center justify-between gap-4 h-fit pl-5 pr-2 py-4 text-xl font-sf-pro-display cursor-pointer transition-colors hover:bg-white/5">
+      className="w-full flex items-center justify-between gap-4 h-fit pl-5 pr-2 py-4 text-xl font-inter-tight cursor-pointer transition-colors hover:bg-white/5">
       <div className="flex items-start gap-3 min-w-0">
         <BsInfoCircle
           aria-hidden="true"
           className="w-5 h-5 shrink-0 mt-0.5 text-white"
         />
 
-        <div className="flex flex-col gap-1 font-sf-pro-display font-normal min-w-0">
+        <div className="flex flex-col gap-1 font-inter-tight font-normal min-w-0">
         <div className="flex items-center gap-2">
           <p className="md:text-base text-sm capitalize">{name}</p>
 
@@ -224,7 +224,7 @@ export function TicketCard({ ticket, onAdd }: ITicketCard) {
                   isLoading={updateQuantityMutation.isPending}
                 />
 
-                <span className="font-sf-pro-rounded font-bold text-sm">
+                <span className="font-inter-tight font-bold text-sm">
                   {ticketCount}
                 </span>
               </>
@@ -267,7 +267,7 @@ export function TicketCard({ ticket, onAdd }: ITicketCard) {
       titleClassName="items-start px-6 "
       titleTextClassName="font-inter-tight font-bold md:text-2xl text-xl normal-case"
       className="bg-system-black border border-white/10">
-      <div className="flex flex-col gap-2 px-6 pb-6 font-sf-pro-display">
+      <div className="flex flex-col gap-2 px-6 pb-6 font-inter-tight">
         <div className="flex items-center gap-2">
           {/* Same precedence as the row, so a padlock there can't become a
               Sold Out pill here. */}
@@ -310,7 +310,7 @@ export function TicketCard({ ticket, onAdd }: ITicketCard) {
 
 function SoldOutPill() {
   return (
-    <span className="flex items-center justify-center h-12 px-5 rounded-full bg-mid-dark-gray font-sf-pro-rounded text-xs font-bold uppercase tracking-wide text-white/60">
+    <span className="flex items-center justify-center h-12 px-5 rounded-full bg-mid-dark-gray font-inter-tight text-xs font-bold uppercase tracking-wide text-white/60">
       Sold Out
     </span>
   );
@@ -372,7 +372,7 @@ function TicketButton({
 
 function TicketCardSkeleton() {
   return (
-    <Skeleton className="w-full flex items-center justify-between h-[76px] rounded-md bg-gunmetal-gray pl-5 pr-2 py-2.5 text-xl font-sf-pro-display" />
+    <Skeleton className="w-full flex items-center justify-between h-[76px] rounded-md bg-gunmetal-gray pl-5 pr-2 py-2.5 text-xl font-inter-tight" />
   );
 }
 

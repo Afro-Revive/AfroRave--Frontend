@@ -192,7 +192,7 @@ const PromoCode = ({
       )}
 
       {!isValid && message && (
-        <p className="text-sm font-sf-pro-display leading-[100%] text-[#FF9500]">
+        <p className="text-sm font-inter-tight leading-[100%] text-[#FF9500]">
           {message}
         </p>
       )}

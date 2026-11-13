@@ -65,7 +65,7 @@ export function VendorRegistrationCallout({ onOpen, delay = 1500 }: VendorRegist
                         >
                             <X className="w-3.5 h-3.5 md:w-4 md:h-4 text-gray-600" />
                         </button>
-                        <p className="text-xs md:text-base font-bold text-black font-sf-pro-display leading-tight pointer-events-none">
+                        <p className="text-xs md:text-base font-bold text-black font-inter-tight leading-tight pointer-events-none">
                             ARE YOU A VENDOR?
                         </p>
                     </div>

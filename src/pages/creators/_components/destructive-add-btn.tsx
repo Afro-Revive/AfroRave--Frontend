@@ -19,7 +19,7 @@ export function DestructiveAddBtn({
       onClick={onClick}
     >
       {showIcon && <Plus color="#ffffff" size={12} />}
-      <span className="font-sf-pro-text text-xs capitalize">
+      <span className="font-inter-tight text-xs capitalize">
         {special ? name : `Add ${name}`}
       </span>
     </Button>

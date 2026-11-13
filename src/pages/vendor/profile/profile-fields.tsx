@@ -93,7 +93,7 @@ export function InsetSelect({
           <SelectItem
             key={item.value}
             value={item.value}
-            className='rounded-none border-b border-white/80 font-sf-pro-text text-sm text-white last:border-none focus:bg-white/10 focus:text-white'>
+            className='rounded-none border-b border-white/80 font-inter-tight text-sm text-white last:border-none focus:bg-white/10 focus:text-white'>
             {item.label}
           </SelectItem>
         ))}

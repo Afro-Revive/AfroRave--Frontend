@@ -33,7 +33,7 @@ export function VendorTypeTag({ isRevenue, className }: { isRevenue: boolean; cl
   return (
     <span
       className={cn(
-        'inline-flex w-fit items-center rounded-md px-2.5 py-1 font-sf-pro-text text-xs whitespace-nowrap',
+        'inline-flex w-fit items-center rounded-md px-2.5 py-1 font-inter-tight text-xs whitespace-nowrap',
         isRevenue ? 'bg-[#5C3A00] text-orange-peel' : 'bg-[#0A2D5C] text-[#3D8BFF]',
         className,
       )}>

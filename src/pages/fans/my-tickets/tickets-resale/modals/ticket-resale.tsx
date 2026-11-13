@@ -192,11 +192,11 @@ export default function TicketResaleModal({
             </button>
           )}
           <div className="flex flex-col items-center gap-1">
-            <p className="text-sm font-bold font-inter text-system-black">
+            <p className="text-sm font-bold font-inter-tight text-system-black">
               {headerTitle}
             </p>
             {headerSub && (
-              <p className="text-xs text-black/40 font-inter text-center">
+              <p className="text-xs text-black/40 font-inter-tight text-center">
                 {headerSub}
               </p>
             )}
@@ -241,7 +241,7 @@ export default function TicketResaleModal({
                 disabled={totalSelectedCount === 0}
                 onClick={() => setStep("price")}
                 className={cn(
-                  "w-full rounded-lg py-2 text-sm font-inter transition-all mt-2 relative flex items-center justify-center px-4",
+                  "w-full rounded-lg py-2 text-sm font-inter-tight transition-all mt-2 relative flex items-center justify-center px-4",
                   totalSelectedCount > 0
                     ? "bg-black text-white hover:bg-black/90"
                     : "bg-black/10 text-black/30 cursor-not-allowed",
@@ -257,7 +257,7 @@ export default function TicketResaleModal({
               </button>
 
               {maxReached && (
-                <p className="text-xs text-light-red font-inter text-center">
+                <p className="text-xs text-light-red font-inter-tight text-center">
                   Maximum Ticket Limit Reached
                 </p>
               )}
@@ -281,16 +281,16 @@ export default function TicketResaleModal({
                       {/* Name + qty + set price */}
                       <div className="flex items-center gap-2">
                         <TransformedTicket color="black" />
-                        <p className="text-sm font-semibold font-sf-pro-display capitalize flex-1">
+                        <p className="text-sm font-semibold font-inter-tight capitalize flex-1">
                           {ticket.ticketName}
                         </p>
                         <div className="flex items-center gap-1.5">
                           {parsed > 0 && (
-                            <p className="text-sm font-bold font-sf-pro-display">
+                            <p className="text-sm font-bold font-inter-tight">
                               {formatNaira(parsed)}
                             </p>
                           )}
-                          <p className="text-xs text-black/40 font-sf-pro-display">
+                          <p className="text-xs text-black/40 font-inter-tight">
                             ×{qty}
                           </p>
                         </div>
@@ -301,18 +301,18 @@ export default function TicketResaleModal({
                         <div className=" w-full items-center  pt-2 border-t border-black/10">
                           <div className="flex flex-col gap-1.5">
                             <div className="flex flex-row justify-between items-center">
-                              <p className="font-inter text-xs font-light">
+                              <p className="font-inter-tight text-xs font-light">
                                 Service fee
                               </p>
-                              <p className="font-inter text-xs ">
+                              <p className="font-inter-tight text-xs ">
                                 {formatNaira(
                                   parsed - ticketAfterServiceFee(parsed),
                                 )}
                               </p>
                             </div>
                             <div className="flex flex-row justify-between items-center">
-                              <p className="font-inter text-xs font-light">Your Payout</p>
-                              <p className="font-inter text-xs font-bold text-deep-red">
+                              <p className="font-inter-tight text-xs font-light">Your Payout</p>
+                              <p className="font-inter-tight text-xs font-bold text-deep-red">
                                 {formatNaira(ticketAfterServiceFee(parsed))}
                               </p>
                             </div>
@@ -327,7 +327,7 @@ export default function TicketResaleModal({
                         className="flex justify-center items-center w-full gap-1.5 px-3 py-1.5 rounded-md border bg-black text-white hover:bg-black/80 transition-colors"
                       >
                         <SquarePen size={11} className="text-white" />
-                        <span className="text-xs font-sf-pro-display text-white">
+                        <span className="text-xs font-inter-tight text-white">
                           {parsed > 0 ? formatNaira(parsed) : "Set Price"}
                         </span>
                       </button>
@@ -339,7 +339,7 @@ export default function TicketResaleModal({
                   onClick={handleSubmit}
                   disabled={!allPriced || isPending}
                   className={cn(
-                    "w-full py-2 rounded-md text-sm font-bold font-inter uppercase transition-all",
+                    "w-full py-2 rounded-md text-sm font-bold font-inter-tight uppercase transition-all",
                     allPriced && !isPending
                       ? "bg-deep-red text-white hover:bg-deep-red/90"
                       : "bg-black/10 text-black/30 cursor-not-allowed",
@@ -368,12 +368,12 @@ export default function TicketResaleModal({
                   </button>
 
                   <div className="flex flex-col items-center gap-1 flex-1">
-                    <p className="text-xl font-semibold font-inter">
+                    <p className="text-xl font-semibold font-inter-tight">
                       {editingParsed > 0
                         ? formatNaira(editingParsed)
                         : formatNaira(editingTicket.price)}
                     </p>
-                    <p className="text-xs text-black/40 font-inter">
+                    <p className="text-xs text-black/40 font-inter-tight">
                       per ticket
                     </p>
                   </div>
@@ -386,7 +386,7 @@ export default function TicketResaleModal({
                   </button>
                 </div>
 
-                <p className="text-xs text-black/50 font-inter text-center">
+                <p className="text-xs text-black/50 font-inter-tight text-center">
                   You Will Be Paid Out{" "}
                   <span className="font-semibold text-sm text-black">
                     {formatNaira(ticketAfterServiceFee(
@@ -400,7 +400,7 @@ export default function TicketResaleModal({
               <button
                 type="button"
                 onClick={() => setStep("price")}
-                className="w-full py-2 rounded-md text-sm font-bold font-inter uppercase bg-deep-red text-white hover:bg-deep-red/90 transition-all"
+                className="w-full py-2 rounded-md text-sm font-bold font-inter-tight uppercase bg-deep-red text-white hover:bg-deep-red/90 transition-all"
               >
                 Set Price
               </button>

@@ -31,10 +31,10 @@ export function SlotCart({ items, onRequest, isRequesting }: ISlotCart) {
             isOpen ? 'max-h-[460px]' : 'max-h-0',
           )}>
           <div className='flex items-center justify-between px-5 pt-5 pb-3 border-b border-white/10'>
-            <p className='text-black font-inter font-black md:text-2xl text-xl tracking-wide'>Your Slots</p>
+            <p className='text-black font-inter-tight font-black md:text-2xl text-xl tracking-wide'>Your Slots</p>
             <div className='flex items-center gap-2'>
               <RiShoppingCartLine size={16} className='text-black' />
-              <span className='bg-soft-gray text-white text-xs font-bold font-sf-pro-rounded rounded-full px-2 py-0.5 min-w-[20px] text-center'>
+              <span className='bg-soft-gray text-white text-xs font-bold font-inter-tight rounded-full px-2 py-0.5 min-w-[20px] text-center'>
                 {count}
               </span>
               <button
@@ -65,7 +65,7 @@ export function SlotCart({ items, onRequest, isRequesting }: ISlotCart) {
                   className='flex items-center border border-soft-gray rounded-md justify-between gap-3 px-5 py-3'>
                   <div className='flex flex-row items-center gap-0.5 min-w-0'>
                     <p className='text-black md:text-base text-sm font-inter-tight mr-2'>×{item.quantity}</p>
-                    <p className='text-black capitalize md:text-base text-sm font-inter truncate'>
+                    <p className='text-black capitalize md:text-base text-sm font-inter-tight truncate'>
                       {getSlotTitle(item.slot)}
                     </p>
                   </div>

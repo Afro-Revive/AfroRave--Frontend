@@ -65,13 +65,13 @@ export function UserLoginForm({ onForgotPassword, onLoginSuccess }: { onForgotPa
         <FormBase
           form={form}
           onSubmit={onSubmit}
-          className='w-[420px] h-fit rounded-[12px] !bg-white space-y-6 bg-red px-7 py-6 md:px-8 md:py-[37px] z-10 font-sf-pro-text'>
+          className='w-[420px] h-fit rounded-[12px] !bg-white space-y-6 bg-red px-7 py-6 md:px-8 md:py-[37px] z-10 font-inter-tight'>
           <div className='w-full flex flex-col gap-5'>
             <div className='flex flex-col gap-1'>
-              <p className='text-2xl font-bold leading-[100%] text-black font-sf-pro-display'>
+              <p className='text-2xl font-bold leading-[100%] text-black font-inter-tight'>
                 Log In
               </p>
-              <span className='text-xs leading-[100%] text-black font-sf-pro-text'>
+              <span className='text-xs leading-[100%] text-black font-inter-tight'>
                 New to AfroRevive?{' '}
                 <button
                   type='button'

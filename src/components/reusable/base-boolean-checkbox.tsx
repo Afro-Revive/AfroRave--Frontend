@@ -38,7 +38,7 @@ export function BaseBooleanCheckbox({
             <Label
               htmlFor={data.items.id}
               className={cn(
-                'flex items-center justify-center text-sm text-charcoal uppercase font-sf-pro-text rounded-md px-2 py-1',
+                'flex items-center justify-center text-sm text-charcoal uppercase font-inter-tight rounded-md px-2 py-1',
                 labelClassName,
                 value && checkedClassName, // only applied when checked
               )}>
@@ -46,7 +46,7 @@ export function BaseBooleanCheckbox({
             </Label>
           </div>
           {data.items.description && (
-            <p className='text-sm font-light font-sf-pro-display text-charcoal'>
+            <p className='text-sm font-light font-inter-tight text-charcoal'>
               {data.items.description}
             </p>
           )}
@@ -54,7 +54,7 @@ export function BaseBooleanCheckbox({
       </div>
 
       {data.description && (
-        <p className={cn('text-xs font-light font-sf-pro-display', descriptionClassName)}>
+        <p className={cn('text-xs font-light font-inter-tight', descriptionClassName)}>
           {data.description}
         </p>
       )}

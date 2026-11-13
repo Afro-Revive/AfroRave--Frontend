@@ -167,7 +167,7 @@ export function FormField<T extends FieldValues>({
                   : null}
             </FormControl>
             {description && (
-              <FormDescription className='self-end uppercase text-xs font-light font-sf-pro-text text-mid-dark-gray'>
+              <FormDescription className='self-end uppercase text-xs font-light font-work-sans text-mid-dark-gray'>
                 {description}
               </FormDescription>
             )}

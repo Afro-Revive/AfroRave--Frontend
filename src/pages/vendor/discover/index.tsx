@@ -86,7 +86,7 @@ export default function VendorDiscoverPage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder='Search event name'
-            className='h-full w-full min-w-0 bg-transparent font-sf-pro-text text-sm text-white outline-none placeholder:text-xs placeholder:text-[#9A9A9A]'
+            className='h-full w-full min-w-0 bg-transparent font-inter-tight text-sm text-white outline-none placeholder:text-xs placeholder:text-[#9A9A9A]'
           />
         </label>
 

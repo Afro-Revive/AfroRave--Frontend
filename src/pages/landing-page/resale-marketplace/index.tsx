@@ -60,10 +60,10 @@
 
 //       <div className='flex flex-col'>
 //         <p className='font-phosphate uppercase text-xl mb-3 leading-normal'>{event_name}</p>
-//         <p className='font-sf-pro-display text-xs opcaity-70 font-medium mb-[11px]'>
+//         <p className='font-inter-tight text-xs opcaity-70 font-medium mb-[11px]'>
 //           {event_date} {event_time.start_time}
 //         </p>
-//         <p className='font-sf-pro-display text-xs font-medium mb-[11px]'>{event_location}</p>
+//         <p className='font-inter-tight text-xs font-medium mb-[11px]'>{event_location}</p>
 //         <div className='flex items-center gap-5 font-input-mono text-xs'>
 //           <p>STATUS:</p>
 //           <span className='text-lime-green'>AVAILABLE</span>

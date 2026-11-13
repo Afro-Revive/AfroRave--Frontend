@@ -61,26 +61,26 @@ export default function ResetPasswordPage() {
         {isDone ? (
           <div className="flex flex-col items-center gap-4 text-center max-w-[350px]">
             <CheckCircle2 className="size-10 text-[#00AD2E]" />
-            <h1 className="text-4xl uppercase font-extrabold font-inter tracking-wide text-white mb-1">
+            <h1 className="text-4xl uppercase font-extrabold font-inter-tight tracking-wide text-white mb-1">
               Password reset
             </h1>
-            <p className="text-sm text-white font-sf-pro-display">
+            <p className="text-sm text-white font-inter-tight">
               Your password has been updated. You can now sign in with your new
               password.
             </p>
             <Button
               onClick={() => navigate(getRoutePath("home"))}
-              className="w-full h-10 mt-2  uppercase font-semibold bg-[#00AD2E] hover:bg-[#00AD2E]/90 font-inter text-sm"
+              className="w-full h-10 mt-2  uppercase font-semibold bg-[#00AD2E] hover:bg-[#00AD2E]/90 font-inter-tight text-sm"
             >
               Continue to Login
             </Button>
           </div>
         ) : (
           <div className="w-full max-w-[440px] flex flex-col bg-secondary-white px-4 py-6 md:px-8 md:py-10 rounded-[12px] shadow-lg">
-            <h1 className="text-2xl font-extrabold uppercase font-inter tracking-wide text-black mb-1">
+            <h1 className="text-2xl font-extrabold uppercase font-inter-tight tracking-wide text-black mb-1">
               Create New Password
             </h1>
-            <p className="text-sm capitalize text-black/60 font-sf-pro-display mb-6">
+            <p className="text-sm capitalize text-black/60 font-inter-tight mb-6">
               Your new password must be different from your previously used password.
             </p>
 
@@ -123,7 +123,7 @@ export default function ResetPasswordPage() {
               <Button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full h-12 mt-2 bg-[#00AD2E] hover:bg-[#00AD2E]/90 font-semibold font-sf-pro-text"
+                className="w-full h-12 mt-2 bg-[#00AD2E] hover:bg-[#00AD2E]/90 font-semibold font-inter-tight"
               >
                 {isSubmitting ? "Resetting..." : "Reset Password"}
               </Button>

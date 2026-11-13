@@ -41,7 +41,7 @@ export function ProfileTab({ draft, update, onSave, isDirty, isSaving }: ITab) {
           ) : (
             <img src='/assets/landing-page/AR.png' alt='' className='w-14' />
           )}
-          <span className='absolute inset-0 flex items-center justify-center bg-black/60 font-sf-pro-text text-[11px] text-white opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100'>
+          <span className='absolute inset-0 flex items-center justify-center bg-black/60 font-inter-tight text-[11px] text-white opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100'>
             {uploadPicture.isPending ? <RiLoader4Line className='size-5 animate-spin' /> : 'Change'}
           </span>
           {uploadPicture.isPending && (

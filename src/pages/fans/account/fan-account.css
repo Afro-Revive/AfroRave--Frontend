@@ -44,7 +44,7 @@
     padding: 0 16px;
     color: #FFFFFF;
     font-size: 14px;
-    font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family: 'inter-tight', sans-serif;
     transition: border-color 0.2s ease;
 }
 
@@ -72,7 +72,7 @@
     padding: 0 16px;
     color: #FFFFFF;
     font-size: 14px;
-    font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family: 'inter-tight', sans-serif;
     transition: border-color 0.2s ease;
 }
 
@@ -97,7 +97,7 @@
 .fan-account-birthday-label {
     color: rgba(255, 255, 255, 0.5);
     font-size: 12px;
-    font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family: 'work-sans', sans-serif;
     margin-left: 4px;
 }
 
@@ -127,7 +127,7 @@
     border-radius: 6px;
     font-size: 14px;
     font-weight: 600;
-    font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family: 'inter-tight', sans-serif;
     text-transform: uppercase;
     letter-spacing: 0.05em;
     cursor: pointer;
@@ -174,7 +174,7 @@
 .fan-account-loading-text {
     color: rgba(255, 255, 255, 0.6);
     font-size: 14px;
-    font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family: 'inter-tight', sans-serif;
 }
 
 /* Dev Tools (hidden in production) */

@@ -154,7 +154,7 @@ function EventAudience({ eventId }: { eventId: string }) {
 function AudienceMessage({ children }: { children: React.ReactNode }) {
   return (
     <div className='w-full flex justify-center py-16'>
-      <p className='font-sf-pro-display text-xl font-bold text-black'>{children}</p>
+      <p className='font-inter-tight text-xl font-bold text-black'>{children}</p>
     </div>
   )
 }

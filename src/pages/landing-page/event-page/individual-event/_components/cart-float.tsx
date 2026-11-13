@@ -63,13 +63,13 @@ export function CartSummaryFloat({
           {/* Header */}
           <div className="flex items-center justify-between px-5 pt-5 pb-3 border-b border-white/10">
             <div className="flex items-center ">
-              <p className="text-black font-inter font-black md:text-2xl text-xl tracking-wide">
+              <p className="text-black font-inter-tight font-black md:text-2xl text-xl tracking-wide">
                 Your Items
               </p>
             </div>
             <div className="flex items-center gap-2">
               <ShoppingCart size={16} className="text-black" />
-              <span className="bg-soft-gray text-white text-xs font-bold font-sf-pro-rounded rounded-full px-2 py-0.5 min-w-[20px] text-center">
+              <span className="bg-soft-gray text-white text-xs font-bold font-inter-tight rounded-full px-2 py-0.5 min-w-[20px] text-center">
                 {totalTickets}
               </span>
               <button
@@ -85,7 +85,7 @@ export function CartSummaryFloat({
           {/* Ticket list */}
           <ul className="flex flex-col px-4 gap-2 divide-y divide-white/10 max-h-52 overflow-y-auto">
             {selectedTickets.length === 0 ? (
-              <li className="px-5 py-4 text-white/40 text-xs font-sf-pro-display text-center">
+              <li className="px-5 py-4 text-white/40 text-xs font-inter-tight text-center">
                 No tickets selected yet
               </li>
             ) : (
@@ -99,7 +99,7 @@ export function CartSummaryFloat({
                       <p className="text-black md:text-base text-sm font-inter-tight mr-2">
                         ×{item.quantity}
                       </p>
-                      <p className="text-black capitalize md:text-base text-sm font-inter">
+                      <p className="text-black capitalize md:text-base text-sm font-inter-tight">
                         {item.name}
                       </p>
                     </div>
@@ -168,7 +168,7 @@ function CheckoutButton({
       type="button"
       onClick={action}
       disabled={isLoading || totalTickets === 0}
-      className="w-full flex items-center justify-between py-2 bg-deep-red hover:bg-deep-red/80 px-3 rounded-lg font-sf-pro-display disabled:opacity-50 disabled:pointer-events-none transition-colors"
+      className="w-full flex items-center justify-between py-2 bg-deep-red hover:bg-deep-red/80 px-3 rounded-lg font-inter-tight disabled:opacity-50 disabled:pointer-events-none transition-colors"
     >
       {isLoading ? (
         <LoaderCircle size={16} className="animate-spin mx-auto text-white" />

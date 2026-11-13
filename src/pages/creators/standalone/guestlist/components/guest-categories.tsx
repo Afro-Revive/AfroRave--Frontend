@@ -54,7 +54,7 @@ export function GuestCategories({
           <span className='flex sm:size-8 size-6 items-center justify-center rounded-full border border-deep-red text-deep-red'>
             <Plus className='sm:size-5 size-4' />
           </span>
-          <span className='font-inter text-xs font-bold text-deep-red'>New category</span>
+          <span className='font-inter-tight text-xs font-bold text-deep-red'>New category</span>
         </button>
       </div>
     </div>

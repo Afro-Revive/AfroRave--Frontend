@@ -78,7 +78,7 @@ export function ForgotPasswordView({
   }
 
   return (
-    <div className="w-[420px] h-fit rounded-[12px] !bg-white px-7 py-4 md:px-8 md:py-[37px] font-sf-pro-text">
+    <div className="w-[420px] h-fit rounded-[12px] !bg-white px-7 py-4 md:px-8 md:py-[37px] font-inter-tight">
       <AnimatePresence mode="wait" initial={false}>
         {step === "email" ? (
           <motion.div
@@ -90,7 +90,7 @@ export function ForgotPasswordView({
             className="flex flex-col gap-5"
           >
             <div className="flex flex-col gap-1">
-              <p className="text-2xl font-bold leading-[100%] text-black font-sf-pro-display">
+              <p className="text-2xl font-bold leading-[100%] text-black font-inter-tight">
                 Forgot password?
               </p>
               <p className="text-xs leading-relaxed text-black/50">
@@ -131,7 +131,7 @@ export function ForgotPasswordView({
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="w-full py-5 text-base font-semibold font-sf-pro-text"
+                className="w-full py-5 text-base font-semibold font-inter-tight"
               >
                 {isLoading ? (
                   <span className="flex items-center gap-2">
@@ -171,7 +171,7 @@ export function ForgotPasswordView({
             className="flex flex-col gap-5"
           >
             <div className="flex flex-col gap-1">
-              <p className="text-2xl font-bold uppercase leading-[100%] text-black font-sf-pro-display">
+              <p className="text-2xl font-bold uppercase leading-[100%] text-black font-inter-tight">
                 Check your email
               </p>
               <p className="text-xs text-black/50 leading-relaxed">
@@ -186,7 +186,7 @@ export function ForgotPasswordView({
             <Button
               onClick={handleResend}
               disabled={isLoading || resendIn > 0}
-              className="w-full py-5 text-base font-semibold font-sf-pro-text"
+              className="w-full py-5 text-base font-semibold font-inter-tight"
             >
               {resendIn > 0 ? `Resend Email in ${resendIn}s` : "Resend Email"}
             </Button>

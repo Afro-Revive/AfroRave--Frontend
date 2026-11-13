@@ -33,7 +33,7 @@ export default function BaseTable<T extends Record<string, any>>({
           {columns.map((col) => (
             <TableHead
               key={col.key}
-              className="text-xs font-sf-pro-rounded font-medium capitalize first:rounded-tl-[5px] last:rounded-tr-[5px]"
+              className="text-xs font-inter-tight font-medium capitalize first:rounded-tl-[5px] last:rounded-tr-[5px]"
             >
               {col.label}
             </TableHead>
@@ -45,7 +45,7 @@ export default function BaseTable<T extends Record<string, any>>({
         {data.map((row, i) => (
           <TableRow
             key={i}
-            className="text-xs text-black font-sf-pro-rounded capitalize"
+            className="text-xs text-black font-inter-tight capitalize"
           >
             {columns.map((col) => (
               <TableCell key={col.key} className="text-inherit">

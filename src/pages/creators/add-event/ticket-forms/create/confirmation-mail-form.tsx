@@ -25,10 +25,10 @@ export function ConfirmationMailForm() {
       form={form}
       onSubmit={onSubmit}
       className='max-w-[560px] w-full self-center flex flex-col space-y-0 gap-4'>
-      <div className='flex flex-col gap-1 font-sf-pro-display text-black'>
+      <div className='flex flex-col gap-1 font-inter-tight text-black'>
         <div className='flex items-center justify-between'>
           <p className='text-xl font-bold'>CUSTOMIZE YOUR CONFIRMATION EMAIL</p>
-          <p className='text-xs leading-[100%] font-sf-pro-text text-mid-dark-gray'>(OPTIONAL)</p>
+          <p className='text-xs leading-[100%] font-inter-tight text-mid-dark-gray'>(OPTIONAL)</p>
         </div>
         <p className='text-sm font-light text-charcoal leading-[100%]'>
           Add a personal touch to the confirmation email your ticket buyers receive after purchase
@@ -45,7 +45,7 @@ export function ConfirmationMailForm() {
           {(field) => (
             <Textarea
               placeholder='NICE ONE! YOU’RE LOCKED IN'
-              className='w-full h-[272px] text-black bg-white px-3 py-[11px] rounded-[4px] border border-mid-dark-gray/50 text-sm font-sf-pro-display'
+              className='w-full h-[272px] text-black bg-white px-3 py-[11px] rounded-[4px] border border-mid-dark-gray/50 text-sm font-inter-tight'
               {...field}
               value={field.value == null ? '' : String(field.value)}
             />
@@ -69,7 +69,7 @@ export function ConfirmationMailForm() {
               SEND TEST
             </Button>
           </div>
-          <p className='text-deep-red text-sm leading-[100%] font-sf-pro-display'>
+          <p className='text-deep-red text-sm leading-[100%] font-inter-tight'>
             {errors.email?.message}
           </p>
         </div>

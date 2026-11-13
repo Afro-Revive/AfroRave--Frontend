@@ -58,7 +58,7 @@ export function SettingsTab() {
             autoComplete='new-password'
           />
           {(isTooShort || isSame) && (
-            <p className='font-sf-pro-text text-xs text-[#FF6B6B]'>
+            <p className='font-inter-tight text-xs text-[#FF6B6B]'>
               {isTooShort ? `Use at least ${MIN_PASSWORD_LENGTH} characters.` : 'Choose a password you haven’t used here.'}
             </p>
           )}
@@ -72,7 +72,7 @@ export function SettingsTab() {
             placeholder='Enter New Password Again'
             autoComplete='new-password'
           />
-          {isMismatch && <p className='font-sf-pro-text text-xs text-[#FF6B6B]'>Passwords don’t match.</p>}
+          {isMismatch && <p className='font-inter-tight text-xs text-[#FF6B6B]'>Passwords don’t match.</p>}
         </div>
         <button
           type='submit'
@@ -85,7 +85,7 @@ export function SettingsTab() {
       <section className='flex flex-col gap-3'>
         <h3 className='font-inter-tight text-base font-bold text-white'>Notifications</h3>
         <label className='flex cursor-pointer items-start justify-between gap-4'>
-          <span className='flex flex-col gap-1 font-sf-pro-text'>
+          <span className='flex flex-col gap-1 font-inter-tight'>
             <span className='text-sm text-white/50'>Email Notifications</span>
             <span className='text-xs text-white/70'>Receive updates about your slots and new events</span>
           </span>

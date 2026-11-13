@@ -93,7 +93,7 @@ export function CreatorAccountTab() {
 
   return (
     <div className="flex flex-col w-full">
-      <h3 className="text-base text-black font-bold font-inter mb-3">
+      <h3 className="text-base text-black font-bold font-inter-tight mb-3">
         Business Details
       </h3>
       <div className="w-full flex flex-col gap-3">
@@ -116,7 +116,7 @@ export function CreatorAccountTab() {
         </InsetField>
       </div>
 
-      <h3 className="text-base text-black font-bold font-inter mt-6 mb-3">
+      <h3 className="text-base text-black font-bold font-inter-tight mt-6 mb-3">
         User Information
       </h3>
       <div className="w-full flex flex-col gap-3">
@@ -162,7 +162,7 @@ export function CreatorAccountTab() {
         {/* Birthday: a label box, then month, day and year, as on the fans page. */}
         <div className="w-full grid sm:grid-cols-4 gap-3">
           <div className="flex items-center sm:rounded-[8px] sm:border sm:border-[#D9D9D9] px-2">
-            <span className="text-mid-dark-gray text-[11px] font-sf-pro-display uppercase tracking-widest">
+            <span className="text-mid-dark-gray text-[11px] font-work-sans uppercase tracking-widest">
               Birthday
             </span>
           </div>

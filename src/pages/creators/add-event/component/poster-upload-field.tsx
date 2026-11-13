@@ -72,7 +72,7 @@ export function PosterUploadField<T extends FieldValues>({
               })}
             />
           ) : (
-            <div className='flex flex-col items-center justify-center font-sf-pro-text pointer-events-none'>
+            <div className='flex flex-col items-center justify-center font-inter-tight pointer-events-none'>
               <span className='text-white text-lg font-inter-tight font-black text-center normal-case'>
                 Insert Flyer Image
               </span>

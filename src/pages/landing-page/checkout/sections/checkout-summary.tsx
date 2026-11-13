@@ -201,13 +201,13 @@ export default function CheckoutSummary({
             </div>
 
             <div className="flex min-w-0 flex-col gap-1">
-              <p className="text-xl md:text-3xl uppercase leading-normal font-inter font-black wrap-break-word">
+              <p className="text-xl md:text-3xl uppercase leading-normal font-inter-tight font-black wrap-break-word">
                 {event.eventName}
               </p>
-              <p className="text-xs md:text-sm font-sf-pro-display">
+              <p className="text-xs md:text-sm font-inter-tight">
                 {event.venue}
               </p>
-              <p className="text-xs md:text-sm font-sf-pro-display">
+              <p className="text-xs md:text-sm font-inter-tight">
                 {formatEventDate(event.eventDate.startDate)} -{" "}
                 {formatEventDate(event.eventDate.endDate)} at{" "}
                 {formatTimeLong(event.eventDate.startTime)} (
@@ -217,10 +217,10 @@ export default function CheckoutSummary({
           </div>
 
           <div>
-            <p className="text-xl md:text-2xl uppercase leading-normal font-inter font-black">
+            <p className="text-xl md:text-2xl uppercase leading-normal font-inter-tight font-black">
               Order Summary
             </p>
-            <p className="text-sm md:text-base font-sf-pro-display">
+            <p className="text-sm md:text-base font-inter-tight">
               Complete payment to secure your ticket!
             </p>
           </div>
@@ -257,7 +257,7 @@ export default function CheckoutSummary({
         {isFanAccount && (
           <Button
             onClick={handleCheckout}
-            className="bg-white uppercase font-sf-pro-display text-black hover:bg-white/90"
+            className="bg-white uppercase font-inter-tight text-black hover:bg-white/90"
           >
            {isPending ? "Processing..." : "CHECKOUT"}
           </Button>
@@ -271,7 +271,7 @@ function CartTicket({ name, price, quantity, resale }: InitialTickets) {
   return (
     <div className="w-full flex border rounded-lg bg-white text-black py-1 md:px-4 px-3 items-center justify-between">
       <div className="flex flex-col gap-1 ">
-        <p className="font-sf-pro-display uppercase md:text-base leading-[100%]">
+        <p className="font-inter-tight uppercase md:text-base leading-[100%]">
           {name}
         </p>
         {resale && (
@@ -280,7 +280,7 @@ function CartTicket({ name, price, quantity, resale }: InitialTickets) {
           </span>
         )}
         <div className="flex flex-col gap-0.5">
-          <p className="text-xs md:text-sm font-sf-pro-display leading-[100%]">
+          <p className="text-xs md:text-sm font-inter-tight leading-[100%]">
             {formatNaira(price, { free: price === 0 })}
           </p>
         </div>
@@ -288,7 +288,7 @@ function CartTicket({ name, price, quantity, resale }: InitialTickets) {
 
       <div className="h-[60px] w-14 flex items-center justify-end gap-2">
         <X color="black" size={16} />
-        <p className="text-base md:text-xl font-sf-pro-text leading-[100px]">
+        <p className="text-base md:text-xl font-inter-tight leading-[100px]">
           {quantity}
         </p>
       </div>
