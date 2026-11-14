@@ -142,7 +142,7 @@ export default function AddEventPage() {
               else leaveAsDraft()
             }}
             disabled={isCreatingEvent}
-            className='h-8 w-fit px-4 text-[10px] font-inter-tight font-bold rounded-[5px] bg-white text-deep-red border border-deep-red hover:bg-white/90'>
+            className='h-8 w-fit px-4 text-xs font-inter-tight font-bold rounded-[5px] bg-white text-deep-red border border-deep-red hover:bg-white/90'>
             {isCreatingEvent ? 'SAVING...' : 'Save as Draft'}
           </Button>
           {/* <CreatorMenuButton user={user} variant='dark' /> */}
