@@ -9,7 +9,6 @@ import { CreatorPageContainer, SelectedEventGate } from '../_components/selected
 import type { IAnalyticsTabProps } from './components/analytics-state'
 import { buildAnalyticsExport, downloadCsv } from './lib/analytics-export'
 import AttendeeListTab from './tabs/attendee-list-tab'
-import InsightsTab from './tabs/insights-tab'
 import OrdersTab from './tabs/orders-tab'
 import OverviewTab from './tabs/overview-tab'
 import PromoCodesTab from './tabs/promo-codes-tab'
@@ -25,12 +24,6 @@ const ANALYTICS_TABS = [
     title: 'Overview',
     description: 'Sales, tickets and your audience for this event, at a glance.',
     component: OverviewTab,
-  },
-  {
-    value: 'insights',
-    title: 'Audience Insights',
-    description: 'Who’s buying tickets: their gender, age and where they’re from.',
-    component: InsightsTab,
   },
   {
     value: 'vendors',

@@ -115,9 +115,8 @@ export default function OverviewTab(props: IAnalyticsTabProps) {
                 )}
               </AnalyticsCard>
 
-              {/* The only place these three cards show: Audience Insights keeps
-                  its summary and doesn't repeat them. So this one lists the top
-                  ten, as Insights used to, not five. */}
+              {/* The only place the audience shows (the Audience Insights tab is
+                  gone), so this lists the top ten places, not five. */}
               <AnalyticsCard
                 title='Locations'
                 description={

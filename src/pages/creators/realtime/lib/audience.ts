@@ -40,8 +40,3 @@ export function countBars(items: CountItem[], noun: { one: string; other: string
     color: isUnknown(item.label) ? MUTED_FILL : SERIES[0],
   }))
 }
-
-/** The biggest real answer, skipping Unknown. */
-export function topLabel(items: CountItem[]) {
-  return items.find((item) => !isUnknown(item.label))?.label ?? '—'
-}

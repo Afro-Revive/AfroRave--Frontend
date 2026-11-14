@@ -102,7 +102,6 @@ export default function CreatorSidebar() {
       trigger: { icon: <ChartIcon />, text: "Analytics" },
       links: [
         { path: analyticsTab("overview"), name: "Overview" },
-        { path: analyticsTab("insights"), name: "Audience Insights" },
         { path: analyticsTab("vendors"), name: "Vendors" },
         {
           path: analyticsTab("orders"),

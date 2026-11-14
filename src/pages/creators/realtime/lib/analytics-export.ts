@@ -11,7 +11,22 @@ export interface CsvExport {
   rows: Cell[][]
 }
 
-/** What each analytics tab exports: its own list, or its figures for the two chart tabs. */
+/** Overview's audience cards as rows: "Gender: Female", 12. */
+function audienceRows(data: EventAnalyticsData): Cell[][] {
+  const insights = data.audienceInsights
+  const section = (name: string, items: { label: string; count: number }[]) =>
+    items.map((item) => [`${name}: ${item.label}`, item.count] as Cell[])
+  return [
+    ...section('Gender', mergeCounts((insights?.genders ?? []).map((g) => ({ label: g.gender, count: g.count })))),
+    ...section(
+      'Age group',
+      sortAgeGroups(mergeCounts((insights?.ageGroups ?? []).map((a) => ({ label: a.ageRange, count: a.count })))),
+    ),
+    ...section('Location', mergeCounts((insights?.locations ?? []).map((l) => ({ label: l.location, count: l.count })))),
+  ]
+}
+
+/** What each analytics tab exports: its own list, or its figures for Overview. */
 export function buildAnalyticsExport(tab: string, data: EventAnalyticsData): CsvExport | null {
   switch (tab) {
     case 'overview':
@@ -27,25 +42,10 @@ export function buildAnalyticsExport(tab: string, data: EventAnalyticsData): Csv
           ['Promo codes used', data.promoCodesUsed],
           ['Discount given (NGN)', data.discountTotal],
           ['Resales', data.totalResales],
+          // The audience, which Overview shows now that Audience Insights is gone.
+          ...audienceRows(data),
         ],
       }
-    case 'insights': {
-      const insights = data.audienceInsights
-      const section = (name: string, items: { label: string; count: number }[]) =>
-        items.map((item) => [name, item.label, item.count] as Cell[])
-      return {
-        name: 'audience-insights',
-        header: ['Group', 'Value', 'Buyers'],
-        rows: [
-          ...section('Gender', mergeCounts((insights?.genders ?? []).map((g) => ({ label: g.gender, count: g.count })))),
-          ...section(
-            'Age range',
-            sortAgeGroups(mergeCounts((insights?.ageGroups ?? []).map((a) => ({ label: a.ageRange, count: a.count })))),
-          ),
-          ...section('Location', mergeCounts((insights?.locations ?? []).map((l) => ({ label: l.location, count: l.count })))),
-        ],
-      }
-    }
     case 'vendors':
       return {
         name: 'vendors',
