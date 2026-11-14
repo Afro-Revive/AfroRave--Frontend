@@ -17,15 +17,15 @@ the mobile QA fixes on `ui-fixes`.
 | | Critical (High) | Medium | Low | **Overall, weighted by priority** |
 |---|---|---|---|---|
 | **Fans** | 15 / 17 done | 11 / 11 | 1 / 4 | **88%** |
-| **Organizers** | 13 / 13 done | 24 / 27 | 6 / 17 | **85%** |
-| **Fans + Organizers** | **28 / 30 done (93%)** | 35 / 38 | 7 / 21 | **86%** |
+| **Organizers** | 13 / 13 done | 25 / 27 | 7 / 17 | **87%** |
+| **Fans + Organizers** | **28 / 30 done (93%)** | 36 / 38 | 8 / 21 | **88%** |
 | Vendors | 6 / 6 done | 6 / 6 | 2 / 3 | 97% |
-| **Whole app** | **34 / 36 done (94%)** | 41 / 44 | 9 / 24 | **88%** |
+| **Whole app** | **34 / 36 done (94%)** | 42 / 44 | 10 / 24 | **89%** |
 
 **How the overall % is worked out:**
 - A High feature counts 3 times as much as a Low one, and a Medium one twice as much.
 - Only fully working features score.
-- If half-working ("Partial") and "Awaiting backend" features get half credit, fans and organizers reach 89%.
+- If half-working ("Partial") and "Awaiting backend" features get half credit, fans and organizers reach 91%.
 - **Critical features only:** 93% are fully done, or 97% with half credit for the partly working ones.
 
 Most of the gap is Low priority: small buttons and extra tools.
@@ -158,8 +158,6 @@ stands today.
 | Work | Priority | What's needed |
 |---|---|---|
 | End-to-end test the organizer vendor tabs | 🟠 Medium | **Now that the `vendors` branch is merged.** Checklist: [VENDOR-FLOW-TEST-CHECKLIST.md](./VENDOR-FLOW-TEST-CHECKLIST.md). Run the whole flow with real vendors: create a stall and an offer, vendors apply, review each applicant's page, accept and reject, pause and resume, and the secured counts and net profit. Expect some edits. |
-| Attendee List tab | 🟠 Medium | **Built on the `analytics-redesign` branch** with the analytics redesign; parked until the backend answers the analytics mismatch report. |
-| Analytics Export | ⚪ Low | **Built on `analytics-redesign`** (Export CSV); same as above. |
 | Door tickets | ⚪ Low | Not built yet: how fans see them, and the organizer's "Sell On Mobile App". |
 | Ticket reordering | ⚪ Low | With `PATCH /api/Event/{eventId}/tickets/reorder`. The Tickets page already says tickets can be dragged. |
 | Resell and Transfer checks from the backend | ⚪ Low | Use the tickets' `canResell` / `canTransfer` instead of the frontend's own rules (`resaleBlockedReason`, `transferBlockedReason`); update the table in USER-SIDE.md. |
@@ -219,9 +217,9 @@ notifications, and a report download (see §5).
 
 | Feature | Priority | Status | Notes |
 |---|---|---|---|
-| Overview, Audience Insights, Vendors, Orders, Promo Codes | 🔴 High | ✅ Working | Real data from the analytics endpoint. Opened from the sidebar's ANALYTICS group, where Orders, Attendee List and Promo Codes sit in a Ticket Sales accordion. |
-| Attendee List tab | 🟠 Medium | 🚧 Coming soon | The API now has `GET /api/Event/{eventId}/attendees`; the tab isn't built yet. |
-| Export button | ⚪ Low | ⛔ Not working | Does nothing. |
+| Overview, Audience Insights, Vendors, Orders, Promo Codes | 🔴 High | ✅ Working | Redesigned in November 2026 to match the other organizer pages: the page header, a Summary card of stat tiles on every tab, then chart and table cards. Overview: tickets sold over time, sales by ticket, and an audience snapshot. Insights: gender, age and locations (duplicate cities merged, Unknown last in grey). Vendors: applications by status, by category, and every application. Orders: sales by day and every order, searchable, 20 a page. Promo Codes: uses by code and every code's sales and commission (the top partner's commission now shows; it read a misspelt field before). Real data from the analytics endpoint, whose order, vendor and attendee lists the page now uses. Opened from the sidebar's ANALYTICS group, where Orders, Attendee List and Promo Codes sit in a Ticket Sales accordion. |
+| Attendee List tab | 🟠 Medium | ✅ Working | A summary of tickets, checked in and still to arrive, then everyone with a ticket, from `GET /api/Event/{eventId}/attendees`: name and email, ticket (× quantity), order ID, order date and checked in or not. 20 a page, searchable by name or email. |
+| Export CSV | ⚪ Low | ✅ Working | Downloads the open tab as a CSV: the headline figures (Overview), the audience counts (Insights), or the full vendor, order, attendee or promo code list. |
 | Reports (`/creators/reports`) | ⚪ Low | 🚧 Coming soon | No longer linked from anywhere. |
 
 ### Organizer settings (avatar menu → Settings)
@@ -314,14 +312,12 @@ pretends to. Rows run from High to Low priority.
 | Fans footer | Refund | 🔴 High | 🚧 Coming soon | Opens a "Coming Soon" page. Terms opens the Terms of Use page, and Privacy Policy its Privacy section. |
 | Fans footer, home page and mobile menu | App Store / Google Play badges | 🔴 High | ⛔ Not linked | Link to `#`. Waiting for the apps to be published. Fans need the app for their QR code. |
 | Ticket detail page | QR code ("download the app") | 🔴 High | ⛔ Not linked | Depends on the app store links above. |
-| Analytics | Attendee List tab | 🟠 Medium | 🚧 Coming soon | |
 | Access Control | Download, event picker, Add Code, filter | 🟠 Medium | ⛔ Not working | Mock page. |
 | Fans footer | Blog, Sell, Work With Us | ⚪ Low | 🚧 Coming soon | Open a "Coming Soon" page. About Us opens the shared About Us page, and Support the general Support page (`/support`), which replaced the separate FAQ link. |
 | Fans social links | YouTube icon | ⚪ Low | ⛔ Not linked | Goes to the home page instead of YouTube. |
 | Tickets page | Door ticket "Sell On Mobile App" | ⚪ Low | ⛔ Not working | No action. |
 | Tickets page (private event) | "Drag tickets to change the order" notice | ⚪ Low | ⛔ Not working | Reordering isn't built. |
 | Audience page | Search | ⚪ Low | ⛔ Not working | The backend has no search parameter. |
-| Analytics | Export | ⚪ Low | ⛔ Not working | No action. |
 | Organizer settings | Email notifications checkbox | ⚪ Low | ⛔ Not working | Not saved. |
 | Sidebar → Tools | Seating Maps | ⚪ Low | 🚧 Coming soon | |
 

@@ -488,6 +488,19 @@ export function useGetVendorApplications() {
   })
 }
 
+/** One page of an event's attendees. Paging and search are the server's. */
+export function useGetEventAttendees(
+  eventId?: string,
+  params?: { pageNumber?: number; pageSize?: number; search?: string },
+) {
+  return useQuery({
+    // params in the key so another page or search isn't served this one's rows.
+    queryKey: eventKeys.attendees(eventId || '', params),
+    queryFn: () => eventService.getEventAttendees(eventId || '', params),
+    enabled: !!eventId,
+  })
+}
+
 export function useGetEventAnalytics(eventId?: string) {
   return useQuery({
     queryKey: eventKeys.analytics(eventId || ''),
