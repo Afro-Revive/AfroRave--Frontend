@@ -4,7 +4,7 @@ import { FormFieldWithCounter } from "@/components/shared/field-with-counter";
 import { FormField } from "@/components/reusable";
 import { CustomFormField } from "@/components/shared/custom-form";
 import { BaseBooleanCheckbox } from "@/components/reusable/base-boolean-checkbox";
-import { BaseCheckbox } from "@/components/reusable/base-checkbox";
+import { BaseRadioChoice } from "@/components/reusable/base-radio-choice";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { RichTextEditor } from "@/components/reusable/rich-text-editor";
@@ -88,7 +88,7 @@ export function TicketForm({
 
         <FormField form={form} name="ticket.type">
           {(field) => (
-            <BaseCheckbox
+            <BaseRadioChoice
               data={{
                 items: [
                   { label: "PAID", id: "paid" },
@@ -297,7 +297,7 @@ DESCRIBE WHAT THIS TICKET INCLUDES.`}
 
             <FormField form={form} name="whenToStart">
               {(field) => (
-                <BaseCheckbox
+                <BaseRadioChoice
                   orientation="vertical"
                   data={whenToStartOptions[0]}
                   {...field}
