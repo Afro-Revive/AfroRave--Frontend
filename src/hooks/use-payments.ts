@@ -23,6 +23,17 @@ export function useGetNigerianBanks(options?: { enabled?: boolean }) {
     return useQuery({
         queryKey: ['nigerian-banks'],
         queryFn: () => paymentService.getNigerianBanks(),
+        // The list repeats some bank codes (seen on dev: 50572, 100025), which
+        // showed those banks twice and broke the list's keys. One per code.
+        select: (response) => {
+            const banks = response?.data
+            if (!Array.isArray(banks)) return response
+            const seen = new Set<string>()
+            return {
+                ...response,
+                data: banks.filter((bank: { code: string }) => !seen.has(bank.code) && seen.add(bank.code)),
+            }
+        },
         staleTime: DAY_MS,
         gcTime: DAY_MS,
         enabled: options?.enabled ?? true,
