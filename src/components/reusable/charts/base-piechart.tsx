@@ -225,7 +225,7 @@ export function BasePieChart({
       </PieChart>
     </ChartContainer>
   ) : (
-    <div className="flex min-h-[250px] items-center justify-center text-sm text-mid-dark-gray font-sf-pro-text">
+    <div className="flex min-h-[250px] items-center justify-center text-sm text-mid-dark-gray font-inter-tight">
       {emptyMessage}
     </div>
   );

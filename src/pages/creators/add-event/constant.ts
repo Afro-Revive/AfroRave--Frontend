@@ -1,5 +1,5 @@
 /**
- * The Event Info form's id. Save As Drafts sits in the page header, outside
+ * The Event Info form's id. Save as Draft sits in the page header, outside
  * the form, and submits it through the button's form attribute.
  */
 export const EVENT_DETAILS_FORM_ID = "event-details-form";

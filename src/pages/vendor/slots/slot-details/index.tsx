@@ -104,7 +104,7 @@ export default function VendorSlotDetailsPage() {
       <section className='flex w-full flex-col'>
         <div className='h-[88px] w-full animate-pulse border-b border-[#232323] bg-[#1E1E1E]' />
         <div className='grid gap-5 px-4 py-6 md:px-7 lg:grid-cols-2'>
-          <div className='aspect-[2/3] animate-pulse rounded-[20px] bg-[#2A2A2A]' />
+          <div className='aspect-3/4 w-full max-w-[570px] animate-pulse rounded-[20px] bg-[#2A2A2A]' />
           <div className='h-[520px] animate-pulse rounded-xl bg-[#262626]' />
         </div>
       </section>
@@ -120,7 +120,7 @@ export default function VendorSlotDetailsPage() {
         action={
           <Link
             to={getRoutePath('vendor_slots')}
-            className='inline-flex h-9 items-center rounded-md bg-light-red px-3 font-sf-pro-text text-sm font-medium text-white'>
+            className='inline-flex h-9 items-center rounded-md bg-light-red px-3 font-inter-tight text-sm font-medium text-white'>
             Back to My Slots
           </Link>
         }
@@ -163,7 +163,7 @@ function EventFlyerCard({ application, event }: { application: VendorApplication
   const flyer = event?.eventDetails?.desktopMedia?.flyer
 
   return (
-    <article className='relative flex aspect-[2/3] max-h-[760px] w-full flex-col justify-end overflow-hidden rounded-[20px] bg-[#2A2A2A] lg:sticky lg:top-[82px]'>
+    <article className='relative flex aspect-3/4 w-full max-w-[570px] flex-col justify-end overflow-hidden rounded-[20px] bg-[#2A2A2A] lg:sticky lg:top-[82px]'>
       {flyer && <img src={flyer} alt={application.eventName} className='absolute inset-0 size-full object-cover' />}
       <div className='absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent' />
 
@@ -178,7 +178,7 @@ function EventFlyerCard({ application, event }: { application: VendorApplication
             to={getRoutePath('individual_event', { eventId: event.customUrl })}
             target='_blank'
             rel='noopener noreferrer'
-            className='mt-2 w-fit rounded-md bg-white/30 px-3 py-1.5 font-inter text-xs font-bold text-white backdrop-blur-sm transition-colors hover:bg-white/40'>
+            className='mt-2 w-fit rounded-md bg-white/30 px-3 py-1.5 font-inter-tight text-xs font-bold text-white backdrop-blur-sm transition-colors hover:bg-white/40'>
             Go to eventpage
           </Link>
         )}
@@ -190,14 +190,14 @@ function EventFlyerCard({ application, event }: { application: VendorApplication
 const COMMUNITY_LINKS = [
   { label: 'Instagram', href: 'https://www.instagram.com/afrorevive_', Icon: RiInstagramLine },
   { label: 'X', href: 'https://x.com/afrorevive', Icon: RiTwitterXLine },
-  { label: 'AfroRevive for creators', href: getRoutePath('creators_home'), Icon: RiLinksLine },
+  { label: 'Afrorevive for creators', href: getRoutePath('creators_home'), Icon: RiLinksLine },
 ]
 
 function CommunityCard() {
   return (
     <section className='flex flex-col gap-2 rounded-2xl border border-white/30 p-5'>
       <h2 className='font-inter-tight text-lg font-bold text-white'>Join The Community</h2>
-      <p className='font-sf-pro-text text-[13px] leading-snug text-white'>
+      <p className='font-inter-tight text-[13px] leading-snug text-white'>
         Follow us on social media for exciting updates and become a certified Afrorevive vendor!
       </p>
       <div className='mt-2 flex items-center gap-4'>

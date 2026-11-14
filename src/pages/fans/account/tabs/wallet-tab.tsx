@@ -77,7 +77,7 @@ export default function WalletTab() {
             {isLoadingPayouts ? (
               <LoadingFallback className="h-[120px]" />
             ) : payoutHistory.length === 0 ? (
-              <p className="text-white/60 text-sm font-sf-pro-display">
+              <p className="text-white/60 text-sm font-inter-tight">
                 No payout history available.
               </p>
             ) : (
@@ -116,17 +116,17 @@ function PayoutHistoryItem({ listing }: PayoutHistoryItemProps) {
     <div
       role="button"
       tabIndex={0}
-      className="w-full flex items-center justify-between py-4 border border-mid-dark-gray/50 font-sf-pro-display text-white transition-colors rounded-lg px-2 -mx-2"
+      className="w-full flex items-center justify-between py-4 border border-mid-dark-gray/50 font-inter-tight text-white transition-colors rounded-lg px-2 -mx-2"
     >
       <div className="flex flex-col gap-1">
         {/** Ticket name will be replaced with the actual event name */}
         <p className="text-sm font-medium">{eventName}</p>
         <div className="flex items-center gap-2">
-          <p className="flex items-center gap-1 text-xs font-sf-pro-display text-[#8E8E93]">
+          <p className="flex items-center gap-1 text-xs font-inter-tight text-[#8E8E93]">
             <TransformedTicket color="#8E8E93" size={14} />
             {ticketName} x {quantity}
           </p>
-          <p className="hidden md:flex items-center gap-1 text-xs font-sf-pro-display text-[#8E8E93]">
+          <p className="hidden md:flex items-center gap-1 text-xs font-inter-tight text-[#8E8E93]">
             <CiCalendar className="w-3.5 h-3.5 shrink-0" />
             {formatShortDate(date)}
           </p>
@@ -140,7 +140,7 @@ function PayoutHistoryItem({ listing }: PayoutHistoryItemProps) {
 
         <Badge
           className={cn(
-            "capitalize font-normal font-sf-pro-rounded px-2 py-0.5 text-[10px] tracking-wide",
+            "capitalize font-normal font-inter-tight px-2 py-0.5 text-[10px] tracking-wide",
             {
               "bg-green/30 text-green hover:bg-[#34C759]/30": status === "Sold",
               "bg-[#FF9500]/20 text-[#FF9500] hover:bg-[#FF9500]/30":

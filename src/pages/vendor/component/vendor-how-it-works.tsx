@@ -11,7 +11,7 @@ export const VENDOR_HOW_IT_WORKS = {
     ],
   },
   Service: {
-    title: "How service vendor stalls work",
+    title: "How service vendor offers work",
     points: [
       "Post a slot for the service you need.",
       "Review applications and choose who to book for your event.",

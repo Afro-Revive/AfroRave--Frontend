@@ -27,7 +27,7 @@ export default function StandAloneModal({ event }: { event: EventDetailData }) {
       trigger={
         <Button
           variant='ghost'
-          className='flex w-full h-9 items-center justify-start bg-transparent rounded-none border-b border-gray-100 text-xs text-black/80 font-sf-pro-text px-3 hover:bg-gray-50'>
+          className='flex w-full h-9 items-center justify-start bg-transparent rounded-none border-b border-gray-100 text-xs text-black/80 font-inter-tight px-3 hover:bg-gray-50'>
           <span>Event Summary</span>
         </Button>
       }>
@@ -61,7 +61,7 @@ export default function StandAloneModal({ event }: { event: EventDetailData }) {
 function StandAloneModalHeader({ event }: { event: EventDetailData }) {
   return (
     <div className='w-full flex items-start justify-between border-b border-gray-100 pb-2 mb-2'>
-      <div className='flex flex-col gap-1 font-sf-pro-display max-w-[400px]'>
+      <div className='flex flex-col gap-1 font-inter-tight max-w-[400px]'>
         <p className='font-bold text-[18px] text-black leading-tight'>{event.eventName}</p>
         <p className='text-[13px] text-gray-500 font-medium'>{event.venue}</p>
         <p className='text-[13px] text-gray-500 font-medium'>
@@ -73,7 +73,7 @@ function StandAloneModalHeader({ event }: { event: EventDetailData }) {
         <Button
           asChild
           variant="outline"
-          className='w-[130px] h-9 rounded-[6px] bg-white border border-gray-200 text-xs font-medium text-black font-sf-pro-display hover:bg-gray-50 shadow-sm'>
+          className='w-[130px] h-9 rounded-[6px] bg-white border border-gray-200 text-xs font-medium text-black font-inter-tight hover:bg-gray-50 shadow-sm'>
           {/* The fan page looks events up by custom URL, like every other link to it. */}
           <Link to={getRoutePath('individual_event', { eventId: event.customUrl })}>
             View Event Page
@@ -81,7 +81,7 @@ function StandAloneModalHeader({ event }: { event: EventDetailData }) {
         </Button>
         <Button
           asChild
-          className='w-[110px] h-9 rounded-[6px] bg-deep-red hover:bg-deep-red/80 text-xs font-medium text-white font-sf-pro-display shadow-sm'>
+          className='w-[110px] h-9 rounded-[6px] bg-deep-red hover:bg-deep-red/80 text-xs font-medium text-white font-inter-tight shadow-sm'>
           <Link to={getRoutePath('edit_event', { eventId: event.eventId })}>Edit Event</Link>
         </Button>
       </div>
@@ -92,7 +92,7 @@ function StandAloneModalHeader({ event }: { event: EventDetailData }) {
 function SummarySection({ event }: { event: EventDetailData }) {
   return (
     <SectionContainer className='w-full h-full flex flex-col justify-between'>
-      <p className='text-[16px] font-bold text-black capitalize font-sf-pro-display'>Sales Summary</p>
+      <p className='text-[16px] font-bold text-black capitalize font-inter-tight'>Sales Summary</p>
 
       <div className='grid grid-cols-2 gap-x-8 gap-y-6 mt-2'>
         <StatItem name='Total Tickets Sold' value={event.eventStat.ticketSold.toString()} />
@@ -116,7 +116,7 @@ function StatItem({ name, value }: { name: string, value: string }) {
 function VendorSummarySection() {
   return (
     <SectionContainer className='w-full h-full flex flex-col'>
-      <p className='text-[15px] font-bold text-black capitalize mb-4 font-sf-pro-display'>Vendor Summary</p>
+      <p className='text-[15px] font-bold text-black capitalize mb-4 font-inter-tight'>Vendor Summary</p>
 
       <div className='flex flex-col flex-1 justify-center gap-0'>
         <SectionRow name='Confirmed Vendors' figure={8} />
@@ -129,7 +129,7 @@ function VendorSummarySection() {
 function AttendeeOverviewSection() {
   return (
     <SectionContainer className='w-full h-full flex flex-col'>
-      <p className='text-[15px] font-bold text-black capitalize mb-4 font-sf-pro-display'>Attendee Overview</p>
+      <p className='text-[15px] font-bold text-black capitalize mb-4 font-inter-tight'>Attendee Overview</p>
 
       <div className='flex flex-col flex-1 justify-center gap-0'>
         <SectionRow name='Resale Activity' figure={45} />
@@ -142,7 +142,7 @@ function AttendeeOverviewSection() {
 function EntryManagementSection() {
   return (
     <SectionContainer className='w-full h-full flex flex-col'>
-      <p className='text-[15px] font-bold text-black capitalize mb-4 font-sf-pro-display'>Entry Management</p>
+      <p className='text-[15px] font-bold text-black capitalize mb-4 font-inter-tight'>Entry Management</p>
 
       <div className='flex flex-col flex-1 justify-center gap-0'>
         <SectionRow name='Entry Staff' figure={12} />

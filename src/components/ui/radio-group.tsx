@@ -4,18 +4,20 @@ import { CircleIcon } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 
-function RadioGroup({
-  className,
-  ...props
-}: React.ComponentProps<typeof RadioGroupPrimitive.Root>) {
+// forwardRef: on React 18 a ref isn't a plain prop, and form fields pass one.
+const RadioGroup = React.forwardRef<
+  React.ElementRef<typeof RadioGroupPrimitive.Root>,
+  React.ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Root>
+>(function RadioGroup({ className, ...props }, ref) {
   return (
     <RadioGroupPrimitive.Root
+      ref={ref}
       data-slot="radio-group"
       className={cn("grid gap-3", className)}
       {...props}
     />
   )
-}
+})
 
 function RadioGroupItem({
   className,

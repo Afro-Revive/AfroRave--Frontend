@@ -62,13 +62,15 @@ export function CreatorMenuButton({ user, variant = 'light', onSettingsClick }: 
       <DropdownMenu modal={false}>
         <DropdownMenuTrigger asChild>
           <Button
+            // The initials alone don't say what the button does.
+            aria-label='Account menu'
             className={`py-2 px-3 h-10 w-10 transition-colors border flex items-center justify-center gap-[5px] rounded-full group ${
               variant === 'dark'
                 ? 'border-white text-white hover:bg-white/20 bg-black'
                 : 'border-black text-black hover:bg-black/10 bg-white'
             }`}>
             <span
-              className={`font-sf-pro-text text-[14px] uppercase ${
+              className={`font-inter-tight text-[14px] uppercase ${
                 variant === 'dark'
                   ? 'text-white group-hover:text-white'
                   : 'text-black group-hover:text-black'

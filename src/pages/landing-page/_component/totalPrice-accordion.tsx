@@ -8,17 +8,18 @@ import { formatNaira } from "@/lib/format-price";
 import type { PromoDiscount } from "./promo-code";
 
 const TotalAccordion = ({
-  totalPrice,
+  baseTotalPrice,
+  fee,
   discount,
 }: {
-  totalPrice: number;
+  baseTotalPrice: number;
+  fee: number;
   discount?: PromoDiscount | null;
 }) => {
-  const serviceFee = parseFloat(import.meta.env.VITE_TICKET_SALES_PERCENTAGE || "0") * totalPrice;
   const discountAmount = discount?.discountAmount ?? 0;
   const hasDiscount = discountAmount > 0;
-  const discountedTicketPrice = Math.max(totalPrice - discountAmount, 0);
-  const originalTotal = totalPrice + serviceFee;
+  const discountedTicketPrice = Math.max(baseTotalPrice - discountAmount, 0);
+  const originalTotal = baseTotalPrice + fee;
   const total = Math.max(originalTotal - discountAmount, 0);
   const discountLabel =
     discount?.discountType?.toLowerCase() === "percentage"
@@ -32,7 +33,7 @@ const TotalAccordion = ({
       className="w-full md:py-2 py-1 rounded-lg border border-white"
     >
       <AccordionItem value="fees" className="border-none">
-        <AccordionTrigger className="px-4 md:py-2 py-1 text-sm font-inter hover:no-underline items-center">
+        <AccordionTrigger className="px-4 md:py-2 py-1 text-sm font-inter-tight hover:no-underline items-center">
           <div className="flex w-full items-center justify-between ">
             <span className="md:text-lg text-base">TOTAL</span>
             <span className="md:text-lg text-base flex items-center gap-2">
@@ -45,7 +46,7 @@ const TotalAccordion = ({
             </span>
           </div>
         </AccordionTrigger>
-        <AccordionContent className="px-4 text-sm font-inter ">
+        <AccordionContent className="px-4 text-sm font-inter-tight ">
            {hasDiscount && (
             <div className="flex items-center justify-between py-2">
               <p>Discount </p>
@@ -58,7 +59,7 @@ const TotalAccordion = ({
             <span className="flex items-center gap-2">
               {hasDiscount && (
                 <span className="line-through text-white/50">
-                  {formatNaira(totalPrice)}
+                  {formatNaira(baseTotalPrice)}
                 </span>
               )}
               <span>
@@ -70,7 +71,7 @@ const TotalAccordion = ({
           </div>
           <div className="flex items-center justify-between py-2  ">
             <p>Service Fee</p>
-            <p>{formatNaira(serviceFee)}</p>
+            <p>{formatNaira(fee)}</p>
           </div>
          
         </AccordionContent>

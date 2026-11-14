@@ -3,6 +3,8 @@ import { useRef, type ChangeEvent } from 'react'
 import { RiAddLine, RiCloseLine, RiInstagramLine, RiLinksLine, RiLoader4Line, RiMailLine, RiPhoneFill } from 'react-icons/ri'
 import { BIO_LIMIT, GALLERY_LIMIT, type VendorProfileDraft } from './profile-draft'
 import { IconInput, SaveButton } from './profile-fields'
+import { FIELD_LABEL_ON_DARK_CLASS } from '@/components/shared/field-label'
+import { cn } from '@/lib/utils'
 
 export function ProfileTab({ draft, update, onSave, isDirty, isSaving }: ITab) {
   const pictureInput = useRef<HTMLInputElement>(null)
@@ -41,7 +43,7 @@ export function ProfileTab({ draft, update, onSave, isDirty, isSaving }: ITab) {
           ) : (
             <img src='/assets/landing-page/AR.png' alt='' className='w-14' />
           )}
-          <span className='absolute inset-0 flex items-center justify-center bg-black/60 font-sf-pro-text text-[11px] text-white opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100'>
+          <span className='absolute inset-0 flex items-center justify-center bg-black/60 font-inter-tight text-[11px] text-white opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100'>
             {uploadPicture.isPending ? <RiLoader4Line className='size-5 animate-spin' /> : 'Change'}
           </span>
           {uploadPicture.isPending && (
@@ -55,8 +57,8 @@ export function ProfileTab({ draft, update, onSave, isDirty, isSaving }: ITab) {
         <p className='font-inter-tight text-sm text-white/70'>{draft.email}</p>
       </div>
 
-      <label className='flex flex-col gap-2'>
-        <span className='flex justify-between font-work-sans text-sm tracking-wider text-white uppercase'>
+      <label className='flex flex-col gap-1'>
+        <span className={cn(FIELD_LABEL_ON_DARK_CLASS, 'flex justify-between')}>
           Bio
           <span className='normal-case'>
             {draft.bio.length}/{BIO_LIMIT}
@@ -66,7 +68,7 @@ export function ProfileTab({ draft, update, onSave, isDirty, isSaving }: ITab) {
           value={draft.bio}
           maxLength={BIO_LIMIT}
           onChange={(e) => update({ bio: e.target.value })}
-          placeholder='Tell organizers about your business: what you offer, events you’ve worked and what makes you stand out.'
+          placeholder='Tell organizers about your business: what you offer, events you’ve worked and what makes you stand out'
           className='h-[284px] w-full resize-none rounded-md border border-white/20 bg-transparent p-3.5 font-inter-tight text-sm text-white outline-none placeholder:text-white/40 focus:border-white/50'
         />
       </label>

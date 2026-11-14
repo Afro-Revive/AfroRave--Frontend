@@ -70,7 +70,7 @@ export default function VendorDashboardHeader({ onMenuClick }: { onMenuClick: ()
           </button>
 
           <Link to={getRoutePath("vendor_discover")}>
-            <img src="/assets/landing-page/AR.png" alt="AfroRevive" width={64} height={20} className="h-5 w-auto" />
+            <img src="/assets/landing-page/AR.png" alt="Afrorevive" width={64} height={20} className="h-5 w-auto" />
           </Link>
         </div>
 

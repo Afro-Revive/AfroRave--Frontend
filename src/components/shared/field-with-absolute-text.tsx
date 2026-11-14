@@ -24,15 +24,17 @@ export function FormFieldWithAbsoluteText<T extends FieldValues>({
       form={form}
       name={name}
       label={label}
-      className="w-full flex flex-col gap-1 text-black text-xs uppercase font-sf-pro-text"
+      labelClassName="font-work-sans"
+      className="w-full flex flex-col gap-1 text-black text-xs uppercase font-inter-tight"
     >
       {(field) => (
-        <div className="flex items-center h-10 w-full border rounded-[4px] border-mid-dark-gray/50 bg-white">
-          <p className="lowercase border-r border-mid-dark-gray/50 px-3 py-[11px] rounded-l-[4px] text-black text-xs font-light font-sf-pro-text">
+        // On mobile the prefix sits above the input
+        <div className="flex w-full flex-col rounded-[4px] border border-mid-dark-gray/50 bg-white sm:h-10 sm:flex-row sm:items-center">
+          <p className="shrink-0 whitespace-nowrap lowercase px-3 pt-2 sm:border-r sm:border-mid-dark-gray/50 sm:py-[11px] rounded-l-[4px] text-black text-xs font-light font-inter-tight">
             {text}
           </p>
 
-          {children(field)}
+          <div className="min-w-0 flex-1">{children(field)}</div>
         </div>
       )}
     </FormField>

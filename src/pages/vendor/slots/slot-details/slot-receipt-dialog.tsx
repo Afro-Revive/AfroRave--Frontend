@@ -20,7 +20,7 @@ export function SlotReceiptDialog({ application }: { application: VendorApplicat
       <DialogTrigger asChild>
         <button
           type='button'
-          className='flex h-9 items-center justify-center rounded-md border border-[#4A4A4A] font-sf-pro-text text-sm font-medium text-white transition-colors hover:bg-white/10'>
+          className='flex h-9 items-center justify-center rounded-md border border-[#4A4A4A] font-inter-tight text-sm font-medium text-white transition-colors hover:bg-white/10'>
           View receipt
         </button>
       </DialogTrigger>
@@ -29,7 +29,7 @@ export function SlotReceiptDialog({ application }: { application: VendorApplicat
         <div className='flex items-start justify-between gap-3 border-b border-[#3A3A3A] pb-3'>
           <div className='flex flex-col gap-1'>
             <DialogTitle className='font-inter-tight text-base leading-none font-bold'>Receipt</DialogTitle>
-            <DialogDescription className='font-sf-pro-text text-[11px] text-[#9A9A9A]'>
+            <DialogDescription className='font-inter-tight text-[11px] text-[#9A9A9A]'>
               Application #{application.id}
             </DialogDescription>
           </div>
@@ -40,7 +40,7 @@ export function SlotReceiptDialog({ application }: { application: VendorApplicat
           </DialogClose>
         </div>
 
-        <dl className='flex flex-col font-sf-pro-text text-[13px]'>
+        <dl className='flex flex-col font-inter-tight text-[13px]'>
           <ReceiptRow name='Event' value={application.eventName} />
           <ReceiptRow name='Slot' value={getSlotName(application)} />
           <ReceiptRow name='Slots' value={application.requestedSlots} />

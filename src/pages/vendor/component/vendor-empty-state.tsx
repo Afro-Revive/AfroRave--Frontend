@@ -20,7 +20,7 @@ export function VendorEmptyState({
       </span>
       <p className='font-inter-tight text-lg font-bold text-[#9A9A9A]'>{title}</p>
       {description && (
-        <p className='max-w-[300px] font-sf-pro-text text-sm leading-snug text-[#9A9A9A]'>{description}</p>
+        <p className='max-w-[300px] font-inter-tight text-sm leading-snug text-[#9A9A9A]'>{description}</p>
       )}
       {action && <div className='mt-2'>{action}</div>}
     </div>

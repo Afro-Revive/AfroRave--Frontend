@@ -149,7 +149,7 @@ function EventGuestlist({ eventId }: { eventId: string }) {
 
   return (
     <CreatorPageContainer>
-      <div className='w-full bg-white flex items-start gap-4 px-5 py-6'>
+      <div className='w-full bg-white flex items-start gap-4 px-5 md:px-8 py-6'>
         <SidebarToggle />
 
         <div className='flex flex-col gap-1'>
@@ -160,7 +160,7 @@ function EventGuestlist({ eventId }: { eventId: string }) {
         </div>
       </div>
 
-      <div className='w-full flex flex-col gap-6 px-5 py-6 md:py-8'>
+      <div className='w-full flex flex-col gap-6 px-5 md:px-8 py-6 md:py-8'>
         <AddGuestCard
           isSubmitting={addGuestToEvent.isPending}
           onSubmit={(values) =>

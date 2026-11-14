@@ -115,7 +115,7 @@ function LinkToAuth({ href, linkName }: { href: string; linkName: string }) {
   return (
     <Link
       to={href}
-      className='w-fit bg-deep-red text-sm font-light uppercase rounded-[6px] flex items-center justify-center text-center font-sf-compact px-4 py-2'>
+      className='w-fit bg-deep-red text-sm font-light uppercase rounded-[6px] flex items-center justify-center text-center font-inter-tight px-4 py-2'>
       <span>{linkName}</span>
     </Link>
   )

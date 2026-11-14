@@ -1,3 +1,4 @@
+import { FormSectionHeading } from "@/components/shared/form-section-heading";
 import {
   CustomFormField as FormField,
   CustomInput as Input,
@@ -8,7 +9,7 @@ import { FormFieldWithCounter } from "@/components/shared/field-with-counter";
 import { RichTextEditor } from "@/components/reusable/rich-text-editor";
 import { richTextLength } from "@/lib/rich-text";
 import { useCreateEvent } from "@/hooks/use-event-mutations";
-import { toDashCase } from "@/lib/helper-func";
+import { toDashCase, capitalizeWords, rewriteInputValue } from "@/lib/helper-func";
 import { transformEventDetailsToCreateRequest } from "@/lib/event-transforms";
 import {
   africanTimezones,
@@ -86,17 +87,18 @@ export default function EventDetailsTab({
     setStep(1);
   }, [setStep]);
 
-  // The custom URL is derived from the event name
+  // The custom URL is derived from the event name. Checked only once the name
+  // has text, so a blank form doesn't open with "URL too short." already showing.
   const eventName = form.watch("name");
   useEffect(() => {
     form.setValue("custom_url", toDashCase(eventName ?? ""), {
-      shouldValidate: true,
+      shouldValidate: Boolean(eventName),
     });
   }, [eventName, form]);
 
   async function onSubmit(values: EventDetailsSchema) {
     const eventData = transformEventDetailsToCreateRequest(values);
-    // Save As Drafts (in the page header) submits this form too: the same
+    // Save as Draft (in the page header) submits this form too: the same
     // checks and the same create.
     const isDraft = savingDraft?.current ?? false;
     if (savingDraft) savingDraft.current = false;
@@ -144,12 +146,11 @@ export default function EventDetailsTab({
       /> */}
         <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-1">
-            <h2 className="font-inter-tight font-bold text-2xl text-black uppercase">
+            <FormSectionHeading>
               Visibility
-            </h2>
+            </FormSectionHeading>
             <p className="font-inter-tight font-medium text-sm text-[#464444]">
-              Control how guests access tickets for this event. Public events
-              can be switched to private one time only.
+              Control how guests access tickets for this event. Switching to public is permanent. Public events can't be made private.
             </p>
           </div>
 
@@ -157,9 +158,9 @@ export default function EventDetailsTab({
         </div>
 
         <div className="flex flex-col gap-1">
-          <h2 className="font-inter-tight font-bold text-2xl text-black uppercase">
+          <FormSectionHeading>
             Basic Info
-          </h2>
+          </FormSectionHeading>
         </div>
 
         <FormFieldWithCounter
@@ -171,9 +172,10 @@ export default function EventDetailsTab({
         >
           {(field) => (
             <Input
-              placeholder="Enter event name."
-              className="uppercase"
+              placeholder="Enter event name"
               {...field}
+              // Each word starts with a capital, and that's what's saved.
+              onChange={(e) => field.onChange(rewriteInputValue(e.target, capitalizeWords))}
               value={field.value == null ? "" : String(field.value)}
             />
           )}
@@ -202,8 +204,10 @@ export default function EventDetailsTab({
         <FormField form={form} name="venue" label="Venue">
           {(field) => (
             <Input
-              placeholder="Enter event venue."
+              placeholder="Enter event venue"
               {...field}
+              // Each word starts with a capital, and that's what's saved.
+              onChange={(e) => field.onChange(rewriteInputValue(e.target, capitalizeWords))}
               value={field.value == null ? "" : String(field.value)}
             />
           )}
@@ -219,7 +223,7 @@ export default function EventDetailsTab({
           {(field) => (
             <RichTextEditor
               id="description"
-              placeholder="Enter event description."
+              placeholder="Enter event description"
               value={field.value as string}
               onChange={field.onChange}
               onBlur={field.onBlur}
@@ -235,8 +239,8 @@ export default function EventDetailsTab({
         >
           {(field) => (
             <Textarea
-              placeholder="Enter your terms and refund policy."
-              className="w-full h-[272px] text-black bg-white px-3 py-[11px] rounded-[4px] border border-mid-dark-gray/50 text-sm font-sf-pro-display"
+              placeholder="Enter your terms and refund policy"
+              className="w-full h-[272px] text-black bg-white px-3 py-[11px] rounded-[4px] border border-mid-dark-gray/50 text-sm font-inter-tight"
               {...field}
               value={field.value == null ? "" : String(field.value)}
             />
@@ -247,13 +251,13 @@ export default function EventDetailsTab({
           form={form}
           name="custom_url"
           label="URL"
-          text="afrorevive/events/"
+          text="afrorevive.com/events/"
         >
           {(field) => (
             <Input
               readOnly
               tabIndex={-1}
-              placeholder="Generated from the event name."
+              placeholder="Generated from the event name"
               className="border-none h-9 text-xs cursor-default text-mid-dark-gray focus-visible:ring-0"
               {...field}
               value={field.value == null ? "" : String(field.value)}
@@ -263,9 +267,9 @@ export default function EventDetailsTab({
 
         <div className="w-full flex flex-col gap-5">
           <div className="flex flex-col gap-1">
-            <p className="text-xl font-bold text-black font-inter-tight uppercase">
-              Date & Time
-            </p>
+            <FormSectionHeading as="p">
+              DATE & TIME
+            </FormSectionHeading>
             <p className="font-inter-tight lg:text-sm text-xs font-medium text-[#464444]">
               Update your event's date and time. Ticket holders will be notified
               of any changes.
@@ -277,7 +281,7 @@ export default function EventDetailsTab({
             name="time_zone"
             label="SELECT TIME ZONE"
             data={africanTimezones}
-            placeholder="Select a time zone."
+            placeholder="Select a time zone"
             triggerClassName="w-full bg-[#1E1E1E]/50"
           />
         </div>
@@ -307,9 +311,9 @@ export default function EventDetailsTab({
         <div className="w-full flex flex-col gap-7">
           <div className="min-w-full flex flex-col gap-5">
             <div className="flex flex-col gap-1">
-              <p className="text-xl font-bold text-black font-inter-tight uppercase">
+              <FormSectionHeading as="p">
                 CONTACT DETAILS
-              </p>
+              </FormSectionHeading>
               <p className="font-inter-tight lg:text-sm text-xs font-medium text-[#464444]">
                 Update your event's date and time. Ticket holders will be
                 notified of any changes.
@@ -320,7 +324,7 @@ export default function EventDetailsTab({
               <FormField form={form} name="email" label="Email">
                 {(field) => (
                   <Input
-                    placeholder="Enter email address."
+                    placeholder="Enter email address"
                     {...field}
                     value={field.value == null ? "" : String(field.value)}
                   />
@@ -330,7 +334,7 @@ export default function EventDetailsTab({
               <FormField form={form} name="website_url" label="Website URL">
                 {(field) => (
                   <Input
-                    placeholder="Enter your website URL (optional)."
+                    placeholder="Enter your website URL (optional)"
                     {...field}
                     value={field.value == null ? "" : String(field.value)}
                   />
@@ -341,16 +345,16 @@ export default function EventDetailsTab({
 
           <div className="flex flex-col gap-5">
             <div className="flex flex-col gap-1">
-              <p className="text-xl font-bold text-black font-inter-tight uppercase">
+              <FormSectionHeading as="p">
                 Socials
-              </p>
+              </FormSectionHeading>
             </div>
 
             <div className="grid md:grid-cols-2 gap-x-8 gap-y-5">
               {[
                 { name: "socials.instagram" as const, label: "Instagram" },
                 { name: "socials.x" as const, label: "X" },
-                { name: "socials.tiktok" as const, label: "Tiktok" },
+                { name: "socials.tiktok" as const, label: "TikTok" },
                 { name: "socials.facebook" as const, label: "Facebook" },
               ].map((item) => (
                 <FormField
@@ -361,7 +365,7 @@ export default function EventDetailsTab({
                 >
                   {(field) => (
                     <Input
-                      placeholder={`Enter your ${item.label} Link.`}
+                      placeholder={`Enter your ${item.label} link`}
                       className="text-[#0033A0]"
                       {...field}
                       value={field.value == null ? "" : String(field.value)}

@@ -126,7 +126,7 @@ function EventAudience({ eventId }: { eventId: string }) {
         onTogglePause={() => updateApplicationStatus.mutate(!isPaused)}
       />
 
-      <div className='w-full flex flex-col gap-6 px-5 md:px-14 py-6 md:py-8'>
+      <div className='w-full flex flex-col gap-6 px-5 md:px-8 py-6 md:py-8'>
         <NoticeCard icon={Lock} title='This is a private event' notes={AUDIENCE_NOTES} />
 
         <AccessRequestsCard
@@ -154,7 +154,7 @@ function EventAudience({ eventId }: { eventId: string }) {
 function AudienceMessage({ children }: { children: React.ReactNode }) {
   return (
     <div className='w-full flex justify-center py-16'>
-      <p className='font-sf-pro-display text-xl font-bold text-black'>{children}</p>
+      <p className='font-inter-tight text-xl font-bold text-black'>{children}</p>
     </div>
   )
 }

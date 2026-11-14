@@ -92,6 +92,29 @@ export function capitalizeFirstLetter(str: string): string {
   return firstLetter + restOfString
 }
 
+/** Capitalises the first letter of each word and leaves the rest as typed: "afro revive fest" -> "Afro Revive Fest", "DJ spinall" -> "DJ Spinall". */
+export function capitalizeWords(str: string): string {
+  return str.replace(/(^|\s)(\p{Ll})/gu, (_, space: string, letter: string) => space + letter.toUpperCase())
+}
+
+/**
+ * Rewrites what's being typed in an input (to capitals, say) and returns the
+ * new value, keeping the caret where it was. Setting a changed value through
+ * React instead would jump the caret to the end when typing mid-word.
+ */
+export function rewriteInputValue(
+  input: HTMLInputElement,
+  rewrite: (value: string) => string,
+): string {
+  const next = rewrite(input.value)
+  if (next !== input.value) {
+    const { selectionStart, selectionEnd } = input
+    input.value = next
+    input.setSelectionRange(selectionStart, selectionEnd)
+  }
+  return next
+}
+
 export function toDashCase(str: string): string {
   return (
     str
@@ -514,17 +537,23 @@ export function isInviteOnlyTicket(ticket: Pick<UserTicketTicketDetails, 'access
   return ticket.accessType === 'Invite'
 }
 
-/** Why a ticket can't be listed for resale, or undefined when it can. */
+/**
+ * Why a ticket can't be listed for resale, or undefined when it can. Whether
+ * it can is the backend's `canResell`; the ticket's type only picks the words.
+ * A ticket without the flag is allowed, and the server still has the last say.
+ */
 export function resaleBlockedReason(ticket: UserTicketTicketDetails): string | undefined {
+  if (ticket.canResell !== false) return undefined
   if (isInviteOnlyTicket(ticket)) return "Invite-only tickets can't be resold"
   if (isGroupTicket(ticket)) return "Group tickets can't be resold"
-  return undefined
+  return "The organizer has turned off resale for this ticket"
 }
 
-/** Why a ticket can't be transferred, or undefined when it can. */
+/** Why a ticket can't be transferred, or undefined when it can. Reads the backend's `canTransfer`, like resaleBlockedReason. */
 export function transferBlockedReason(ticket: UserTicketTicketDetails): string | undefined {
+  if (ticket.canTransfer !== false) return undefined
   if (isInviteOnlyTicket(ticket)) return "Invite-only tickets can't be transferred"
-  return undefined
+  return "This ticket can't be transferred"
 }
 
 /** Tickets a user actually bought for an event, summed across every ticket type and order. */

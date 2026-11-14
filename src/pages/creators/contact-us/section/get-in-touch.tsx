@@ -1,5 +1,6 @@
 import { useSendSupportMessage } from '@/hooks/use-support-mutations'
 import { cn } from '@/lib/utils'
+import { FIELD_LABEL_ON_DARK_CLASS } from '@/components/shared/field-label'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm, type FieldError } from 'react-hook-form'
 import { RiArrowDownSLine } from 'react-icons/ri'
@@ -146,14 +147,15 @@ function Field({
 
   return (
     <div className='flex w-full flex-col gap-1'>
+      {/* Above the box, as in every other form. */}
+      <label htmlFor={id} className={FIELD_LABEL_ON_DARK_CLASS}>
+        {label}
+      </label>
       <div
         className={cn(
-          'flex flex-col gap-1 rounded-[5px] border px-3 pt-2.5 pb-2 transition-colors focus-within:ring-1 focus-within:ring-white/40',
+          'rounded-[5px] border px-3 py-2.5 transition-colors focus-within:ring-1 focus-within:ring-white/40',
           error ? 'border-red-400' : 'border-white',
         )}>
-        <label htmlFor={id} className='font-inter-tight text-[12px]'>
-          {label}
-        </label>
         {children(id)}
       </div>
 

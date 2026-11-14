@@ -2,8 +2,10 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
 import type { ControllerRenderProps } from 'react-hook-form'
 import { cn } from '@/lib/utils'
+import { forwardRef } from 'react'
 
-export function BaseBooleanCheckbox({
+// forwardRef: FormField hands its child a ref; a plain function component can't take one.
+export const BaseBooleanCheckbox = forwardRef<HTMLButtonElement, IBaseBooleanCheckbox & Partial<ControllerRenderProps>>(function BaseBooleanCheckbox({
   data,
   value,
   onChange,
@@ -13,7 +15,7 @@ export function BaseBooleanCheckbox({
   orientation = 'horizontal',
   showCheckbox = true,
   checkedClassName,
-}: IBaseBooleanCheckbox & Partial<ControllerRenderProps>) {
+}, ref) {
   return (
     <div className='flex flex-col gap-0.5'>
       <div
@@ -25,6 +27,8 @@ export function BaseBooleanCheckbox({
           <div className='flex items-center gap-1'>
             {showCheckbox && (
               <Checkbox
+                ref={ref}
+                id={data.items.id}
                 defaultChecked={defaultChecked ? defaultChecked : false}
                 name={data.items.id}
                 checked={value}
@@ -38,7 +42,7 @@ export function BaseBooleanCheckbox({
             <Label
               htmlFor={data.items.id}
               className={cn(
-                'flex items-center justify-center text-sm text-charcoal uppercase font-sf-pro-text rounded-md px-2 py-1',
+                'flex items-center justify-center text-sm text-charcoal uppercase font-inter-tight rounded-md px-2 py-1',
                 labelClassName,
                 value && checkedClassName, // only applied when checked
               )}>
@@ -46,7 +50,7 @@ export function BaseBooleanCheckbox({
             </Label>
           </div>
           {data.items.description && (
-            <p className='text-sm font-light font-sf-pro-display text-charcoal'>
+            <p className='text-sm font-light font-inter-tight text-charcoal'>
               {data.items.description}
             </p>
           )}
@@ -54,13 +58,13 @@ export function BaseBooleanCheckbox({
       </div>
 
       {data.description && (
-        <p className={cn('text-xs font-light font-sf-pro-display', descriptionClassName)}>
+        <p className={cn('text-xs font-light font-inter-tight', descriptionClassName)}>
           {data.description}
         </p>
       )}
     </div>
   )
-}
+})
 
 export interface IBaseCheckbox {
   description?: string

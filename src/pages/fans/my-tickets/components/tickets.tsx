@@ -8,7 +8,7 @@ export function Tickets({ id, image, event_name, ticketQuantity, event_date, eve
   const card_class = cn(
     // max-md:shrink-0 so cards keep their width in the mobile scroller
     // instead of being squeezed to fit one row.
-    'relative flex flex-col justify-end overflow-hidden rounded-2xl border border-white/10 aspect-[5/7] w-55 md:w-60 lg:w-62.25 max-md:shrink-0',
+    'relative flex flex-col justify-end overflow-hidden rounded-2xl border border-white/10 aspect-3/4 w-55 md:w-60 lg:w-62.25 max-md:shrink-0',
     // Without `group` the hover states below have nothing to key off
     disabled ? 'opacity-50' : 'group'
   )
@@ -23,7 +23,7 @@ export function Tickets({ id, image, event_name, ticketQuantity, event_date, eve
 
       <div className='absolute inset-x-0 bottom-0 h-3/5 bg-gradient-to-t from-black via-black/75 to-transparent' />
 
-      <div className='absolute inset-x-0 bottom-[5%] flex flex-col gap-1.5 p-4'>
+      <div className='absolute inset-x-0 bottom-0 flex flex-col gap-1.5 p-4'>
         <p className='font-inter-tight text-base md:text-xl uppercase font-black text-white leading-tight'>
           {event_name}
         </p>

@@ -91,7 +91,7 @@ export default function CreatorGuideOverlay() {
             {/* Header row */}
             <div className='flex items-start justify-between'>
               <div className='flex items-center gap-3'>
-                <span className='text-3xl font-black text-deep-red/12 font-sf-pro-display leading-none select-none'>
+                <span className='text-3xl font-black text-deep-red/12 font-inter-tight leading-none select-none'>
                   {current.step}
                 </span>
                 <div className='flex gap-1.5 items-center'>
@@ -115,27 +115,27 @@ export default function CreatorGuideOverlay() {
 
             {/* Content */}
             <div className='flex flex-col gap-1.5'>
-              <p className='text-base font-bold text-charcoal font-sf-pro-display'>{current.title}</p>
-              <p className='text-xs text-gray-500 font-sf-pro-text leading-relaxed'>{current.description}</p>
+              <p className='text-base font-bold text-charcoal font-inter-tight'>{current.title}</p>
+              <p className='text-xs text-gray-500 font-inter-tight leading-relaxed'>{current.description}</p>
             </div>
 
             {/* Hint */}
             <div className='flex items-start gap-2 bg-gray-50 rounded-lg px-3.5 py-2.5'>
               <span className='text-sm mt-px'>💡</span>
-              <p className='text-[11px] text-gray-500 font-sf-pro-text leading-relaxed'>{current.hint}</p>
+              <p className='text-[11px] text-gray-500 font-inter-tight leading-relaxed'>{current.hint}</p>
             </div>
 
             {/* Actions */}
             <div className='flex items-center justify-between'>
               <button
                 onClick={prevGuideStep}
-                className={`text-xs font-sf-pro-text text-gray-400 hover:text-gray-600 transition-colors ${isFirst ? 'invisible' : ''}`}>
+                className={`text-xs font-inter-tight text-gray-400 hover:text-gray-600 transition-colors ${isFirst ? 'invisible' : ''}`}>
                 ← Back
               </button>
 
               <Button
                 onClick={handleNext}
-                className='h-8 px-5 rounded-[6px] bg-deep-red hover:bg-deep-red/90 text-white font-sf-pro-text text-xs font-semibold gap-1.5'>
+                className='h-8 px-5 rounded-[6px] bg-deep-red hover:bg-deep-red/90 text-white font-inter-tight text-xs font-semibold gap-1.5'>
                 {isLast ? (
                   'Done — start creating!'
                 ) : (

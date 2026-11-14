@@ -201,10 +201,10 @@ export default function TicketTransferModal({
         <div
           className={cn("flex flex-col px-6 gap-1", step === "email" && "pt-3")}
         >
-          <p className="text-sm font-bold font-sf-pro-text tracking-tight text-system-black">
+          <p className="text-sm font-bold font-inter-tight tracking-tight text-system-black">
             {headerTitle}
           </p>
-          <p className="text-xs text-system-black font-sf-pro-text text-left">
+          <p className="text-xs text-system-black font-inter-tight text-left">
             {headerSub}
           </p>
         </div>
@@ -243,17 +243,17 @@ export default function TicketTransferModal({
                       >
                         <TransformedTicket color="#ae0d0d" />
                         <div className="flex flex-col gap-0.5 flex-1">
-                          <p className="text-sm font-semibold font-sf-pro-display capitalize">
+                          <p className="text-sm font-semibold font-inter-tight capitalize">
                             {ticket.ticketName}
                           </p>
-                          <p className="text-xs text-black/40 font-sf-pro-display">
+                          <p className="text-xs text-black/40 font-inter-tight">
                             {ticket.totalQuantity} available
                           </p>
                         </div>
                       </div>
 
                       {unavailableReason ? (
-                        <span className="max-w-[45%] text-right text-[11px] leading-tight text-light-red font-sf-pro-display">
+                        <span className="max-w-[45%] text-right text-[11px] leading-tight text-light-red font-inter-tight">
                           {unavailableReason}
                         </span>
                       ) : isSelected ? (
@@ -269,7 +269,7 @@ export default function TicketTransferModal({
                           >
                             <Minus size={10} />
                           </button>
-                          <span className="text-sm font-bold font-sf-pro-display w-4 text-center">
+                          <span className="text-sm font-bold font-inter-tight w-4 text-center">
                             {count}
                           </span>
                           <button
@@ -289,7 +289,7 @@ export default function TicketTransferModal({
                           </button>
                         </div>
                       ) : (
-                        <span className="text-xs text-black/30 font-sf-pro-display">
+                        <span className="text-xs text-black/30 font-inter-tight">
                           ×{ticket.totalQuantity}
                         </span>
                       )}
@@ -303,7 +303,7 @@ export default function TicketTransferModal({
                 disabled={totalSelectedCount === 0}
                 onClick={() => setStep("email")}
                 className={cn(
-                  "w-full rounded-lg py-2 text-sm font-inter transition-all mt-2 relative flex items-center justify-center px-4",
+                  "w-full rounded-lg py-2 text-sm font-inter-tight transition-all mt-2 relative flex items-center justify-center px-4",
                   totalSelectedCount > 0
                     ? "bg-black text-white hover:bg-black/90"
                     : "bg-black/10 text-black/30 cursor-not-allowed",
@@ -319,7 +319,7 @@ export default function TicketTransferModal({
               </button>
 
               {maxReached && (
-                <p className="text-xs text-light-red font-inter text-center">
+                <p className="text-xs text-light-red font-inter-tight text-center">
                   Maximum Ticket Limit Reached
                 </p>
               )}
@@ -341,10 +341,10 @@ export default function TicketTransferModal({
                     className="w-full py-3 flex flex-col gap-1.5"
                   >
                     <div className="flex items-center gap-2">
-                      <p className="text-sm font-semibold font-sf-pro-display capitalize flex-1">
+                      <p className="text-sm font-semibold font-inter-tight capitalize flex-1">
                         {ticket.ticketName}
                       </p>
-                      <p className="text-xs text-black/40 font-sf-pro-display">
+                      <p className="text-xs text-black/40 font-inter-tight">
                         ×{qty}
                       </p>
                     </div>
@@ -358,7 +358,7 @@ export default function TicketTransferModal({
                           handleEmailChange(ticket.ticketId, e.target.value)
                         }
                         className={cn(
-                          "w-full text-xs font-inter px-3 py-2 pr-8 rounded-md border bg-transparent outline-none transition-colors placeholder:text-black/30",
+                          "w-full text-xs font-inter-tight px-3 py-2 pr-8 rounded-md border bg-transparent outline-none transition-colors placeholder:text-black/30",
                           v.status === "verified" &&
                             "border-green-500 focus:border-green-500",
                           v.status === "error" &&
@@ -383,12 +383,12 @@ export default function TicketTransferModal({
                     </div>
 
                     {v.status === "verified" && (
-                      <p className="text-[10px] text-green-600 font-inter font-medium">
+                      <p className="text-[10px] text-green-600 font-inter-tight font-medium">
                         Recipient verified
                       </p>
                     )}
                     {v.status === "error" && (
-                      <p className="text-[10px] text-red-500 font-inter">
+                      <p className="text-[10px] text-red-500 font-inter-tight">
                        Recipient is not registered on the platform.
                       </p>
                     )}
@@ -401,7 +401,7 @@ export default function TicketTransferModal({
                 onClick={handleSubmit}
                 disabled={!allVerified || isTransferring}
                 className={cn(
-                  "w-full py-1.5 rounded-md text-sm font-bold font-sf-pro-display transition-all mt-2",
+                  "w-full py-1.5 rounded-md text-sm font-bold font-inter-tight transition-all mt-2",
                   allVerified && !isTransferring
                     ? "bg-black text-white hover:bg-black/90"
                     : "bg-black/10 text-black/30 cursor-not-allowed",

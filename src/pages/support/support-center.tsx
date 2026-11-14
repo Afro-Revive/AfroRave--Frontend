@@ -43,7 +43,7 @@ export default function SupportCenter() {
     return (
       <>
         <div className='w-full flex flex-col items-end py-2.5 px-8'>
-          <Button className='p-3 bg-charcoal rounded-[8px] text-sm font-sf-pro-display'>
+          <Button className='p-3 bg-charcoal rounded-[8px] text-sm font-inter-tight'>
             Contact Us
           </Button>
         </div>
@@ -66,7 +66,7 @@ export default function SupportCenter() {
     <>
       <div className='w-full flex items-center justify-between py-2.5 px-8 pt-6'>
         {/* Breadcrumb Navigation */}
-        <nav className='flex items-center gap-2 text-sm font-sf-pro-display'>
+        <nav className='flex items-center gap-2 text-sm font-inter-tight'>
           <button
             type='button'
             onClick={handleBackToLanding}
@@ -77,7 +77,7 @@ export default function SupportCenter() {
           <span className='text-gray-900 font-medium'>{currentSection.title}</span>
         </nav>
 
-        <Button className='p-3 bg-charcoal rounded-[8px] text-sm font-sf-pro-display'>
+        <Button className='p-3 bg-charcoal rounded-[8px] text-sm font-inter-tight'>
           Contact Us
         </Button>
       </div>
@@ -176,7 +176,7 @@ export default function SupportCenter() {
         {/* Main Content Area */}
         <div className='w-[652px] max-w-[652px] p-8 pt-2'>
           <div className='mb-6'>
-            <h1 className='text-[36px] font-medium text-pure-black font-sf-pro-display mb-2'>
+            <h1 className='text-[36px] font-medium text-pure-black font-inter-tight mb-2'>
               {currentSection.title}
             </h1>
             <p className='text-lg text-pure-black'>{currentSection.subtitle}</p>
@@ -185,7 +185,7 @@ export default function SupportCenter() {
           <div className='space-y-8'>
             {currentSection.subsections.map((subsection) => (
               <div key={subsection.id}>
-                <h2 className='text-2xl font-semibold font-sf-pro-display text-pure-black mb-4'>
+                <h2 className='text-2xl font-semibold font-inter-tight text-pure-black mb-4'>
                   {subsection.title}
                 </h2>
                 <div className='space-y-4'>
@@ -193,7 +193,7 @@ export default function SupportCenter() {
                     <div
                       key={`${subsection.id}-question-${index}`}
                       className='border-b border-gray-200 pb-4 last:border-b-0'>
-                      <h3 className='text-sm font-medium font-sf-pro-display text-pure-black mb-2'>
+                      <h3 className='text-sm font-medium font-inter-tight text-pure-black mb-2'>
                         {question}
                       </h3>
                     </div>
@@ -214,7 +214,7 @@ function SupportCard({ src, alt, heading, content, onClick }: ISupport) {
       type='button'
       onClick={onClick}
       aria-label={`Go to ${heading} support`}
-      className='w-[320px] h-[120px] flex flex-col gap-1 items-center justify-center py-3 px-5 bg-white rounded-[8px] font-sf-pro-display text-black cursor-pointer hover:shadow-md transition-shadow focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2'>
+      className='w-[320px] h-[120px] flex flex-col gap-1 items-center justify-center py-3 px-5 bg-white rounded-[8px] font-inter-tight text-black cursor-pointer hover:shadow-md transition-shadow focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2'>
       <div className='flex gap-0.5 items-center'>
         <img src={src} alt={alt} width={18} height={18} />
         <p className='font-semibold capitalize'>{heading}</p>

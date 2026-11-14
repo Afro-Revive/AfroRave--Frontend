@@ -29,19 +29,18 @@ export default function HeroSection({
         )}>
         {/* Title — 2 lines, large bold */}
         <h1
-          className={cn('uppercase leading-tight tracking-[0] text-white', {
-            'font-black text-[26px] md:text-[36px]': wishlistButton,
-            'font-sf-pro-text font-black text-[28px] md:text-[40px]': !wishlistButton,
+          className={cn('font-inter-tight font-black uppercase leading-tight tracking-[0] text-white', {
+            'text-[26px] md:text-[36px]': wishlistButton,
+            'text-[28px] md:text-[40px]': !wishlistButton,
           })}
-          style={wishlistButton ? { fontFamily: 'Inter' } : undefined}
         >
           ALL-IN-ONE HUB<br />FOR FANS AND CREATORS
         </h1>
 
         {/* Subtitle */}
         <p
-          className='font-sf-pro-text text-[15px] md:text-[18px] uppercase leading-relaxed tracking-[0] text-white'
-          style={wishlistButton ? { fontFamily: 'Inter', fontWeight: 400 } : { fontWeight: 300 }}
+          className='font-inter-tight text-[15px] md:text-[18px] uppercase leading-relaxed tracking-[0] text-white'
+          style={{ fontWeight: wishlistButton ? 400 : 300 }}
         >
           {description}
         </p>

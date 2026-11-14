@@ -1,4 +1,4 @@
-import type * as React from 'react'
+import * as React from 'react'
 import * as SelectPrimitive from '@radix-ui/react-select'
 import { CheckIcon, ChevronDownIcon, ChevronUpIcon } from 'lucide-react'
 
@@ -16,16 +16,14 @@ function SelectValue({ ...props }: React.ComponentProps<typeof SelectPrimitive.V
   return <SelectPrimitive.Value data-slot='select-value' {...props} />
 }
 
-function SelectTrigger({
-  className,
-  size = 'default',
-  children,
-  ...props
-}: React.ComponentProps<typeof SelectPrimitive.Trigger> & {
-  size?: 'sm' | 'default'
-}) {
+// forwardRef: on React 18 a ref isn't a plain prop, and form fields pass one.
+const SelectTrigger = React.forwardRef<
+  React.ElementRef<typeof SelectPrimitive.Trigger>,
+  React.ComponentPropsWithoutRef<typeof SelectPrimitive.Trigger> & { size?: 'sm' | 'default' }
+>(function SelectTrigger({ className, size = 'default', children, ...props }, ref) {
   return (
     <SelectPrimitive.Trigger
+      ref={ref}
       data-slot='select-trigger'
       data-size={size}
       className={cn(
@@ -39,7 +37,7 @@ function SelectTrigger({
       </SelectPrimitive.Icon>
     </SelectPrimitive.Trigger>
   )
-}
+})
 
 function SelectContent({
   className,

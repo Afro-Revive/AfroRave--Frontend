@@ -134,7 +134,7 @@ function EventCard({
 }
 
 function CategoryBlockName({ name }: { name: string }) {
-  return <p className='text-xl font-bold font-sf-pro-display'>{name}</p>
+  return <p className='text-xl font-bold font-inter-tight'>{name}</p>
 }
 
 export function CategoryBlockSkeleton({ name }: { name?: string }) {
@@ -146,7 +146,7 @@ export function CategoryBlockSkeleton({ name }: { name?: string }) {
         {Array.from({ length: 4 }).map((_, idx) => (
           <div
             key={`event-skeleton-${idx}`}
-            className='relative flex flex-col justify-end overflow-hidden rounded-2xl aspect-[5/7] min-w-[220px] max-w-[260px] md:min-w-[240px] lg:min-w-[255px] bg-gray-200 animate-pulse'>
+            className='relative flex flex-col justify-end overflow-hidden rounded-2xl aspect-3/4 min-w-[220px] max-w-[260px] md:min-w-[240px] lg:min-w-[255px] bg-gray-200 animate-pulse'>
             <div className='flex flex-col gap-2 p-4'>
               <div className='h-5 w-3/4 bg-gray-300 rounded' />
               <div className='h-3 w-2/3 bg-gray-300 rounded' />

@@ -90,11 +90,11 @@ export default function ReviewListingModal({
       size="small"
       floatingCancel
       title="Review Your Listing"
-      titleClassName="font-sf-pro-display py-4 border-b-1 border-[#595959]/50"
+      titleClassName="font-inter-tight py-4 border-b-1 border-[#595959]/50"
       cancelClassName="top-4 md:top-4 right-4 md:right-4 p-0 bg-transparent hover:bg-transparent backdrop-blur-none"
       className="bg-system-black sm:max-w-[460px]"
     >
-      <div className="flex flex-col gap-6 px-6 py-8 font-sf-pro-display text-white">
+      <div className="flex flex-col gap-6 px-6 py-8 font-inter-tight text-white">
         <div className="flex items-start justify-between gap-4">
           <div className="flex flex-col gap-1 min-w-0">
             <p className="text-sm font-medium capitalize truncate">
@@ -180,7 +180,7 @@ export default function ReviewListingModal({
                 type="button"
                 variant="ghost"
                 onClick={cancelEdit}
-                className="flex-1 h-10 rounded-lg font-inter text-xs uppercase font-semibold text-white/70 hover:text-white hover:bg-white/10"
+                className="flex-1 h-10 rounded-lg font-inter-tight text-xs uppercase font-semibold text-white/70 hover:text-white hover:bg-white/10"
               >
                 Cancel
               </Button>
@@ -190,7 +190,7 @@ export default function ReviewListingModal({
                 onClick={() =>
                   savePrice(listing.id, listing.price, parsedDraftPrice)
                 }
-                className="flex-1 h-10 rounded-lg font-inter text-xs uppercase font-semibold bg-white text-black hover:bg-white/90 disabled:opacity-40"
+                className="flex-1 h-10 rounded-lg font-inter-tight text-xs uppercase font-semibold bg-white text-black hover:bg-white/90 disabled:opacity-40"
               >
                 {isPending ? "Saving..." : "Save Price"}
               </Button>
@@ -209,7 +209,7 @@ export default function ReviewListingModal({
               type="button"
               variant="destructive"
               onClick={() => cancelListing(listing.id)}
-              className="w-full h-10 rounded-lg bg-white text-black hover:bg-white/70 hover:text-black font-inter text-xs uppercase font-semibold"
+              className="w-full h-10 rounded-lg bg-white text-black hover:bg-white/70 hover:text-black font-inter-tight text-xs uppercase font-semibold"
             >
              {
               isCanceling ? "Removing..." : "Remove Listing"

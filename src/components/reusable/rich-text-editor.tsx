@@ -95,7 +95,7 @@ export function RichTextEditor({
         ...(id ? { id } : {}),
         'aria-multiline': 'true',
         class: cn(
-          'min-h-[230px] max-h-[480px] overflow-y-auto px-3 py-[11px] text-sm text-black font-sf-pro-display normal-case outline-none',
+          'min-h-[230px] max-h-[480px] overflow-y-auto px-3 py-[11px] text-sm text-black font-inter-tight normal-case outline-none',
           RICH_TEXT_CLASSES,
         ),
       },
@@ -274,7 +274,7 @@ export function RichTextEditor({
 
       <div className='relative'>
         {state?.isEmpty && placeholder && (
-          <span className='pointer-events-none absolute inset-x-3 top-2.75 whitespace-pre-line text-sm normal-case text-mid-dark-gray/70 font-sf-pro-display'>
+          <span className='pointer-events-none absolute inset-x-3 top-2.75 whitespace-pre-line text-sm normal-case text-mid-dark-gray/70 font-inter-tight'>
             {placeholder}
           </span>
         )}

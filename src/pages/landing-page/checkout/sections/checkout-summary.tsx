@@ -82,7 +82,7 @@ export default function CheckoutSummary({
   const [promoDiscount, setPromoDiscount] = useState<PromoDiscount | null>(
     null,
   );
-
+  console.log(ticketsResponse?.data)
   const purchasables = useMemo(
     () =>
       // Index all purchasable tickets(resale and primary) by cartKey (ticketId for primary, listingId for resale)
@@ -109,8 +109,14 @@ export default function CheckoutSummary({
       eventId: eventId ?? "",
       name: ticket?.name ?? "Ticket",
       price: ticket?.price ?? 0,
+      fee: ticket?.fee ?? 0,
       quantity: item.quantity,
       resale: ticket?.source === "resale",
+      listingId: item.listingId,
+      // A cart holds one event's tickets, so every line shares these.
+      eventName: event.eventName,
+      venue: event.venue,
+      category: event.category,
     };
   });
 
@@ -120,6 +126,12 @@ export default function CheckoutSummary({
     (sum, item) => sum + item.price * item.quantity,
     0,
   );
+
+  const totalFee = cartItems.reduce(
+    (sum, item) => sum + item.fee * item.quantity,
+    0,
+  );
+
   const totalQuantity = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
   const {mutate: checkoutMutation, isPending} = useCheckoutCart();
@@ -178,34 +190,37 @@ export default function CheckoutSummary({
       )}
       <div className="w-full flex flex-col md:flex-row items-stretch gap-4">
         <div className="flex flex-col flex-1 gap-4 md:gap-0 md:justify-between">
-          <div className="flex flex-col gap-1">
-            <p className="text-xl md:text-3xl uppercase leading-normal font-inter font-black">
-              {event.eventName}
-            </p>
-            <p className="text-xs md:text-sm font-sf-pro-display">
-              {event.venue}
-            </p>
-            <p className="text-xs md:text-sm font-sf-pro-display">
-              {formatEventDate(event.eventDate.startDate)} -{" "}
-              {formatEventDate(event.eventDate.endDate)} at{" "}
-              {formatTimeLong(event.eventDate.startTime)} (
-              {formatTimezone(event.eventDate.timezone)})
-            </p>
-          </div>
+          <div className="flex items-start gap-4">
+            {/* Mobile only: the flyer as a 3:4 thumbnail beside the event. */}
+            <div className="md:hidden w-[120px] shrink-0">
+              <RenderEventImage
+                image={event.eventDetails.desktopMedia?.flyer}
+                event_name={event.eventName}
+                className="rounded-none"
+              />
+            </div>
 
-          <div className="md:hidden w-[200px] h-[300px]  ">
-            <RenderEventImage
-              image={event.eventDetails.desktopMedia?.flyer}
-              event_name={event.eventName}
-              className="!w-full !h-full object-cover"
-            />
+            <div className="flex min-w-0 flex-col gap-1">
+              <p className="text-xl md:text-3xl uppercase leading-normal font-inter-tight font-black wrap-break-word">
+                {event.eventName}
+              </p>
+              <p className="text-xs md:text-sm font-inter-tight">
+                {event.venue}
+              </p>
+              <p className="text-xs md:text-sm font-inter-tight">
+                {formatEventDate(event.eventDate.startDate)} -{" "}
+                {formatEventDate(event.eventDate.endDate)} at{" "}
+                {formatTimeLong(event.eventDate.startTime)} (
+                {formatTimezone(event.eventDate.timezone)})
+              </p>
+            </div>
           </div>
 
           <div>
-            <p className="text-xl md:text-2xl uppercase leading-normal font-inter font-black">
+            <p className="text-xl md:text-2xl uppercase leading-normal font-inter-tight font-black">
               Order Summary
             </p>
-            <p className="text-sm md:text-base font-sf-pro-display">
+            <p className="text-sm md:text-base font-inter-tight">
               Complete payment to secure your ticket!
             </p>
           </div>
@@ -237,12 +252,12 @@ export default function CheckoutSummary({
           onApply={setPromoDiscount}
         />
 
-        <TotalAccordion totalPrice={totalPrice} discount={promoDiscount} />
+        <TotalAccordion baseTotalPrice={totalPrice} fee ={totalFee} discount={promoDiscount} />
 
         {isFanAccount && (
           <Button
             onClick={handleCheckout}
-            className="bg-white uppercase font-sf-pro-display text-black hover:bg-white/90"
+            className="bg-white uppercase font-inter-tight text-black hover:bg-white/90"
           >
            {isPending ? "Processing..." : "CHECKOUT"}
           </Button>
@@ -256,7 +271,7 @@ function CartTicket({ name, price, quantity, resale }: InitialTickets) {
   return (
     <div className="w-full flex border rounded-lg bg-white text-black py-1 md:px-4 px-3 items-center justify-between">
       <div className="flex flex-col gap-1 ">
-        <p className="font-sf-pro-display uppercase md:text-base leading-[100%]">
+        <p className="font-inter-tight uppercase md:text-base leading-[100%]">
           {name}
         </p>
         {resale && (
@@ -265,7 +280,7 @@ function CartTicket({ name, price, quantity, resale }: InitialTickets) {
           </span>
         )}
         <div className="flex flex-col gap-0.5">
-          <p className="text-xs md:text-sm font-sf-pro-display leading-[100%]">
+          <p className="text-xs md:text-sm font-inter-tight leading-[100%]">
             {formatNaira(price, { free: price === 0 })}
           </p>
         </div>
@@ -273,7 +288,7 @@ function CartTicket({ name, price, quantity, resale }: InitialTickets) {
 
       <div className="h-[60px] w-14 flex items-center justify-end gap-2">
         <X color="black" size={16} />
-        <p className="text-base md:text-xl font-sf-pro-text leading-[100px]">
+        <p className="text-base md:text-xl font-inter-tight leading-[100px]">
           {quantity}
         </p>
       </div>

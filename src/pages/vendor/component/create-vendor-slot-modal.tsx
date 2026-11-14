@@ -287,7 +287,9 @@ export default function CreateVendorSlot({
         <p className="font-inter-tight text-sm text-system-black ">
           {isEditing
             ? "Update this listing's details. Vendors who already applied keep their applications."
-            : "Open your event to marketplace sellers and reach out for professional event services."}
+            : isRevenue
+              ? "Open your event to marketplace sellers."
+              : "Reach out for professional event services."}
         </p>
       </div>
 
@@ -300,11 +302,11 @@ export default function CreateVendorSlot({
         className="w-full flex flex-col gap-5 mb-5"
       >
         {isRevenue ? (
-          <p className="font-inter uppercase text-base font-medium text-system-black">
+          <p className="font-inter-tight uppercase text-base font-medium text-system-black">
             Stall Details
           </p>
         ) : (
-          <p className="font-inter uppercase text-base font-medium text-system-black">
+          <p className="font-inter-tight uppercase text-base font-medium text-system-black">
             Service Details
           </p>
         )}
@@ -446,12 +448,12 @@ export default function CreateVendorSlot({
         {isRevenue ? null : (
           <div>
             <div className="flex flex-row justify-between items-center mb-4">
-              <p className="font-inter uppercase text-base font-medium text-system-black">
+              <p className="font-inter-tight uppercase text-base font-medium text-system-black">
                 Work Duration
               </p>
               <p className="text-sm text-muted-foreground">(Optional)</p>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <TimeForm
                 form={form}
                 label="START TIME"
@@ -471,7 +473,7 @@ export default function CreateVendorSlot({
         )}
 
         <div>
-          <p className="font-inter uppercase text-base font-medium text-system-black">
+          <p className="font-inter-tight uppercase text-base font-medium text-system-black">
             Application Deadline
           </p>
 
@@ -536,9 +538,11 @@ export default function CreateVendorSlot({
             </div>
           </OnlyShowIf>
           <p className="text-xs font-inter-tight font-light text-mid-dark-gray mt-1">
-            Your contact details will remain hidden until a revenue vendor
-            successfully pays for a slot. This ensures privacy and secure
-            vendor interactions.
+            {/* Revenue vendors pay for a stall; service vendors are paid by
+                the organizer, so they see the details once accepted. */}
+            {isRevenue
+              ? "Your contact details will remain hidden until a revenue vendor successfully pays for a slot. This ensures privacy and secure vendor interactions."
+              : "Service vendors see your contact details once you accept their application."}
           </p>
           <FormField form={form} name="hideSocialLinks" className="">
             {(field) => (
@@ -561,14 +565,14 @@ export default function CreateVendorSlot({
           </p>
         )}
 
-        <div className="flex w-full justify-center gap-3">
+        <div className="flex w-full flex-col sm:flex-row sm:justify-center gap-3">
           {/* Only the modal has a draft to close; open on the page, it's create only. */}
           {!inline && (
             <Button
               type="button"
-              variant="destructive"
+              variant="dark"
+              size="pill"
               onClick={() => handleClose(false)}
-              className="w-1/2 font-work-sans font-semibold rounded-full uppercase text-xs"
             >
               Save Draft
             </Button>
@@ -576,11 +580,12 @@ export default function CreateVendorSlot({
           <Button
             type="submit"
             disabled={isSaving}
-            className="w-1/2 h-8 px-6 rounded-full text-xs font-semibold font-work-sans uppercase text-white bg-black hover:bg-black/90 disabled:opacity-50"
+            variant="primary"
+            size="pill"
           >
             {isEditing
               ? isSaving
-                ? "Saving..."
+                ? "SAVING..."
                 : "Save Changes"
               : isSaving
                 ? `Creating ${label}...`

@@ -1,3 +1,4 @@
+import { rewriteInputValue } from "@/lib/helper-func";
 import {
   CustomFormField as FormField,
   CustomInput as Input,
@@ -59,8 +60,9 @@ export function PromoCodeFormFields({
       >
         {(field) => (
           <Input
-            className="uppercase"
             {...field}
+            // Saved in capitals too, not just shown that way: "earlybird25" is EARLYBIRD25.
+            onChange={(e) => field.onChange(rewriteInputValue(e.target, (value) => value.toUpperCase()))}
             value={field.value == null ? "" : String(field.value)}
           />
         )}
@@ -68,7 +70,7 @@ export function PromoCodeFormFields({
 
       <div className="grid md:grid-cols-2 gap-5 items-start">
         <div className="flex flex-col gap-2">
-          <p className="text-sm font-sf-pro-text font-medium text-system-black uppercase">
+          <p className="text-sm font-work-sans font-medium text-system-black uppercase">
             Discount value
           </p>
           <div className="grid grid-cols-2 gap-3">
@@ -158,7 +160,7 @@ export function PromoCodeFormFields({
           type="button"
           aria-expanded={showAdvanced}
           onClick={() => setShowAdvanced((open) => !open)}
-          className="flex w-fit items-center gap-2 font-sf-pro-text text-sm font-bold uppercase text-system-black"
+          className="flex w-fit items-center gap-2 font-inter-tight text-sm font-bold uppercase text-system-black"
         >
           <span className="flex size-6 items-center justify-center rounded-full bg-light-red/10 text-light-red">
             <RiArrowUpSLine
@@ -266,16 +268,16 @@ export function PromoCodeFormFields({
       </div>
 
       {onSubmit && (
-        <div className="flex flex-wrap gap-3">
+        <div className="flex flex-col sm:flex-row gap-3">
           {onRemove && (
             <Button
               type="button"
-              variant="destructive"
+              variant="dark"
+              size="pill"
               onClick={onRemove}
               disabled={isSubmitting}
-              className="h-8 w-fit rounded-full px-4 text-xs font-bold font-sf-pro-text uppercase"
             >
-              Remove promocode
+              CANCEL
             </Button>
           )}
 
@@ -283,9 +285,10 @@ export function PromoCodeFormFields({
             type="button"
             onClick={onSubmit}
             disabled={isSubmitting}
-            className="h-8 w-fit rounded-full bg-black px-4 text-xs font-bold font-sf-pro-text uppercase text-white hover:bg-black/90"
+            variant="primary"
+            size="pill"
           >
-            {isSubmitting ? "Creating promocode..." : "Create promocode"}
+            {isSubmitting ? "Creating Promo Code..." : "Create Promo Code"}
           </Button>
         </div>
       )}
@@ -295,7 +298,7 @@ export function PromoCodeFormFields({
 
 function FieldText({ text }: { text: string }) {
   return (
-    <p className="w-full h-10 flex items-center justify-center bg-[#E6E6E6] rounded-[4px] border border-mid-dark-gray/50 text-xs font-sf-pro-display text-[#686868] uppercase">
+    <p className="w-full h-10 flex items-center justify-center bg-[#E6E6E6] rounded-[4px] border border-mid-dark-gray/50 text-xs font-inter-tight text-[#686868] uppercase">
       {text}
     </p>
   );

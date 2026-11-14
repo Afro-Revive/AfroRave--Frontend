@@ -27,7 +27,7 @@ export function BaseRadioGroup({
                 'border border-transparent hover:border-gray-500': value !== item.value,
               },
             )}>
-            <p className='text-white text-xs font-bold font-sf-pro-display uppercase tracking-wide leading-[100%] ml-1'>
+            <p className='text-white text-xs font-bold font-inter-tight uppercase tracking-wide leading-[100%] ml-1'>
               {item.label}
             </p>
             <div className='w-full aspect-[2/1] rounded-[8px] overflow-hidden bg-black/20'>

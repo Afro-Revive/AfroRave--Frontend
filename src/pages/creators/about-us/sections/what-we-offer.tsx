@@ -31,7 +31,7 @@ export default function WhatWeOfferSection() {
           {STATS.map((stat) => (
             <div
               key={stat.label}
-              className='flex flex-col items-center justify-center gap-2 border-[#ACACAC] py-10 text-center font-inter font-medium uppercase max-md:border-b max-md:last:border-b-0 md:min-h-[250px] md:border-r md:last:border-r-0'>
+              className='flex flex-col items-center justify-center gap-2 border-[#ACACAC] py-10 text-center font-inter-tight font-medium uppercase max-md:border-b max-md:last:border-b-0 md:min-h-[250px] md:border-r md:last:border-r-0'>
               <dd className='text-3xl md:text-[32px]'>{stat.value}</dd>
               <dt className='max-w-[200px] text-base md:text-xl leading-tight'>{stat.label}</dt>
             </div>

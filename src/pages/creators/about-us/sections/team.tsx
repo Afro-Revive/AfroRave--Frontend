@@ -16,7 +16,7 @@ export default function TeamSection() {
         <div className='mt-14 flex w-full flex-col items-center gap-12 md:mt-[70px] md:gap-10'>
           {TEAM.map((group) => (
             <div key={group.name} className='flex w-full flex-col items-center gap-5'>
-              <h3 className='font-inter text-base font-medium uppercase tracking-[0.3em] md:text-sm'>
+              <h3 className='font-inter-tight text-base font-medium uppercase tracking-[0.3em] md:text-sm'>
                 {group.name}
               </h3>
 
@@ -39,7 +39,7 @@ function TeamMember({ initials, name, role }: { initials: string; name: string; 
     <li className='flex w-full max-w-[200px] flex-col items-center text-center nth-[3n]:col-span-2 md:w-[200px]'>
       <span
         aria-hidden
-        className='flex size-[72px] items-center justify-center rounded-full border-[3px] border-white font-inter text-2xl font-bold md:size-[86px] md:text-[30px]'>
+        className='flex size-[72px] items-center justify-center rounded-full border-[3px] border-white font-inter-tight text-2xl font-bold md:size-[86px] md:text-[30px]'>
         {initials}
       </span>
       <p className='mt-3 font-inter-tight text-lg font-bold md:text-2xl'>{name}</p>

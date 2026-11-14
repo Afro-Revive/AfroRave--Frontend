@@ -1,3 +1,4 @@
+import { FormSectionHeading } from '@/components/shared/form-section-heading'
 import { CustomFormField as FormField } from '@/components/shared/custom-form'
 import { BaseRadioGroup, type IRadioGroupProps } from '@/components/reusable/base-radio-group'
 import { FormDescription } from '@/components/ui/form'
@@ -85,7 +86,7 @@ export default function ThemeTab({ setStep, setActiveTabState }: IThemeTab) {
       })}>
       <OnlyShowIf condition={activeForm === 'layout'}>
         <div className='w-full flex flex-col items-center gap-10 md:px-10'>
-          <p className='text-xl font-bold font-sf-pro-display uppercase'>CHOOSE A THEME</p>
+          <FormSectionHeading as="p">CHOOSE A THEME</FormSectionHeading>
           <FormField form={form} name='theme'>
             {(field) => <BaseRadioGroup {...field} data={data} />}
           </FormField>
@@ -108,7 +109,7 @@ export default function ThemeTab({ setStep, setActiveTabState }: IThemeTab) {
         <OnlyShowIf condition={activeForm === 'layout'}>
           <Button
             type='button'
-            className='w-full md:w-[240px] h-10 rounded-[8px] bg-[#1E1E1E] text-white hover:bg-[#1E1E1E]/90 uppercase font-sf-pro-text text-xs tracking-wider font-bold'>
+            className='w-full md:w-[240px] h-10 rounded-[8px] bg-[#1E1E1E] text-white hover:bg-[#1E1E1E]/90 uppercase font-inter-tight text-xs tracking-wider font-bold'>
             PREVIEW
           </Button>
         </OnlyShowIf>
@@ -120,10 +121,10 @@ export default function ThemeTab({ setStep, setActiveTabState }: IThemeTab) {
 function BannerForm({ form }: IBannerForm) {
   return (
     <div className='w-full flex flex-col gap-3'>
-      <p className='text-xl font-black font-sf-pro-display uppercase text-black leading-[100%]'>
+      <FormSectionHeading as="p" className="leading-[100%]">
         UPLOAD FLYERS
-      </p>
-      <p className='font-sf-pro-display text-medium-gray text-sm md:text-base'>
+      </FormSectionHeading>
+      <p className='font-inter-tight text-medium-gray text-sm md:text-base'>
         Upload a png or jpeg file
       </p>
       <div className='w-full flex flex-col sm:flex-row gap-3 md:gap-14'>
@@ -190,7 +191,7 @@ function FileInputWithPreview({ onChange, type, className }: IFileInputWithPrevi
     <div
       className={cn(
         'relative flex flex-col items-center justify-center rounded-[5px] shadow-[0px_4px_12px_0px_#0000001F] p-4',
-        { 'w-[162px] h-[216px]': type === 'flyer', 'w-full h-[200px]': type === 'background' },
+        { 'w-[162px] aspect-3/4 overflow-hidden': type === 'flyer', 'w-full h-[200px]': type === 'background' },
         className,
       )}>
       <OnlyShowIf condition={file !== null}>
@@ -210,7 +211,11 @@ function FileInputWithPreview({ onChange, type, className }: IFileInputWithPrevi
         <img
           src={preview}
           alt='preview'
-          className='object-contain w-full h-full pointer-events-none'
+          // The flyer is cropped like everywhere else; the background shows whole.
+          className={cn(
+            'pointer-events-none',
+            type === 'flyer' ? 'absolute inset-0 size-full object-cover' : 'object-contain w-full h-full',
+          )}
         />
       ) : (
         <InnerText type={type} />
@@ -221,12 +226,12 @@ function FileInputWithPreview({ onChange, type, className }: IFileInputWithPrevi
 
 function InnerText({ type }: { type: 'background' | 'flyer' }) {
   return (
-    <div className='flex flex-col items-center justify-center font-sf-pro-text pointer-events-none'>
+    <div className='flex flex-col items-center justify-center font-inter-tight pointer-events-none'>
       <span className='text-mid-dark-gray text-sm text-center normal-case'>
         Insert {type} image
       </span>
       <span className='text-deep-red text-xs mt-2'>
-        {type === 'background' ? '1600 X 500 (PIXELS)' : '550 X 770 (PIXELS)'}
+        {type === 'background' ? '1600 X 500 (PIXELS)' : '1200 X 1600 (PIXELS)'}
       </span>
       {type === 'background' && (
         <span className='text-[10px] text-mid-dark-gray mt-1 uppercase'>(Optional)</span>
