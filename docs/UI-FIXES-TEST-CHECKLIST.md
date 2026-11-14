@@ -115,6 +115,8 @@ checked in a browser on 14 Nov 2026.
 - [x] **Account, Settings, Support, Complete Profile:** labels above the fields, white on the dark pages. ✓
 - [x] **Log in, Sign up, Forgot / Reset password:** labels above the fields. ✓
 
+- [ ] **Resell and Transfer follow the backend's `canResell` / `canTransfer`:** an invite-only ticket has both off ("Invite-only tickets can't be resold / transferred"); a normal ticket has both on. ✓ Also try a ticket whose organizer turned resale off: Resell should be off with "The organizer has turned off resale for this ticket", Transfer on.
+
 ## 12. Vendors
 
 - [x] **Edit profile** (Profile, Account, Settings tabs): labels above every box; Birthday and Phone Number have one label over their row. ✓

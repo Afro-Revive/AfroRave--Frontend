@@ -116,9 +116,9 @@ Within each table, rows run from High to Low priority.
 |---|---|---|---|
 | My Tickets: active and past | 🔴 High | ✅ Working | |
 | Ticket detail page | 🔴 High | ✅ Working | Orders for the event, with receipts. |
-| Resell tickets | 🔴 High | ✅ Working | Pick tickets, set your price, list them. Invite-only and group tickets can't be resold: they're faded in the list, and Resell is off when they're the only ticket. |
+| Resell tickets | 🔴 High | ✅ Working | Pick tickets, set your price, list them. The backend's `canResell` decides which tickets can be resold (not invite-only, group, or ones whose organizer turned resale off): they're faded in the list, and Resell is off when they're the only ticket. |
 | QR code for entry | 🔴 High | 🟡 Partial | The web app says "Download the app to view your QR code", but the app store buttons don't go anywhere yet. |
-| Transfer tickets | 🟠 Medium | ✅ Working | Checks the recipient's account exists before sending. Invite-only tickets can't be transferred. |
+| Transfer tickets | 🟠 Medium | ✅ Working | Checks the recipient's account exists before sending. The backend's `canTransfer` decides which tickets can be transferred (not invite-only ones). |
 | Listed tickets (active, sold, expired) | 🟠 Medium | ✅ Working | Edit the price or cancel a listing. |
 | Ticket upgrades | — | Removed | Dropped as a feature in July 2026. Not counted. |
 
@@ -160,7 +160,6 @@ stands today.
 | End-to-end test the organizer vendor tabs | 🟠 Medium | **Now that the `vendors` branch is merged.** Checklist: [VENDOR-FLOW-TEST-CHECKLIST.md](./VENDOR-FLOW-TEST-CHECKLIST.md). Run the whole flow with real vendors: create a stall and an offer, vendors apply, review each applicant's page, accept and reject, pause and resume, and the secured counts and net profit. Expect some edits. |
 | Door tickets | ⚪ Low | Not built yet: how fans see them, and the organizer's "Sell On Mobile App". |
 | Ticket reordering | ⚪ Low | With `PATCH /api/Event/{eventId}/tickets/reorder`. The Tickets page already says tickets can be dragged. |
-| Resell and Transfer checks from the backend | ⚪ Low | Use the tickets' `canResell` / `canTransfer` instead of the frontend's own rules (`resaleBlockedReason`, `transferBlockedReason`); update the table in USER-SIDE.md. |
 
 Still waiting on the backend, so not planned yet: Delete Account, Audience
 search and approved fans' orders, saving email
