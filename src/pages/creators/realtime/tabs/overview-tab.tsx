@@ -1,10 +1,12 @@
 import { formatNaira } from '@/lib/format-price'
-import { Link } from 'react-router-dom'
 import { BarList, DonutChart, SERIES, TrendChart } from '../components/analytics-charts'
 import { AnalyticsGate, type IAnalyticsTabProps } from '../components/analytics-state'
 import { AnalyticsCard, EmptyNote, ProgressBar, StatTile, SummaryCard } from '../components/analytics-ui'
 import { countBuyers, countOrders, formatDay, salesByDay, salesByTicket, vendorStageCounts } from '../lib/analytics-data'
 import { audienceFrom, countBars, genderSlices } from '../lib/audience'
+
+/** Locations are a long tail: the biggest ten, then a count of the rest. */
+const MAX_LOCATIONS = 10
 
 const plural = (count: number, one: string, other: string) =>
   `${count.toLocaleString()} ${count === 1 ? one : other}`
@@ -97,10 +99,7 @@ export default function OverviewTab(props: IAnalyticsTabProps) {
             </div>
 
             <div className='grid gap-6 lg:grid-cols-3'>
-              <AnalyticsCard
-                title='Gender'
-                description='Share of buyers.'
-                action={<InsightsLink />}>
+              <AnalyticsCard title='Gender' description='Share of buyers.'>
                 {genders.length === 0 ? (
                   <EmptyNote>No buyer details yet.</EmptyNote>
                 ) : (
@@ -108,7 +107,7 @@ export default function OverviewTab(props: IAnalyticsTabProps) {
                 )}
               </AnalyticsCard>
 
-              <AnalyticsCard title='Age Range' description='Buyers by age group.'>
+              <AnalyticsCard title='Age Groups' description='Buyers by age group.'>
                 {ages.length === 0 ? (
                   <EmptyNote>No age details yet.</EmptyNote>
                 ) : (
@@ -116,12 +115,21 @@ export default function OverviewTab(props: IAnalyticsTabProps) {
                 )}
               </AnalyticsCard>
 
-              <AnalyticsCard title='Top Locations' description='Where buyers are from.'>
+              {/* The only place these three cards show: Audience Insights keeps
+                  its summary and doesn't repeat them. So this one lists the top
+                  ten, as Insights used to, not five. */}
+              <AnalyticsCard
+                title='Locations'
+                description={
+                  locations.length > MAX_LOCATIONS
+                    ? `The top ${MAX_LOCATIONS} of ${locations.length} places buyers are from.`
+                    : 'Where buyers are from.'
+                }>
                 {locations.length === 0 ? (
                   <EmptyNote>No location details yet.</EmptyNote>
                 ) : (
                   <BarList
-                    items={countBars(locations.slice(0, 5), { one: 'buyer', other: 'buyers' })}
+                    items={countBars(locations.slice(0, MAX_LOCATIONS), { one: 'buyer', other: 'buyers' })}
                   />
                 )}
               </AnalyticsCard>
@@ -130,15 +138,5 @@ export default function OverviewTab(props: IAnalyticsTabProps) {
         )
       }}
     </AnalyticsGate>
-  )
-}
-
-function InsightsLink() {
-  return (
-    <Link
-      to='?tab=insights'
-      className='shrink-0 font-inter-tight text-xs font-semibold text-tech-blue hover:underline'>
-      View all
-    </Link>
   )
 }
