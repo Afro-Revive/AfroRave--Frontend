@@ -2,8 +2,10 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
 import { cn } from '@/lib/utils'
 import type { ControllerRenderProps } from 'react-hook-form'
+import { forwardRef } from 'react'
 
-export function BaseCheckbox({
+// forwardRef: FormField hands its child a ref; a plain function component can't take one.
+export const BaseCheckbox = forwardRef<HTMLDivElement, TBaseCheckbox & Partial<ControllerRenderProps>>(function BaseCheckbox({
   data,
   value,
   onChange,
@@ -12,7 +14,7 @@ export function BaseCheckbox({
   defaultChecked,
   orientation = 'horizontal',
   multiSelect = false,
-}: TBaseCheckbox & Partial<ControllerRenderProps>) {
+}, ref) {
   const isChecked = (itemId: string) => {
     if (multiSelect) {
       if (Array.isArray(value)) {
@@ -42,7 +44,7 @@ export function BaseCheckbox({
   }
 
   return (
-    <div className='flex items-center gap-4'>
+    <div ref={ref} className='flex items-center gap-4'>
       <div className='flex flex-col items-start gap-2'>
         <div
           className={cn('flex', {
@@ -85,7 +87,7 @@ export function BaseCheckbox({
       </div>
     </div>
   )
-}
+})
 
 type TBaseCheckbox = {
   data: IBaseCheckbox

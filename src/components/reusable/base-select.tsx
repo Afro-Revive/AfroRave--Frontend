@@ -27,7 +27,7 @@ import {
   SelectLabel,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import type * as React from "react";
+import * as React from "react";
 
 export interface ICustomSelectProps {
   /** Select type variant (affects styling) */
@@ -60,13 +60,19 @@ export interface ICustomSelectProps {
   itemClassName?: string;
   /** Additional CSS classes applied directly to the SelectValue span */
   valueClassName?: string;
+  /** Set by FormField, so its label points at the trigger. */
+  id?: string;
+  "aria-describedby"?: string;
+  "aria-invalid"?: boolean;
 }
 
 /**
  * Base select component that provides a consistent way to create dropdown select inputs.
  * Supports different styling variants, loading states, and custom content rendering.
  */
-export function BaseSelect({
+// forwardRef: FormField hands its child a ref (react-hook-form focuses the
+// field on an error with it). A plain function component can't take one.
+export const BaseSelect = React.forwardRef<HTMLButtonElement, ICustomSelectProps>(function BaseSelect({
   type = "others",
   width = 165,
   defaultValue,
@@ -82,7 +88,10 @@ export function BaseSelect({
   contentClassName,
   itemClassName,
   valueClassName,
-}: ICustomSelectProps) {
+  id,
+  "aria-describedby": ariaDescribedBy,
+  "aria-invalid": ariaInvalid,
+}, ref) {
   const safeItems = Array.isArray(items)
     ? items.filter(
       (item) =>
@@ -110,6 +119,10 @@ export function BaseSelect({
   return (
     <Select value={value} onValueChange={onChange} defaultValue={defaultValue}>
       <SelectTrigger
+        ref={ref}
+        id={id}
+        aria-describedby={ariaDescribedBy}
+        aria-invalid={ariaInvalid}
         className={cn(
           `!min-w-[${width}px] border bg-transparent`,
           {
@@ -189,4 +202,5 @@ export function BaseSelect({
       </SelectContent>
     </Select>
   );
-}
+});
+BaseSelect.displayName = "BaseSelect";

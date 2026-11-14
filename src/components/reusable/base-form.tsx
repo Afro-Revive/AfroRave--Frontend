@@ -124,16 +124,10 @@ export function FormField<T extends FieldValues>({
         const errorClass =
           showError && fieldState.invalid ? 'border-red-500 focus-visible:ring-red-500' : ''
 
+        // BaseSelect is a forwardRef component, so its type is an object, not a function.
         const isSelectComponent = (element: React.ReactElement) => {
-          if (element.type && typeof element.type === 'function' && 'displayName' in element.type) {
-            return element.type.displayName === 'BaseSelect'
-          }
-
-          if (element.type && typeof element.type === 'function') {
-            return element.type.name === 'BaseSelect'
-          }
-
-          return false
+          const type = element.type as { displayName?: string; name?: string } | string
+          return typeof type !== 'string' && (type?.displayName ?? type?.name) === 'BaseSelect'
         }
 
         return (
