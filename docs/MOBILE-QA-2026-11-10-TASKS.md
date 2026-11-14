@@ -45,6 +45,7 @@ Tags:
   - Users no longer see it, because the production build strips it. The bug behind it is still there.
   - Run `yarn dev` and open the console. It names the component.
   - Usually it's a custom component used under a Radix `asChild` without `forwardRef`.
+  - **Fixed 2026-11-14, not committed yet.** `FormField` hands its child a ref, and `BaseSelect`, `BaseBooleanCheckbox`, `BaseCheckbox` and the shadcn `SelectTrigger`, `Checkbox` and `RadioGroup` (written for React 19, where a ref is a plain prop) couldn't take one on React 18. They use `forwardRef` now. The dev console is clean on every organizer page.
 - [x] Remove the stray `console.log` calls that ship to users:
   - [ticket-card.tsx:68](../src/pages/creators/tickets/components/ticket-card.tsx#L68) (`console.log("ticket", ticket)`);
   - [event.service.ts:128](../src/services/event.service.ts#L128).
@@ -131,6 +132,7 @@ Tags:
     - Promo Codes: 417px
   - **Where:** `AnalyticsTable` in `src/pages/creators/realtime/components/analytics-ui.tsx` on that branch (`overflow-x-auto`).
   - **Fix:** use one mobile pattern for all of them and for the Guestlist. Either card rows below `sm`, or pin the key column and add a scroll hint.
+  - **Decided 2026-11-14: they stay as they are.** Analytics tables keep their columns and scroll sideways inside the card; they don't turn into cards.
 
 ### 2.4 Settings > Account: birthday fields clipped
 - [x] [creator-account-tab.tsx:162-200](../src/pages/creators/standalone/components/creator-account-tab.tsx#L162-L200): `grid grid-cols-4`, where the first cell is just a "Birthday" label box. Move "Birthday" above as a label and use `grid-cols-3` for Month, Day and Year.
@@ -411,12 +413,14 @@ Each row needs one rule from design. Agree the rule **[PO]**, then apply it.
     - Audience Insights' cards: "Age Groups" and "Locations".
     - Audience Insights' summary tile: "Top Age Range".
     - Pick one word, "Age Groups" or "Age Range", and use it in all three places. Change this on that branch.
+  - **Decided and done 2026-11-14, not committed yet** (now merged into `ui-fixes`): "Age Groups" and "Locations". Overview's cards are Gender, Age Groups and Locations; the Insights tile is "Top Age Group".
 - [x] **Menu drawer:**
   - Child links use the same `px-6` as their parents, which have an icon, so children look less indented ([base-sidebar.tsx:261](../src/components/reusable/base-sidebar.tsx#L261), [:294](../src/components/reusable/base-sidebar.tsx#L294)).
   - The `Plus` icon never changes when a group is open ([base-accordion.tsx:66](../src/components/reusable/base-accordion.tsx#L66)). Rotate it to × or swap it for Minus on `data-state=open`.
   - Analytics > "Tickets" repeats the top-level "Tickets" ([creator-side-bar.tsx:109](../src/layouts/creator-dashboard-layout/creator-side-bar.tsx#L109)). Rename it to something like "Ticket sales".
   - **Done 2026-11-13, not committed yet** (the same component is the desktop sidebar): links in a group start at 50px, in line with the group name past its icon, and sub-group links at 66px; the + turns into a × while open; Analytics › "Tickets" is "Ticket Sales".
 - [ ] **Choice controls:** Paid/Free ([ticket-form.tsx:85](../src/pages/creators/add-event/ticket-forms/create/ticket-form.tsx#L85)) and "Start immediately / Schedule" ([ticket-form.tsx:289](../src/pages/creators/add-event/ticket-forms/create/ticket-form.tsx#L289)) are checkboxes, but only one can apply. Use [src/components/ui/radio-group.tsx](../src/components/ui/radio-group.tsx).
+  - **Done 2026-11-14, not committed yet:** both use `BaseRadioChoice` ([base-radio-choice.tsx](../src/components/reusable/base-radio-choice.tsx)).
 - [x] **Text details:**
   - Helper text is forced lowercase:
     - `descriptionClassName="… lowercase …"` at [ticket-form.tsx:296](../src/pages/creators/add-event/ticket-forms/create/ticket-form.tsx#L296);
@@ -448,7 +452,7 @@ Each row needs one rule from design. Agree the rule **[PO]**, then apply it.
 - [ ] **[PO]** **[BE]** Audience Insights shows only Gender, Age groups and Locations ([insights-tab.tsx](../src/pages/creators/realtime/tabs/insights-tab.tsx)). The agreed scope also has traffic sources and a total-unique-buyers summary. The analytics response has no fields for either yet ([src/types/](../src/types/)), so the backend has to add them first.
   - **On `analytics-redesign`:**
     - **Unique buyers:** Audience Insights has a **Buyers** tile, counted from buyers' profiles, and Overview's Orders tile shows "N buyers" from the order list. That may be enough for the unique-buyers summary; the PO should confirm.
-    - **Traffic sources:** still missing.
+    - **Traffic sources:** ~~still missing~~ **dropped** (decided 2026-11-14): not being built.
 - [ ] **[PO]** The Payout tab should show the next payout date, with automatic payouts every Wednesday and Friday, instead of a Withdraw button. The tab is [creator-payout-tab.tsx](../src/pages/creators/standalone/components/creator-payout-tab.tsx). The next date can be worked out on the frontend.
 - [ ] **[PO]** **Door tickets** (already an open to-do):
   - **What exists:** today "Door" is a sales channel inside the ticket form ([sales-channel-field.tsx](../src/pages/creators/add-event/component/sales-channel-field.tsx)), not a choice under Add Tickets ([ticket-format-picker.tsx](../src/pages/creators/add-event/ticket-forms/create/ticket-format-picker.tsx)).
@@ -457,6 +461,7 @@ Each row needs one rule from design. Agree the rule **[PO]**, then apply it.
 - [ ] **[PO]** Analytics Overview repeats the Gender, Age and Towns cards from Audience Insights. Compare [overview-tab.tsx:100-130](../src/pages/creators/realtime/tabs/overview-tab.tsx#L100-L130) with [insights-tab.tsx](../src/pages/creators/realtime/tabs/insights-tab.tsx), and decide whether Overview keeps them.
   - **Still true on `analytics-redesign`.** Overview has Gender, Age Range and Top Locations; Audience Insights has Gender, Age Groups and Locations.
   - If they stay, link each Overview card to Audience Insights. `AnalyticsCard` takes an `action` slot for that.
+  - **Decided and done 2026-11-14, not committed yet:** the cards stay on Overview and come off Audience Insights, which keeps its summary tiles. Overview's Locations card now lists the top ten (it was five), as Insights did, and Gender's "View all" link to Insights is gone, since there's nothing more there.
 
 ---
 
@@ -473,3 +478,4 @@ Each row needs one rule from design. Agree the rule **[PO]**, then apply it.
 ## Seen in the report's screenshots, not called out in the text
 
 - [ ] **[verify]** Page 32: in the settings modal, the **Payout** tab is highlighted while the Change Password / Settings content shows. Check the active-tab styling in [creator-settings-modal.tsx](../src/pages/creators/standalone/components/creator-settings-modal.tsx).
+  - **Reproduced and fixed 2026-11-14, not committed yet:** the active tab was only darker text, and a hovered tab turned nearly as dark, so two looked selected. The active tab is now underlined. Also found there: the bank list repeats some codes, which showed banks twice; `useGetNigerianBanks` keeps one per code.

@@ -344,12 +344,14 @@ tab with `?tab=`:
 | Sidebar link | Tab |
 |---|---|
 | Overview | Overview |
-| Audience Insights | Insights |
+| Audience Insights | Insights: the audience summary tiles only (Buyers, Top Age Group, Top Location, Details Missing) |
 | Vendors | Vendors |
-| Tickets (accordion) | Orders, Attendee List (its own endpoint, `useGetEventAttendees`, 20 a page with search), Promo Codes |
+| Ticket Sales (accordion) | Orders, Attendee List (its own endpoint, `useGetEventAttendees`, 20 a page with search), Promo Codes |
 
 - The page sits in `SelectedEventGate` like the other organizer pages, and follows the sidebar's selected event (the old event picker in the header is gone). Its header has the tab's title and description, and **Export CSV** (`lib/analytics-export.ts`), which downloads the open tab's data.
 - All tabs share one request, `useGetEventAnalytics(eventId)`, and use `components/analytics-state.tsx` for loading, error and empty states. Besides the totals, the response carries `orderList`, `vendorList`, `attendeeList` and `promoCodes`, which the charts and tables are built from.
+- **Audience cards** (Gender, Age Groups, Locations, the top ten) are on Overview only; Insights doesn't repeat them (decided 2026-11-14).
+- **Tables** scroll sideways inside their card on phones, on purpose: analytics tables keep their columns rather than turning into cards.
 - **Building blocks:** `components/analytics-ui.tsx` (the card, Summary card, stat tile, progress bar, status pill and table) and `components/analytics-charts.tsx` (trend line, columns, donut, bar list and segmented bar, on recharts).
 - **Data helpers:** `lib/analytics-data.ts` merges audience labels that differ only in case, keeps Unknown last, fills sales by day, groups sales by ticket and maps vendor statuses to stages. `vendorKind` tells a stall from a service offer by matching the vendor list's `stallName` to the event's slots (`slotName` or `serviceName`), since the vendor list doesn't say. **Only stalls are revenue:** service vendors are paid by the organizer outside the app, so the Vendors tab's "Revenue from Stalls" counts Secured stalls only. `lib/audience.ts` turns the audience into chart rows.
 - **Chart colours:** blue, orange and aqua, in that fixed order (validated colour-blind safe as neighbours), grey for Unknown, and green, amber, blue and red only for vendor stages, always with a label.
