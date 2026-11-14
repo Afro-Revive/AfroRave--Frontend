@@ -121,15 +121,18 @@ export default function TicketsPage() {
 
 ```
 CreatorDashboardLayout
-├── CreatorDashboardHeader         logo, CreatorMenuButton (Dashboard / Settings / Log out),
-│                                  mobile hamburger
+├── CreatorDashboardHeader         logo, CreatorMenuButton (Dashboard / Settings / Log out).
+│                                  Mobile: the avatar always shows, plus a ☰ that turns into ✕
+│                                  while the menu is open, only on pages with a sidebar
+│                                  (hasSidebar). The notifications bell is commented out
+│                                  until notifications are live.
 └── main
     ├── CreatorSidebar             hidden on /creators/events (that page is full width)
     │   ├── SelectedEventCard      the selected event: name, date, visibility,
     │   │                          Copy Link, View Event
-    │   ├── EVENTS                 Event Details, Audience (private events only), Guest List
+    │   ├── EVENTS                 Event Details, Audience (private events only), Guestlist
     │   ├── TICKETS                Your Tickets, Promo Codes
-    │   ├── ANALYTICS              Overview, Audience Insights, Vendors, and a Tickets
+    │   ├── ANALYTICS              Overview, Vendors, and a Ticket Sales
     │   │                          accordion (Orders, Attendee List, Promo Codes). Each
     │   │                          opens /creators/realtime?tab=…; the page has no tab
     │   │                          list of its own. Links with a ?tab= are only active
@@ -142,8 +145,10 @@ CreatorDashboardLayout
 
 - The sidebar is built on `components/reusable/base-sidebar.tsx`.
 - **It stays put.** With `sticky`, it fills the screen below the header (`--dashboard-header-height`) and stays still while the page scrolls. It doesn't scroll itself, so the Your Events footer is always in view.
-- **Collapsing** (desktop only) is done by `SidebarToggle` (`components/shared/sidebar-toggle.tsx`), which sits beside each page's title: Event Details, Your Tickets, Analytics, Guest List, Audience, Promo Codes and the vendor pages. A page without one still needs a way back, so the sidebar shows its own floating button only when `useSidebarToggleCount` says no toggle is on screen.
+- **Collapsing** (desktop only) is done by `SidebarToggle` (`components/shared/sidebar-toggle.tsx`), which sits beside each page's title: Event Details, Your Tickets, Analytics, Guestlist, Audience, Promo Codes and the vendor pages. A page without one still needs a way back, so the sidebar shows its own floating button only when `useSidebarToggleCount` says no toggle is on screen.
 - On mobile it's a full-screen overlay opened from the header's menu button.
+- **Indents:** a group's links start at 50px, in line with the group name past its icon; links in a sub-group (Ticket Sales) at 66px. A group's + turns into a × while it's open (`base-accordion.tsx`).
+- **Page edges:** every dashboard page, its header bar and the top navbar use `px-5 md:px-8` (20px on phones, 32px from `md`), so content lines up from page to page. Modals and the vendor's own dashboard have their own.
 - The Audience link only appears when the open event is private (`toVisibility(event.accessType) === 'private'`).
 
 The organizer **Settings modal** is
@@ -157,7 +162,7 @@ first two are their own components:
 | Payout | `creator-payout-tab.tsx` | Total revenue, early payout (an amount the organizer picks), the bank account form, payout history | `useOrganizerWallet`, `useOrganizerEarlyPayout`, `useOrganizerBankAccount`, `useSaveOrganizerBankAccount`, `useOrganizerPayoutHistory`, `useGetNigerianBanks`, `useVerifyBankAccount` |
 | Settings | in the modal | Change password (current, new, confirm), email notifications (one checkbox, not saved yet), log out | `ChangePasswordSchema` from `fans/settings/zod-schema.ts`, `useChangeOrganizerPassword` → `PATCH /api/profile/organizer/change-password` |
 
-- **Shared field style:** the boxed field with an inset label (`settings-inset-field.tsx`) and its input, select and dark-dropdown classes (`settings-field-classes.ts`), shared by Account and Payout.
+- **Shared field style:** `SettingsField` (`settings-field.tsx`) puts the label above a 44px box, as in every form; the label wraps the field, so clicking it focuses the input. Its input, select and dark-dropdown classes are in `settings-field-classes.ts`, shared by Account and Payout. Change Password's fields are labelled too.
 - **The Account tab** fills in from the saved organizer profile (name, gender, birthday via `fromDateOfBirth` and, when saving, `toDateOfBirth` in `lib/helper-func.ts`, which the fans profile uses too, phone, company, website, country, state) and saves the phone as `phoneNumber`. Its dropdowns use the same dark list as the bank select.
 - **The bank form** checks the account as it's typed: once a bank is chosen and the number is 10 digits, `useVerifyBankAccount` runs (debounced; a slower answer for an older number is ignored), the account name fills in, and Save is enabled. A saved account loads already confirmed.
 - **The bank list** (`useGetNigerianBanks`) is a cached query, fresh for a day. It used to be a mutation, which isn't cached, so the select came back empty after its tab remounted.
@@ -172,14 +177,17 @@ first two are their own components:
 
 ```
 StandalonePage
-├── DashboardTabs                  Events | Guestlist; Create Event, or the guestlist actions
+├── DashboardTabs                  Events | Guestlist; Create Event (a floating round + on
+│                                  phones), or the guestlist actions
 ├── Events tab
 │   ├── EventFilters               All / Ongoing / Upcoming / Drafts / Ended, with counts
 │   ├── StandAloneEvents (per event)  → DashboardCards
 │   │     image → edit event; stats: tickets sold, net profit;
 │   │     buttons: Analytics, Tickets, Manage / Edit Draft / Report
 │   ├── Pagination
-│   └── EmptyState                 "Start guide" → CreatorGuideOverlay
+│   └── EmptyState                 names the filter: "No Events Created" (All), "No ongoing
+│                                  event currently", "No upcoming events", "No drafts",
+│                                  "No past events"
 └── Guestlist tab → GuestlistTab (standalone/guestlist)
 ```
 
@@ -198,12 +206,14 @@ A wizard driven by `?tab=` in the URL:
 
 - **Promo codes aren't a step any more.** Organizers make them on the Promo Codes page. An old `?form=promocode` or `?form=upgrades` link lands on the ticket form.
 - **`useEventStore`** carries the new event's id between steps. It's cleared when the wizard closes, so the next event starts fresh.
-- **The header** has a **Dashboard** link (leaves; the open form isn't saved) and **Save As Drafts**:
+- **The header** has a **Dashboard** link (leaves; the open form isn't saved) and **Save as Draft**:
   - On Event Info before the event exists, it submits that form by id (`EVENT_DETAILS_FORM_ID`), so it runs the same checks as Continue. A `savingDraft` ref tells the form's submit to end on the dashboard instead of the next step.
   - Once the event exists, everything is already saved as it goes and stays unpublished, so it only shows a toast and goes to the dashboard.
   - It reads `useIsMutating({ mutationKey: eventKeys.create() })` to show SAVING… while the form it doesn't own is creating the event.
 - **Errors:** if creating fails, the toast shows the server's reason (`apiErrorMessage` in `lib/api-error.ts`: a field's validation message, then the response message, then its title).
-- **Event Info fields:** the website URL is optional, the custom URL field is labelled "URL", and the refund terms field is commented out.
+- **Event Info fields:** the website URL is optional, the custom URL field is labelled "URL", and the refund terms field is commented out. The name and venue start each word with a capital as they're typed (`capitalizeWords`), and the custom URL isn't checked until the name has text, so a blank form doesn't open on "URL too short."
+- **Section headings** use `FormSectionHeading` here and on Edit Event.
+- **Custom URL field** (`components/shared/field-with-absolute-text.tsx`, here and on edit event): the prefix reads `afrorevive.com/events/`. On mobile it sits above the input, inside the same box, so the slug gets the full width; from `sm` up they share one row.
 - **The description is rich text.** `components/reusable/rich-text-editor.tsx` (Tiptap, react-icons Remix toolbar) offers headings (H2, H3), bold, italic, underline, strikethrough, inline code, links, bullet and numbered lists, quotes, code blocks, dividers and undo/redo, and saves HTML. Links open in a new tab; a click while editing doesn't follow them. Older plain-text descriptions open as paragraphs (`toRichText` in `lib/rich-text.ts`). The 2000 limit and the counter count visible text, not tags (`richTextLength`). Edit event uses the same editor.
 - **Old links:** `?tab=theme` (the removed theme step) redirects to `publish`.
 - **The ticket form:**
@@ -234,13 +244,19 @@ TicketsPage → SelectedEventGate → EventTickets
 │                          hide group tickets
 ├── TicketForm             reused from add-event to create or edit a ticket
 ├── TicketCard (each)      built on shared TicketSummaryCard: price before fees, sold /
-│                          available, group size on the group icon; menu: Edit /
-│                          Delete / Send Invite (invite-only); invites-sent count
+│                          available, group size on the group icon; one badge (Invite on
+│                          invite-only tickets, else the format); menu: Edit / Delete /
+│                          Send Invite (invite-only); invites-sent count. The menu
+│                          (ActionPopover) opens to the left of the ⋮, inside the card,
+│                          and closes when an option is picked; Edit scrolls the form
+│                          (composerRef) into view
 ├── SummaryCard            net sales and tickets sold / total, from the event's
 │                          eventStat (useGetEvent), as on its dashboard card;
 │                          View Analytics
 ├── TicketInvitesTable     when an invite-only ticket is selected
-│   └── or EventOrdersTable   otherwise: every order for the event
+│   └── or EventOrdersTable   otherwise: every order for the event, as a card each
+│                             (buyer, order ID, a line per ticket type, the total paid
+│                             in green); one column on phones, up to three on desktop
 └── SendInvitesModal       two tabs:
     ├── InviteGuestlistTab     pick guests from the guestlist
     └── InviteNewGuestTab      add a new guest (also saved to the guestlist)
@@ -258,9 +274,10 @@ There are **two different guest lists**, so keep them apart:
 |---|---|---|
 | Where | Dashboard → Guestlist tab (`standalone/guestlist/`) | `/creators/guest-list` (`guest-list/`) |
 | What | Every guest the organizer has saved, in categories | Who is on one event's list |
-| Main parts | `GuestCategories`, `GuestTable`, `GuestSelectionBar`, `AddGuestModal`, `NewCategoryModal`, `GuestLimitCard` | `AddGuestCard`, `ImportGuestlistCard`, `EventGuestlistCard` |
+| Main parts | `GuestCategories`, `GuestTable`, `GuestSelectionBar`, `AddGuestModal`, `NewCategoryModal`, `GuestLimitCard`, `GuestSortControl` | `AddGuestCard`, `ImportGuestlistCard`, `EventGuestlistCard` |
+| Mobile (below lg) | Cards: checkbox, name / email / category, ⋮ menu; "Select all on this page" above them | Cards: name / email / category (name green when checked in) with ⋮; the import list's cards tick the guest when tapped |
 | Paging | Server side, 20 per page, with search and sort | Server side, 20 per page |
-| Sort | `newest to oldest` / `oldest to newest`, sent word for word: the only two `GET /api/Guestlist` accepts | Same |
+| Sort | `newest to oldest` / `oldest to newest`, sent word for word: the only two `GET /api/Guestlist` accepts. `GuestSortControl`: a filter icon below lg, the select from lg up | Same |
 
 **An important backend rule:** the event's "configure guestlist" call
 **replaces** the whole list. `useAddGuestToEvent` and the import screen always
@@ -300,6 +317,9 @@ Hooks live in `use-guestlist-mutations.ts`; query keys are in
 - Lists the event's codes (`useGetEventPromoCodes`).
 - Creating a code uses `PromoCodeFormFields` from `add-event/ticket-forms/promo-code-form/`, which is now only this page's form.
 - Each row opens a details modal, and its menu deletes the code.
+- **A new code** starts now and ends when the event ends (`promoCodeDefaults(eventEndDate)` in `schemas/promo-code-schema.ts`), falling back to a week from now if the event's end is unknown or past. The schema rejects an end at or before the start.
+- **The code is saved in capitals** as it's typed ("earlybird25" → EARLYBIRD25). Open question for the backend: whether checkout matches codes case-insensitively.
+- The unsaved form's buttons are CANCEL (black) and Create Promo Code (red).
 
 ### Audience (`audience/`), private events only
 
@@ -326,12 +346,17 @@ tab with `?tab=`:
 | Sidebar link | Tab |
 |---|---|
 | Overview | Overview |
-| Audience Insights | Insights |
 | Vendors | Vendors |
-| Tickets (accordion) | Orders, Attendee List ("Coming Soon"), Promo Codes |
+| Ticket Sales (accordion) | Orders, Attendee List (its own endpoint, `useGetEventAttendees`, 20 a page with search), Promo Codes |
 
-- All tabs share one request, `useGetEventAnalytics(selectedEventId)`, and use `components/analytics-state.tsx` for loading, error and empty states.
-- The charts are reusable components in `components/reusable/charts/` (bar, line, pie) built on recharts.
+- The page sits in `SelectedEventGate` like the other organizer pages, and follows the sidebar's selected event (the old event picker in the header is gone). Its header has the tab's title and description, and **Export CSV** (`lib/analytics-export.ts`), which downloads the open tab's data.
+- All tabs share one request, `useGetEventAnalytics(eventId)`, and use `components/analytics-state.tsx` for loading, error and empty states. Besides the totals, the response carries `orderList`, `vendorList`, `attendeeList` and `promoCodes`, which the charts and tables are built from.
+- **Audience cards** (Gender, Age Groups, Locations, the top ten) are on Overview. The Audience Insights tab is gone (removed 2026-11-15); an old `?tab=insights` link lands on Overview, and Overview's CSV carries the audience counts.
+- **Tables** scroll sideways inside their card on phones, on purpose: analytics tables keep their columns rather than turning into cards.
+- **Building blocks:** `components/analytics-ui.tsx` (the card, Summary card, stat tile, progress bar, status pill and table) and `components/analytics-charts.tsx` (trend line, columns, donut, bar list and segmented bar, on recharts).
+- **Data helpers:** `lib/analytics-data.ts` merges audience labels that differ only in case, keeps Unknown last, fills sales by day, groups sales by ticket and maps vendor statuses to stages. `vendorKind` tells a stall from a service offer by matching the vendor list's `stallName` to the event's slots (`slotName` or `serviceName`), since the vendor list doesn't say. **Only stalls are revenue:** service vendors are paid by the organizer outside the app, so the Vendors tab's "Revenue from Stalls" counts Secured stalls only. `lib/audience.ts` turns the audience into chart rows.
+- **Chart colours:** blue, orange and aqua, in that fixed order (validated colour-blind safe as neighbours), grey for Unknown, and green, amber, blue and red only for vendor stages, always with a label.
+- **Backend numbers that don't agree** (seen on dev, November 2026): net revenue leaves out paid invite orders (order totals also include Afrorevive's fee, which is expected), the tickets on orders can be more than `totalTicketsSold`, `totalAttendees` is 0 while the attendee list isn't, `totalNumberOfVendorsAccepted` is 0 while vendors are Secured, and attendee order IDs differ from the order list's. The headline tiles use the totals; the charts use the lists.
 
 ### Vendor management (`pages/vendor/...`, inside the dashboard)
 

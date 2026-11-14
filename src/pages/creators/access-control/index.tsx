@@ -10,7 +10,7 @@ export default function AccessControlPage() {
     <section className='w-full h-full flex flex-col items-center'>
       <VendorHeader type='access-control' />
 
-      <div className='w-full h-full flex flex-col pt-10 pb-14 px-5'>
+      <div className='w-full h-full flex flex-col pt-10 pb-14 px-5 md:px-8'>
         <div className='w-full h-full bg-white flex flex-col gap-2.5 rounded-[4px]'>
           <SearchData />
 
@@ -29,13 +29,13 @@ function AccessControlList({ name, action, status }: AccessControlItem) {
   return (
     <div className='flex items-center justify-between px-8 py-5 border-t border-mid-dark-gray/30 last:border-y hover:bg-black/5'>
       <div className='flex flex-col gap-0.5'>
-        <p className='font-sf-pro-display text-sm text-black'>{name}</p>
-        <p className='font-sf-pro-display text-xs text-black'>{action}</p>
+        <p className='font-inter-tight text-sm text-black'>{name}</p>
+        <p className='font-inter-tight text-xs text-black'>{action}</p>
       </div>
 
       <div className='flex items-center gap-8'>
         <Badge
-          className={cn('font-sf-pro-display text-xs capitalize p-0 bg-transparent', {
+          className={cn('font-inter-tight text-xs capitalize p-0 bg-transparent', {
             'text-bright-mint': status === 'Active' || status === 'Complete',
             'text-deep-red': status === 'Rejected' || status === 'Pending',
           })}>

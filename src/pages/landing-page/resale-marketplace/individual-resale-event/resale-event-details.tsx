@@ -23,10 +23,10 @@ export default function ResaleEventDetails({ event }: { event: IEvents }) {
             <p className="font-phosphate text-[40px] tracking-[-0.25px] leading-normal uppercase">
               {event.event_name}
             </p>
-            <p className="font-sf-pro-display text-[32px] mb-2 font-[200]">
+            <p className="font-inter-tight text-[32px] mb-2 font-[200]">
               {event.event_location}
             </p>
-            <p className="font-sf-pro-rounded text-[32px]">
+            <p className="font-inter-tight text-[32px]">
               {event.event_date}, {event.event_time.start_time} -{" "}
               {event.event_time.end_time}
             </p>

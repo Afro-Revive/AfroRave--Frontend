@@ -129,7 +129,7 @@ function Counter({
       {count > 0 && (
         <>
           <CounterButton label={`Remove one ${label}`} action={onDecrease} Icon={RiSubtractLine} />
-          <span className='font-sf-pro-rounded font-bold text-sm'>{count}</span>
+          <span className='font-inter-tight font-bold text-sm'>{count}</span>
         </>
       )}
       <CounterButton label={`Add ${label}`} action={onIncrease} Icon={RiAddLine} disabled={atLimit} />

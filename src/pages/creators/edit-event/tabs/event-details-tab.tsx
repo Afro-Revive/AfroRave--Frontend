@@ -1,3 +1,4 @@
+import { FormSectionHeading } from "@/components/shared/form-section-heading";
 import {
   CustomFormField as FormField,
   CustomInput as Input,
@@ -21,7 +22,7 @@ import { getRoutePath } from "@/config/get-route-path";
 import { africanTimezones, ageRatings, eventCategories } from "../constant";
 import type { EventDetailData } from "@/types";
 import { transformEventToSchema } from "../helper";
-import { toVisibility } from "@/lib/helper-func";
+import { toVisibility, capitalizeWords, rewriteInputValue } from "@/lib/helper-func";
 import { SelectField } from "../../add-event/component/select-field";
 import { VisibilityField } from "../../add-event/component/visibility-field";
 import { PosterImageField } from "../component/poster-image-field";
@@ -185,9 +186,11 @@ function EventDetailsForm({
         >
           {(field) => (
             <Input
-              placeholder="Enter event name."
-              className="uppercase bg-transparent"
+              placeholder="Enter event name"
+              className="bg-transparent"
               {...field}
+              // Each word starts with a capital, and that's what's saved.
+              onChange={(e) => field.onChange(rewriteInputValue(e.target, capitalizeWords))}
               value={field.value == null ? "" : String(field.value)}
             />
           )}
@@ -199,7 +202,7 @@ function EventDetailsForm({
             name="age_rating"
             label="Age Rating"
             data={ageRatings}
-            placeholder="Select an age rating."
+            placeholder="Select an age rating"
             triggerClassName={selectClassname}
           />
 
@@ -208,7 +211,7 @@ function EventDetailsForm({
               <BaseSelect
                 type="auth"
                 items={eventCategories}
-                placeholder="Select a Category."
+                placeholder="Select a category"
                 triggerClassName={selectClassname}
                 value={field.value as string}
                 onChange={field.onChange}
@@ -220,9 +223,11 @@ function EventDetailsForm({
         <FormField form={form} name="venue" label="Venue">
           {(field) => (
             <Input
-              placeholder="Enter event venue."
-              className="uppercase bg-transparent"
+              placeholder="Enter event venue"
+              className="bg-transparent"
               {...field}
+              // Each word starts with a capital, and that's what's saved.
+              onChange={(e) => field.onChange(rewriteInputValue(e.target, capitalizeWords))}
               value={field.value == null ? "" : String(field.value)}
             />
           )}
@@ -238,7 +243,7 @@ function EventDetailsForm({
           {(field) => (
             <RichTextEditor
               id="description"
-              placeholder="Enter event description."
+              placeholder="Enter event description"
               value={field.value as string}
               onChange={field.onChange}
               onBlur={field.onBlur}
@@ -251,12 +256,12 @@ function EventDetailsForm({
           form={form}
           name="custom_url"
           label="Custom URL"
-          text="afrorevive/events/"
+          text="afrorevive.com/events/"
         >
           {(field) => (
             <Input
-              placeholder="Enter custom URL."
-              className="uppercase border-none h-9"
+              placeholder="Enter custom URL"
+              className="border-none h-9"
               {...field}
               value={field.value == null ? "" : String(field.value)}
             />
@@ -266,10 +271,8 @@ function EventDetailsForm({
 
       <div className="flex flex-col gap-5 bg-white rounded-2xl py-4 px-6">
         <div className="w-full flex flex-col gap-5">
-          <div className="flex flex-col gap-1">
-            <p className="text-base font-semibold text-black font-inter-tight">
-              Date & Time
-            </p>
+          <div className="flex flex-col gap-3">
+           <SectionHeader name="DATE & TIME" />
             <p className="font-inter-tight text-xs font-medium text-[#949494]">
               Update your event's date and time. Ticket holders will be notified
               of any changes.
@@ -281,7 +284,7 @@ function EventDetailsForm({
               <BaseSelect
                 type="auth"
                 items={africanTimezones}
-                placeholder="Select a time zone."
+                placeholder="Select a time zone"
                 triggerClassName={selectClassname}
                 value={field.value as string}
                 onChange={field.onChange}
@@ -327,7 +330,7 @@ function EventDetailsForm({
             <FormField form={form} name="email" label="Email">
               {(field) => (
                 <Input
-                  placeholder="Enter email address."
+                  placeholder="Enter email address"
                   className="bg-transparent"
                   {...field}
                   value={field.value == null ? "" : String(field.value)}
@@ -338,7 +341,7 @@ function EventDetailsForm({
             <FormField form={form} name="website_url" label="Website URL">
               {(field) => (
                 <Input
-                  placeholder="Enter your website URL (optional)."
+                  placeholder="Enter your website URL (optional)"
                   className="bg-transparent"
                   {...field}
                   value={field.value == null ? "" : String(field.value)}
@@ -363,7 +366,7 @@ function EventDetailsForm({
             {[
               { name: "socials.instagram" as const, label: "Instagram" },
               { name: "socials.x" as const, label: "X" },
-              { name: "socials.tiktok" as const, label: "Tiktok" },
+              { name: "socials.tiktok" as const, label: "TikTok" },
               { name: "socials.facebook" as const, label: "Facebook" },
             ].map((item) => (
               <FormField
@@ -374,7 +377,7 @@ function EventDetailsForm({
               >
                 {(field) => (
                   <Input
-                    placeholder={`Enter your ${item.label} Link.`}
+                    placeholder={`Enter your ${item.label} link`}
                     className="text-[#0033A0] bg-transparent"
                     {...field}
                     value={field.value == null ? "" : String(field.value)}
@@ -391,9 +394,9 @@ function EventDetailsForm({
 
 function SectionHeader({ name }: { name: string }) {
   return (
-    <p className="text-xl font-bold font-inter-tight text-black -mb-3 ">
+    <FormSectionHeading as="p" className="-mb-3">
       {name}
-    </p>
+    </FormSectionHeading>
   );
 }
 

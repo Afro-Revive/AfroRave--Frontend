@@ -48,17 +48,17 @@ export function TicketCard({
       <div className={cn("flex flex-1 items-center gap-3", isUnavailable && "opacity-30")}>
         <TransformedTicket color="#ae0d0d" />
         <div className="flex flex-col gap-0.5 flex-1">
-          <p className="text-sm font-semibold font-sf-pro-display capitalize">
+          <p className="text-sm font-semibold font-inter-tight capitalize">
             {ticketName}
           </p>
-          <p className="text-xs text-black/40 font-sf-pro-display">
+          <p className="text-xs text-black/40 font-inter-tight">
             {formatNaira(ticketPrice)} · {ticketQuantity} available
           </p>
         </div>
       </div>
 
       {isUnavailable ? (
-        <span className="max-w-[45%] text-right text-[11px] leading-tight text-light-red font-sf-pro-display">
+        <span className="max-w-[45%] text-right text-[11px] leading-tight text-light-red font-inter-tight">
           {unavailableReason}
         </span>
       ) : isSelected ? (
@@ -74,7 +74,7 @@ export function TicketCard({
           >
             <Minus size={10} />
           </button>
-          <span className="text-sm font-bold font-sf-pro-display w-4 text-center">
+          <span className="text-sm font-bold font-inter-tight w-4 text-center">
             {count}
           </span>
           <button
@@ -87,7 +87,7 @@ export function TicketCard({
           </button>
         </div>
       ) : (
-        <span className="text-xs text-black/30 font-sf-pro-display">
+        <span className="text-xs text-black/30 font-inter-tight">
           ×{ticketQuantity}
         </span>
       )}

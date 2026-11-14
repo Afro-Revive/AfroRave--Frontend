@@ -1,3 +1,4 @@
+import { FormSectionHeading } from "@/components/shared/form-section-heading";
 import { BsTicketPerforated } from "react-icons/bs";
 import { IoTicketOutline } from "react-icons/io5";
 import { cn } from "@/lib/utils";
@@ -63,9 +64,9 @@ export function TicketFormatPicker({
       <div className="flex flex-col gap-1">
         <div className="flex items-center gap-2">
           <IoTicketOutline size={24} color="#AE0D0D" className="shrink-0" />
-          <h2 className="font-inter-tight font-bold text-2xl text-black uppercase">
+          <FormSectionHeading>
             {header}
-          </h2>
+          </FormSectionHeading>
         </div>
 
         <p className="font-inter-tight font-medium text-sm text-[#464444]">

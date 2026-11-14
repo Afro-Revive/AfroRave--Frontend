@@ -189,7 +189,9 @@ page uses it when someone is signed in with the wrong email.
 **The session:**
 - The logged-in user and tokens live in `useAfroStore` (`src/stores/index.ts`), saved to `localStorage` under `afro-store-v1`.
 - `isFan`, `isCreator` and `isVendor` come from the user's `accountType`.
-- `useTokenRefresh()` (`src/hooks/use-token-refresh.ts`) refreshes the access token 3 minutes before it expires.
+- `useTokenRefresh()` (`src/hooks/use-token-refresh.ts`) refreshes the access token 3 minutes before it expires, through `refreshSession()` in `src/services/http.service.ts`.
+- **Refresh tokens rotate:** each works once. So only one refresh runs at a time, once per tab and once across tabs (a Web Lock), and tabs follow each other's refresh, login and logout through `storage` events. Otherwise a second tab would send a used token and get "Invalid refresh token or token expired."
+- **By design:** one active session per user (a new login ends the previous session at its next refresh), and 15 minutes without a refresh means logged out. An expired session is dropped on load, or on the next request.
 - The HTTP client adds `Authorization: Bearer …` to every request.
 
 ---
@@ -292,6 +294,8 @@ The cart is the most involved fan flow. The rules:
 6. **Checkout page** (`/events/:eventId/checkout`, `checkout/index.tsx`). It has no layout, so it brings its own `AuthProvider` and `<AuthModal />`.
    - Signed out: shows `UserLoginForm` with `onLoginSuccess={() => {}}` so the fan stays in checkout.
    - Signed in: shows `CheckoutSummary` with the promo code, the totals accordion, and a 15-minute countdown.
+   - **Prices and the fee:** lines are priced at the ticket's `basePrice`, and the TOTAL accordion (`_component/totalPrice-accordion.tsx`) adds the sum of each line's API `fee` × quantity, then takes off the promo discount. Nothing is calculated from `VITE_TICKET_SALES_PERCENTAGE`. Resale lines carry no fee.
+   - **The ticket's price fields** (from the API): `price` and `basePrice` are the organizer's price; `fee` is the fan's fee per ticket in naira (8%, `feePercentage` 0.08); `salesPrice` = base + fee, what a fan pays; `resalePrice` equals `salesPrice`. A ₦10,000 ticket: `fee` 800, `salesPrice` 10,800.
    - **The countdown** starts the moment the server reserves the tickets: when `useSyncCartToServer` succeeds (Continue on the cart page) and when `useLogin` syncs the cart (logging in at checkout). Each sync restarts it. The start is saved in the store, so a refresh carries on counting. The summary only displays it.
    - **Extending:** in the last two minutes, while the reservation still exists, a "Need more time?" link appears. `useExtendReservation` fetches the fan's server cart (`GET /api/Cart`), calls `POST /api/Cart/{cartId}/extend-reservation` for every line, since each line has its own reservation, and restarts the countdown.
    - **Expiry:** when the countdown reaches zero, the server has already deleted the cart and would reject payment. The summary clears the browser's cart and says the tickets were released. The empty cart then sends the fan back to the event page, without the "are you sure?" step. A refresh or Back onto an expired checkout does the same.
@@ -312,14 +316,20 @@ shape (`PurchasableTicket`), so the ticket list and cart can treat both alike.
 | `tickets-resale/modals/ticket-resale.tsx` | Resell: choose tickets, then set prices (`useTicketResale`). |
 | `tickets-transfer/index.tsx` | Transfer: choose tickets, then enter recipients. Each recipient is verified first (`useTransferTickets`). |
 
-**Tickets that can't be resold or transferred.** `resaleBlockedReason()` and
-`transferBlockedReason()` (`lib/helper-func.ts`) say why, or return nothing
-when a ticket is allowed:
+**Tickets that can't be resold or transferred.** The backend decides: each
+ticket from `GET /api/Profile/user/ticket/active` has `canResell` and
+`canTransfer`. `resaleBlockedReason()` and `transferBlockedReason()`
+(`lib/helper-func.ts`) read those flags and return why a ticket is blocked, or
+nothing when it's allowed. The ticket's type only picks the words. A ticket
+without the flags is allowed, and the server still refuses what it doesn't
+allow.
 
-| Ticket | Resell | Transfer |
-|---|---|---|
-| Invite-only (`accessType: 'Invite'`) | No | No |
-| Group (`isGroupTicket()`) | No | Yes |
+| Ticket | `canResell` | `canTransfer` | Reason shown |
+|---|---|---|---|
+| Invite-only (`accessType: 'Invite'`) | false | false | "Invite-only tickets can't be resold / transferred" |
+| Group | false | true | "Group tickets can't be resold" |
+| Organizer turned resale off | false | true | "The organizer has turned off resale for this ticket" |
+| Any other ticket the backend blocks from transfer | — | false | "This ticket can't be transferred" |
 
 - **In the modals,** a blocked ticket is faded, can't be picked, and shows the reason.
 - **With only one ticket for the event,** a blocked ticket turns the Resell or Transfer button off, with the reason as its tooltip. With more than one, the buttons stay on and the modals do the blocking.
@@ -444,11 +454,24 @@ Query, not in a store.
 ## 10. Styling rules
 
 - **Breakpoints are changed on purpose.** `sm`, `md` and `lg` (in `src/index.css`) treat a **tablet held upright as mobile** and a tablet on its side as desktop. A `tablet:` variant targets upright tablets only. When something looks wrong on an iPad, check orientation first.
-- **Fonts:**
-  - Newer fan screens use `font-work-sans` (headings) and `font-inter-tight` (body).
-  - Older screens use the SF Pro families: `font-sf-pro-display` and `font-sf-pro-text`.
-  - Display type uses `font-phosphate` and `font-input-mono`.
+- **Fonts** (rules from 2026-11-13):
+  - `font-work-sans` is only for forced-caps sub-headings in forms: the label above a field and its character counter.
+  - `font-inter-tight` is for everything else: titles, headings, body, captions, buttons and icons. It's also the page's base font.
+  - Display type uses `font-phosphate`. IBM Plex Mono (`font-input-mono`) stays where it's used.
+  - The SF Pro family and Inter are removed from the whole site (decided with the PO). Don't add them back.
+- **Flyers are 3:4 everywhere** (decided with the PO). `RenderEventImage` defaults to `aspect-3/4`; set the width, not a height. Cart and checkout show a 120px thumbnail beside the event details on mobile.
 - **Colours:** use the tokens in `index.css`, such as `deep-red`, `tech-blue`, `system-black` and `gunmetal-gray`, rather than raw hex values where one exists.
+- **Form labels** (2026-11-13): every field has its label **above** it, in small Work Sans capitals. Use `FIELD_LABEL_CLASS` (or `<FieldLabel>`) from `components/shared/field-label.tsx`, or `FIELD_LABEL_ON_DARK_CLASS` on dark pages. No labels inside the box, and no placeholder-only fields. A row like Birthday or Phone Number gets one label over the row.
+  - `FormField` (`components/reusable/base-form.tsx`) points its label at the input through the id it hands its child; don't pass `htmlFor`, and don't give the child its own id.
+  - Placeholders are hints, without a full stop.
+- **Section headings in forms:** `FormSectionHeading` (`components/shared/form-section-heading.tsx`): Inter Tight, black weight, `text-xl`, uppercase.
+- **Buttons** (`components/ui/button-variants.ts`):
+  - **Colour by role:** `variant="primary"` (red) for the action that commits (Save, Create); `variant="dark"` (black) for the other one (Cancel, Save Draft).
+  - **Shape by place:** `size="header"` (Save / Publish in a page header), `size="block"` (a full-width submit) and `size="pill"` (a cancel + submit pair: side by side from `sm`, stacked full width on a phone).
+  - **Label case:** one word in capitals (SAVE, CANCEL), longer labels in Title Case (Create Ticket, Update Password). The sizes don't force a case; write the label in it.
+  - The base font is Inter Tight. A button that should look different sets it.
+- **Text in inputs:** don't use `uppercase` on an input: it changes how the text looks, not what's saved. To change the value itself, use `rewriteInputValue` with `capitalizeWords` or `toUpperCase` (`lib/helper-func.ts`). Promo codes are saved in capitals; event names and venues start each word with a capital.
+- **Names in copy:** Afrorevive (not AfroRevive or AfroRave), Guestlist, resale (the noun; "resell" is the action), TikTok, and the singular Revenue Vendor / Service Vendor.
 
 ---
 

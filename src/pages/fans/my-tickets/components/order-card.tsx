@@ -35,7 +35,7 @@ function OrderCard({
 
       <span
         className={cn(
-          "absolute w-4 h-4 top-5 right-3 font-sf-pro-rounded text-[10px] text-center rounded-full",
+          "absolute w-4 h-4 top-5 right-3 font-inter-tight text-[10px] text-center rounded-full",
           { "bg-[#DEDDDD] text-black": isSelected },
         )}
       >
@@ -60,7 +60,7 @@ function OrderCard({
 
       <button
         type="button"
-        className={cn("font-sf-pro-display text-left text-[10px] underline", {
+        className={cn("font-inter-tight text-left text-[10px] underline", {
           "text-black": isSelected,
           "text-white": !isSelected,
         })}

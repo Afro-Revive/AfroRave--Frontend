@@ -126,7 +126,7 @@ export function VendorApplicationPage({
 
   return (
     <section className="w-full h-full flex flex-col items-center">
-      <div className="w-full bg-white flex flex-wrap items-start justify-between gap-4 px-5 py-6">
+      <div className="w-full bg-white flex flex-wrap items-start justify-between gap-4 px-5 md:px-8 py-6">
         <div className="flex flex-col gap-1">
           <Link
             to={backTo}
@@ -177,7 +177,7 @@ export function VendorApplicationPage({
         )}
       </div>
 
-      <div className="w-full flex flex-col gap-6 px-5 py-6 md:py-8">
+      <div className="w-full flex flex-col gap-6 px-5 md:px-8 py-6 md:py-8">
         {price ? (
           <div className="w-full flex items-center gap-2 rounded-lg bg-green/20 px-4 py-3 font-inter-tight text-sm font-semibold text-green">
             <RiInformationLine className="size-5 shrink-0" />

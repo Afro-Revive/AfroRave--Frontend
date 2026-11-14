@@ -111,7 +111,7 @@ export function WithdrawFundsModal({
       // overrides strip the pill background floatingCancel ships with.
       floatingCancel
       cancelClassName="top-4 right-6 md:top-4 md:right-6 p-0 bg-transparent hover:bg-transparent backdrop-blur-none"
-      titleClassName="font-inter text-sm items-center px-6 py-4"
+      titleClassName="font-inter-tight text-sm items-center px-6 py-4"
       title="Withdraw Funds"
       className="bg-[#1A1A1A] border border-white/10"
     >
@@ -125,24 +125,24 @@ export function WithdrawFundsModal({
         <div className="bg-[#262626] px-3 py-2 rounded-md flex flex-col gap-2">
           <div className="flex items-center gap-2">
             <Wallet className="w-5 h-5 text-light-red" />
-            <p className="text-[#8E8E93] text-sm font-inter">
+            <p className="text-[#8E8E93] text-sm font-inter-tight">
               Available Balance
             </p>
           </div>
-          <p className="text-white text-base md:text-lg font-inter font-semibold">
+          <p className="text-white text-base md:text-lg font-inter-tight font-semibold">
             ₦{availableBalance.toLocaleString()}
           </p>
         </div>
 
         {/* Payout Method */}
         <div className="flex flex-col gap-3">
-          <p className="font-inter text-sm text-white">Payout Method</p>
+          <p className="font-inter-tight text-sm text-white">Payout Method</p>
 
           {/* Bank Select */}
           <select
             value={selectedBankCode}
             onChange={(e) => handleBankChange(e.target.value)}
-            className="w-full h-11 pr-2 bg-transparent border border-white rounded-lg px-3 mb-2 text-sm font-inter font-semibold text-white focus:outline-none focus:border-white/40 [&>option]:bg-[#1A1A1A] [&>option]:text-white"
+            className="w-full h-11 pr-2 bg-transparent border border-white rounded-lg px-3 mb-2 text-sm font-inter-tight font-semibold text-white focus:outline-none focus:border-white/40 [&>option]:bg-[#1A1A1A] [&>option]:text-white"
           >
             <option value="" disabled>Select bank</option>
             {banks.map((bank) => (
@@ -163,7 +163,7 @@ export function WithdrawFundsModal({
                 value={accountNumber}
                 onChange={(e) => handleAccountNumberChange(e.target.value.replace(/\D/g, ""))}
                 className={cn(
-                  "w-full h-11 bg-transparent border rounded-lg px-4 pr-10 text-white text-sm font-inter placeholder:text-white/40 placeholder:font-inter font-semibold focus:outline-none transition-colors",
+                  "w-full h-11 bg-transparent border rounded-lg px-4 pr-10 text-white text-sm font-inter-tight placeholder:text-white/40 placeholder: font-semibold focus:outline-none transition-colors",
                   verifyStatus === "verified" && "border-green-500 focus:border-green-500",
                   verifyStatus === "error" && "border-red-400 focus:border-red-500",
                   verifyStatus === "idle" || verifyStatus === "loading"
@@ -182,15 +182,15 @@ export function WithdrawFundsModal({
             </div>
 
             {verifyStatus === "verified" && accountName && (
-              <p className="text-xs text-green-500 font-inter font-medium">{accountName}</p>
+              <p className="text-xs text-green-500 font-inter-tight font-medium">{accountName}</p>
             )}
             {verifyStatus === "error" && (
-              <p className="text-xs text-red-400 font-inter">Account not found</p>
+              <p className="text-xs text-red-400 font-inter-tight">Account not found</p>
             )}
           </div>
         </div>
 
-        <p className="font-inter text-sm text-white font-semibold">
+        <p className="font-inter-tight text-sm text-white font-semibold">
             Amount
         </p>
 
@@ -201,7 +201,7 @@ export function WithdrawFundsModal({
             placeholder="₦ 0"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
-            className="w-full py-5 bg-transparent border border-white/20 rounded-lg px-4 font-medium text-white text-lg font-inter placeholder:text-white/40 focus:border-white/40"
+            className="w-full py-5 bg-transparent border border-white/20 rounded-lg px-4 font-medium text-white text-lg font-inter-tight placeholder:text-white/40 focus:border-white/40"
           />
         </div>
 
@@ -209,7 +209,7 @@ export function WithdrawFundsModal({
         <Button
           onClick={handleConfirm}
           disabled={!canConfirm}
-          className="w-full h-12 bg-white hover:bg-white/90 text-deep-red font-inter font-medium rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full h-12 bg-white hover:bg-white/90 text-deep-red font-inter-tight font-medium rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
         >
           Withdraw
         </Button>

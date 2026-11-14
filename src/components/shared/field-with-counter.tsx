@@ -28,7 +28,7 @@ export function FormFieldWithCounter<T extends FieldValues>({
     <FormField
       form={form}
       name={field_name}
-      className='w-full flex flex-col gap-1 text-black text-xs uppercase font-sf-pro-text'
+      className='w-full flex flex-col gap-1 text-black text-xs uppercase font-inter-tight'
       description={description}
       showMessage={showMessage}>
       {(field) => (

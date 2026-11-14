@@ -178,7 +178,7 @@ export function AuthModal({ fanSignup = false }: AuthModalProps) {
         <OnlyShowIf condition={showNoticeBar}>
           <p
             role="status"
-            className="w-full shrink-0 bg-green/25 px-4 py-4 text-center font-sf-pro-text text-xs md:text-sm text-green"
+            className="w-full shrink-0 bg-green/25 px-4 py-4 text-center font-inter-tight text-xs md:text-sm text-green"
           >
             {notice}
           </p>

@@ -85,7 +85,7 @@ export default function CreatorSidebar() {
                   },
                 ]
               : []),
-                  { path: getRoutePath("guest_list"), name: "Guest List" },
+                  { path: getRoutePath("guest_list"), name: "Guestlist" },
           ]
         : [],
     },
@@ -102,11 +102,11 @@ export default function CreatorSidebar() {
       trigger: { icon: <ChartIcon />, text: "Analytics" },
       links: [
         { path: analyticsTab("overview"), name: "Overview" },
-        { path: analyticsTab("insights"), name: "Audience Insights" },
         { path: analyticsTab("vendors"), name: "Vendors" },
         {
           path: analyticsTab("orders"),
-          name: "Tickets",
+          // Not "Tickets": the sidebar already has a Tickets section.
+          name: "Ticket Sales",
           subLinks: [
             { path: analyticsTab("orders"), name: "Orders" },
             { path: analyticsTab("attendee-list"), name: "Attendee List" },
@@ -171,7 +171,7 @@ export default function CreatorSidebar() {
           customTrigger={
             // <div className="flex items-center gap-2.5 px-6 py-4 cursor-pointer hover:bg-gray-50 bg-white border-t border-gray-100 transition-colors group w-full">
             //   <Settings className="size-[18px] text-black group-hover:text-deep-red transition-colors" />
-            //   <span className="text-[13px] font-normal tracking-widest text-black font-sf-pro-display uppercase">SETTINGS</span>
+            //   <span className="text-[13px] font-normal tracking-widest text-black font-inter-tight uppercase">SETTINGS</span>
             // </div>
             <Link to={getRoutePath("standalone")} className="flex items-center gap-2.5 px-6 py-7 cursor-pointer hover:bg-gray-50 bg-white border-t border-[#949494] transition-colors group w-full">
               <span className="inline-flex items-center gap-4">

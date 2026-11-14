@@ -41,16 +41,16 @@ export function ConfirmOverlay({
           onClick={onCancel}>
           <X size={24} />
         </button>
-        <p className='text-black text-center text-xl font-semibold font-sf-pro-display'>{title}</p>
-        <p className='text-[#1E1E1E] text-sm font-inter '>{message}</p>
+        <p className='text-black text-center text-xl font-semibold font-inter-tight'>{title}</p>
+        <p className='text-[#1E1E1E] text-sm font-inter-tight '>{message}</p>
         <div className='flex gap-4 mt-4'>
           <Button
             variant='link'
-            className='bg-[#EBC8C8] text-[#AE2323] font-sf-pro-display px-8'
+            className='bg-[#EBC8C8] text-[#AE2323] font-inter-tight px-8'
             onClick={onConfirm}>
             {confirmText}
           </Button>
-          <Button variant='default' className='font-sf-pro-display px-8' onClick={onCancel}>
+          <Button variant='default' className='font-inter-tight px-8' onClick={onCancel}>
             {cancelText}
           </Button>
         </div>

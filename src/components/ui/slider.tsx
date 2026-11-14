@@ -138,7 +138,7 @@ function Slider({
               }}
               onBlur={() => handleBlur(index)}
               className={cn(
-                "w-full border border-mid-gray px-3 py-2 text-center text-xs font-sf-pro-display text-system-black bg-transparent focus:outline-none focus:border-system-black transition-colors",
+                "w-full border border-mid-gray px-3 py-2 text-center text-xs font-inter-tight text-system-black bg-transparent focus:outline-none focus:border-system-black transition-colors",
                 inputClassName,
               )}
             />

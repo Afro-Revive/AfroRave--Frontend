@@ -150,7 +150,7 @@ export function BaseLineChart({
   const isEmpty = !data.length || !lines.length
 
   const chart = isEmpty ? (
-    <div className='flex min-h-[250px] items-center justify-center text-sm text-mid-dark-gray font-sf-pro-text'>
+    <div className='flex min-h-[250px] items-center justify-center text-sm text-mid-dark-gray font-inter-tight'>
       {emptyMessage}
     </div>
   ) : (

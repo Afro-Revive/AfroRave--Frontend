@@ -17,7 +17,7 @@ export default function CreatorDashboardLayout() {
       style={{ "--dashboard-header-height": "4.5rem" } as React.CSSProperties}
       className="w-full flex flex-col items-center bg-gradient-to-b from-[#F3F3F3] to-[#D9D9D9]"
     >
-      <CreatorDashboardHeader />
+      <CreatorDashboardHeader hasSidebar={!isEventsDashboard} />
 
       <main className="relative w-full flex">
         {!isEventsDashboard && <CreatorSidebar />}

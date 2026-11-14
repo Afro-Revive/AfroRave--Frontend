@@ -1,20 +1,21 @@
 import type { UseFormReturn } from 'react-hook-form'
-import { defaultPromoCodeValues, type TPromoCodeSchema } from '../../schemas/promo-code-schema'
+import { promoCodeDefaults, type TPromoCodeSchema } from '../../schemas/promo-code-schema'
 import type { CreatePromoCodeRequest, PromoCodeData } from '@/types'
 import { fromApiDateTime, toApiDateTime } from '@/lib/helper-func'
 
 /** A saved promo code as form values, to edit it. The reverse of populatePromoCodeJson. */
 export function promoCodeToFormValues(promocode: PromoCodeData): TPromoCodeSchema {
   const details = promocode.promoDetails
+  const defaults = promoCodeDefaults()
 
   return {
-    ...defaultPromoCodeValues,
+    ...defaults,
     code: promocode.promoCode,
     discount: String(promocode.discountValue ?? ''),
     usageLimit: String(promocode.discountUsage ?? ''),
     // Saved in UTC; the form shows the organizer's local date and time.
-    startDate: fromApiDateTime(promocode.startDate) ?? defaultPromoCodeValues.startDate,
-    endDate: fromApiDateTime(promocode.endDate) ?? defaultPromoCodeValues.endDate,
+    startDate: fromApiDateTime(promocode.startDate) ?? defaults.startDate,
+    endDate: fromApiDateTime(promocode.endDate) ?? defaults.endDate,
     tickets: details?.tickets?.map((ticket) => ({ id: ticket.id })) ?? [],
     conditions: {
       spend: {

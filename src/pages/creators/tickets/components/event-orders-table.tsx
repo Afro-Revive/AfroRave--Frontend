@@ -1,21 +1,10 @@
 import { Pagination } from '@/components/shared/pagination'
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
 import { useGetEventOrders } from '@/hooks/use-invite-ticket-mutations'
 import { formatNaira } from '@/lib/format-price'
 import { LoaderCircle } from 'lucide-react'
 import { useState } from 'react'
 import { ORDERS_PAGE_SIZE } from '../constant'
-import { formatShortDate } from '../helper'
-
-const ORDER_COLUMNS = ['Name', 'Order ID', 'Ticket', 'Amount', 'Date']
+import type { EventOrdersData } from '@/types/invite-tickets'
 
 /** Every order on the event, paged server-side. */
 export function EventOrdersTable({ eventId }: { eventId: string }) {
@@ -56,65 +45,12 @@ export function EventOrdersTable({ eventId }: { eventId: string }) {
           No orders yet.
         </p>
       ) : (
-        <div className='w-full overflow-x-auto'>
-          <Table className='w-full'>
-            <TableCaption className='sr-only'>Orders for this event</TableCaption>
-
-            <TableHeader>
-              <TableRow className='hover:bg-transparent'>
-                {ORDER_COLUMNS.map((label) => (
-                  <TableHead
-                    key={label}
-                    className='font-inter-tight text-xs xl:text-sm font-medium text-[#0A0A0A]'>
-                    {label}
-                  </TableHead>
-                ))}
-              </TableRow>
-            </TableHeader>
-
-            <TableBody>
-              {orders.map((order) => (
-                <TableRow key={order.orderId} className='font-inter-tight text-sm text-black align-top'>
-                  <TableCell>
-                    <span className='flex flex-col'>
-                      <span>{order.customerName}</span>
-                      <span className='text-xs text-mid-dark-gray'>{order.customerEmail}</span>
-                    </span>
-                  </TableCell>
-
-                  {/* The readable code where there is one; the raw id is a GUID. */}
-                  <TableCell className='font-mono text-xs'>
-                    {order.orderCode || order.orderId}
-                  </TableCell>
-
-                  {/* One line per ticket type, since an order can hold several. */}
-                  <TableCell>
-                    <span className='flex flex-col gap-0.5'>
-                      {order.items?.length ? (
-                        order.items.map((item) => (
-                          <span key={item.ticketId} className='whitespace-nowrap'>
-                            {item.ticketName}{' '}
-                            <span className='text-mid-dark-gray'>× {item.quantity}</span>
-                          </span>
-                        ))
-                      ) : (
-                        <span className='text-mid-dark-gray'>× {order.ticketCount}</span>
-                      )}
-                    </span>
-                  </TableCell>
-
-                  <TableCell className='whitespace-nowrap'>
-                    {formatNaira(order.cost, { free: true })}
-                  </TableCell>
-
-                  <TableCell className='whitespace-nowrap'>
-                    {formatShortDate(order.purchaseDate)}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
+        // One card per order, on phones and desktop alike.
+        <ul className='grid gap-4 md:grid-cols-2 xl:grid-cols-3'>
+          {orders.map((order) => (
+            <OrderCard key={order.orderId} order={order} />
+          ))}
+        </ul>
       )}
 
       <Pagination
@@ -126,5 +62,48 @@ export function EventOrdersTable({ eventId }: { eventId: string }) {
         isLoading={isFetching}
       />
     </div>
+  )
+}
+
+/**
+ * The buyer, the order code, a line per ticket type (quantity, name, what that
+ * line cost) and, in green, the order's total: what the buyer paid, fee
+ * included, so it can be more than the lines added up.
+ */
+function OrderCard({ order }: { order: EventOrdersData }) {
+  return (
+    <li className='flex min-w-0 flex-col gap-2.5 rounded-xl bg-white p-4 shadow-[0px_2px_10px_0px_#0000001A] font-inter-tight'>
+      <div className='flex items-start justify-between gap-4'>
+        <div className='flex min-w-0 flex-col gap-1'>
+          <p className='truncate text-base text-black'>{order.customerName || '—'}</p>
+          <p className='truncate text-[13px] text-mid-dark-gray'>{order.customerEmail}</p>
+        </div>
+        <p className='shrink-0 text-base font-semibold text-green'>
+          {formatNaira(order.cost, { free: true })}
+        </p>
+      </div>
+
+      {/* The readable code where there is one; the raw id is a GUID. */}
+      <p className='text-[13px] font-semibold text-mid-dark-gray'>
+        Order ID : {order.orderCode || order.orderId}
+      </p>
+
+      <ul className='flex flex-col gap-1'>
+        {order.items?.length ? (
+          order.items.map((item) => (
+            <li key={item.ticketId} className='flex items-baseline justify-between gap-4 text-[13px] text-mid-dark-gray'>
+              <span className='min-w-0'>
+                X{item.quantity} {item.ticketName}
+              </span>
+              <span className='shrink-0 font-semibold'>
+                {formatNaira(item.price * item.quantity, { free: true })}
+              </span>
+            </li>
+          ))
+        ) : (
+          <li className='text-[13px] text-mid-dark-gray'>X{order.ticketCount}</li>
+        )}
+      </ul>
+    </li>
   )
 }

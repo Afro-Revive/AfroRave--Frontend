@@ -55,19 +55,19 @@ export default function ProfileTab() {
 
   // Sub-field inputs (birthday selects, phone code) — no inset label
   const inputStyle =
-    "w-full !h-[64px] rounded-[8px] border border-white bg-transparent font-light px-4 pb-2 text-white text-sm font-sf-pro-display placeholder:text-white/30 focus:border-white/30 focus-visible:ring-0 focus-visible:ring-offset-0 transition-all tracking-wider";
+    "w-full !h-11 rounded-[8px] border border-white bg-transparent font-light px-4 text-white text-sm font-inter-tight placeholder:text-white/30 focus:border-white/30 focus-visible:ring-0 focus-visible:ring-offset-0 transition-all tracking-wider";
   // Taller <Input> with room for inset label at top
   const labeledInputStyle =
-    "w-full h-[64px] rounded-[8px] border border-white bg-transparent px-4 pt-6 text-white text-sm font-sf-pro-display placeholder:text-white/30 focus:border-white/30 focus-visible:ring-0 focus-visible:ring-offset-0 transition-all tracking-wider";
+    "w-full h-11 rounded-[8px] border border-white bg-transparent px-4 text-white text-sm font-inter-tight placeholder:text-white/30 focus:border-white/30 focus-visible:ring-0 focus-visible:ring-offset-0 transition-all tracking-wider";
   // Taller <BaseSelect> trigger with value pushed to bottom
   const labeledSelectStyle =
-    "w-full !h-[64px] rounded-[8px] border border-white bg-transparent px-4 pb-2 text-white text-sm font-sf-pro-display placeholder:text-white/30 focus:border-white/30 focus-visible:ring-0 focus-visible:ring-offset-0 transition-all tracking-wider";
+    "w-full !h-11 rounded-[8px] border border-white bg-transparent px-4 text-white text-sm font-inter-tight placeholder:text-white/30 focus:border-white/30 focus-visible:ring-0 focus-visible:ring-offset-0 transition-all tracking-wider";
   // Absolute label rendered inside the input container
   const insetLabelStyle =
-    "absolute left-4 top-[10px] text-white text-[10px] font-sf-pro-display uppercase tracking-widest pointer-events-none z-10";
+    "block mb-1 text-white text-xs font-work-sans uppercase";
 
   const labelStyle =
-    "text-white text-[11px] font-sf-pro-display uppercase tracking-widest  ml-1 block";
+    "block mb-1 text-white text-xs font-work-sans uppercase";
 
   if(isLoadingProfile){
     return <LoadingFallback className="mb-[160px] h-[250px]" />;
@@ -79,11 +79,11 @@ export default function ProfileTab() {
       <div className="w-full flex-1 flex flex-col justify-center items-center px-4 md:px-0 pt-8">
         <div className="w-full max-w-[550px]  md:ml-[280px] flex justify-center flex-col ">
 
-          <h2 className="text-xl font-extrabold font-inter tracking-wide text-white mb-4">
+          <h2 className="text-xl font-extrabold font-inter-tight tracking-wide text-white mb-4">
             Profile
           </h2>
 
-          <h2 className="text-base text-white font-inter mb-3">
+          <h2 className="text-base text-white font-inter-tight mb-3">
             User Information
           </h2>
 
@@ -158,7 +158,7 @@ export default function ProfileTab() {
               )}
             </FormField>
 
-            <h2 className="text-base text-white font-inter my-2">
+            <h2 className="text-base text-white font-inter-tight my-2">
               Personal Details{" "}
             </h2>
 
@@ -184,10 +184,8 @@ export default function ProfileTab() {
 
             {/* Birthday */}
             <div className="w-full">
-              <div className="w-full grid grid-cols-4 gap-4">
-                <div className="border border-white rounded-md flex items-center px-2">
-                  <label className={labelStyle}>Birthday</label>
-                </div>
+              <label className={labelStyle}>Birthday</label>
+              <div className="w-full grid grid-cols-3 gap-4">
 
                 {/* Month */}
                 <FormField
@@ -198,7 +196,6 @@ export default function ProfileTab() {
                 >
                   {(field) => (
                     <div className="relative w-full">
-                      <label className={insetLabelStyle}>Month</label>
                       <BaseSelect
                         type="others"
                         placeholder="Month"
@@ -220,7 +217,6 @@ export default function ProfileTab() {
                 >
                   {(field) => (
                     <div className="relative w-full">
-                      <label className={insetLabelStyle}>Day</label>
                       <BaseSelect
                         type="others"
                         placeholder="Day"
@@ -242,7 +238,6 @@ export default function ProfileTab() {
                 >
                   {(field) => (
                     <div className="relative w-full">
-                      <label className={insetLabelStyle}>Year</label>
                       <BaseSelect
                         type="others"
                         placeholder="Year"
@@ -310,6 +305,8 @@ export default function ProfileTab() {
             </div>
 
             {/* Phone Number */}
+            <div className="flex w-full flex-col">
+              <label className={labelStyle}>Phone Number</label>
             <div className="flex gap-3">
               <FormField
                 form={form}
@@ -336,7 +333,6 @@ export default function ProfileTab() {
               >
                 {(field) => (
                   <div className="relative w-full">
-                    <label className={insetLabelStyle}>Phone Number</label>
                     <Input
                       {...field}
                       type="tel"
@@ -347,6 +343,7 @@ export default function ProfileTab() {
                   </div>
                 )}
               </FormField>
+            </div>
             </div>
 
             {/* Save Button */}

@@ -33,7 +33,8 @@ export function DateForm<T extends FieldValues>({
       form={form}
       name={input_name}
       label={date_label}
-      className='w-full flex flex-col gap-1 text-black text-xs uppercase font-sf-pro-text'>
+      labelClassName='font-work-sans'
+      className='w-full flex flex-col gap-1 text-black text-xs uppercase font-inter-tight'>
       {(field) => (
         <DateTimePicker
           label={name}

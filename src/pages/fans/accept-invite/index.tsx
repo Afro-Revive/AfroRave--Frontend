@@ -432,7 +432,7 @@ function InviteEventCard({
 
   return (
     <div className='flex gap-4 rounded-xl border border-white/20 bg-white/[0.03] p-3'>
-      <div className='h-36 w-28 shrink-0 overflow-hidden rounded-lg bg-white/10'>
+      <div className='aspect-3/4 w-28 shrink-0 overflow-hidden rounded-lg bg-white/10'>
         {image && <img src={image} alt='' className='size-full object-cover' />}
       </div>
 

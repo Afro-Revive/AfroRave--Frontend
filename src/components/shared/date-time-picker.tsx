@@ -116,7 +116,7 @@ export function DateTimePicker({
           variant='outline'
           ref={findDialog}
           className={cn(
-            'w-full min-h-10 justify-start gap-2 rounded-[4px] text-left font-sf-pro-display font-normal',
+            'w-full min-h-10 justify-start gap-2 rounded-[4px] text-left font-inter-tight font-normal',
             trigger.field,
             className,
           )}>
@@ -136,7 +136,7 @@ export function DateTimePicker({
         align='start'
         collisionPadding={16}
         style={TONE_VARS[tone]}
-        className='w-72 max-w-[calc(100vw-32px)] rounded-xl border-(--dtp-line) bg-(--dtp-bg) p-0 font-sf-pro-display text-(--dtp-fg) shadow-xl z-[10000000000]'>
+        className='w-72 max-w-[calc(100vw-32px)] rounded-xl border-(--dtp-line) bg-(--dtp-bg) p-0 font-inter-tight text-(--dtp-fg) shadow-xl z-[10000000000]'>
         <div className='flex flex-col gap-1 px-4 pt-4 pb-3'>
           <p className='text-[10px] uppercase tracking-[0.2em] text-(--dtp-muted)'>{label}</p>
 
@@ -176,7 +176,7 @@ export function DateTimePicker({
             weekday: 'flex-1 select-none text-xs font-normal text-(--dtp-muted)',
             week: 'mt-0.5 flex w-full',
             day_button:
-              'rounded-md font-sf-pro-display text-sm font-medium hover:bg-(--dtp-hover) hover:text-(--dtp-fg) data-[selected-single=true]:bg-deep-red data-[selected-single=true]:text-white',
+              'rounded-md font-inter-tight text-sm font-medium hover:bg-(--dtp-hover) hover:text-(--dtp-fg) data-[selected-single=true]:bg-deep-red data-[selected-single=true]:text-white',
             today: 'text-(--dtp-fg)',
             outside: 'text-(--dtp-fg)',
             disabled: 'text-(--dtp-faint)',

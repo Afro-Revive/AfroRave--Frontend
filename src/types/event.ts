@@ -1,4 +1,4 @@
-import type { ApiResponse } from './api'
+import type { ApiResponse, PaginatedResponse } from './api'
 
 // Event creation interfaces
 export interface EventContact {
@@ -465,7 +465,10 @@ export interface PurchasableTicket {
   /** Only set for resale rows — the specific listing being bought. */
   listingId?: string
   name: string
+  // ticket base price
   price: number
+  // ticket fee
+  fee?: number
   available: number
   /** Max a single buyer may take. Falls back to `available` for resale listings. */
   purchaseLimit: number
@@ -532,6 +535,30 @@ export interface AnalyticsPromoCode {
   partnerName: string | null
 }
 
+export interface AnalyticsOrder {
+  orderId: string
+  name: string | null
+  email: string | null
+  ticketName: string | null
+  quantity: number
+  amount: number
+  date: string
+  /** e.g. "Successful". */
+  status: string | null
+}
+
+export interface AnalyticsVendor {
+  name: string | null
+  /** A VENDOR_CATEGORIES value, with underscores. */
+  category: string | null
+  stallName: string | null
+  quantity: number
+  amount: number
+  date: string
+  /** e.g. "Requested", "Pending", "Secured", "Rejected". */
+  status: string | null
+}
+
 export interface EventAnalyticsData {
     totalRevenue: number
     totalNetRevenue: number
@@ -550,9 +577,16 @@ export interface EventAnalyticsData {
     promoCodesUsed: number
     discountTotal: number
     topPartner: string
-    topPartnerComission: number
+    /** Spelt with two m's by the API (an earlier one-m version here was always undefined). */
+    topPartnerCommission: number
     topPartnerNetSales: number
     promoCodes?: AnalyticsPromoCode[]
+    /** Every order, newest data the analytics endpoint has. */
+    orderList?: AnalyticsOrder[]
+    /** Every vendor application, any status. */
+    vendorList?: AnalyticsVendor[]
+    /** One row per ticket holder, like GET /api/Event/{eventId}/attendees. */
+    attendeeList?: EventAttendee[]
     audienceInsights: {
       ageGroups: {
         ageRange: string
@@ -570,3 +604,24 @@ export interface EventAnalyticsData {
 }
 
 export type EventAnalyticsResponse = ApiResponse<EventAnalyticsData>
+
+/**
+ * One ticket holder for the event, from GET /api/Event/{eventId}/attendees: one
+ * row per ticket, so an order with two tickets is two rows. Same shape as the
+ * analytics attendee item (AnalyticsAttendeeItemDto); checked against dev.
+ */
+export interface EventAttendee {
+  name: string | null
+  email: string | null
+  phoneNumber: string | null
+  orderId: string | null
+  ticket: string | null
+  ticketName: string | null
+  quantity: number
+  orderDate: string | null
+  status: string | null
+  isCheckedIn: boolean
+  checkedInAt: string | null
+}
+
+export type EventAttendeesResponse = ApiResponse<PaginatedResponse<EventAttendee>>

@@ -27,7 +27,7 @@ import {
   SelectLabel,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import type * as React from "react";
+import * as React from "react";
 
 export interface ICustomSelectProps {
   /** Select type variant (affects styling) */
@@ -60,13 +60,19 @@ export interface ICustomSelectProps {
   itemClassName?: string;
   /** Additional CSS classes applied directly to the SelectValue span */
   valueClassName?: string;
+  /** Set by FormField, so its label points at the trigger. */
+  id?: string;
+  "aria-describedby"?: string;
+  "aria-invalid"?: boolean;
 }
 
 /**
  * Base select component that provides a consistent way to create dropdown select inputs.
  * Supports different styling variants, loading states, and custom content rendering.
  */
-export function BaseSelect({
+// forwardRef: FormField hands its child a ref (react-hook-form focuses the
+// field on an error with it). A plain function component can't take one.
+export const BaseSelect = React.forwardRef<HTMLButtonElement, ICustomSelectProps>(function BaseSelect({
   type = "others",
   width = 165,
   defaultValue,
@@ -82,7 +88,10 @@ export function BaseSelect({
   contentClassName,
   itemClassName,
   valueClassName,
-}: ICustomSelectProps) {
+  id,
+  "aria-describedby": ariaDescribedBy,
+  "aria-invalid": ariaInvalid,
+}, ref) {
   const safeItems = Array.isArray(items)
     ? items.filter(
       (item) =>
@@ -96,7 +105,7 @@ export function BaseSelect({
         className={cn(
           `!min-w-[${width}px] border bg-transparent animate-pulse`,
           {
-            "border-charcoal w-full h-[35px] font-sf-pro-text rounded-[4px] text-black":
+            "border-charcoal w-full h-[35px] font-inter-tight rounded-[4px] text-black":
               type === "auth",
             "border-white h-[50px] font-input-mono rounded-[3px]":
               type === "others",
@@ -110,12 +119,16 @@ export function BaseSelect({
   return (
     <Select value={value} onValueChange={onChange} defaultValue={defaultValue}>
       <SelectTrigger
+        ref={ref}
+        id={id}
+        aria-describedby={ariaDescribedBy}
+        aria-invalid={ariaInvalid}
         className={cn(
           `!min-w-[${width}px] border bg-transparent`,
           {
-            "border-charcoal w-full h-[35px] font-sf-pro-text rounded-[4px] text-black":
+            "border-charcoal w-full h-[35px] font-inter-tight rounded-[4px] text-black":
               type === "auth",
-            "border-white data-[state=open]:bg-charcoal/50 data-[state=open]:border-none font-sf-pro-text text-xs rounded-[3px]":
+            "border-white data-[state=open]:bg-charcoal/50 data-[state=open]:border-none font-inter-tight text-xs rounded-[3px]":
               type === "others",
           },
           triggerClassName
@@ -174,7 +187,7 @@ export function BaseSelect({
                 className={cn(
                   "border-b last:border-none rounded-none",
                   {
-                    "font-sf-pro-text font-light text-xs text-white hover:!text-white hover:!bg-white/10 data-[highlighted]:!text-white border-white":
+                    "font-inter-tight font-light text-xs text-white hover:!text-white hover:!bg-white/10 data-[highlighted]:!text-white border-white":
                       type === "others",
                     "font-work-sans text-black hover:!text-black hover:!bg-black/10 data-[highlighted]:!bg-black/20 data-[highlighted]:!black-white border-black":
                       type === "auth",
@@ -189,4 +202,5 @@ export function BaseSelect({
       </SelectContent>
     </Select>
   );
-}
+});
+BaseSelect.displayName = "BaseSelect";

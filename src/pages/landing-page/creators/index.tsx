@@ -7,7 +7,7 @@ export default function CreatorsPage() {
   return (
     <>
       <SEO
-        title='AfroRave - For Creators & Organizers'
+        title='Afrorevive - For Creators & Organizers'
         description='All-in-one hub for fans and creators. Create, manage, and sell out your events.'
       />
       <VideoBackgroundWrapper
@@ -67,7 +67,7 @@ function OrganizersSection() {
           Organizers
         </h2>
         <p className='text-sm sm:text-base md:text-lg text-white/80 text-center leading-relaxed max-w-2xl mx-auto px-4'>
-          Let's create a world of seamless event planning and execution. Manage every aspect of your events with ease—from ticketing and guest lists to real-time analytics. Sell out faster, engage your audience, and bring your vision to life.
+          Let's create a world of seamless event planning and execution. Manage every aspect of your events with ease—from ticketing and guestlists to real-time analytics. Sell out faster, engage your audience, and bring your vision to life.
         </p>
         <div className='flex justify-center pt-2 md:pt-4'>
           <Button
@@ -123,7 +123,7 @@ function SeamlessManagementSection() {
           Seamless Management
         </h2>
         <p className='text-sm sm:text-base md:text-lg text-white/80 text-center leading-relaxed max-w-2xl mx-auto px-4'>
-          The AfroRave mobile app brings all your event management tools to your fingertips. Scan tickets, manage guest lists, stay connected—all in one place. Download now and make managing events effortless, whether you're on-site or on-the-go.
+          The Afrorevive mobile app brings all your event management tools to your fingertips. Scan tickets, manage guestlists, stay connected—all in one place. Download now and make managing events effortless, whether you're on-site or on-the-go.
         </p>
 
         {/* App Store Badges */}

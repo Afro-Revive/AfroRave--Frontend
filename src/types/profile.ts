@@ -73,6 +73,13 @@ export interface UserTicketTicketDetails {
   ticketType?: 'Single' | 'Group' | 'MultiDay'
   accessType?: 'Free' | 'Paid' | 'Invite'
   groupSize?: number
+  /**
+   * Whether this ticket may be listed for resale or transferred. Set by the
+   * backend from the ticket's type and the organizer's settings (invite-only:
+   * neither; group or resale turned off: transfer only).
+   */
+  canResell?: boolean
+  canTransfer?: boolean
   purchaseHistory: {
     orderId: string
     purchaseDate: string

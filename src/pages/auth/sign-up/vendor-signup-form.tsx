@@ -81,10 +81,10 @@ export function VendorSignupForm({ onSwitchToLogin }: VendorSignupFormProps = {}
                         className="h-12 object-contain"
                     />
                 </div>
-                <h2 className="text-2xl font-bold text-white font-sf-pro-display mb-2">
+                <h2 className="text-2xl font-bold text-white font-inter-tight mb-2">
                     CONGRATULATIONS!
                 </h2>
-                <p className="text-sm text-white/80 font-sf-pro-text leading-relaxed">
+                <p className="text-sm text-white/80 font-inter-tight leading-relaxed">
                     Thank you for signing up. You'll be notified as soon as we officially launch.
                 </p>
             </div>
@@ -104,10 +104,10 @@ export function VendorSignupForm({ onSwitchToLogin }: VendorSignupFormProps = {}
 
             {/* Header */}
             <div className="text-center mb-6">
-                <h2 className="text-2xl md:text-3xl font-bold text-white font-sf-pro-display mb-2">
+                <h2 className="text-2xl md:text-3xl font-bold text-white font-inter-tight mb-2">
                     OWN THE SPOTLIGHT
                 </h2>
-                <p className="text-sm md:text-base text-white/80 font-sf-pro-text">
+                <p className="text-sm md:text-base text-white/80 font-inter-tight">
                     Tell us about you.
                 </p>
             </div>
@@ -244,7 +244,7 @@ export function VendorSignupForm({ onSwitchToLogin }: VendorSignupFormProps = {}
                     <Button
                         type="submit"
                         disabled={isSubmitting}
-                        className="w-auto px-12 h-10 bg-black text-white rounded-full font-sf-pro-display font-semibold text-sm hover:bg-gray-900 transition-colors disabled:opacity-50 uppercase"
+                        className="w-auto px-12 h-10 bg-black text-white rounded-full font-inter-tight font-semibold text-sm hover:bg-gray-900 transition-colors disabled:opacity-50 uppercase"
                     >
                         {isSubmitting ? 'SUBMITTING...' : 'SUBMIT'}
                     </Button>
@@ -252,7 +252,7 @@ export function VendorSignupForm({ onSwitchToLogin }: VendorSignupFormProps = {}
 
                 {/* Login Link */}
                 {onSwitchToLogin && (
-                    <div className='flex items-center justify-center gap-1 text-sm text-white font-sf-pro-text mt-4'>
+                    <div className='flex items-center justify-center gap-1 text-sm text-white font-inter-tight mt-4'>
                         Already have an account?{' '}
                         <button
                             type='button'

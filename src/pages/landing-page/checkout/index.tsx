@@ -81,10 +81,10 @@ function EventCheckout({ event, eventSlug }: { event: EventDetailData; eventSlug
         {!isFanAccount && (
           <div className='w-full md:w-1/2 min-h-screen md:min-h-full z-30 flex flex-col py-32 gap-10 px-8 bg-[#ECEBEB]'>
             <div className='flex flex-col items-center mb-10'>
-              <p className='font-sf-pro-display leading-[100%] text-black'>
+              <p className='font-inter-tight leading-[100%] text-black'>
                 Log in or Sign up to access and manage your order.
               </p>
-              <p className='font-sf-pro-display leading-[100%] text-black'>
+              <p className='font-inter-tight leading-[100%] text-black'>
                 {"Don't worry - it's quick and easy!"}
               </p>
             </div>

@@ -12,7 +12,7 @@ export function EventOutlineButton({
     <Button
       variant="outline"
       className={cn(
-        "flex items-center justify-center gap-2.5 h-10 w-[188px] rounded-[10px] border-white font-medium text-2xl font-sf-pro-rounded hover:text-white hover:bg-black/10",
+        "flex items-center justify-center gap-2.5 h-10 w-[188px] rounded-[10px] border-white font-medium text-2xl font-inter-tight hover:text-white hover:bg-black/10",
         className
       )}
     >

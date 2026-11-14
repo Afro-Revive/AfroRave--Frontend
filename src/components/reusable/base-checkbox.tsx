@@ -2,8 +2,10 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
 import { cn } from '@/lib/utils'
 import type { ControllerRenderProps } from 'react-hook-form'
+import { forwardRef } from 'react'
 
-export function BaseCheckbox({
+// forwardRef: FormField hands its child a ref; a plain function component can't take one.
+export const BaseCheckbox = forwardRef<HTMLDivElement, TBaseCheckbox & Partial<ControllerRenderProps>>(function BaseCheckbox({
   data,
   value,
   onChange,
@@ -12,7 +14,7 @@ export function BaseCheckbox({
   defaultChecked,
   orientation = 'horizontal',
   multiSelect = false,
-}: TBaseCheckbox & Partial<ControllerRenderProps>) {
+}, ref) {
   const isChecked = (itemId: string) => {
     if (multiSelect) {
       if (Array.isArray(value)) {
@@ -42,7 +44,7 @@ export function BaseCheckbox({
   }
 
   return (
-    <div className='flex items-center gap-4'>
+    <div ref={ref} className='flex items-center gap-4'>
       <div className='flex flex-col items-start gap-2'>
         <div
           className={cn('flex', {
@@ -64,12 +66,12 @@ export function BaseCheckbox({
 
                 <Label
                   htmlFor={item.id}
-                  className={cn('text-sm uppercase font-sf-pro-text', labelClassName)}>
+                  className={cn('text-sm uppercase font-inter-tight', labelClassName)}>
                   {item.label}
                 </Label>
               </div>
               {item.description && (
-                <p className={cn('text-xs font-light font-sf-pro-display text-black', descriptionClassName)}>
+                <p className={cn('text-xs font-light font-inter-tight text-black', descriptionClassName)}>
                   {item.description}
                 </p>
               )}
@@ -78,14 +80,14 @@ export function BaseCheckbox({
         </div>
 
         {data.description && (
-          <p className={cn('text-xs font-light font-sf-pro-display', descriptionClassName)}>
+          <p className={cn('text-xs font-light font-inter-tight', descriptionClassName)}>
             {data.description}
           </p>
         )}
       </div>
     </div>
   )
-}
+})
 
 type TBaseCheckbox = {
   data: IBaseCheckbox

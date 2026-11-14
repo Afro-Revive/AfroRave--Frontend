@@ -6,7 +6,8 @@ import type {
 } from '@/types'
 import type { CartLineItem } from '@/types/cart'
 
-const PRIMARY_CAPTION = '(includes fees)'
+// Tickets show their base price; the fee is added in the checkout total.
+const PRIMARY_CAPTION = '(fees at checkout)'
 
 /**
  * Group size worth surfacing. A size of 1 admits one person like any other
@@ -26,7 +27,8 @@ export function toPurchasableTickets(
     cartKey: ticket.ticketId,
     ticketId: ticket.ticketId,
     name: ticket.ticketName,
-    price: ticket.salesPrice,
+    price: ticket.basePrice,
+    fee: ticket.fee,
     available: ticket.availableQuantity,
     accessType: ticket.accessType,
     purchaseLimit: ticket.purchaseLimit,

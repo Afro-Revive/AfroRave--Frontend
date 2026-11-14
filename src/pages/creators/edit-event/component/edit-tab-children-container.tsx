@@ -51,8 +51,9 @@ export function TabChildrenContainer({
 
           {/* Nothing to save until something's been edited. */}
           <Button
-            variant="destructive"
-            className="max-md:order-2 py-2 w-fit xl:px-8 px-4 text-xs font-inter-tight font-black rounded-[5px]"
+            variant="primary"
+            size="header"
+            className="max-md:order-2 xl:px-8"
             onClick={handleSaveEvent}
             disabled={!hasChanges || isLoading || isUploading}
           >
@@ -61,8 +62,9 @@ export function TabChildrenContainer({
 
           {isPublished === false && (
             <Button
-              variant="default"
-              className="max-md:order-2 h-8 w-fit px-4 md:w-24 text-xs font-inter-tight font-black rounded-[5px]"
+              variant="dark"
+              size="header"
+              className="max-md:order-2 md:w-24"
               onClick={handlePublishEvent}
               disabled={isPublishing}
             >

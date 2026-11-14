@@ -1,3 +1,4 @@
+import { FIELD_LABEL_CLASS } from '@/components/shared/field-label'
 import { FormBase, FormField } from '@/components/reusable'
 import BaseModal from '@/components/reusable/base-modal'
 import { Button } from '@/components/ui/button'
@@ -75,8 +76,8 @@ export function NewCategoryModal({
         <FormBase form={form} onSubmit={handleSubmit} className='flex w-full flex-col gap-5'>
           <FormField form={form} name='name' showMessage>
             {(field) => (
-              <div className='flex w-full flex-col gap-2'>
-                <p className='font-inter-tight text-sm font-bold text-black'>Category Name</p>
+              <div className='flex w-full flex-col gap-1'>
+                <p className={FIELD_LABEL_CLASS}>Category Name</p>
 
                 <Input
                   autoFocus

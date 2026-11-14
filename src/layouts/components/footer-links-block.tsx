@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 
 export function FooterLinkBlock({ title, links, className }: IFooterLinks) {
   return (
-    <div className={cn("flex flex-col gap-4 font-sf-pro-rounded", className)}>
+    <div className={cn("flex flex-col gap-4 font-inter-tight", className)}>
       <p>{title}</p>
 
       <div className="flex flex-col gap-2">

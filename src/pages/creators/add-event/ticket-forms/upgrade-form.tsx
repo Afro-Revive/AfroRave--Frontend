@@ -137,7 +137,7 @@ function UpgradeSelect<T extends FieldValues>({
 }) {
   return (
     <div className='flex items-center gap-3'>
-      <p className='text-deep-red font-sf-mono'>{text}</p>
+      <p className='text-deep-red font-inter-tight'>{text}</p>
       <SelectField
         form={form}
         name={name}

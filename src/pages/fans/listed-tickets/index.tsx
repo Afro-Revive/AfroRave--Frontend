@@ -30,7 +30,7 @@ export default function ListedTicketPage() {
   return (
     <div className="w-full flex-1 flex flex-col items-center pt-8 pb-[100px] px-4 md:px-0">
       <div className="w-full max-w-[550px] flex flex-col gap-6">
-        <div className="w-full flex items-center gap-3 py-3 px-4 rounded-lg border border-white/10 bg-transparent font-sf-pro-display text-white transition-colors focus-within:border-white/20">
+        <div className="w-full flex items-center gap-3 py-3 px-4 rounded-lg border border-white/10 bg-transparent font-inter-tight text-white transition-colors focus-within:border-white/20">
           <Search className="w-4 h-4 text-white/40" />
           <Input
             placeholder="Search"
@@ -41,12 +41,12 @@ export default function ListedTicketPage() {
         <div className="flex flex-col gap-0">
           {listedTickets?.items.length === 0 && (
             <div className="w-full flex flex-col items-center h-screen justify-center gap-4 ">
-              <p className=" text-base font-sf-pro-display uppercase text-white text-center font-bold">
+              <p className=" text-base font-inter-tight uppercase text-white text-center font-bold">
                 No Listed Tickets
               </p>
               <Link
                 to={getRoutePath("my_tickets")}
-                className="w-fit px-12 py-2 bg-white text-black font-sf-pro-display text-sm rounded-lg transition-colors border-none flex items-center justify-center"
+                className="w-fit px-12 py-2 bg-white text-black font-inter-tight text-sm rounded-lg transition-colors border-none flex items-center justify-center"
               >
                 Sell Your Tickets
               </Link>

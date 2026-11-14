@@ -24,7 +24,7 @@ export default function CreatorsHubSection() {
             Explore our tools for seamless event management.
           </p>
 
-          <p className='mt-2 font-work-sans text-base text-[#464444] md:text-lg'>Choose Your Role</p>
+          <p className='mt-2 font-work-sans text-base text-[#ACACAC] md:text-lg'>Choose Your Role</p>
           <div className='mt-2 flex items-center gap-3'>
             <RoleButton onClick={() => openAuthModal('signup', 'creator')}>Organizer</RoleButton>
             <RoleButton onClick={() => openAuthModal('signup', 'vendor')}>Vendor</RoleButton>

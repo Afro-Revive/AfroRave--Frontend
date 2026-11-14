@@ -1,9 +1,10 @@
+import { FormSectionHeading } from "@/components/shared/form-section-heading";
 import { DateForm } from "@/components/shared/date-form";
 import { FormFieldWithCounter } from "@/components/shared/field-with-counter";
 import { FormField } from "@/components/reusable";
 import { CustomFormField } from "@/components/shared/custom-form";
 import { BaseBooleanCheckbox } from "@/components/reusable/base-boolean-checkbox";
-import { BaseCheckbox } from "@/components/reusable/base-checkbox";
+import { BaseRadioChoice } from "@/components/reusable/base-radio-choice";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { RichTextEditor } from "@/components/reusable/rich-text-editor";
@@ -26,12 +27,18 @@ export function TicketForm({
   isLoading,
   isEditMode = false,
   onCancel,
+  isPrivateEvent = false,
 }: ITicketFormProps) {
   const [openAdvancedOptions, setOpenAdvancedOptions] = useState(false);
   const availabilityValue = form.watch("ticket.quantity.availability");
   const isInviteOnly = form.watch("ticket.invite_only");
   const whenToStart = form.watch("whenToStart");
   const isGroupTicket = type === "group_ticket";
+  const resellUnavailableReason = isGroupTicket
+    ? "group_ticket"
+    : isPrivateEvent
+      ? "private_event"
+      : null;
 
   const formatCopy = TICKET_FORMAT_COPY[isInviteOnly ? "invite_only" : type];
 
@@ -41,18 +48,20 @@ export function TicketForm({
       form.setValue("ticket.purchase_limit", "1");
     }
 
-    // Resell is unavailable to both, so it can't be left switched on.
-    if (isInviteOnly || isGroupTicket) {
+    // Resell is unavailable to invite-only and group tickets, and to every
+    // ticket on a private event, so it can't be left switched on. That also
+    // clears it on a saved ticket opened for editing.
+    if (isInviteOnly || isGroupTicket || isPrivateEvent) {
       form.setValue("allow_ticket_resell", false);
     }
-  }, [isInviteOnly, isGroupTicket, form]);
+  }, [isInviteOnly, isGroupTicket, isPrivateEvent, form]);
 
   return (
     <>
       <div className="flex flex-col gap-1">
-        <h2 className="font-inter-tight font-bold text-2xl text-black uppercase">
+        <FormSectionHeading>
           {formatCopy.title}
-        </h2>
+        </FormSectionHeading>
         <p className="font-inter-tight font-medium text-sm text-[#464444]">
           {formatCopy.description}
         </p>
@@ -79,7 +88,7 @@ export function TicketForm({
 
         <FormField form={form} name="ticket.type">
           {(field) => (
-            <BaseCheckbox
+            <BaseRadioChoice
               data={{
                 items: [
                   { label: "PAID", id: "paid" },
@@ -133,7 +142,7 @@ export function TicketForm({
                 className="max-w-fit"
                 showMessage
                 data={availability}
-                placeholder="Select availability."
+                placeholder="Select availability"
                 triggerClassName="h-9"
               />
 
@@ -146,7 +155,7 @@ export function TicketForm({
                 >
                   {(field) => (
                     <Input
-                      className="w-full h-9 rounded-sm border border-mid-dark-gray/50 text-sm font-sf-pro-display"
+                      className="w-full h-9 rounded-sm border border-mid-dark-gray/50 text-sm font-inter-tight"
                       type="number"
                       {...field}
                       value={field.value == null ? "" : String(field.value)}
@@ -265,7 +274,7 @@ DESCRIBE WHAT THIS TICKET INCLUDES.`}
           className="w-fit flex items-center gap-1 !px-1 text-charcoal hover:bg-transparent"
         >
           <ChevronDown width={28} height={17} />
-          <span className="font-bold font-sf-pro-display leading-[100%] uppercase">
+          <span className="font-bold font-inter-tight leading-[100%] uppercase">
             Advanced Options
           </span>
         </Button>
@@ -276,7 +285,7 @@ DESCRIBE WHAT THIS TICKET INCLUDES.`}
               label="When Should Ticket Sales Start?"
               reason="invite_only"
             />
-            <UnavailableNote label="Allow Ticket Resell" reason="invite_only" />
+            <UnavailableNote label="Allow Ticket Resale" reason="invite_only" />
           </div>
         </OnlyShowIf>
 
@@ -288,43 +297,45 @@ DESCRIBE WHAT THIS TICKET INCLUDES.`}
 
             <FormField form={form} name="whenToStart">
               {(field) => (
-                <BaseCheckbox
+                <BaseRadioChoice
                   orientation="vertical"
                   data={whenToStartOptions[0]}
                   {...field}
                   labelClassName="font-work-sans font-normal text-[14px] uppercase text-[#1E1E1E] leading-none"
-                  descriptionClassName="font-inter-tight font-normal text-[13px] lowercase text-[#1E1E1E] leading-snug mt-0.5"
+                  descriptionClassName="font-inter-tight font-normal text-[13px] text-[#1E1E1E] leading-snug mt-0.5"
                 />
               )}
             </FormField>
 
-            {isGroupTicket ? (
+            {resellUnavailableReason ? (
               <UnavailableNote
-                label="Allow Ticket Resell"
-                reason="group_ticket"
+                label="Allow Ticket Resale"
+                reason={resellUnavailableReason}
               />
             ) : (
-              <FormField form={form} name="allow_ticket_resell">
-                {(field) => (
-                  <BaseBooleanCheckbox
-                    data={{
-                      items: {
-                        label: "ALLOW TICKET RESELL",
-                        id: "allow-ticket-resell",
-                      },
-                    }}
-                    showCheckbox={true}
-                    labelClassName="font-work-sans font-medium text-sm uppercase text-[#464444] leading-none"
-                    checkedClassName="border border-red-800"
-                    {...field}
-                  />
-                )}
-              </FormField>
+              <>
+                <FormField form={form} name="allow_ticket_resell">
+                  {(field) => (
+                    <BaseBooleanCheckbox
+                      data={{
+                        items: {
+                          label: "ALLOW TICKET RESALE",
+                          id: "allow-ticket-resell",
+                        },
+                      }}
+                      showCheckbox={true}
+                      labelClassName="font-work-sans font-medium text-sm uppercase text-[#464444] leading-none"
+                      checkedClassName="border border-red-800"
+                      {...field}
+                    />
+                  )}
+                </FormField>
+                <p className="font-inter-tight font-normal text-sm text-[#1E1E1E] leading-snug -mt-3">
+                  This option allows attendees to resell their tickets to other
+                  fans.
+                </p>
+              </>
             )}
-            <p className="font-inter-tight font-normal text-sm lowercase text-[#1E1E1E] leading-snug -mt-3">
-              This option allows attendees to resell their tickets to other
-              fans.
-            </p>
           </div>
           {/* watch, not getValues: getValues doesn't re-render, so picking a
               scheduled start never revealed the date picker. */}
@@ -351,28 +362,30 @@ DESCRIBE WHAT THIS TICKET INCLUDES.`}
         </div>
       )}
 
-      <div className="flex gap-3">
+      <div className="flex flex-col sm:flex-row gap-3">
         <Button
           type="button"
           onClick={onCancel}
-          className="w-[155px] h-8 rounded-full text-xs font-semibold font-sf-pro-text text-white bg-deep-red hover:bg-deep-red/90 uppercase"
+          variant="dark"
+          size="pill"
         >
-          REMOVE TICKET
+          CANCEL
         </Button>
 
         {onSubmit && (
           <Button
             type="button"
             onClick={onSubmit}
-            className="w-[155px] h-8 rounded-full text-xs font-semibold font-sf-pro-text text-white bg-black hover:bg-black/90 uppercase"
+            variant="primary"
+            size="pill"
           >
             {isLoading
               ? isEditMode
                 ? "UPDATING..."
                 : "CREATING..."
               : isEditMode
-                ? "UPDATE TICKET"
-                : "CREATE TICKET"}
+                ? "Update Ticket"
+                : "Create Ticket"}
           </Button>
         )}
       </div>
@@ -427,7 +440,7 @@ function ReadOnlyValue({ label, value }: { label: string; value: string }) {
         {label}
       </p>
 
-      <p className="w-full h-9 flex items-center justify-center text-sm font-sf-pro-display leading-[100%] text-[#686868] rounded-[5px] border border-mid-dark-gray/50 bg-[#D9D9D9]">
+      <p className="w-full h-9 flex items-center justify-center text-sm font-inter-tight leading-[100%] text-[#686868] rounded-[5px] border border-mid-dark-gray/50 bg-[#D9D9D9]">
         {value}
       </p>
     </div>
@@ -439,6 +452,8 @@ const UNAVAILABLE_REASON = {
     "Unavailable for invite-only tickets. Each invitation is tied to the invited guest.",
   group_ticket:
     "Unavailable for group tickets. Each group ticket stays with the original buyer.",
+  private_event:
+    "Unavailable for private events. Tickets stay with the attendees you approve.",
 } as const;
 
 /** Keeps a disabled control's heading in place so the form doesn't lose its shape. */
@@ -545,4 +560,6 @@ interface ITicketFormProps {
   isLoading?: boolean;
   isEditMode?: boolean;
   onCancel?: () => void;
+  /** Private events have no resale, so the resell option is switched off. */
+  isPrivateEvent?: boolean;
 }

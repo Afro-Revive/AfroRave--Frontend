@@ -124,22 +124,16 @@ export function FormField<T extends FieldValues>({
         const errorClass =
           showError && fieldState.invalid ? 'border-red-500 focus-visible:ring-red-500' : ''
 
+        // BaseSelect is a forwardRef component, so its type is an object, not a function.
         const isSelectComponent = (element: React.ReactElement) => {
-          if (element.type && typeof element.type === 'function' && 'displayName' in element.type) {
-            return element.type.displayName === 'BaseSelect'
-          }
-
-          if (element.type && typeof element.type === 'function') {
-            return element.type.name === 'BaseSelect'
-          }
-
-          return false
+          const type = element.type as { displayName?: string; name?: string } | string
+          return typeof type !== 'string' && (type?.displayName ?? type?.name) === 'BaseSelect'
         }
 
         return (
           <FormItem className={cn('flex flex-col items-start', className)}>
             {label && (
-              <FormLabel className={cn('text-[#1E1E1E]', labelClassName)} htmlFor={name}>
+              <FormLabel className={cn('text-[#1E1E1E]', labelClassName)}>
                 {label}
               </FormLabel>
             )}
@@ -167,7 +161,7 @@ export function FormField<T extends FieldValues>({
                   : null}
             </FormControl>
             {description && (
-              <FormDescription className='self-end uppercase text-xs font-light font-sf-pro-text text-mid-dark-gray'>
+              <FormDescription className='self-end uppercase text-xs font-light font-work-sans text-mid-dark-gray'>
                 {description}
               </FormDescription>
             )}

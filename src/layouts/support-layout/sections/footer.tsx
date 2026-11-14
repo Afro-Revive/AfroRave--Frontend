@@ -16,7 +16,7 @@ export default function SupportFooter() {
       </div>
       <div className="w-full flex items-center justify-between pb-10 px-8">
         <div className="flex flex-col gap-3">
-          <p className="text-base text-black font-light font-sf-pro-rounded">
+          <p className="text-base text-black font-light font-inter-tight">
             Get the App for more features!
           </p>
           <img

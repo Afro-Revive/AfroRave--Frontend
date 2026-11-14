@@ -34,7 +34,7 @@ import { useSearchParams } from "react-router-dom";
 import { z } from "zod";
 import {
   type TPromoCodeSchema,
-  defaultPromoCodeValues,
+  promoCodeDefaults,
   promoCodeSchema,
 } from "../add-event/schemas/promo-code-schema";
 import {
@@ -57,7 +57,10 @@ export default function PromoCodesPage() {
   return (
     <SelectedEventGate>
       {(event) => (
-        <EventPromoCodes eventId={event.eventId} />
+        <EventPromoCodes
+          eventId={event.eventId}
+          eventEndDate={event.eventDate?.endDate}
+        />
       )}
     </SelectedEventGate>
   );
@@ -65,8 +68,11 @@ export default function PromoCodesPage() {
 
 function EventPromoCodes({
   eventId,
+  eventEndDate,
 }: {
   eventId: string;
+  /** A new code runs until the event ends. */
+  eventEndDate?: string;
 }) {
   const [searchParams, setSearchParams] = useSearchParams();
   const [isCreating, setIsCreating] = useState(false);
@@ -113,7 +119,7 @@ function EventPromoCodes({
 
   const promocodeForm = useForm<{ promoCodes: TPromoCodeSchema }>({
     resolver: zodResolver(z.object({ promoCodes: promoCodeSchema })),
-    defaultValues: { promoCodes: defaultPromoCodeValues },
+    defaultValues: { promoCodes: promoCodeDefaults(eventEndDate) },
   });
 
   function handleCreatePromoCode() {
@@ -123,7 +129,7 @@ function EventPromoCodes({
       { ...promocodeRequest, eventId },
       {
         onSuccess: () => {
-          promocodeForm.reset();
+          promocodeForm.reset({ promoCodes: promoCodeDefaults(eventEndDate) });
           handleBackClick();
         },
       },
@@ -148,7 +154,7 @@ function EventPromoCodes({
 
   function openCreate() {
     // A fresh form, even straight after editing another code.
-    promocodeForm.reset({ promoCodes: defaultPromoCodeValues });
+    promocodeForm.reset({ promoCodes: promoCodeDefaults(eventEndDate) });
     setEditing(null);
     setIsCreating(true);
   }
@@ -161,7 +167,7 @@ function EventPromoCodes({
   function handleBackClick() {
     setIsCreating(false);
     setEditing(null);
-    promocodeForm.reset({ promoCodes: defaultPromoCodeValues });
+    promocodeForm.reset({ promoCodes: promoCodeDefaults(eventEndDate) });
     setSearchParams((prev) => {
       const next = new URLSearchParams(prev);
       next.delete("form");
@@ -182,8 +188,9 @@ function EventPromoCodes({
         onBack={handleBackClick}
         action={
           <Button
-            variant="destructive"
-            className="py-2 w-fit px-8 text-xs font-sf-pro-text font-black rounded-[5px] "
+            variant="primary"
+            size="header"
+            className="px-8"
             onClick={() =>
               promocodeForm.handleSubmit(
                 editing ? handleUpdatePromoCode : handleCreatePromoCode,
@@ -196,7 +203,7 @@ function EventPromoCodes({
         }
       >
         {/* The rule sets the form apart from the header above it. */}
-        <div className="w-full flex flex-col items-center pt-6 bg-white px-4 md:p-14 border-t border-black/10">
+        <div className="w-full flex flex-col items-center pt-6 bg-white px-5 md:px-8 md:py-14 border-t border-black/10">
           <FormBase
             form={promocodeForm}
             onSubmit={() => {}}
@@ -214,7 +221,7 @@ function EventPromoCodes({
 
   return (
     <CreatorPageContainer>
-      <div className="w-full bg-white flex items-start gap-4 px-5 py-6">
+      <div className="w-full bg-white flex items-start gap-4 px-5 md:px-8 py-6">
         <SidebarToggle />
 
         <div className="flex flex-col gap-1">
@@ -227,7 +234,7 @@ function EventPromoCodes({
           </p>
         </div>
       </div>
-      <div className="w-full flex flex-col gap-10 md:gap-14 pt-6 px-4 md:p-14">
+      <div className="w-full flex flex-col gap-10 md:gap-14 pt-6 px-5 md:px-8 md:py-14">
         {hasNoCodes ? (
           <div className="flex flex-col gap-[13px]">
             <div className="flex flex-col rounded-2xl gap-5 bg-white px-6 py-5">
@@ -243,7 +250,7 @@ function EventPromoCodes({
                     promocodeForm.handleSubmit(handleCreatePromoCode)()
                   }
                   onRemove={() =>
-                    promocodeForm.reset({ promoCodes: defaultPromoCodeValues })
+                    promocodeForm.reset({ promoCodes: promoCodeDefaults(eventEndDate) })
                   }
                   isSubmitting={isCreatingPromoCode}
                 />
@@ -439,16 +446,16 @@ function PromoCodeItem({
                 <X size={18} />
               </button>
             </DialogClose>
-            <p className="font-black font-sf-pro-display text-base text-black text-center">
+            <p className="font-black font-inter-tight text-base text-black text-center">
               {promocode.promoCode}
             </p>
-            <p className="text-xs text-[#2E7D32] font-sf-pro-display mt-0.5 text-center">
+            <p className="text-xs text-[#2E7D32] font-inter-tight mt-0.5 text-center">
               {discountLabel}
             </p>
           </div>
           <div className="px-5 pb-5 flex flex-col gap-3">
             {(promocode.startDate || promocode.endDate) && (
-              <div className="flex items-center gap-4 text-xs font-sf-pro-display text-gray-500">
+              <div className="flex items-center gap-4 text-xs font-inter-tight text-gray-500">
                 {promocode.startDate && (
                   <span>From: {formatDate(promocode.startDate)}</span>
                 )}
@@ -458,15 +465,15 @@ function PromoCodeItem({
               </div>
             )}
             <div>
-              <p className="font-sf-pro-display font-semibold text-[14px] text-black mb-1">
+              <p className="font-inter-tight font-semibold text-[14px] text-black mb-1">
                 Description
               </p>
               {description ? (
-                <p className="font-sf-pro-display text-[13px] text-[#3C3C43] leading-relaxed">
+                <p className="font-inter-tight text-[13px] text-[#3C3C43] leading-relaxed">
                   {description}
                 </p>
               ) : (
-                <p className="text-sm text-gray-400 font-sf-pro-display italic">
+                <p className="text-sm text-gray-400 font-inter-tight italic">
                   No description provided.
                 </p>
               )}

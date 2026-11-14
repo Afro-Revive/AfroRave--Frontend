@@ -42,21 +42,28 @@ export function AnalyticsGate({ data, isLoading, isError, hasEvent, children }: 
 
 export function AnalyticsMessage({ message }: { message: string }) {
   return (
-    <div className='w-full min-h-[240px] flex items-center justify-center rounded-[4px] bg-white text-sm text-mid-dark-gray font-sf-pro-text'>
+    <div className='w-full min-h-[240px] flex items-center justify-center rounded-xl bg-white px-6 text-center font-inter-tight text-sm text-mid-dark-gray'>
       {message}
     </div>
   )
 }
 
+/** The shape of a tab while it loads: the summary card, then two chart cards. */
 function AnalyticsSkeleton() {
   return (
     <div className='w-full flex flex-col gap-6'>
-      <div className='grid gap-3 sm:grid-cols-2 xl:grid-cols-4'>
-        {Array.from({ length: 4 }).map((_, index) => (
-          <Skeleton key={index} className='h-[92px] rounded-[4px]' />
-        ))}
+      <div className='flex flex-col gap-5 rounded-xl bg-white p-5'>
+        <Skeleton className='h-6 w-32 rounded-md' />
+        <div className='grid gap-4 sm:grid-cols-2 xl:grid-cols-4'>
+          {Array.from({ length: 4 }).map((_, index) => (
+            <Skeleton key={index} className='h-[84px] rounded-lg' />
+          ))}
+        </div>
       </div>
-      <Skeleton className='h-[280px] rounded-[4px]' />
+      <div className='grid gap-6 xl:grid-cols-3'>
+        <Skeleton className='h-[340px] rounded-xl xl:col-span-2' />
+        <Skeleton className='h-[340px] rounded-xl' />
+      </div>
     </div>
   )
 }

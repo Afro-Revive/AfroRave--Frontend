@@ -140,14 +140,14 @@ export function BusinessSignUp({ onSwitchToLogin, type = 'vendor' }: BusinessSig
       <FormBase
         form={form}
         onSubmit={onSubmit}
-        className='max-w-[900px] w-full rounded-[12px] space-y-3 bg-red px-6 py-6 md:px-12 md:py-8 z-10 font-sf-pro-text'>
+        className='max-w-[900px] w-full rounded-[12px] space-y-3 bg-red px-6 py-6 md:px-12 md:py-8 z-10 font-inter-tight'>
         {type === 'vendor' && (
           <div className='flex justify-center mb-4'>
             <CreatorLogo />
           </div>
         )}
 
-        <div className='flex flex-col gap-0.5 font-sf-pro-display text-center md:text-left mb-2'>
+        <div className='flex flex-col gap-0.5 font-inter-tight text-center md:text-left mb-2'>
           <p className='uppercase text-2xl md:text-3xl font-black text-white'>{title}</p>
           <p className='uppercase text-sm font-normal text-white tracking-wider'>{description}</p>
         </div>
@@ -172,7 +172,7 @@ export function BusinessSignUp({ onSwitchToLogin, type = 'vendor' }: BusinessSig
               />
             </div>
             {selectedCategory && (
-              <p className='text-[11px] normal-case leading-[130%] text-white/60 font-sf-pro-display -mt-2'>
+              <p className='text-[11px] normal-case leading-[130%] text-white/60 font-inter-tight -mt-2'>
                 {selectedCategory.description}
               </p>
             )}
@@ -237,13 +237,13 @@ export function BusinessSignUp({ onSwitchToLogin, type = 'vendor' }: BusinessSig
         <div className='w-full flex justify-center pt-2'>
           <Button
             type='submit'
-            className='max-w-[200px] w-full h-10 bg-white text-sm font-bold font-sf-pro-text text-black hover:bg-white/90 uppercase tracking-wide'
+            className='max-w-[200px] w-full h-10 bg-white text-sm font-bold font-inter-tight text-black hover:bg-white/90 uppercase tracking-wide'
             disabled={isPending}>
             {isPending ? 'Signing Up...' : 'Continue'}
           </Button>
         </div>
 
-        <div className='flex items-center justify-center gap-1 text-sm text-white font-sf-pro-text'>
+        <div className='flex items-center justify-center gap-1 text-sm text-white font-inter-tight'>
           Already have an account?{' '}
           <button
             type='button'
@@ -278,7 +278,7 @@ function InputField<T extends FieldValues>({
     <FormField form={form} name={name} className='w-full' showMessage>
       <Input
         type={type}
-        className={cn('w-full text-white h-14 rounded-[6px] border border-white py-6 px-3 font-sf-pro-text text-[10px] font-light', className)}
+        className={cn('w-full text-white h-14 rounded-[6px] border border-white py-6 px-3 font-inter-tight text-[10px] font-light', className)}
         placeholder={placeholder}
       />
     </FormField>

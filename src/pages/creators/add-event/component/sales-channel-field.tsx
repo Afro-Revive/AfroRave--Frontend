@@ -1,3 +1,4 @@
+import { FormSectionHeading } from '@/components/shared/form-section-heading'
 import type { FieldValues, Path, PathValue, UseFormReturn } from 'react-hook-form'
 import { Globe } from 'lucide-react'
 import { BsDoorClosed } from 'react-icons/bs'
@@ -11,14 +12,14 @@ const SALES_CHANNEL_OPTIONS = [
     label: 'Online',
     icon: Globe,
     description:
-      'Listed on your event page and purchased through AfroRevive checkout.',
+      'Listed on your event page and purchased through Afrorevive checkout.',
   },
   {
     value: 'door',
     label: 'Door',
     icon: BsDoorClosed,
     description:
-      'Sold on-site and recorded by your team in the AfroRevive app. Not listed on your event page.',
+      'Sold on-site and recorded by your team in the Afrorevive app. Not listed on your event page.',
   },
 ] as const
 
@@ -32,9 +33,9 @@ export function SalesChannelField<T extends FieldValues>({
   return (
     <div className='w-full flex flex-col gap-4'>
       <div className='flex flex-col gap-1'>
-        <h2 className='font-inter-tight font-bold text-2xl text-black uppercase'>
+        <FormSectionHeading>
           Sales Channel
-        </h2>
+        </FormSectionHeading>
         <p className='font-inter-tight font-medium text-sm text-[#464444]'>
           Choose where this ticket is sold.
         </p>

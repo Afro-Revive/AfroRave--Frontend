@@ -1,3 +1,4 @@
+import { FIELD_LABEL_CLASS } from '@/components/shared/field-label'
 import { cn } from '@/lib/utils'
 import React from 'react'
 import type { FieldValues } from 'react-hook-form'
@@ -18,10 +19,12 @@ export function CustomFormField<T extends FieldValues>({
       form={form}
       name={name}
       label={label}
-      labelClassName={labelClassName}
+      labelClassName={cn(FIELD_LABEL_CLASS, labelClassName)}
       showMessage={showMessage}
       className={cn(
-        'w-full flex flex-col gap-1 text-black text-xs uppercase font-work-sans',
+        // Only the label is Work Sans capitals; the field and its message
+        // inherit Inter Tight from here.
+        'w-full flex flex-col gap-1 text-black text-xs font-inter-tight',
         className,
       )}>
       {children}
@@ -38,7 +41,7 @@ export const CustomInput = React.forwardRef<
       ref={ref}
       placeholder={placeholder}
       className={cn(
-        'w-full h-10 text-black px-3 py-[11px] rounded-[4px] bg-white border border-mid-dark-gray/50 text-sm font-sf-pro-display',
+        'w-full h-10 text-black px-3 py-[11px] rounded-[4px] bg-white border border-mid-dark-gray/50 text-sm font-inter-tight',
         className,
       )}
       {...props}

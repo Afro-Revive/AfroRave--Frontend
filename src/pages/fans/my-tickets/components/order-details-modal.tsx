@@ -39,7 +39,7 @@ export default function OrderDetailsModal({
 
         {/* Header */}
         <div className="relative flex items-center justify-center px-6 pt-4 ">
-          <p className="md:text-base text-sm font-extrabold font-sf-pro-display uppercase tracking-widest text-system-black text-center">
+          <p className="md:text-base text-sm font-extrabold font-inter-tight uppercase tracking-widest text-system-black text-center">
             {receipt?.eventName}
           </p>
           <button
@@ -56,7 +56,7 @@ export default function OrderDetailsModal({
             </div>
           ) : receipt ? (
             <div className="px-6 pt-4 pb-4 flex flex-col gap-0">
-              <p className="text-sm text-system-black font-medium text-center font-sf-pro-display pb-3 mb-3 border-b border-dashed border-black/20">
+              <p className="text-sm text-system-black font-medium text-center font-inter-tight pb-3 mb-3 border-b border-dashed border-black/20">
                 ORDER DETAILS
               </p>
 
@@ -106,7 +106,7 @@ export default function OrderDetailsModal({
             </div>
           ) : (
             <div className="flex items-center justify-center py-16">
-              <p className="text-sm text-black/40 font-sf-pro-display">
+              <p className="text-sm text-black/40 font-inter-tight">
                 No receipt found.
               </p>
             </div>
@@ -128,9 +128,9 @@ function Row({
 }) {
   return (
     <div className="flex items-center justify-between">
-      <p className="text-sm font-medium text-system-black font-sf-pro-display">{label}</p>
+      <p className="text-sm font-medium text-system-black font-inter-tight">{label}</p>
       <p
-        className={`text-sm font-sf-pro-display text-black ${capitalize ? "capitalize" : ""}`}
+        className={`text-sm font-inter-tight text-black ${capitalize ? "capitalize" : ""}`}
       >
         {value}
       </p>
