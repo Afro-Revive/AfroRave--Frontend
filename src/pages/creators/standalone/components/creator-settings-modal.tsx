@@ -326,7 +326,9 @@ export function CreatorSettingsModal({ open, onOpenChange, customTrigger }: Crea
     )
 }
 
-const TAB_TRIGGER_CLASS = "border-0 border-b-2 border-transparent data-[state=active]:text-black data-[state=active]:shadow-none data-[state=active]:bg-transparent text-gray-500 hover:text-gray-800 text-[14px] font-semibold font-inter-tight rounded-none px-0 pb-2 transition-all"
+// The active tab is underlined, not only darker: a hovered tab turned nearly
+// as dark, so two tabs could look selected at once.
+const TAB_TRIGGER_CLASS = "border-0 border-b-2 border-transparent data-[state=active]:border-black data-[state=active]:text-black data-[state=active]:shadow-none data-[state=active]:bg-transparent text-gray-500 hover:text-gray-800 text-[14px] font-semibold font-inter-tight rounded-none px-0 pb-2 transition-all"
 
 /** A password field with a show/hide toggle. */
 function PasswordInput({
