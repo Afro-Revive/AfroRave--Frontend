@@ -271,10 +271,8 @@ function EventDetailsForm({
 
       <div className="flex flex-col gap-5 bg-white rounded-2xl py-4 px-6">
         <div className="w-full flex flex-col gap-5">
-          <div className="flex flex-col gap-1">
-            <p className="text-base font-semibold text-black font-inter-tight">
-              Date & Time
-            </p>
+          <div className="flex flex-col gap-3">
+           <SectionHeader name="DATE & TIME" />
             <p className="font-inter-tight text-xs font-medium text-[#949494]">
               Update your event's date and time. Ticket holders will be notified
               of any changes.

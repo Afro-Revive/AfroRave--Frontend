@@ -268,7 +268,7 @@ export default function EventDetailsTab({
         <div className="w-full flex flex-col gap-5">
           <div className="flex flex-col gap-1">
             <FormSectionHeading as="p">
-              Date & Time
+              DATE & TIME
             </FormSectionHeading>
             <p className="font-inter-tight lg:text-sm text-xs font-medium text-[#464444]">
               Set when your event starts and ends.
