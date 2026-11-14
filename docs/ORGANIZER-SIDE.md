@@ -132,7 +132,7 @@ CreatorDashboardLayout
     │   │                          Copy Link, View Event
     │   ├── EVENTS                 Event Details, Audience (private events only), Guestlist
     │   ├── TICKETS                Your Tickets, Promo Codes
-    │   ├── ANALYTICS              Overview, Audience Insights, Vendors, and a Ticket Sales
+    │   ├── ANALYTICS              Overview, Vendors, and a Ticket Sales
     │   │                          accordion (Orders, Attendee List, Promo Codes). Each
     │   │                          opens /creators/realtime?tab=…; the page has no tab
     │   │                          list of its own. Links with a ?tab= are only active
@@ -254,7 +254,9 @@ TicketsPage → SelectedEventGate → EventTickets
 │                          eventStat (useGetEvent), as on its dashboard card;
 │                          View Analytics
 ├── TicketInvitesTable     when an invite-only ticket is selected
-│   └── or EventOrdersTable   otherwise: every order for the event
+│   └── or EventOrdersTable   otherwise: every order for the event, as a card each
+│                             (buyer, order ID, a line per ticket type, the total paid
+│                             in green); one column on phones, up to three on desktop
 └── SendInvitesModal       two tabs:
     ├── InviteGuestlistTab     pick guests from the guestlist
     └── InviteNewGuestTab      add a new guest (also saved to the guestlist)
@@ -344,13 +346,12 @@ tab with `?tab=`:
 | Sidebar link | Tab |
 |---|---|
 | Overview | Overview |
-| Audience Insights | Insights: the audience summary tiles only (Buyers, Top Age Group, Top Location, Details Missing) |
 | Vendors | Vendors |
 | Ticket Sales (accordion) | Orders, Attendee List (its own endpoint, `useGetEventAttendees`, 20 a page with search), Promo Codes |
 
 - The page sits in `SelectedEventGate` like the other organizer pages, and follows the sidebar's selected event (the old event picker in the header is gone). Its header has the tab's title and description, and **Export CSV** (`lib/analytics-export.ts`), which downloads the open tab's data.
 - All tabs share one request, `useGetEventAnalytics(eventId)`, and use `components/analytics-state.tsx` for loading, error and empty states. Besides the totals, the response carries `orderList`, `vendorList`, `attendeeList` and `promoCodes`, which the charts and tables are built from.
-- **Audience cards** (Gender, Age Groups, Locations, the top ten) are on Overview only; Insights doesn't repeat them (decided 2026-11-14).
+- **Audience cards** (Gender, Age Groups, Locations, the top ten) are on Overview. The Audience Insights tab is gone (removed 2026-11-15); an old `?tab=insights` link lands on Overview, and Overview's CSV carries the audience counts.
 - **Tables** scroll sideways inside their card on phones, on purpose: analytics tables keep their columns rather than turning into cards.
 - **Building blocks:** `components/analytics-ui.tsx` (the card, Summary card, stat tile, progress bar, status pill and table) and `components/analytics-charts.tsx` (trend line, columns, donut, bar list and segmented bar, on recharts).
 - **Data helpers:** `lib/analytics-data.ts` merges audience labels that differ only in case, keeps Unknown last, fills sales by day, groups sales by ticket and maps vendor statuses to stages. `vendorKind` tells a stall from a service offer by matching the vendor list's `stallName` to the event's slots (`slotName` or `serviceName`), since the vendor list doesn't say. **Only stalls are revenue:** service vendors are paid by the organizer outside the app, so the Vendors tab's "Revenue from Stalls" counts Secured stalls only. `lib/audience.ts` turns the audience into chart rows.

@@ -451,7 +451,8 @@ Each row needs one rule from design. Agree the rule **[PO]**, then apply it.
 
 - [ ] **[PO]** **[BE]** Audience Insights shows only Gender, Age groups and Locations ([insights-tab.tsx](../src/pages/creators/realtime/tabs/insights-tab.tsx)). The agreed scope also has traffic sources and a total-unique-buyers summary. The analytics response has no fields for either yet ([src/types/](../src/types/)), so the backend has to add them first.
   - **On `analytics-redesign`:**
-    - **Unique buyers:** Audience Insights has a **Buyers** tile, counted from buyers' profiles, and Overview's Orders tile shows "N buyers" from the order list. That may be enough for the unique-buyers summary; the PO should confirm.
+    - **Unique buyers:** Overview's Orders tile shows "N buyers" from the order list. That may be enough for the unique-buyers summary; the PO should confirm. (Insights' Buyers tile went with the tab.)
+  - **The Audience Insights tab is removed (decided 2026-11-15, not committed yet).** Its cards were already on Overview; an old `?tab=insights` link lands on Overview, and Overview's CSV carries the audience counts.
     - **Traffic sources:** ~~still missing~~ **dropped** (decided 2026-11-14): not being built.
 - [ ] **[PO]** The Payout tab should show the next payout date, with automatic payouts every Wednesday and Friday, instead of a Withdraw button. The tab is [creator-payout-tab.tsx](../src/pages/creators/standalone/components/creator-payout-tab.tsx). The next date can be worked out on the frontend.
 - [ ] **[PO]** **Door tickets** (already an open to-do):

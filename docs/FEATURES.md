@@ -196,7 +196,7 @@ notifications, and a report download (see §5).
 |---|---|---|---|
 | Ticket list with All / Invite-Only / Door filters | 🔴 High | ✅ Working | The Add Tickets format picker sits above the list. Cards show the price before fees, sold and available counts, and a group ticket's size on its icon. One badge per card: "Invite" on invite-only tickets, the format (Single, Group, Multi Day) on the rest. The ⋮ menu opens inside the card and closes once you pick an option; Edit Ticket scrolls the form into view. |
 | Edit and delete a ticket | 🔴 High | ✅ Working | |
-| Orders table | 🔴 High | ✅ Working | |
+| Orders | 🔴 High | ✅ Working | One card per order: the buyer, order ID, a line per ticket type and the total paid. |
 | Invite-only: send invites | 🔴 High | ✅ Working | Pick guests from your guestlist, or add a new guest, who is saved to the guestlist too. |
 | Summary: net sales and tickets issued | 🟠 Medium | ✅ Working | The same numbers as the event's card on the dashboard: net profit, and tickets sold out of the total. Below the ticket list. View Analytics opens the analytics page. |
 | Invite-only: invites sent, with status | 🟠 Medium | ✅ Working | |
@@ -217,9 +217,9 @@ notifications, and a report download (see §5).
 
 | Feature | Priority | Status | Notes |
 |---|---|---|---|
-| Overview, Audience Insights, Vendors, Orders, Promo Codes | 🔴 High | ✅ Working | Redesigned in November 2026 to match the other organizer pages: the page header, a Summary card of stat tiles on every tab, then chart and table cards. Overview: tickets sold over time, sales by ticket, and the audience cards: gender, age groups and the top ten locations (duplicate cities merged, Unknown last in grey). Insights: the audience summary tiles; its cards are on Overview only, so they aren't repeated. Vendors: applications by status, by category, and every application. Orders: sales by day and every order, searchable, 20 a page. Promo Codes: uses by code and every code's sales and commission (the top partner's commission now shows; it read a misspelt field before). Real data from the analytics endpoint, whose order, vendor and attendee lists the page now uses. Opened from the sidebar's ANALYTICS group, where Orders, Attendee List and Promo Codes sit in a Ticket Sales accordion. |
+| Overview, Vendors, Orders, Promo Codes | 🔴 High | ✅ Working | Redesigned in November 2026 to match the other organizer pages: the page header, a Summary card of stat tiles on every tab, then chart and table cards. Overview: tickets sold over time, sales by ticket, and the audience cards: gender, age groups and the top ten locations (duplicate cities merged, Unknown last in grey). Vendors: applications by status, by category, and every application. Orders: sales by day and every order, searchable, 20 a page. Promo Codes: uses by code and every code's sales and commission (the top partner's commission now shows; it read a misspelt field before). Real data from the analytics endpoint, whose order, vendor and attendee lists the page now uses. Opened from the sidebar's ANALYTICS group, where Orders, Attendee List and Promo Codes sit in a Ticket Sales accordion. |
 | Attendee List tab | 🟠 Medium | ✅ Working | A summary of tickets, checked in and still to arrive, then everyone with a ticket, from `GET /api/Event/{eventId}/attendees`: name and email, ticket (× quantity), order ID, order date and checked in or not. 20 a page, searchable by name or email. |
-| Export CSV | ⚪ Low | ✅ Working | Downloads the open tab as a CSV: the headline figures (Overview), the audience counts (Insights), or the full vendor, order, attendee or promo code list. |
+| Export CSV | ⚪ Low | ✅ Working | Downloads the open tab as a CSV: the headline figures and audience counts (Overview), or the full vendor, order, attendee or promo code list. |
 | Reports (`/creators/reports`) | ⚪ Low | 🚧 Coming soon | No longer linked from anywhere. |
 
 ### Organizer settings (avatar menu → Settings)
