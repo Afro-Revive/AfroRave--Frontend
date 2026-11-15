@@ -8,7 +8,8 @@ Last checked against the code on the `prod` branch, October 2026. The vendor
 section (§3) was checked in November 2026, when the `vendors` branch merged, and
 the organizer guest lists and promo codes on 8 November 2026. Ticket prices and
 fees, the ticket list and the guest lists were updated on 11 November 2026, from
-the mobile QA fixes on `ui-fixes`.
+the mobile QA fixes on `ui-fixes`. Crew invites were added on 15 November
+2026, on `crew-invite`.
 
 ---
 
@@ -17,15 +18,15 @@ the mobile QA fixes on `ui-fixes`.
 | | Critical (High) | Medium | Low | **Overall, weighted by priority** |
 |---|---|---|---|---|
 | **Fans** | 15 / 17 done | 11 / 11 | 1 / 4 | **88%** |
-| **Organizers** | 13 / 13 done | 25 / 27 | 7 / 17 | **87%** |
-| **Fans + Organizers** | **28 / 30 done (93%)** | 36 / 38 | 8 / 21 | **88%** |
+| **Organizers** | 13 / 13 done | 26 / 27 | 7 / 17 | **89%** |
+| **Fans + Organizers** | **28 / 30 done (93%)** | 37 / 38 | 8 / 21 | **89%** |
 | Vendors | 6 / 6 done | 6 / 6 | 2 / 3 | 97% |
-| **Whole app** | **34 / 36 done (94%)** | 42 / 44 | 10 / 24 | **89%** |
+| **Whole app** | **34 / 36 done (94%)** | 43 / 44 | 10 / 24 | **90%** |
 
 **How the overall % is worked out:**
 - A High feature counts 3 times as much as a Low one, and a Medium one twice as much.
 - Only fully working features score.
-- If half-working ("Partial") and "Awaiting backend" features get half credit, fans and organizers reach 91%.
+- If half-working ("Partial") and "Awaiting backend" features get half credit, fans and organizers reach 92%.
 - **Critical features only:** 93% are fully done, or 97% with half credit for the partly working ones.
 
 Most of the gap is Low priority: small buttons and extra tools.
@@ -44,6 +45,13 @@ how much they block launch:
 | 2 | QR code for entry | Fans | 🟡 Partial | **Mobile app.** The QR is in the mobile app; the web app's app store links point nowhere until the apps are published. |
 
 Vendors have none left: every High priority vendor feature works (§3).
+
+### Next up
+
+Once `crew-invite` is merged into `prod`:
+
+1. **Ticket reordering** (§2): organizers drag tickets to set the order fans see, with `PATCH /api/Event/{eventId}/tickets/reorder`.
+2. **SEO**, on its own branch, starting with a plan to agree first: the sitemap, structured data (JSON-LD), titles, descriptions and canonical URLs on every public page, and the site's links and address.
 
 ---
 
@@ -159,7 +167,7 @@ stands today.
 |---|---|---|
 | End-to-end test the organizer vendor tabs | 🟠 Medium | **Now that the `vendors` branch is merged.** Checklist: [VENDOR-FLOW-TEST-CHECKLIST.md](./VENDOR-FLOW-TEST-CHECKLIST.md). Run the whole flow with real vendors: create a stall and an offer, vendors apply, review each applicant's page, accept and reject, pause and resume, and the secured counts and net profit. Expect some edits. |
 | Door tickets | ⚪ Low | Not built yet: how fans see them, and the organizer's "Sell On Mobile App". |
-| Ticket reordering | ⚪ Low | With `PATCH /api/Event/{eventId}/tickets/reorder`. The Tickets page already says tickets can be dragged. |
+| Ticket reordering | ⚪ Low | **Next, once `crew-invite` is merged** (see Next up). With `PATCH /api/Event/{eventId}/tickets/reorder`. The Tickets page already says tickets can be dragged. |
 
 Still waiting on the backend, so not planned yet: Delete Account, Audience
 search and approved fans' orders, saving email
@@ -247,6 +255,15 @@ Three tabs: **Account**, **Payout** and **Settings**.
 | Add guests to a category, one or many at once | ⚪ Low | ✅ Working | One guest from the row's ⋮ menu (Add to category). Many by ticking rows, or Select all for every guest in the view across pages, then Add to category in the bar above the table. The API has no bulk endpoint, so it sends one request per guest, five at a time, and skips guests already in the category. |
 | Guest allowance card | ⚪ Low | ✅ Working | Uses live account and category limits from `GET /api/GuestList/allowance`, including the active category's usage. |
 
+### Crew
+
+Organizers add and remove crew in the mobile app, and crew scan tickets and
+check guests in there. The web only accepts the invite.
+
+| Feature | Priority | Status | Notes |
+|---|---|---|---|
+| Accept a crew invite (`/crew/invite/:inviteCode`) | 🟠 Medium | ✅ Working | Where the crew invite email's link lands. Signed out, the login opens (only the invited email can accept). Signed in as that email, the invite is accepted on its own, and the page shows Welcome to the Crew! with the steps to get the app. Removed, expired and unknown links show This invite is no longer valid. Another account sees Email Mismatch. |
+
 ### Promo codes (`/creators/promo-codes`)
 
 | Feature | Priority | Status | Notes |
@@ -261,7 +278,7 @@ Three tabs: **Account**, **Payout** and **Settings**.
 | Edit a slot | 🟠 Medium | ✅ Working | On the stall's page, the Stall Details tab (Offer Details for services) opens the same form, filled in. |
 | Slot pages listing applicants | 🟠 Medium | ✅ Working | Redesigned in October 2026: the how-it-works note, how long until applications close, a summary (net profit or budget, secured vendors, requests), and the applications list with status filters and search. |
 | Accept or reject a vendor application | 🟠 Medium | ✅ Working | |
-| Access Control (`/creators/access-control`) | 🟠 Medium | 🧪 Mock | Sample staff list. Its Download, event picker, Add Code and filter buttons do nothing. |
+| Access Control (`/creators/access-control`) | — | Dropped | Replaced by crew (see Crew below). The mock page is still routed but not linked. Not counted. |
 | Pause a slot | ⚪ Low | ✅ Working | Pause / Resume Application in the stall page's header. |
 | Seating Maps (`/creators/seating-maps`) | ⚪ Low | 🚧 Coming soon | |
 | Season events (`/creators/season`) | — | Dropped | Season events were dropped. The page is still routed but not linked. Not counted. |
@@ -311,7 +328,7 @@ pretends to. Rows run from High to Low priority.
 | Fans footer | Refund | 🔴 High | 🚧 Coming soon | Opens a "Coming Soon" page. Terms opens the Terms of Use page, and Privacy Policy its Privacy section. |
 | Fans footer, home page and mobile menu | App Store / Google Play badges | 🔴 High | ⛔ Not linked | Link to `#`. Waiting for the apps to be published. Fans need the app for their QR code. |
 | Ticket detail page | QR code ("download the app") | 🔴 High | ⛔ Not linked | Depends on the app store links above. |
-| Access Control | Download, event picker, Add Code, filter | 🟠 Medium | ⛔ Not working | Mock page. |
+| Access Control | Download, event picker, Add Code, filter | 🟠 Medium | ⛔ Not working | Mock page, replaced by crew and not linked. |
 | Fans footer | Blog, Sell, Work With Us | ⚪ Low | 🚧 Coming soon | Open a "Coming Soon" page. About Us opens the shared About Us page, and Support the general Support page (`/support`), which replaced the separate FAQ link. |
 | Fans social links | YouTube icon | ⚪ Low | ⛔ Not linked | Goes to the home page instead of YouTube. |
 | Tickets page | Door ticket "Sell On Mobile App" | ⚪ Low | ⛔ Not working | No action. |

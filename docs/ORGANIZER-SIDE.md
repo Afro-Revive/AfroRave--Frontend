@@ -46,7 +46,7 @@ src/
 │   ├── promo-codes/           /creators/promo-codes
 │   ├── audience/              /creators/audience/:eventId — private event access requests
 │   ├── realtime/              /creators/realtime — analytics
-│   ├── access-control/        /creators/access-control — mock data
+│   ├── access-control/        /creators/access-control — mock data, replaced by crew (not linked)
 │   ├── reports/, season/      "Coming Soon" pages
 │   └── home/, about-us/, contact-us/, blog/   the creators website
 ├── pages/vendor/              Vendor dashboard, AND the organizer's vendor pages:
@@ -87,7 +87,7 @@ Paths live in `src/config/route-map.ts`. Routes are in
 | `/creators/realtime?tab=…` | `realtime` | the selected event |
 | `/creators/revenue-vendor`, `/:slotId` | `vendor/revenue-vendor` | the selected event |
 | `/creators/service-vendor`, `/:serviceId` | `vendor/service-vendors` | the selected event |
-| `/creators/access-control` | `access-control` | none (mock data) |
+| `/creators/access-control` | `access-control` | none (mock data, replaced by crew; not linked) |
 | `/creators/seating-maps`, `/creators/reports`, `/creators/season` | placeholders | — |
 
 ---
@@ -138,12 +138,13 @@ CreatorDashboardLayout
     │   │                          list of its own. Links with a ?tab= are only active
     │   │                          when the tab matches (isPathActive in base-sidebar).
     │   ├── VENDOR                 Revenue Vendor, Service Vendor (each lists its slots)
-    │   ├── TOOLS                  Access Control, Seating Maps
+    │   ├── (TOOLS)                Access Control, Seating Maps: switched off (commented out)
     │   └── footer: "Your Events"  back to the dashboard
     └── <Outlet />                 the page
 ```
 
 - The sidebar is built on `components/reusable/base-sidebar.tsx`.
+- **Crew** have no page here: organizers add them in the mobile app, and crew accept their invite at `/crew/invite/:inviteCode` (see USER-SIDE).
 - **It stays put.** With `sticky`, it fills the screen below the header (`--dashboard-header-height`) and stays still while the page scrolls. It doesn't scroll itself, so the Your Events footer is always in view.
 - **Collapsing** (desktop only) is done by `SidebarToggle` (`components/shared/sidebar-toggle.tsx`), which sits beside each page's title: Event Details, Your Tickets, Analytics, Guestlist, Audience, Promo Codes and the vendor pages. A page without one still needs a way back, so the sidebar shows its own floating button only when `useSidebarToggleCount` says no toggle is on screen.
 - On mobile it's a full-screen overlay opened from the header's menu button.
