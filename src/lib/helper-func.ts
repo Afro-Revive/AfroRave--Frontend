@@ -618,3 +618,8 @@ export function getEventSocialLinks(socials?: Partial<EventSocials>): EventSocia
     ]
   })
 }
+
+/** Emails compared the way the backend does: ignoring case and stray spaces. */
+export function isSameEmail(a: string, b: string) {
+  return a.trim().toLowerCase() === b.trim().toLowerCase()
+}

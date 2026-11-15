@@ -57,6 +57,7 @@ src/
 │   │   ├── listed-tickets/    Tickets the fan is reselling
 │   │   ├── settings/          Change password, log out
 │   │   └── complete-profile/  /complete-profile — reached from an email link
+│   ├── crew-invite/           /crew/invite/:inviteCode — where a crew invite email's link lands
 │   ├── auth/                  Login, sign-up and reset-password forms
 │   └── support/               /contact-support — contact form, sent to POST /api/Support
 ├── layouts/
@@ -108,6 +109,7 @@ URL by hand. It calls `getRoutePath('key', params)` from
 | `/my-tickets/:eventId` | `fans/my-tickets/individual-active-tickets` | user dashboard | Yes |
 | `/listed-tickets` | `fans/listed-tickets` | user dashboard | Yes |
 | `/invite/accept?token=…` | `fans/accept-invite` | root | No (it opens the login itself) |
+| `/crew/invite/:inviteCode` | `crew-invite` | root | No (it opens the login itself) |
 | `/events/:eventId/cart` | `landing-page/event-page/cart` | none (full screen) | No |
 | `/events/:eventId/checkout` | `landing-page/checkout` | none (full screen) | No (it shows the login form) |
 | `/payment-confirmation` |
@@ -357,6 +359,23 @@ You're In links to the ticket in My Tickets and to the app for the QR code.
 Invite statuses: `Queued`, `Sent`, `Accepted`, `PaymentPending`, `Issued`,
 `Expired`, `Cancelled`.
 
+### Accepting a crew invite (`crew-invite`)
+
+Organizers add crew to an event in the mobile app, and the backend emails each
+one a link to `/crew/invite/{code}`. Crew can be any account type: fan,
+organizer or vendor. Like the ticket invite, the route sits with the public
+pages for the login modal:
+
+1. **The invite** comes from `useGetCrewInvite` (`GET /api/Crew/invite/{code}`, no login needed). A code the server doesn't know, or one whose status is `Removed` or `Expired`, shows **This invite is no longer valid**, with Discover Events.
+2. **Signed out:** the login opens over the page (`notice`, `signupNotice`, `stayOnPage`). If they close it, "Join the crew for {event}" offers Log In again.
+3. **Wrong account:** the shared Email Mismatch (`components/shared/email-mismatch.tsx`), as on the ticket invite.
+4. **Signed in as the invitee, status `Invited`:** `useAcceptCrewInvite` accepts at once, with no button. A ref holds the code already sent, so re-renders and StrictMode don't accept twice; a second accept would fail and show the wrong screen.
+5. **Accepted, or already `Active`** (a refresh, or the email opened again): **Welcome to the Crew!**, with the account type, a Forgot Password? link (the login's forgot-password form, in a modal) and the steps to get the app and choose Crew there.
+6. **Accepting fails** (for example, the event ended in between): no longer valid.
+
+Crew statuses: `Invited`, `Active`, `Removed`, `Expired`. Access ends 24 hours
+after the event ends.
+
 ### Listed tickets (`fans/listed-tickets`)
 
 Active, sold and expired listings (`useGetUsersResaleTickets`).
@@ -423,6 +442,7 @@ refreshes that event's tickets, promo codes and analytics.
 | `use-private-event-mutations.ts` | `useGetViewerAccessStatus`, `useRequestAccess` |
 | `use-newsletter.ts` | `useNewsletterSubscription` |
 | `use-invite-ticket-mutations.ts` | `useGetInviteTicketByToken`, `useAcceptInviteTicket`, `useVerifyInviteTicketPayment` |
+| `use-crew.ts` | `useGetCrewInvite`, `useAcceptCrewInvite` |
 
 ---
 
@@ -444,9 +464,9 @@ Query, not in a store.
 |---|---|
 | `components/ui/` | shadcn base components: button, dialog, select, table and so on. |
 | `components/reusable/` | Project wrappers: `BaseModal` (with `confirmClose`), `FormBase` and `FormField`, `BaseSelect`, `BaseDropdown`, `BaseAnimatedTab`, `ComingSoon`. |
-| `components/shared/` | Cross-page pieces: `CategoryBlock` (event cards), `RenderEventImage`, `Pagination`, `TicketSummaryCard`. |
+| `components/shared/` | Cross-page pieces: `CategoryBlock` (event cards), `RenderEventImage`, `Pagination`, `TicketSummaryCard`, `EmailMismatch` (the ticket and crew invites). |
 | `lib/format-price.ts` | `formatNaira(amount, { free, aproximate })`: `₦8,013.60`, `₦7,420`, `FREE`, `₦2.5K`. |
-| `lib/helper-func.ts` | Dates (`formatShortDate`, `formatTimeAgo`, `relativeDateGroup`), `toVisibility`, `copyToClipboard`, `maskEmail`, … |
+| `lib/helper-func.ts` | Dates (`formatShortDate`, `formatTimeAgo`, `relativeDateGroup`), `toVisibility`, `copyToClipboard`, `maskEmail`, `isSameEmail`, … |
 | `lib/environment.tsx` | `OnlyShowIf`: renders its children only when a condition is true. |
 
 ---

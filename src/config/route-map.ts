@@ -46,6 +46,7 @@ export const ROUTE_PATHS = {
   my_tickets: '/my-tickets',
   /** The invite email's link lands here with ?token=. */
   accept_invite: '/invite/accept',
+  crew_invite: '/crew/invite/:inviteCode',
   active_tickets: '/my-tickets/:eventId',
   listed_tickets: '/listed-tickets',
 
@@ -141,6 +142,7 @@ export interface RouteParams {
   settings: never
   my_tickets: never
   accept_invite: never
+  crew_invite: { inviteCode: string }
   active_tickets: { eventId: string | number }
   listed_tickets: never
 
