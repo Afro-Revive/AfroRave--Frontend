@@ -1,10 +1,6 @@
+import { crewKeys } from '@/lib/crew-keys'
 import { crewService } from '@/services/crew.service'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-
-export const crewKeys = {
-  all: ['crew'] as const,
-  invite: (inviteCode: string) => [...crewKeys.all, 'invite', inviteCode] as const,
-}
 
 /** The invite behind a crew link, and whether it can still be accepted. */
 export function useGetCrewInvite(inviteCode?: string) {
