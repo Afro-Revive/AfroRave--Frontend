@@ -17,6 +17,7 @@ const WorkWithUsPage = lazy(() => import('../pages/landing-page/work-with-us'))
 // )
 const SellPage = lazy(() => import('../pages/landing-page/sell'))
 const AcceptInvitePage = lazy(() => import('../pages/fans/accept-invite'))
+const CrewInvitePage = lazy(() => import('../pages/crew-invite'))
 
 export const routes: RouteObject[] = [
   {
@@ -26,6 +27,15 @@ export const routes: RouteObject[] = [
     element: (
       <Suspense fallback={<LoadingFallback />}>
         <AcceptInvitePage />
+      </Suspense>
+    ),
+  },
+  {
+    // Like the ticket invite above: it opens the login modal itself.
+    path: getRoutePath('crew_invite', { inviteCode: ':inviteCode' }),
+    element: (
+      <Suspense fallback={<LoadingFallback />}>
+        <CrewInvitePage />
       </Suspense>
     ),
   },
