@@ -6,10 +6,10 @@ import {
   RiErrorWarningLine,
   RiInformationLine,
   RiLoader4Line,
-  RiQuestionLine,
 } from 'react-icons/ri'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
+import { EmailMismatch } from '@/components/shared/email-mismatch'
 import { LoadingFallback } from '@/components/loading-fallback'
 import { getRoutePath } from '@/config/get-route-path'
 import { useAuth } from '@/contexts/auth-context'
@@ -21,7 +21,7 @@ import {
 } from '@/hooks/use-invite-ticket-mutations'
 import { useLogout } from '@/hooks/use-auth'
 import { formatNaira } from '@/lib/format-price'
-import { formatDateLong } from '@/lib/helper-func'
+import { formatDateLong, isSameEmail } from '@/lib/helper-func'
 import { app_store_links } from '@/layouts/root-layout/footer'
 import { useAfroStore } from '@/stores'
 import type { EventDetailData } from '@/types'
@@ -177,6 +177,7 @@ function InviteFlow({ token }: { token: string }) {
   if (isAuthenticated && !isSameEmail(invite.invitedEmail, signedInEmail)) {
     return (
       <EmailMismatch
+        message='Only the invited email can accept this ticket. Log out, then sign in with the invited email.'
         invitedEmail={invite.maskedEmail}
         signedInEmail={signedInEmail}
         isLoggingOut={logout.isPending}
@@ -474,68 +475,6 @@ function InviteMessage({ title, children }: { title: string; children?: React.Re
     <section className='mx-auto flex w-full max-w-xl flex-col items-center gap-4 px-5 py-24 text-center text-white'>
       <p className='text-xl font-bold'>{title}</p>
       {children}
-    </section>
-  )
-}
-
-function isSameEmail(a: string, b: string) {
-  return a.trim().toLowerCase() === b.trim().toLowerCase()
-}
-
-/** Signed in, but not as the address the invite went to. */
-function EmailMismatch({
-  invitedEmail,
-  signedInEmail,
-  isLoggingOut,
-  onStaySignedIn,
-  onLogOut,
-}: {
-  invitedEmail: string
-  signedInEmail: string
-  isLoggingOut: boolean
-  onStaySignedIn: () => void
-  onLogOut: () => void
-}) {
-  return (
-    <section className='mx-auto flex w-full max-w-md flex-col gap-8 px-5 py-24 font-inter-tight'>
-      <div className='flex flex-col gap-3 rounded-2xl bg-white p-5'>
-        <h1 className='flex items-center gap-2 text-2xl font-bold text-black'>
-          <RiQuestionLine className='size-6 shrink-0 text-deep-red' aria-hidden />
-          Email Mismatch
-        </h1>
-
-        <p className='text-sm text-black'>
-          Only the invited email can accept this ticket. Log out, then sign in with the invited
-          email.
-        </p>
-
-        <dl className='mt-2 flex flex-col rounded-xl bg-[#4A4747] text-sm'>
-          <div className='flex flex-col gap-1 px-3 py-3'>
-            <dt className='text-white/60'>Invite Sent To</dt>
-            <dd className='break-all text-white'>{invitedEmail}</dd>
-          </div>
-          <div className='flex flex-col gap-1 border-t border-white/10 px-3 py-3'>
-            <dt className='text-white/60'>You're signed in as</dt>
-            <dd className='break-all text-red-400'>{signedInEmail}</dd>
-          </div>
-        </dl>
-      </div>
-
-      <div className='flex gap-3'>
-        <Button
-          type='button'
-          onClick={onStaySignedIn}
-          className='h-11 flex-1 rounded-full font-inter-tight border border-white/20 bg-system-black text-white hover:bg-black'>
-          Stay signed in
-        </Button>
-        <Button
-          type='button'
-          onClick={onLogOut}
-          disabled={isLoggingOut}
-          className='h-11 flex-1 rounded-full font-inter-tight bg-deep-red text-white hover:bg-deep-red/90'>
-          {isLoggingOut ? 'Logging out...' : 'Log out and continue'}
-        </Button>
-      </div>
     </section>
   )
 }
