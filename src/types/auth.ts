@@ -75,7 +75,8 @@ export interface LoginData {
 export interface User {
   userId: string
   email: string
-  accountType: 'User' | 'Vendor' | 'Organizer'
+  /** Admin accounts sign in at /admin/login and only use the admin portal. */
+  accountType: 'User' | 'Vendor' | 'Organizer' | 'Admin'
   profile: {
     firstName: string
     lastName: string
@@ -140,7 +141,7 @@ export interface LoginResponse {
 export interface CurrentUserData {
   userId: string
   email: string
-  accountType: 'User' | 'Vendor' | 'Organizer'
+  accountType: 'User' | 'Vendor' | 'Organizer' | 'Admin'
   profile: {
     firstName: string
     lastName: string

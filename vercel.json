@@ -2,7 +2,26 @@
   "redirects": [
     { "source": "/fans", "destination": "/", "permanent": true },
     { "source": "/fans/support", "destination": "/contact-support", "permanent": true },
-    { "source": "/fans/:path*", "destination": "/:path*", "permanent": true }
+    { "source": "/fans/:path*", "destination": "/:path*", "permanent": true },
+    {
+      "source": "/admin",
+      "has": [{ "type": "host", "value": "www.afrorevive.com" }],
+      "destination": "https://admin.afrorevive.com/",
+      "permanent": false
+    },
+    {
+      "source": "/admin/:path*",
+      "has": [{ "type": "host", "value": "www.afrorevive.com" }],
+      "destination": "https://admin.afrorevive.com/:path*",
+      "permanent": false
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "has": [{ "type": "host", "value": "admin[.-].*" }],
+      "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }]
+    }
   ],
   "rewrites": [
     {

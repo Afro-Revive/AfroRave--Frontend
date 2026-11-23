@@ -28,6 +28,12 @@ organizer side, see [ORGANIZER-SIDE.md](./ORGANIZER-SIDE.md).
 in `.env.local`. It refuses to start without it. Staging is
 `https://dev.afrorevive.com`; production is `https://api.afrorevive.com`.
 
+`VITE_MAIN_SITE_URL` is optional. It's the fan site's address, used by the
+admin portal on its own subdomain to link to an event's public page. Without
+it, `admin.afrorevive.com` links to `https://www.afrorevive.com`. Set it on the
+staging admin site (`admin-dev…`), whose fan site can't be worked out from its
+name.
+
 **Commands:** `yarn dev`, `yarn build` (type check, then bundle), `yarn test`,
 `yarn lint`.
 

@@ -27,6 +27,7 @@ const ACCOUNT_TYPE_LABEL: Record<User['accountType'], string> = {
   User: 'Fan',
   Organizer: 'Organizer',
   Vendor: 'Vendor',
+  Admin: 'Admin',
 }
 
 /**

@@ -44,6 +44,9 @@ export function AuthGuard({ children, requiredAccountType }: AuthGuardProps) {
         case 'Organizer':
           navigate(getRoutePath('standalone'), { replace: true })
           break
+        case 'Admin':
+          navigate(getRoutePath('admin_dashboard'), { replace: true })
+          break
         default:
           navigate(getRoutePath('home'), { replace: true })
       }

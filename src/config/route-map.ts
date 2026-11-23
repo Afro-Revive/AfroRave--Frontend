@@ -1,3 +1,5 @@
+import { ADMIN_BASE } from '@/lib/admin-host'
+
 /**
  * A constant map of all available routes in the application.
  * Each key represents a route identifier in snake_case format,
@@ -81,6 +83,16 @@ export const ROUTE_PATHS = {
   vendor_event_details: '/vendor/discover/:eventId',
   vendor_slot_details: '/vendor/slots/:applicationId',
   vendor_slots: '/vendor/slots',
+
+  // Admin portal, for Admin accounts only. At the root on admin.afrorevive.com,
+  // under /admin everywhere else (see admin-host.ts).
+  admin_login: `${ADMIN_BASE}/login`,
+  admin_dashboard: ADMIN_BASE || '/',
+  admin_users: `${ADMIN_BASE}/users`,
+  admin_events: `${ADMIN_BASE}/events`,
+  admin_orders: `${ADMIN_BASE}/orders`,
+  admin_transactions: `${ADMIN_BASE}/transactions`,
+  admin_fees: `${ADMIN_BASE}/fees`,
 
   // Email-token routes — public, reached from a link in an email
   complete_profile: '/complete-profile',
@@ -178,6 +190,15 @@ export interface RouteParams {
   vendor_event_details: { eventId: string | number }
   vendor_slots: never
   vendor_slot_details: { applicationId: string | number }
+
+  // Admin portal
+  admin_login: never
+  admin_dashboard: never
+  admin_users: never
+  admin_events: never
+  admin_orders: never
+  admin_transactions: never
+  admin_fees: never
 
   // Email-token routes
   complete_profile: never
