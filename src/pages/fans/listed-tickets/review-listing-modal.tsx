@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { formatFeePercent, usePlatformFees } from "@/hooks/use-platform-fees";
 import BaseModal from "@/components/reusable/base-modal";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -41,16 +42,14 @@ export default function ReviewListingModal({
   const isDraftValid =
     Number.isFinite(parsedDraftPrice) && parsedDraftPrice > 0;
 
-  // Same fee basis the resale flow prices against, so the payout shown here
-  // matches what the seller agreed to when they listed.
-  const serviceFeeRate =
-    Number(import.meta.env.VITE_TICKET_RESALE_PERCENTAGE) || 0;
+  // The admin's resale fee. The buyer pays it on top of this price; the
+  // seller is paid the full price, as the resale flow shows when listing.
+  const resaleFeeRate = usePlatformFees().fees.ticketResale;
   // While editing, the whole breakdown previews the draft price.
   const price =
     isEditingPrice && isDraftValid ? parsedDraftPrice : listing.price;
   const subtotal = price * listing.quantity;
-  const serviceFee = subtotal * serviceFeeRate;
-  const payout = subtotal - serviceFee;
+  const payout = subtotal;
 
   const isSold = listing.status === "Sold";
   const isActive = !isSold;
@@ -156,10 +155,10 @@ export default function ReviewListingModal({
           )}
           <Row label="Quantity" value={`x ${listing.quantity}`} />
           <Row label="Subtotal" value={formatNaira(subtotal)} />
-          {serviceFeeRate > 0 && (
+          {resaleFeeRate !== undefined && resaleFeeRate > 0 && (
             <Row
-              label={`Service fee (${(serviceFeeRate * 100).toFixed(0)}%)`}
-              value={`- ${formatNaira(serviceFee)}`}
+              label={`Service fee, paid by the buyer (${formatFeePercent(resaleFeeRate)})`}
+              value={formatNaira(Math.round(subtotal * resaleFeeRate * 100) / 100)}
             />
           )}
           <div className="mt-1 border-t border-white/10 pt-3">

@@ -1,3 +1,4 @@
+import { usePlatformFees } from '@/hooks/use-platform-fees'
 import { formatNaira } from '@/lib/format-price'
 import { cn } from '@/lib/utils'
 import { useState } from 'react'
@@ -12,7 +13,12 @@ import { getCartItemTotal, getSlotTitle, type SlotCartItem } from './slot-reques
 export function SlotCart({ items, onRequest, isRequesting }: ISlotCart) {
   const [isOpen, setIsOpen] = useState(false)
   const count = items.reduce((sum, item) => sum + item.quantity, 0)
-  const total = items.reduce((sum, item) => sum + getCartItemTotal(item), 0)
+  const feeRate = usePlatformFees().fees.vendorSlot
+  const lineTotals = items.map((item) => getCartItemTotal(item, feeRate))
+  // Undefined until the fee rate loads, so the button never shows a total without fees.
+  const total = lineTotals.every((line) => line !== undefined)
+    ? lineTotals.reduce<number>((sum, line) => sum + (line ?? 0), 0)
+    : undefined
 
   // Opens whenever something is added, so the vendor sees it land. Removing doesn't.
   const [lastCount, setLastCount] = useState(count)
@@ -59,7 +65,7 @@ export function SlotCart({ items, onRequest, isRequesting }: ISlotCart) {
             {items.length === 0 ? (
               <li className='px-5 py-4 text-black/40 text-xs font-inter-tight text-center'>No slots selected yet</li>
             ) : (
-              items.map((item) => (
+              items.map((item, index) => (
                 <li
                   key={item.slot.vendorId}
                   className='flex items-center border border-soft-gray rounded-md justify-between gap-3 px-5 py-3'>
@@ -70,7 +76,7 @@ export function SlotCart({ items, onRequest, isRequesting }: ISlotCart) {
                     </p>
                   </div>
                   <span className='shrink-0 text-tech-blue text-base font-inter-tight font-medium'>
-                    {formatNaira(getCartItemTotal(item) / item.quantity)}
+                    {lineTotals[index] === undefined ? '—' : formatNaira(lineTotals[index] / item.quantity)}
                   </span>
                 </li>
               ))
@@ -109,7 +115,7 @@ function RequestButton({
   onRequest: () => void
   isRequesting: boolean
   count: number
-  total: number
+  total: number | undefined
 }) {
   return (
     <button
@@ -122,7 +128,7 @@ function RequestButton({
       ) : (
         <>
           <span className='text-white text-base font-semibold'>Request</span>
-          <span className='text-soft-gray text-xl font-semibold'>{formatNaira(total)}</span>
+          <span className='text-soft-gray text-xl font-semibold'>{total === undefined ? '—' : formatNaira(total)}</span>
         </>
       )}
     </button>

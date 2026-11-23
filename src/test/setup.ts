@@ -44,10 +44,6 @@ beforeEach(() => {
   })
 })
 
-// Vite env vars the app reads at module scope.
-process.env.VITE_TICKET_SALES_PERCENTAGE = process.env.VITE_TICKET_SALES_PERCENTAGE ?? '0.05'
-process.env.VITE_TICKET_RESALE_PERCENTAGE = process.env.VITE_TICKET_RESALE_PERCENTAGE ?? '0.05'
-
 // jsdom ships none of these, and the layouts/carousels call them on mount.
 window.matchMedia =
   window.matchMedia ||

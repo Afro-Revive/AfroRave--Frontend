@@ -1,6 +1,7 @@
 import BaseModal from '@/components/reusable/base-modal'
 import { RichTextContent } from '@/components/reusable/rich-text-content'
 import { Button } from '@/components/ui/button'
+import { usePlatformFees } from '@/hooks/use-platform-fees'
 import { stripUnderscores } from '@/lib/helper-func'
 import { formatNaira } from '@/lib/format-price'
 import { cn } from '@/lib/utils'
@@ -36,6 +37,7 @@ const UNAVAILABLE_STYLES: Record<Exclude<SlotAvailability, 'open'>, { label: str
  */
 export function SlotRow({ slot, eventEnded, quantityInCart, isRequested, onAddRevenue, onAddService, onDecrease }: ISlotRow) {
   const [showDetails, setShowDetails] = useState(false)
+  const feeRate = usePlatformFees().fees.vendorSlot
   const isRevenue = isRevenueSlot(slot)
   const availability = getSlotAvailability(slot, eventEnded)
   const slotsLeft = getSlotsLeft(slot)
@@ -72,7 +74,7 @@ export function SlotRow({ slot, eventEnded, quantityInCart, isRequested, onAddRe
             <p className='md:text-base text-sm font-bold capitalize'>{title}</p>
               <p className='text-sm text-white font-medium'>{stripUnderscores(slot.category || slot.vendorCategory)}</p>
             <div className='flex flex-row items-center gap-2'>
-              <p className='text-sm font-medium text-tech-blue'>{getSlotPriceLabel(slot)}</p>
+              <p className='text-sm font-medium text-tech-blue'>{getSlotPriceLabel(slot, feeRate)}</p>
               <p className='text-xs text-[#ACACAC]'>{isRevenue ? '(includes fees)' : '(budget)'}</p>
             </div>
           
@@ -241,6 +243,7 @@ function SlotDetailsModal({
   open: boolean
   onClose: () => void
 }) {
+  const feeRate = usePlatformFees().fees.vendorSlot
   const isRevenue = isRevenueSlot(slot)
   const deadline = formatShortDateTime(getSlotDeadline(slot))
   const service = slot.vendorDetails?.serviceData
@@ -259,7 +262,7 @@ function SlotDetailsModal({
             <UnavailableLabel availability={availability} />
           ) : (
             <>
-              <p className='text-base text-tech-blue'>{getSlotPriceLabel(slot)}</p>
+              <p className='text-base text-tech-blue'>{getSlotPriceLabel(slot, feeRate)}</p>
               <p className='text-xs text-[#ACACAC]'>{isRevenue ? '(includes fees)' : '(budget)'}</p>
             </>
           )}

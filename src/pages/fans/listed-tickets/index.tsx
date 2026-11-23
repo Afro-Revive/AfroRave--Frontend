@@ -82,12 +82,8 @@ function ListedTickets({ listing, onReview }: ListedTicketsProps) {
     status,
     eventName,
   } = listing;
-  console.log(price);
-  const subtotal = price * quantity;
-  const serviceFeeRate =
-    Number(import.meta.env.VITE_TICKET_RESALE_PERCENTAGE) || 0;
-  const serviceFee = subtotal * serviceFeeRate;
-  const payoutPrice = subtotal - serviceFee;
+  // The seller is paid the full price: the resale fee is added on the buyer's side.
+  const payoutPrice = price * quantity;
   return (
     <div
       role="button"

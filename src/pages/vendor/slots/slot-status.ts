@@ -67,20 +67,23 @@ export function needsPayment(application: VendorApplications, event?: EventDetai
   return isRevenueApplication(application) && getSlotStatus(application, event) === 'approved'
 }
 
-/** Platform fee added on top of the organizer's slot price, e.g. 0.08 for 8%. */
-const PLATFORM_FEE = Number(import.meta.env.VITE_VENDOR_APPLICATIONS_PERCENTAGE) || 0
-
 /** Slot price × slots requested. */
 export function getSlotFee(application: VendorApplications): number {
   return (application.vendorDetails?.slotData?.price ?? 0) * Math.max(application.requestedSlots ?? 1, 1)
 }
 
-/** A revenue price with the platform fee added: what vendors are shown and pay. */
-export function withPlatformFee(price: number): number {
-  return Math.round(price * (1 + PLATFORM_FEE))
+/**
+ * A revenue price with the platform fee added: what vendors are shown and pay.
+ * feeRate is the admin's Vendor Slot Tax (usePlatformFees().fees.vendorSlot);
+ * while it loads the result is undefined, so no screen shows a total without it.
+ * Rounded to the kobo, as the backend charges it.
+ */
+export function withPlatformFee(price: number, feeRate: number | undefined): number | undefined {
+  if (feeRate === undefined) return undefined
+  return price + Math.round(price * feeRate * 100) / 100
 }
 
 /** What the vendor pays: the slot fee plus the platform fee. */
-export function getAmountDue(application: VendorApplications): number {
-  return withPlatformFee(getSlotFee(application))
+export function getAmountDue(application: VendorApplications, feeRate: number | undefined): number | undefined {
+  return withPlatformFee(getSlotFee(application), feeRate)
 }

@@ -42,9 +42,16 @@ export function getSlotAvailability(slot: VendorSlot, eventEnded: boolean): Slot
   return 'open'
 }
 
-/** What the list shows under the slot's name: the price with fees, or the organizer's budget. */
-export function getSlotPriceLabel(slot: VendorSlot): string {
-  if (isRevenueSlot(slot)) return formatNaira(withPlatformFee(slot.vendorDetails?.slotData?.price ?? 0))
+/**
+ * What the list shows under the slot's name: the price with fees, or the
+ * organizer's budget. Until the fee rate loads, the price shows with "+ fee".
+ */
+export function getSlotPriceLabel(slot: VendorSlot, feeRate: number | undefined): string {
+  if (isRevenueSlot(slot)) {
+    const price = slot.vendorDetails?.slotData?.price ?? 0
+    const withFee = withPlatformFee(price, feeRate)
+    return withFee === undefined ? `${formatNaira(price)} + fee` : formatNaira(withFee)
+  }
   const service = slot.vendorDetails?.serviceData
   if (!service) return ''
   return service.hasBudgetRange
@@ -64,9 +71,15 @@ export function getMaxPriceOffer(slot: VendorSlot): number | undefined {
   return max > 0 ? max : undefined
 }
 
-/** A cart line's total: stalls × price with fees, or the proposed price. */
-export function getCartItemTotal(item: SlotCartItem): number {
-  if (isRevenueSlot(item.slot)) return withPlatformFee(item.slot.vendorDetails?.slotData?.price ?? 0) * item.quantity
+/**
+ * A cart line's total: stalls × price with fees, or the proposed price.
+ * Undefined for a paid slot until the fee rate loads.
+ */
+export function getCartItemTotal(item: SlotCartItem, feeRate: number | undefined): number | undefined {
+  if (isRevenueSlot(item.slot)) {
+    const unit = withPlatformFee(item.slot.vendorDetails?.slotData?.price ?? 0, feeRate)
+    return unit === undefined ? undefined : unit * item.quantity
+  }
   return item.priceOffer ?? 0
 }
 

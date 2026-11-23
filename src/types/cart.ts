@@ -134,7 +134,7 @@ export interface PromoCartItem {
   basePrice: number
   /** What a fan pays per ticket: base + fee. */
   salesPrice: number
-  /** The fan's fee per ticket, in naira. Resale lines carry none. */
+  /** The fan's fee per ticket, in naira: the checkout fee, or for resale lines the resale fee. */
   fee: number
   quantity: number
   eventId: string

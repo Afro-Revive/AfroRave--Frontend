@@ -132,7 +132,7 @@ The API sends four application statuses: `Pending`, `Approved`, `Rejected` and
 - **"Ended"** uses the event's `endDate` once the event has loaded. Before then it falls back to the end of the event's start day, from the application.
 - **Money:**
   - `getSlotFee` is the slot price × slots requested.
-  - `getAmountDue` adds the platform fee, `VITE_VENDOR_APPLICATIONS_PERCENTAGE` (0.08 today). It's the same fee the event details page adds to "Price Per Slot".
+  - `getAmountDue` adds the platform fee: the admin's Vendor Slot Tax, read with `usePlatformFees().fees.vendorSlot` (`src/hooks/use-platform-fees.ts`, from the public `GET /api/Configuration/fees`). It's the same fee the event details page adds to "Price Per Slot", and the one Paystack charges. Until it loads, amounts show "—" and prices show "+ fee". The receipt uses today's rate, so it can differ from what was paid if an admin changed the fee since.
 - **Copy:** the pill labels are in `component/slot-status-pill.tsx`; the notice under the details table is in `StatusNotice` in `slot-summary-card.tsx`.
 
 Never compare against the label. Compare against the status `getSlotStatus` returns.
