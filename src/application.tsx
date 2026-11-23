@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { Suspense, lazy } from 'react'
 import {
+  Navigate,
   Outlet,
   Route,
   RouterProvider,
@@ -13,6 +14,7 @@ import { Toaster } from 'sonner'
 import { OrganizerAuthGuard } from './components/auth/organizer-auth-guard'
 import { VendorAuthGuard } from './components/auth/vendor-auth-guard'
 import { LoadingFallback } from './components/loading-fallback'
+import { admin_routes } from './config/admin-routes'
 import { creator_dashboard_routes } from './config/creator-dashboard-routes'
 import { getRoutePath } from './config/get-route-path'
 import { LegacyFansRedirect } from './config/legacy-fans-redirect'
@@ -23,6 +25,7 @@ import { help_routes } from './config/help-routes'
 import { user_dashboard_routes } from './config/user-dashboard-routes'
 import { useScrollToTop } from './hooks/use-scroll-to-top'
 import { useTokenRefresh } from './hooks/use-token-refresh'
+import { IS_ADMIN_HOST } from './lib/admin-host'
 import CreatorGuideOverlay from './components/shared/creator-guide-overlay'
 import CreatorDashboardLayout from './layouts/creator-dashboard-layout'
 import IndexLayout from './layouts/root-layout'
@@ -34,6 +37,9 @@ import { creator_landing_page_routes } from './config/creators-landing-page-rout
 import { vendor_dashboard_routes } from './config/vendor-dashboard-routes'
 import VendorDashboardLayout from './layouts/vendor-dashboard-layout'
 
+// Loaded only when someone opens /admin, so fans never download the portal.
+const AdminLayout = lazy(() => import('./layouts/admin-layout'))
+const AdminLoginPage = lazy(() => import('./pages/admin/login'))
 const AddEventPage = lazy(() => import('./pages/creators/add-event'))
 const VendorEventDetailsPage = lazy(() => import('./pages/vendor/discover/event-details'))
 const CompleteProfilePage = lazy(() => import('./pages/fans/complete-profile'))
@@ -131,6 +137,26 @@ export const appRoutes: RouteObject[] = createRoutesFromElements(
       </Route>
 
       <Route
+        path={getRoutePath('admin_login')}
+        element={
+          <Suspense fallback={<LoadingFallback />}>
+            <AdminLoginPage />
+          </Suspense>
+        }
+      />
+
+      <Route
+        element={
+          <Suspense fallback={<LoadingFallback />}>
+            <AdminLayout />
+          </Suspense>
+        }>
+        {admin_routes.map((route) => (
+          <Route key={route.path} path={route.path} element={route.element} />
+        ))}
+      </Route>
+
+      <Route
         path={getRoutePath('add_event')}
         element={
           <OrganizerAuthGuard>
@@ -188,7 +214,43 @@ export const appRoutes: RouteObject[] = createRoutesFromElements(
   </Route>,
 )
 
-const router = createBrowserRouter(appRoutes)
+/** The shell on the admin site: no creator guide, nothing from the fan site. */
+function AdminSiteShell() {
+  useScrollToTop()
+  useTokenRefresh()
+
+  return <Outlet />
+}
+
+/**
+ * admin.afrorevive.com: only the admin portal, at the root. Anything else
+ * goes to the dashboard (which sends a signed-out visitor to the login).
+ */
+const adminSiteRoutes: RouteObject[] = createRoutesFromElements(
+  <Route element={<AdminSiteShell />}>
+    <Route
+      path={getRoutePath('admin_login')}
+      element={
+        <Suspense fallback={<LoadingFallback />}>
+          <AdminLoginPage />
+        </Suspense>
+      }
+    />
+    <Route
+      element={
+        <Suspense fallback={<LoadingFallback />}>
+          <AdminLayout />
+        </Suspense>
+      }>
+      {admin_routes.map((route) => (
+        <Route key={route.path} path={route.path} element={route.element} />
+      ))}
+    </Route>
+    <Route path='*' element={<Navigate to={getRoutePath('admin_dashboard')} replace />} />
+  </Route>,
+)
+
+const router = createBrowserRouter(IS_ADMIN_HOST ? adminSiteRoutes : appRoutes)
 
 export default function Application() {
   return (
