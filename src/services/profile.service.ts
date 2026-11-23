@@ -152,10 +152,14 @@ class ProfileService {
   }
 
   /**
-   * Get User Payout History
+   * Everything that moved money in or out of the fan's wallet, newest first:
+   * resale sales, refunds, top-ups, wallet purchases and withdrawals. Without
+   * type=all the API returns withdrawals only.
    */
   async getPayoutHistory(): Promise<PayoutHistoryResponse> {
-    const response = await api.get('/api/profile/user/payout-history')
+    const response = await api.get('/api/profile/user/payout-history', {
+      params: { type: 'all', pageSize: 50 },
+    })
     return response.data
   }
 
