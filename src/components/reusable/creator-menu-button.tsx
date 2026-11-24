@@ -49,6 +49,9 @@ export function CreatorMenuButton({ user, variant = 'light', onSettingsClick }: 
       case 'Vendor':
         navigate(getRoutePath('vendor_profile'))
         break
+      case 'Admin':
+        navigate(getRoutePath('admin_dashboard'))
+        break
       default:
         navigate(getRoutePath('home'))
     }

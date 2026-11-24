@@ -15,6 +15,7 @@ import { useTicketResale } from "@/hooks/use-tickets-mutations";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getRoutePath } from "@/config/get-route-path";
+import { formatFeePercent, maxResalePrice, usePlatformFees } from "@/hooks/use-platform-fees";
 
 interface TicketResaleModalProps {
   isOpen: boolean;
@@ -41,16 +42,24 @@ export default function TicketResaleModal({
   const [editingTicketId, setEditingTicketId] = useState<string | null>(null);
   const { mutate, isPending } = useTicketResale();
   const navigate = useNavigate();
-  const ticketServiceFee = import.meta.env.VITE_TICKET_RESALE_PERCENTAGE;
+  // The admin's resale fee and price cap. The buyer pays the fee on top of the
+  // seller's price; the seller is paid the full price.
+  const { fees } = usePlatformFees();
+  const resaleFeeRate = fees.ticketResale;
+  const priceCap = fees.resalePriceCap;
 
   // Calculate the total number of selected tickets
   const totalSelectedCount = Object.values(selections).reduce(
     (sum, q) => sum + q,
     0,
   );
-  const ticketAfterServiceFee = (price: number) => {
-    const serviceFee = price * ticketServiceFee;
-    return price - serviceFee;
+  /** What a buyer pays for one ticket at this price, or undefined until the fee loads. */
+  const buyerPrice = (price: number) =>
+    resaleFeeRate === undefined ? undefined : price + Math.round(price * resaleFeeRate * 100) / 100;
+  /** The most this ticket may be listed for, as the backend checks it. */
+  const maxPriceFor = (ticketId: string) => {
+    const ticket = ticketDetails.find((t) => t.ticketId === ticketId);
+    return ticket && priceCap !== undefined ? maxResalePrice(ticket.price, priceCap) : undefined;
   };
   const maxReached = totalSelectedCount >= MAX_RESALE;
 
@@ -69,10 +78,15 @@ export default function TicketResaleModal({
     ]),
   );
 
-  // checks if parsedPrices for each ticket is greater than 0
+  const isOverCap = (ticketId: string) => {
+    const max = maxPriceFor(ticketId);
+    return max !== undefined && (parsedPrices[ticketId] ?? 0) > max;
+  };
+
+  // Every selected ticket has a price above 0 and within the cap.
   const allPriced =
     selectedTickets.length > 0 &&
-    selectedTickets.every((t) => parsedPrices[t.ticketId] > 0);
+    selectedTickets.every((t) => parsedPrices[t.ticketId] > 0 && !isOverCap(t.ticketId));
 
   const editingTicket = selectedTickets.find(
     (t) => t.ticketId === editingTicketId,
@@ -113,7 +127,8 @@ export default function TicketResaleModal({
   function handlePriceIncrement(ticketId: string) {
     setPrices((prev) => {
       const current = parseFloat((prev[ticketId] ?? "").replace(/,/g, "")) || 0;
-      const next = current + PRICE_STEP;
+      const max = maxPriceFor(ticketId);
+      const next = max === undefined ? current + PRICE_STEP : Math.min(current + PRICE_STEP, max);
       return { ...prev, [ticketId]: next.toLocaleString() };
     });
   }
@@ -302,20 +317,29 @@ export default function TicketResaleModal({
                           <div className="flex flex-col gap-1.5">
                             <div className="flex flex-row justify-between items-center">
                               <p className="font-inter-tight text-xs font-light">
-                                Service fee
+                                Buyer pays
+                                {resaleFeeRate !== undefined &&
+                                  ` (incl. ${formatFeePercent(resaleFeeRate)} service fee)`}
                               </p>
                               <p className="font-inter-tight text-xs ">
-                                {formatNaira(
-                                  parsed - ticketAfterServiceFee(parsed),
-                                )}
+                                {(() => {
+                                  const total = buyerPrice(parsed);
+                                  return total === undefined ? "—" : formatNaira(total);
+                                })()}
                               </p>
                             </div>
                             <div className="flex flex-row justify-between items-center">
                               <p className="font-inter-tight text-xs font-light">Your Payout</p>
                               <p className="font-inter-tight text-xs font-bold text-deep-red">
-                                {formatNaira(ticketAfterServiceFee(parsed))}
+                                {formatNaira(parsed)}
                               </p>
                             </div>
+                            {isOverCap(ticket.ticketId) && (
+                              <p className="font-inter-tight text-xs text-deep-red">
+                                The most you can list this ticket for is{" "}
+                                {formatNaira(maxPriceFor(ticket.ticketId) ?? 0)}.
+                              </p>
+                            )}
                           </div>
                         </div>
                       )}
@@ -381,20 +405,35 @@ export default function TicketResaleModal({
                   <button
                     type="button"
                     onClick={() => handlePriceIncrement(editingTicket.ticketId)}
+                    disabled={(() => {
+                      const max = maxPriceFor(editingTicket.ticketId);
+                      return max !== undefined && editingParsed >= max;
+                    })()}
+                    className="disabled:opacity-30"
                   >
                     <ChevronRight size={20} />
                   </button>
                 </div>
 
-                <p className="text-xs text-black/50 font-inter-tight text-center">
-                  You Will Be Paid Out{" "}
-                  <span className="font-semibold text-sm text-black">
-                    {formatNaira(ticketAfterServiceFee(
-                      editingParsed > 0 ? editingParsed : editingTicket.price,
-                    ))}
-                  </span>{" "}
-                  per ticket after fees
-                </p>
+                <div className="flex flex-col items-center gap-1 text-center font-inter-tight">
+                  <p className="text-xs text-black/50">
+                    You Will Be Paid Out{" "}
+                    <span className="font-semibold text-sm text-black">
+                      {formatNaira(editingParsed > 0 ? editingParsed : editingTicket.price)}
+                    </span>{" "}
+                    per ticket
+                  </p>
+                  {resaleFeeRate !== undefined && (
+                    <p className="text-[11px] text-black/40">
+                      Buyers pay a service fee of {formatFeePercent(resaleFeeRate)} on top
+                    </p>
+                  )}
+                  {maxPriceFor(editingTicket.ticketId) !== undefined && (
+                    <p className="text-[11px] text-black/40">
+                      Up to {formatNaira(maxPriceFor(editingTicket.ticketId) ?? 0)} per ticket
+                    </p>
+                  )}
+                </div>
               </div>
 
               <button

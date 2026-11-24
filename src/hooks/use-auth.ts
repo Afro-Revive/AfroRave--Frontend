@@ -66,6 +66,8 @@ function dashboardPathFor(accountType?: string): string {
       return getRoutePath('vendor_profile')
     case 'Organizer':
       return getRoutePath('standalone')
+    case 'Admin':
+      return getRoutePath('admin_dashboard')
     default:
       return getRoutePath('account')
   }
@@ -252,8 +254,10 @@ export function useLogout(options?: { stayOnPage?: boolean }) {
       // Determine destination before clearing auth
       const destination =
         accountType === 'User'
-          ? getRoutePath('home')          // / — fans landing page
-          : getRoutePath('creators_home') // /home — creators/vendor landing page
+          ? getRoutePath('home') // / — fans landing page
+          : accountType === 'Admin'
+            ? getRoutePath('admin_login')
+            : getRoutePath('creators_home') // /home — creators/vendor landing page
 
       // Clear auth first so the store is clean
       clearAuth()

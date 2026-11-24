@@ -1,5 +1,6 @@
 import { X } from "lucide-react";
 import { formatNaira } from "@/lib/format-price";
+import { usePlatformFees } from "@/hooks/use-platform-fees";
 import { useCheckoutCart, useExtendReservation } from "@/hooks/use-cart";
 import {
   useGetEventResaleListings,
@@ -75,6 +76,9 @@ export default function CheckoutSummary({
   const isAuthenticated = useAfroStore((state) => state.isAuthenticated);
   const { items: localItems, promoCodeId } = useCartStore();
   const { data: ticketsResponse } = useGetEventTickets(eventId ?? "");
+  // Resale listings come without a fee; the backend adds the admin's resale fee
+  // (paid by the buyer) at payment, so the total adds it the same way.
+  const resaleFeeRate = usePlatformFees().fees.ticketResale ?? 0;
   const { data: resaleListingsResponse } = useGetEventResaleListings(
     eventId ?? "",
     isAuthenticated,
@@ -109,7 +113,10 @@ export default function CheckoutSummary({
       eventId: eventId ?? "",
       name: ticket?.name ?? "Ticket",
       price: ticket?.price ?? 0,
-      fee: ticket?.fee ?? 0,
+      fee:
+        ticket?.source === "resale"
+          ? ticket.price * resaleFeeRate
+          : (ticket?.fee ?? 0),
       quantity: item.quantity,
       resale: ticket?.source === "resale",
       listingId: item.listingId,
@@ -119,8 +126,6 @@ export default function CheckoutSummary({
       category: event.category,
     };
   });
-
-  console.log("cartItems", cartItems);
 
   const totalPrice = cartItems.reduce(
     (sum, item) => sum + item.price * item.quantity,

@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/alert-dialog'
 import { RichTextContent } from '@/components/reusable/rich-text-content'
 import { getRoutePath } from '@/config/get-route-path'
+import { usePlatformFees } from '@/hooks/use-platform-fees'
 import { formatNaira } from '@/lib/format-price'
 import { stripUnderscores } from '@/lib/helper-func'
 import { cn } from '@/lib/utils'
@@ -46,7 +47,8 @@ export function SlotSummaryCard({
 }: ISlotSummaryCard) {
   const isRevenue = isRevenueApplication(application)
   const service = application.vendorDetails?.serviceData
-  const amountDue = getAmountDue(application)
+  const amountDue = getAmountDue(application, usePlatformFees().fees.vendorSlot)
+  const money = (value: number | undefined) => (value === undefined ? '—' : formatNaira(value))
   const slotFee = getSlotFee(application)
   const showAmountDue = isRevenue && (status === 'in_review' || status === 'approved')
   const organizerEmail = application.vendorDetails?.contact?.useDifferentContactDetails
@@ -105,7 +107,7 @@ export function SlotSummaryCard({
           <RiCheckboxCircleLine className='size-7 shrink-0 text-[#34C759]' />
           <div className='flex flex-col'>
             <p className='font-inter-tight text-sm font-bold text-white'>
-              {isRevenue ? `Paid ${formatNaira(amountDue)}` : 'Offer accepted'}
+              {isRevenue ? `Paid ${money(amountDue)}` : 'Offer accepted'}
             </p>
             <p className='font-inter-tight text-[11px] text-white/70'>{formatShortDate(application.updatedDate)}</p>
           </div>
@@ -118,10 +120,10 @@ export function SlotSummaryCard({
         <div className='flex flex-col gap-2'>
           {/* In review and approved: what the amount due is made of, before paying it. */}
           <AmountRow name='Slot fee' value={formatNaira(slotFee)} />
-          <AmountRow name='Platform fee' value={formatNaira(amountDue - slotFee)} />
+          <AmountRow name='Platform fee' value={money(amountDue === undefined ? undefined : amountDue - slotFee)} />
           <div className='mt-1 flex items-center justify-between border-t border-[#3A3A3A] pt-3'>
             <span className='font-inter-tight text-sm text-[#BDBDBD]'>Amount Due</span>
-            <span className='font-inter-tight text-xl font-bold text-white'>{formatNaira(amountDue)}</span>
+            <span className='font-inter-tight text-xl font-bold text-white'>{money(amountDue)}</span>
           </div>
         </div>
       )}

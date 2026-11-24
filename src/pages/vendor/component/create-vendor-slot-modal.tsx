@@ -3,6 +3,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, useWatch } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { formatFeePercent, usePlatformFees } from "@/hooks/use-platform-fees";
 import { getRoutePath } from "@/config/get-route-path";
 import { useVendorSlotsByType } from "@/hooks/use-vendor-mutation";
 import type { PaginatedResponse } from "@/types";
@@ -74,6 +75,7 @@ export default function CreateVendorSlot({
   slot,
 }: CreateVendorSlotProps) {
   const [open, setOpen] = useState(false);
+  const vendorFeeRate = usePlatformFees().fees.vendorSlot;
   const { selectedEventId } = useEventSelectorStore();
   const createVendorMutation = useCreateVendor();
   const updateVendorMutation = useUpdateVendor();
@@ -365,7 +367,11 @@ export default function CreateVendorSlot({
                 name="price"
                 label="PRICE PER STALL"
                 className="w-full"
-                description="There will be an 8% fee added to your slot price"
+                description={
+                  vendorFeeRate === undefined
+                    ? "A platform fee will be added to your slot price"
+                    : `A fee of ${formatFeePercent(vendorFeeRate)} will be added to your slot price`
+                }
                 showMessage
               />
               <PriceField
